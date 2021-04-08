@@ -42,7 +42,7 @@ set(Skity_header
 )
 
 set(Skity_src
-
+    src/geometry/geometry.cc
 )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
