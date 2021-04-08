@@ -1,0 +1,9 @@
+
+#ifndef SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
+#define SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
+
+#include <glm/ext/scalar_constants.hpp>
+
+
+
+#endif  // SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
