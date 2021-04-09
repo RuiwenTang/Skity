@@ -4,8 +4,10 @@
 
 #include <array>
 #include <glm/ext/scalar_constants.hpp>
-#include <skity/geometry/math.hpp>
 #include <skity/geometry/point.hpp>
+
+#include "src/geometry/geometry.hpp"
+#include "src/geometry/math.hpp"
 
 namespace skity {
 

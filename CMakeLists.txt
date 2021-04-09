@@ -36,9 +36,9 @@ include_directories(include)
 add_library(glad OBJECT third_party/glad/src/glad.c)
 
 set(Skity_header
-    include/skity/geometry/geometry.hpp
-    include/skity/geometry/math.hpp
     include/skity/geometry/point.hpp
+    src/geometry/geometry.hpp
+    src/geometry/math.hpp
 )
 
 set(Skity_src

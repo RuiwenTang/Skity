@@ -1,8 +1,9 @@
 
+#include "src/geometry/math.hpp"
+
 #include <gtest/gtest.h>
 
 #include <array>
-#include <skity/geometry/math.hpp>
 
 TEST(MATH, test_infinit) {
   float nan = glm::asin(2);
