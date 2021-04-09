@@ -40,6 +40,8 @@ static inline float DotProduct(glm::vec4 const& a, glm::vec4 const& b) {
   return a.x * b.x + a.y * b.y;
 }
 
+static inline glm::vec2 Times2(glm::vec2 const& value) { return value + value; }
+
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_MATH_HPP_
