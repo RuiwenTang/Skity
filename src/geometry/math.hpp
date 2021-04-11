@@ -42,6 +42,11 @@ static inline float DotProduct(glm::vec4 const& a, glm::vec4 const& b) {
 
 static inline glm::vec2 Times2(glm::vec2 const& value) { return value + value; }
 
+template <class T>
+T Interp(T const& v0, T const& v1, T const& t) {
+  return v0 + (v1 - v0) * t;
+}
+
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_MATH_HPP_

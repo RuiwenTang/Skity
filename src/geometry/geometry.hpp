@@ -1,6 +1,6 @@
 
-#ifndef SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
-#define SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
+#ifndef SKITY_SRC_GEOMETRY_GEOMETRY_HPP_
+#define SKITY_SRC_GEOMETRY_GEOMETRY_HPP_
 
 #include <array>
 #include <glm/ext/scalar_constants.hpp>
@@ -98,4 +98,4 @@ struct CubicCoeff {
 
 }  // namespace skity
 
-#endif  // SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
+#endif  // SKITY_SRC_GEOMETRY_GEOMETRY_HPP_
