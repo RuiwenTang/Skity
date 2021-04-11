@@ -55,6 +55,25 @@ Vector QuadCoeff::EvalQuadTangentAt(std::array<Point, 3> const& src, float t) {
   return Vector{T + T, 0, 0};
 }
 
+CubicCoeff::CubicCoeff(std::array<Point, 4> const& src) {
+  glm::vec2 P0 = FromPoint(src[0]);
+  glm::vec2 P1 = FromPoint(src[1]);
+  glm::vec2 P2 = FromPoint(src[2]);
+  glm::vec2 P3 = FromPoint(src[3]);
+  glm::vec2 three{3, 3};
 
+  A = P3 + three * (P1 - P2) - P0;
+  B = three * (P2 - Times2(P1) + P0);
+  C = three * (P1 - P0);
+  D = P0;
+}
+
+Point CubicCoeff::evalAt(float t) { return Point{eval(t), 0, 1}; }
+
+glm::vec2 CubicCoeff::eval(float t) { return eval(glm::vec2{t, t}); }
+
+glm::vec2 CubicCoeff::eval(glm::vec2 const& t) {
+  return ((A * t + B) * t + C) * t + D;
+}
 
 }  // namespace skity

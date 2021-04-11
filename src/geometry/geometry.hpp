@@ -78,6 +78,24 @@ struct QuadCoeff {
   static Vector EvalQuadTangentAt(std::array<Point, 3> const& src, float t);
 };
 
+/**
+ * use for : eval(t) = A * t ^ 3 + B * t ^ 2 + C * t + D
+ */
+struct CubicCoeff {
+  glm::vec2 A{};
+  glm::vec2 B{};
+  glm::vec2 C{};
+  glm::vec2 D{};
+
+  explicit CubicCoeff(std::array<Point, 4> const& src);
+
+  Point evalAt(float t);
+
+  glm::vec2 eval(float t);
+
+  glm::vec2 eval(glm::vec2 const& t);
+};
+
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_GEOMETRY_HPP_
