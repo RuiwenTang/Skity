@@ -96,6 +96,17 @@ struct CubicCoeff {
   glm::vec2 eval(glm::vec2 const& t);
 };
 
+struct Conic;
+
+struct ConicCoeff {
+  explicit ConicCoeff(Conic const& conic);
+
+  glm::vec2 eval(float t);
+
+  QuadCoeff numer;
+  QuadCoeff denom;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_GEOMETRY_HPP_

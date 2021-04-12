@@ -1,6 +1,8 @@
 
 #include "src/geometry/geometry.hpp"
 
+#include "src/geometry/conic.hpp"
+
 namespace skity {
 
 QuadCoeff::QuadCoeff(std::array<Point, 3> const& src) {
@@ -74,6 +76,29 @@ glm::vec2 CubicCoeff::eval(float t) { return eval(glm::vec2{t, t}); }
 
 glm::vec2 CubicCoeff::eval(glm::vec2 const& t) {
   return ((A * t + B) * t + C) * t + D;
+}
+
+ConicCoeff::ConicCoeff(Conic const& conic) {
+  glm::vec2 P0 = FromPoint(conic.pts[0]);
+  glm::vec2 P1 = FromPoint(conic.pts[1]);
+  glm::vec2 P2 = FromPoint(conic.pts[2]);
+  glm::vec2 ww{conic.w, conic.w};
+
+  glm::vec2 p1w = P1 * ww;
+  numer.C = P0;
+  numer.A = P2 - Times2(p1w) + P0;
+  numer.B = Times2(p1w - P0);
+
+  denom.C = glm::vec2{1, 1};
+  denom.B = Times2(ww - denom.C);
+  denom.A = glm::vec2{0, 0} - denom.B;
+}
+
+glm::vec2 ConicCoeff::eval(float t) {
+  glm::vec2 tt{t, t};
+  glm::vec2 n = numer.eval(tt);
+  glm::vec2 d = denom.eval(tt);
+  return n / d;
 }
 
 }  // namespace skity

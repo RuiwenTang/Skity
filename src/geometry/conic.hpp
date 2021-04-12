@@ -22,7 +22,21 @@ struct Conic {
 
   Conic(Point const p[3], float weight);
 
-  
+  void set(Point const p[3], float weight) {
+    std::memcpy(pts.data(), p, 3 * sizeof(Point));
+    w = weight;
+  }
+
+  void set(const Point& p0, const Point& p1, const Point& p2, float weight) {
+    pts[0] = p0;
+    pts[1] = p1;
+    pts[2] = p2;
+    w = weight;
+  }
+
+  void evalAt(float t, Point* outP, Vector* outTangent = nullptr) const;
+  Point evalAt(float t) const;
+  Vector evalTangentAt(float t) const;
 
   std::array<Point, 3> pts = {};
   float w = 0.f;
