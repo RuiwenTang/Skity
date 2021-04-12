@@ -7,6 +7,7 @@ namespace skity {
 
 using Point = glm::vec4;
 using Vector = Point;
+using Matrix = glm::mat4;
 
 }  // namespace skity
 

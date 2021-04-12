@@ -6,7 +6,6 @@
 
 namespace skity {
 
-using Matrix = glm::mat4;
 
 #define Float1 1.0f
 #define FloatHalf 0.5f
