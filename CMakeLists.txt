@@ -37,6 +37,7 @@ add_library(glad OBJECT third_party/glad/src/glad.c)
 
 set(Skity_header
     include/skity/geometry/point.hpp
+    include/skity/graphic/path.hpp
 )
 
 set(Skity_src
@@ -45,6 +46,7 @@ set(Skity_src
     src/geometry/geometry.cc
     src/geometry/geometry.hpp
     src/geometry/math.hpp
+    src/graphic/path.cc
 )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
