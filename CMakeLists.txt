@@ -36,20 +36,21 @@ include_directories(include)
 add_library(glad OBJECT third_party/glad/src/glad.c)
 
 set(Skity_header
-    include/skity/geometry/point.hpp
-    include/skity/geometry/rect.hpp
-    include/skity/graphic/path.hpp
-)
+        include/skity/geometry/point.hpp
+        include/skity/geometry/rect.hpp
+        include/skity/graphic/path.hpp
+        )
 
 set(Skity_src
-    src/geometry/conic.cc
-    src/geometry/conic.hpp
-    src/geometry/geometry.cc
-    src/geometry/geometry.hpp
-    src/geometry/math.hpp
-    src/geometry/rect.cc
-    src/graphic/path.cc
-)
+        src/geometry/conic.cc
+        src/geometry/conic.hpp
+        src/geometry/geometry.cc
+        src/geometry/geometry.hpp
+        src/geometry/math.hpp
+        src/geometry/rect.cc
+        src/geometry/point_priv.hpp
+        src/graphic/path.cc
+        )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
 
@@ -58,5 +59,5 @@ target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # test
 add_subdirectory(third_party/gtest)
 include_directories(third_party/gtest/googletest/include)
-                    
+
 add_subdirectory(test)

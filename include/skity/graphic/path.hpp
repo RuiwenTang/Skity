@@ -3,6 +3,7 @@
 
 #include <array>
 #include <skity/geometry/point.hpp>
+#include <skity/geometry/rect.hpp>
 #include <vector>
 
 namespace skity {
@@ -74,7 +75,7 @@ class Path {
      * @param pts     storage for Point data describing returned Path::Verb
      * @return Verb   next Path::Verb from verb array
      */
-    Verb next(std::array<Point, 4> const& pts);
+    Verb next(Point pts[4]);
 
     /**
      * @brief         Retruns conic weight if next() returned Verb::kConic
@@ -92,10 +93,10 @@ class Path {
      */
     bool isCloseLine() const;
 
-    bool isClosedCountour() const;
+    bool isClosedContour() const;
 
    private:
-    Verb autoClose(std::array<Point, 2> const& pts);
+    Verb autoClose(Point pts[2]);
     Point const& consMoveTo();
 
    private:
@@ -105,6 +106,7 @@ class Path {
     const float* conic_weights_;
     bool force_close_;
     bool need_close_;
+    bool close_line_;
     Point move_to_;
     Point last_pt_;
     enum class SegmentState {
@@ -123,7 +125,7 @@ class Path {
        */
       kAfterPrimitive,
     };
-    SegmentState segmentState_;
+    SegmentState segment_state_;
   };
 
   class RawIter {
@@ -134,7 +136,7 @@ class Path {
 
     void setPath(Path const& path);
 
-    Verb next(std::array<Point, 4> const& pts);
+    Verb next(Point pts[4]);
     Verb peek() const;
     float conicWeight() const;
 
@@ -152,12 +154,12 @@ class Path {
   inline size_t countVerbs() const { return verbs_.size(); }
 
   Path& moveTo(float x, float y);
-  Path& moveTo(Point& const point) { return moveTo(point.x, point.y); }
+  Path& moveTo(Point const& point) { return moveTo(point.x, point.y); }
   Path& lineTo(float x, float y);
   Path& quadTo(float x1, float y1, float x2, float y2);
   Path& conicTo(float x1, float y1, float x2, float y2, float weight);
   Path& conicTo(Point const& p1, Point const& p2, float weight) {
-    this->conicTo(p1.x, p1.y, p2.x, p2.y, weight);
+    return this->conicTo(p1.x, p1.y, p2.x, p2.y, weight);
   }
   Path& cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
   Path& arcTo(float x1, float y1, float x2, float y2, float radius);
@@ -199,6 +201,27 @@ class Path {
    */
   Path& addCircle(float x, float y, float radius,
                   Direction dir = Direction::kCW);
+
+  /**
+   * Adds oval to path, appending kMove, four kConic, and kClose.
+   * Oval is upright ellipse bounded by Rect oval with radii equal to half oval
+   * width and half oval height.
+   *
+   * @param oval    bounds of ellipse added
+   * @param dir     Path::Direction to wind ellipse
+   * @return        reference to Path self
+   */
+  Path& addOval(const Rect& oval, Direction dir = Direction::kCW);
+
+  /**
+   * Adds oval to path, appending kMove, four kConic, and kClose.
+   *
+   * @param oval    bounds of ellipse added
+   * @param dir     Path::Direction to wind ellipse
+   * @param start   index of initial point of ellipse
+   * @return        reference to Path self
+   */
+  Path& addOval(const Rect& oval, Direction dir, uint32_t start);
 
   /**
    * Append, in reverse order, the first contour of path, ignoring path's last
@@ -251,10 +274,23 @@ class Path {
   inline Direction getFirstDirection() { return first_direction_; }
   inline void setFirstDirection(Direction dir) { this->first_direction_ = dir; }
 
+  Rect getBounds() {
+    computeBounds();
+    return bounds_;
+  }
   /**
    * dump Path content into std::out
    */
   void dump();
+
+ private:
+  void injectMoveToIfNeed();
+  void computeBounds() const;
+  inline const Point& atPoint(int32_t index) const { return points_[index]; }
+  bool hasOnlyMoveTos() const;
+
+  bool isZeroLengthSincePoint(int startPtIndex) const;
+  static bool ComputePtBounds(Rect* bounds, Path const& ref);
 
  private:
   friend class Iter;
@@ -268,6 +304,7 @@ class Path {
   std::vector<Verb> verbs_;
   std::vector<float> conic_weights_;
   mutable bool is_finite_ = true;
+  mutable Rect bounds_;
 };
 
 }  // namespace skity
