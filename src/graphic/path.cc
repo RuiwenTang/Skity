@@ -220,6 +220,8 @@ Path::Verb Path::Iter::next(Point pts[4]) {
   return verb;
 }
 
+float Path::Iter::conicWeight() const { return *conic_weights_; }
+
 bool Path::Iter::isClosedContour() const {
   if (verbs_ == nullptr || verbs_ == verb_stop_) {
     return false;
@@ -250,7 +252,7 @@ bool Path::Iter::isClosedContour() const {
 }
 
 Path::Verb Path::Iter::autoClose(Point* pts) {
-  if (last_pt_ == move_to_) {
+  if (last_pt_ != move_to_) {
     if (FloatIsNan(last_pt_.x) || FloatIsNan(last_pt_.y) ||
         FloatIsNan(move_to_.x) || FloatIsNan(move_to_.y)) {
       return Verb::kClose;
@@ -821,10 +823,8 @@ bool Path::isZeroLengthSincePoint(int startPtIndex) const {
   return true;
 }
 
-static void append_params(std::ostream& os,
-                          const std::string& label,
-                          const Point pts[],
-                          int count,
+static void append_params(std::ostream& os, const std::string& label,
+                          const Point pts[], int count,
                           float conicWeight = -12345) {
   os << label << "(";
   for (int i = 0; i < count; i++) {

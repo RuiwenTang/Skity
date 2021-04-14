@@ -64,7 +64,7 @@ class Path {
      */
     Iter(Path const& path, bool forceClose);
 
-    ~Iter();
+    ~Iter() = default;
 
     void setPath(Path const& path, bool forceClose);
 

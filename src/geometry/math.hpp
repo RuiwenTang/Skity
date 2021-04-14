@@ -10,7 +10,7 @@ namespace skity {
 #define Float1 1.0f
 #define FloatHalf 0.5f
 #define FloatNaN std::numeric_limits<float>::quiet_NaN()
-#define FloatInfinity (+std::numeric_limits<float>::infinity())
+#define FloatInfinity std::numeric_limits<float>::infinity()
 #define NearlyZero (Float1 / (1 << 12))
 #define FloatRoot2Over2 0.707106781f
 
