@@ -39,6 +39,7 @@ set(Skity_header
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
         include/skity/graphic/path.hpp
+        include/skity/render/path_vertex.hpp
         )
 
 set(Skity_src
@@ -47,9 +48,10 @@ set(Skity_src
         src/geometry/geometry.cc
         src/geometry/geometry.hpp
         src/geometry/math.hpp
-        src/geometry/rect.cc
         src/geometry/point_priv.hpp
+        src/geometry/rect.cc
         src/graphic/path.cc
+        src/render/path_vertex.cc
         )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)

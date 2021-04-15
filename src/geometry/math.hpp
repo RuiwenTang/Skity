@@ -6,7 +6,6 @@
 
 namespace skity {
 
-
 #define Float1 1.0f
 #define FloatHalf 0.5f
 #define FloatNaN std::numeric_limits<float>::quiet_NaN()
@@ -44,6 +43,23 @@ static inline glm::vec2 Times2(glm::vec2 const& value) { return value + value; }
 template <class T>
 T Interp(T const& v0, T const& v1, T const& t) {
   return v0 + (v1 - v0) * t;
+}
+
+enum class Orientation {
+  kLinear,
+  kClockWise,
+  kAntiClockWise,
+};
+
+template <class T>
+Orientation CalculateOrientation(T const& p, T const& q, T const& r) {
+  int32_t val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+
+  if (val == 0) {
+    return Orientation::kLinear;
+  }
+
+  return (val > 0) ? Orientation::kClockWise : Orientation::kAntiClockWise;
 }
 
 }  // namespace skity
