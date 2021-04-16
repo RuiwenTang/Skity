@@ -38,6 +38,7 @@ add_library(glad OBJECT third_party/glad/src/glad.c)
 set(Skity_header
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
+        include/skity/graphic/pain.hpp
         include/skity/graphic/path.hpp
         include/skity/render/path_vertex.hpp
         )
