@@ -7,3 +7,4 @@ cmake-*
 .clangd/*
 compile_commands.json
 .ccls*
+.ccls-cache/*
