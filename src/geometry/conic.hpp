@@ -2,6 +2,7 @@
 #define SKITY_SRC_GEOMETRY_CONIC_HPP
 
 #include <array>
+#include <cstring>
 #include <skity/geometry/point.hpp>
 
 #include "src/geometry/geometry.hpp"
