@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(Skity)
 
 set(CMAKE_CXX_STANDARD 14)
-set(EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # Creates C resources file from files in given directory
 function(create_resources dir output)

@@ -4,3 +4,5 @@ cmake-*
 .vscode/*
 .cache/*
 .ycm_extra_conf.py
+.clangd/*
+compile_commands.json
