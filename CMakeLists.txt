@@ -40,6 +40,7 @@ set(Skity_header
         include/skity/geometry/rect.hpp
         include/skity/graphic/paint.hpp
         include/skity/graphic/path.hpp
+        include/skity/render/canvas.hpp
         )
 
 set(Skity_src
@@ -52,6 +53,7 @@ set(Skity_src
         src/geometry/rect.cc
         src/graphic/paint.cc
         src/graphic/path.cc
+        src/render/canvas.cc
         src/render/path_vertex.cc
         src/render/path_vertex.hpp
         )
