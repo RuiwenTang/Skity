@@ -158,7 +158,8 @@ class Path {
   Path& lineTo(float x, float y);
   Path& quadTo(float x1, float y1, float x2, float y2);
   Path& conicTo(float x1, float y1, float x2, float y2, float weight);
-  Path& conicTo(Point const& p1, Point const& p2, float weight) {
+  Path& conicTo(Point const& p1, Point const& p2, float weight)
+  {
     return this->conicTo(p1.x, p1.y, p2.x, p2.y, weight);
   }
   Path& cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
@@ -274,7 +275,8 @@ class Path {
   inline Direction getFirstDirection() { return first_direction_; }
   inline void setFirstDirection(Direction dir) { this->first_direction_ = dir; }
 
-  Rect getBounds() {
+  Rect getBounds()
+  {
     computeBounds();
     return bounds_;
   }
@@ -310,3 +312,4 @@ class Path {
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GRAPHIC_PATH_HPP
+

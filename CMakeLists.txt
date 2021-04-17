@@ -51,6 +51,7 @@ set(Skity_src
         src/geometry/math.hpp
         src/geometry/point_priv.hpp
         src/geometry/rect.cc
+        src/graphic/paint.cc
         src/graphic/path.cc
         src/render/path_vertex.cc
         )
