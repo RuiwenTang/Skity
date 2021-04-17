@@ -85,6 +85,7 @@ class Paint {
   Join getStrokeJoin() const;
 
   void setStrokeJoin(Join join);
+
  private:
   Cap cap_ = kDefault_Cap;
   Join join_ = kDefault_Join;

@@ -6,10 +6,9 @@ Paint::Paint() = default;
 
 Paint::~Paint() = default;
 
-void Paint::reset()
-{
-  // TODO reset all properties;
-}
+Paint& Paint::operator=(const Paint& paint) = default;
+
+void Paint::reset() { *this = Paint(); }
 
 Paint::Style Paint::getStyle() const { return style_; }
 

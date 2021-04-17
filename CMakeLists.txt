@@ -40,7 +40,6 @@ set(Skity_header
         include/skity/geometry/rect.hpp
         include/skity/graphic/paint.hpp
         include/skity/graphic/path.hpp
-        include/skity/render/path_vertex.hpp
         )
 
 set(Skity_src
@@ -54,6 +53,7 @@ set(Skity_src
         src/graphic/paint.cc
         src/graphic/path.cc
         src/render/path_vertex.cc
+        src/render/path_vertex.hpp
         )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
