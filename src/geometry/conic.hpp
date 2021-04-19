@@ -1,7 +1,6 @@
 #ifndef SKITY_SRC_GEOMETRY_CONIC_HPP
 #define SKITY_SRC_GEOMETRY_CONIC_HPP
 
-#include <array>
 #include <cstring>
 #include <skity/geometry/point.hpp>
 
@@ -24,7 +23,7 @@ struct Conic {
   Conic(Point const p[3], float weight);
 
   void set(Point const p[3], float weight) {
-    std::memcpy(pts.data(), p, 3 * sizeof(Point));
+    std::memcpy(pts, p, 3 * sizeof(Point));
     w = weight;
   }
 
@@ -39,7 +38,7 @@ struct Conic {
   Point evalAt(float t) const;
   Vector evalTangentAt(float t) const;
 
-  std::array<Point, 3> pts = {};
+  Point pts[3];
   float w = 0.f;
 };
 
