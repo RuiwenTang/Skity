@@ -12,3 +12,4 @@ using Matrix = glm::mat4;
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_POINT_HPP_
+

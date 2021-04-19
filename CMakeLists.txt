@@ -56,6 +56,8 @@ set(Skity_src
         src/render/canvas.cc
         src/render/path_vertex.cc
         src/render/path_vertex.hpp
+        src/render/stroke.cc
+        src/render/stroke.hpp
         )
 
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)

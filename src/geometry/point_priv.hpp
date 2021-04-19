@@ -55,6 +55,16 @@ bool PointSetLength(Point& pt, float x, float y, float length,
   return true;
 }
 
+static inline float PointDistanceToSqd(Point const& pt, Point const& a) {
+  float dx = pt.x - a.x;
+  float dy = pt.y - a.y;
+  return dx * dx + dy * dy;
+}
+
+static inline float PointLengthSqd(Point const& pt) {
+  return glm::dot(glm::vec2{pt}, glm::vec2{pt});
+}
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_POINT_PRIV_HPP

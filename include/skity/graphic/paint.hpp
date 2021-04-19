@@ -18,7 +18,7 @@ class Paint {
 
   void reset();
 
-  enum Style : uint8_t {
+  enum Style : std::uint8_t {
     kFill_Style,           /// set to fill geometry
     kStroke_Style,         /// set to stroke geometry
     kStrokeAndFill_Style,  /// set to stroke and fill geometry
