@@ -50,6 +50,8 @@ set(Skity_src
         src/geometry/geometry.hpp
         src/geometry/math.hpp
         src/geometry/point_priv.hpp
+        src/geometry/quad_construct.cc
+        src/geometry/quad_construct.hpp
         src/geometry/rect.cc
         src/graphic/paint.cc
         src/graphic/path.cc
