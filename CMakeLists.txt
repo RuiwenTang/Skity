@@ -56,6 +56,10 @@ set(Skity_src
         src/graphic/paint.cc
         src/graphic/path.cc
         src/render/canvas.cc
+        src/render/cap_proc.cc
+        src/render/cap_proc.hpp
+        src/render/path_stroker.cc
+        src/render/path_stroker.hpp
         src/render/path_vertex.cc
         src/render/path_vertex.hpp
         src/render/stroke.cc
