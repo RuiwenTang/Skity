@@ -82,6 +82,15 @@ T VectorDotProduct(glm::vec<L, T, Q> const& a, glm::vec<L, T, Q> const& b)
   return a.x * b.y - a.y * b.x;
 }
 
+static inline void PointRotateCW(Point const& src, Point* dst)
+{
+  float tmp = src.x;
+  dst->x = -src.y;
+  dst->y = tmp;
+}
+
+static inline void PointRotateCW(Point* pt) { PointRotateCW(*pt, pt); }
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_POINT_PRIV_HPP
