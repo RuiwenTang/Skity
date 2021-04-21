@@ -117,3 +117,4 @@ class Canvas {
 }  // namespace skity
 
 #endif  // SKITY_RENDER_CANVAS_HPP
+

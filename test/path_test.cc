@@ -5,7 +5,8 @@
 #include "src/geometry/math.hpp"
 #include "src/geometry/point_priv.hpp"
 
-TEST(Path, test_iter) {
+TEST(Path, test_iter)
+{
   skity::Path p;
   skity::Point pts[4];
 
@@ -54,7 +55,8 @@ TEST(Path, test_iter) {
   EXPECT_EQ(skity::Path::Verb::kConic, iter.next(pts));
 }
 
-static void check_move(skity::Path::RawIter *iter, float x0, float y0) {
+static void check_move(skity::Path::RawIter *iter, float x0, float y0)
+{
   skity::Point pts[4];
   auto v = iter->next(pts);
   EXPECT_EQ(v, skity::Path::Verb::kMove);
@@ -62,7 +64,8 @@ static void check_move(skity::Path::RawIter *iter, float x0, float y0) {
   EXPECT_FLOAT_EQ(pts[0].y, y0);
 }
 
-static void check_line(skity::Path::RawIter *iter, float x1, float y1) {
+static void check_line(skity::Path::RawIter *iter, float x1, float y1)
+{
   skity::Point pts[4];
   auto v = iter->next(pts);
   EXPECT_EQ(v, skity::Path::Verb::kLine);
@@ -71,7 +74,8 @@ static void check_line(skity::Path::RawIter *iter, float x1, float y1) {
 }
 
 static void check_quad(skity::Path::RawIter *iter, float x1, float y1, float x2,
-                       float y2) {
+                       float y2)
+{
   skity::Point pts[4];
   auto v = iter->next(pts);
   EXPECT_EQ(v, skity::Path::Verb::kQuad);
@@ -81,27 +85,29 @@ static void check_quad(skity::Path::RawIter *iter, float x1, float y1, float x2,
   EXPECT_FLOAT_EQ(pts[2].y, y2);
 }
 
-static void check_done(skity::Path *path, skity::Path::RawIter *iter) {
+static void check_done(skity::Path *path, skity::Path::RawIter *iter)
+{
   skity::Point pts[4];
   auto v = iter->next(pts);
   EXPECT_EQ(v, skity::Path::Verb::kDone);
 }
 
-static void check_done_and_reset(skity::Path *path,
-                                 skity::Path::RawIter *iter) {
+static void check_done_and_reset(skity::Path *path, skity::Path::RawIter *iter)
+{
   check_done(path, iter);
   path->reset();
 }
 
-static void check_path_is_line_and_reset(skity::Path *path, float x1,
-                                         float y1) {
+static void check_path_is_line_and_reset(skity::Path *path, float x1, float y1)
+{
   skity::Path::RawIter iter(*path);
   check_move(std::addressof(iter), 0, 0);
   check_line(std::addressof(iter), x1, y1);
   check_done_and_reset(path, std::addressof(iter));
 }
 
-static void check_path_is_line(skity::Path *path, float x1, float y1) {
+static void check_path_is_line(skity::Path *path, float x1, float y1)
+{
   skity::Path::RawIter iter(*path);
   check_move(std::addressof(iter), 0, 0);
   check_line(std::addressof(iter), x1, y1);
@@ -109,7 +115,8 @@ static void check_path_is_line(skity::Path *path, float x1, float y1) {
 }
 
 static void check_path_is_line_pair_and_reset(skity::Path *path, float x1,
-                                              float y1, float x2, float y2) {
+                                              float y1, float x2, float y2)
+{
   skity::Path::RawIter iter(*path);
   check_move(std::addressof(iter), 0, 0);
   check_line(std::addressof(iter), x1, y1);
@@ -118,14 +125,16 @@ static void check_path_is_line_pair_and_reset(skity::Path *path, float x1,
 }
 
 static void check_path_is_quad_and_reset(skity::Path *path, float x1, float y1,
-                                         float x2, float y2) {
+                                         float x2, float y2)
+{
   skity::Path::RawIter iter(*path);
   check_move(std::addressof(iter), 0, 0);
   check_quad(std::addressof(iter), x1, y1, x2, y2);
   check_done_and_reset(path, std::addressof(iter));
 }
 
-static void check_close(const skity::Path &path) {
+static void check_close(const skity::Path &path)
+{
   for (int i = 0; i < 2; i++) {
     skity::Path::Iter iter(path, static_cast<bool>(i));
     skity::Point mv;
@@ -152,7 +161,8 @@ static void check_close(const skity::Path &path) {
   }
 }
 
-TEST(Path, test_close) {
+TEST(Path, test_close)
+{
   skity::Path closePt;
   closePt.moveTo(0, 0);
   closePt.close();
@@ -195,7 +205,8 @@ TEST(Path, test_close) {
   check_close(moves);
 }
 
-TEST(Path, test_arcTo) {
+TEST(Path, test_arcTo)
+{
   skity::Path p;
 
   p.arcTo(0, 0, 1, 2, 1);
@@ -228,7 +239,8 @@ TEST(Path, test_arcTo) {
   }
 }
 
-TEST(Path, test_quad) {
+TEST(Path, test_quad)
+{
   skity::Path p;
   p.conicTo(1, 2, 3, 4, -1);
   check_path_is_line_and_reset(std::addressof(p), 3, 4);
@@ -238,7 +250,8 @@ TEST(Path, test_quad) {
   check_path_is_quad_and_reset(std::addressof(p), 1, 2, 3, 4);
 }
 
-TEST(Path_RawIter, test_RawIter) {
+TEST(Path_RawIter, test_RawIter)
+{
   skity::Path p;
   skity::Point pts[4];
 
@@ -482,18 +495,22 @@ TEST(Path_RawIter, test_RawIter) {
   }
 }
 
-TEST(Path, bad_case) {
+TEST(Path, bad_case)
+{
   skity::Path path;
   skity::Point randomPts[25];
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 5; j++) {
-      skity::PointSet(randomPts[i * 5 + j], Float1 * float(i), Float1 * float(j));
+      skity::PointSet(randomPts[i * 5 + j], Float1 * float(i),
+                      Float1 *float(j));
     }
   }
 
   path.moveTo(randomPts[0].x, randomPts[0].y);
-  path.cubicTo(randomPts[1].x, randomPts[1].y, randomPts[2].x, randomPts[2].y, randomPts[3].x, randomPts[3].y);
-  path.cubicTo(randomPts[3].x, randomPts[3].y, randomPts[5].x, randomPts[5].y, randomPts[6].x, randomPts[6].y);
+  path.cubicTo(randomPts[1].x, randomPts[1].y, randomPts[2].x, randomPts[2].y,
+               randomPts[3].x, randomPts[3].y);
+  path.cubicTo(randomPts[3].x, randomPts[3].y, randomPts[5].x, randomPts[5].y,
+               randomPts[6].x, randomPts[6].y);
   path.close();
   path.moveTo(randomPts[7].x, randomPts[7].y);
   skity::Path::RawIter iter(path);
@@ -507,7 +524,9 @@ TEST(Path, bad_case) {
   EXPECT_EQ(pts[0], randomPts[7]);
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, const char **argv)
+{
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 }
+

@@ -62,6 +62,16 @@ Orientation CalculateOrientation(T const& p, T const& q, T const& r) {
   return (val > 0) ? Orientation::kClockWise : Orientation::kAntiClockWise;
 }
 
+template <class V>
+Orientation CalculateOrientation(V const& v1, V const& v2) {
+  int32_t val = v1.x * v2.y - v1.y * v2.x;
+  if (val == 0) {
+    return Orientation::kLinear;
+  }
+
+  return (val > 0) ? Orientation::kClockWise : Orientation::kAntiClockWise;
+}
+
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_MATH_HPP_

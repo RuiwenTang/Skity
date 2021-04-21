@@ -6,7 +6,6 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <skity/geometry/point.hpp>
 
-#include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
 
 namespace skity {
@@ -114,7 +113,8 @@ struct ConicCoeff {
   QuadCoeff denom;
 };
 
-static inline int valid_unit_divide(float number, float denom, float* radio) {
+static inline int valid_unit_divide(float number, float denom, float* radio)
+{
   if (number < 0) {
     number = -number;
     denom = -denom;
@@ -145,13 +145,14 @@ static inline int return_check_zero(int value)
   return value;
 }
 
-static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2]) {
+static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2])
+{
   if (A == 0) {
     return return_check_zero(valid_unit_divide(-C, B, roots));
   }
 
   float* r = roots;
-  double dr = (double)B * B - 4 * (double) A * C;
+  double dr = (double)B * B - 4 * (double)A * C;
   if (dr < 0) {
     return return_check_zero(0);
   }
@@ -168,7 +169,8 @@ static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2]) {
   if (r - roots == 2) {
     if (roots[0] > roots[1]) {
       std::swap(roots[0], roots[1]);
-    } else if (roots[0] == roots[1]) {
+    }
+    else if (roots[0] == roots[1]) {
       r -= 1;
     }
   }

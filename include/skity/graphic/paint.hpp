@@ -73,11 +73,11 @@ class Paint {
    * Join specifies how corners are drawn when a shape is stroked.
    */
   enum Join : std::uint8_t {
-    kMiter_Join,    /// extends to miter limit
-    kRound_Join,    /// add circle
-    kBevel_Join,    /// connects outside edges
-    kLast_Join,     /// equivalent to the largest value for Join
-    kDefault_Join,  /// equivalent to kMiter_Join
+    kMiter_Join,                  /// extends to miter limit
+    kRound_Join,                  /// add circle
+    kBevel_Join,                  /// connects outside edges
+    kLast_Join = kBevel_Join,     /// equivalent to the largest value for Join
+    kDefault_Join = kMiter_Join,  /// equivalent to kMiter_Join
   };
 
   static constexpr std::int32_t kJoinCount = kLast_Join + 1;

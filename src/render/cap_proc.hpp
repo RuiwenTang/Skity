@@ -9,6 +9,7 @@ namespace skity {
 
 class CapProc {
  public:
+  CapProc() = default;
   virtual ~CapProc() = default;
 
   virtual Paint::Cap type() const = 0;

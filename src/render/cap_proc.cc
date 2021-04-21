@@ -39,4 +39,45 @@ class RoundCapProc : public CapProc {
   }
 };
 
+class SquareCapProc : public CapProc {
+ public:
+  SquareCapProc() = default;
+  ~SquareCapProc() = default;
+
+  Paint::Cap type() const override { return Paint::Cap::kSquare_Cap; }
+
+  void proc(Path* path, Point const& pivot, Vector const& normal,
+            Point const& stop, Path* otherPath) override
+  {
+    Vector parallel;
+    PointRotateCW(normal, std::addressof(parallel));
+
+    if (otherPath) {
+      path->setLastPt(pivot.x + normal.x + parallel.x,
+                      pivot.y + normal.y + parallel.y);
+      path->lineTo(pivot.x - normal.x + parallel.x,
+                   pivot.y - normal.y + parallel.y);
+    }
+    else {
+      path->lineTo(pivot.x + normal.x + parallel.x,
+                   pivot.y + normal.y + parallel.y);
+      path->lineTo(pivot.x - normal.x + parallel.x,
+                   pivot.y - normal.y + parallel.y);
+      path->lineTo(stop.x, stop.y);
+    }
+  }
+};
+
+std::unique_ptr<CapProc> CapProc::MakeCapProc(Paint::Cap cap)
+{
+  if (cap == Paint::Cap::kButt_Cap) {
+    return std::make_unique<ButtCapProc>();
+  } else if (cap == Paint::Cap::kRound_Cap) {
+    return std::make_unique<RoundCapProc>();
+  } else if (cap == Paint::Cap::kSquare_Cap) {
+    return std::make_unique<SquareCapProc>();
+  }
+  return std::make_unique<ButtCapProc>();
+}
+
 }  // namespace skity
