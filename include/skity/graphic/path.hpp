@@ -297,6 +297,7 @@ class Path {
  private:
   friend class Iter;
   friend class RawIter;
+  friend class PathStroker;
 
   int32_t last_move_to_index_ = ~0;
   ConvexityType convexity_ = ConvexityType::kUnknown;

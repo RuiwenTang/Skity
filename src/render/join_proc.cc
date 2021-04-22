@@ -201,18 +201,20 @@ class MiterJoiner : public JoinProc {
   }
 };
 
-std::unique_ptr<JoinProc> JoinProc::MakeJoinProc(Paint::Join join) 
+std::unique_ptr<JoinProc> JoinProc::MakeJoinProc(Paint::Join join)
 {
   if (join == Paint::Join::kBevel_Join) {
     return std::make_unique<BevelJoiner>();
-  } else if (join == Paint::Join::kRound_Join) {
+  }
+  else if (join == Paint::Join::kRound_Join) {
     return std::make_unique<RoundJoiner>();
-  } else if (join == Paint::Join::kRound_Join) {
+  }
+  else if (join == Paint::Join::kRound_Join) {
     return std::make_unique<RoundJoiner>();
-  } else {
+  }
+  else {
     return std::make_unique<MiterJoiner>();
   }
-
 }
 
 }  // namespace skity
