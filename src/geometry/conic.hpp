@@ -18,16 +18,20 @@ struct Conic {
   Conic() = default;
 
   Conic(Point const& p0, Point const& p1, Point const& p2, float weight)
-      : pts{p0, p1, p2}, w(weight) {}
+      : pts{p0, p1, p2}, w(weight)
+  {
+  }
 
   Conic(Point const p[3], float weight);
 
-  void set(Point const p[3], float weight) {
+  void set(Point const p[3], float weight)
+  {
     std::memcpy(pts, p, 3 * sizeof(Point));
     w = weight;
   }
 
-  void set(const Point& p0, const Point& p1, const Point& p2, float weight) {
+  void set(const Point& p0, const Point& p1, const Point& p2, float weight)
+  {
     pts[0] = p0;
     pts[1] = p1;
     pts[2] = p2;

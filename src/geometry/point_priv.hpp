@@ -30,6 +30,20 @@ static inline void VectorSet(Vector& vec, float x, float y)
   vec.w = 0;
 }
 
+static inline void PointScale(Point const& src, float scale, Point* dst)
+{
+  dst->x = src.x * scale;
+  dst->y = src.y * scale;
+  dst->z = 0;
+  dst->w = 1;
+}
+
+static inline bool PointEqualsWithinTolerance(Point const& pt, Point const& p,
+                                              float tol)
+{
+  return FloatNearlyZero(pt.x - p.x, tol) && FloatNearlyZero(pt.y - p.y, tol);
+}
+
 template <bool use_rsqrt>
 bool PointSetLength(Point& pt, float x, float y, float length,
                     float* orig_length = nullptr)
@@ -59,6 +73,11 @@ bool PointSetLength(Point& pt, float x, float y, float length,
   }
 
   return true;
+}
+
+static inline bool VectorSetNormal(Vector& vec, float x, float y)
+{
+  return PointSetLength<false>(vec, x, y, Float1);
 }
 
 static inline float PointDistanceToSqd(Point const& pt, Point const& a)
@@ -92,6 +111,15 @@ static inline void PointRotateCW(Point const& src, Point* dst)
 }
 
 static inline void PointRotateCW(Point* pt) { PointRotateCW(*pt, pt); }
+
+static inline void PointRotateCCW(Point const& src, Point* dst)
+{
+  float tmp = src.x;
+  dst->x = src.y;
+  dst->y = -tmp;
+}
+
+static inline void PointRotateCCW(Point* pt) { PointRotateCCW(*pt, pt); }
 
 static inline bool PointsWithInDist(Point const& nearPt, Point const& farPt,
                                     float limit)
@@ -140,4 +168,3 @@ static inline int32_t IntersectQuadRay(const Point line[2], const Point quad[3],
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_POINT_PRIV_HPP
-

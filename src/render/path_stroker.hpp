@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_PATH_STROKER_HPP
 #define SKITY_SRC_RENDER_PATH_STROKER_HPP
 
+#include <memory>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
@@ -113,11 +114,12 @@ class PathStroker {
 
   void setRayPts(Point const& pt, Vector* dxy, Point* onPt,
                  Point* tangent) const;
-  void preJoinTo(Point const&, Vector* normal, Vector* unitNormal, bool isLine);
+  bool preJoinTo(Point const&, Vector* normal, Vector* unitNormal, bool isLine);
   void postJoinTo(Point const&, Vector const& normal, Vector const& unitNormal);
   void line_to(Point const& currPt, Vector const& normal);
   ResultType strokeCloseEnough(const Point stroke[3], const Point ray[2],
                                QuadConstruct*) const;
+  ResultType tangentsMeet(const Point cubic[4], QuadConstruct*);
   ResultType intersectRay(QuadConstruct* quadPts,
                           IntersectRayType intersectRatType) const;
 
@@ -147,6 +149,7 @@ class PathStroker {
   Path outer_;
   Path cusper_;
 
+  StrokeType stroke_type_;
   int recursion_depth_ = 0;
   bool found_tangents_;
   bool join_complete_;
