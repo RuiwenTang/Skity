@@ -12,6 +12,20 @@
 
 namespace skity {
 
+enum {
+  kTangent_RecursiveLimit,
+  kCubic_RecursiveLimit,
+  kConic_RecursiveLimit,
+  kQuad_RecursiveLimit,
+};
+
+static const int kRecursiveLimit[] = {
+    5 * 3,
+    26 * 3,
+    11 * 3,
+    11 * 3,
+};
+
 PathStroker::PathStroker(Path const& src, float radius, float miterLimit,
                          Paint::Cap cap, Paint::Join join, float resScale,
                          bool canIgnoreCenter)
@@ -711,4 +725,224 @@ void PathStroker::conicQuadEnds(Conic const& conic,
     quad_pts->endSet = true;
   }
 }
+
+bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts)
+{
+  ResultType result_type = this->compareQuadConic(conic, quad_pts);
+  if (result_type == ResultType::kQuad) {
+    const Point* stroke = quad_pts->quad;
+    Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+                                                    : std::addressof(inner_);
+    path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
+    return true;
+  }
+
+  if (result_type == ResultType::kDegenerate) {
+    addDegenerateLine(quad_pts);
+    return true;
+  }
+
+  if (++recursion_depth_ > kRecursiveLimit[kConic_RecursiveLimit]) {
+    return false;
+  }
+
+  QuadConstruct half;
+  half.initWithStart(quad_pts);
+  if (!this->conicStroke(conic, std::addressof(half))) {
+    return false;
+  }
+  --recursion_depth_;
+  return true;
+}
+
+bool PathStroker::cubicMidOnLine(const Point* cubic,
+                                 const QuadConstruct* quad_pts) const
+{
+  Point stroke_mid;
+  this->cubicQuadMid(cubic, quad_pts, std::addressof(stroke_mid));
+  float dist = pt_to_line(stroke_mid, quad_pts->quad[0], quad_pts->quad[2]);
+  return dist < inv_res_scale_squared_;
+}
+
+void PathStroker::cubicPerpRay(const Point* cubic, float t, Point* t_pt,
+                               Point* on_pt, Point* tangent) const
+{
+  Vector dxy;
+  std::array<Point, 7> chopped;
+  CubicCoeff::EvalCubicAt(cubic, t, t_pt, std::addressof(dxy), nullptr);
+  if (dxy.x == 0 && dxy.y == 0) {
+    const Point* c_pts = cubic;
+    if (FloatNearlyZero(t)) {
+      dxy = cubic[2] - cubic[0];
+    }
+    else if (FloatNearlyZero(1 - t)) {
+      dxy = cubic[3] - cubic[1];
+    }
+    else {
+      CubicCoeff::ChopCubicAt(cubic, chopped.data(), t);
+      dxy = chopped[3] - chopped[2];
+      if (dxy.x == 0 && dxy.y == 0) {
+        dxy = chopped[3] - chopped[1];
+        c_pts = chopped.data();
+      }
+    }
+
+    if (dxy.x == 0 && dxy.y == 0) {
+      dxy = c_pts[3] - c_pts[0];
+    }
+  }
+  setRayPts(*t_pt, std::addressof(dxy), on_pt, tangent);
+}
+
+void PathStroker::cubicQuadMid(const Point* cubic,
+                               const QuadConstruct* quad_pts, Point* mid) const
+{
+  Point cubic_mid_pt;
+  this->cubicPerpRay(cubic, quad_pts->midT, std::addressof(cubic_mid_pt), mid,
+                     nullptr);
+}
+
+void PathStroker::cubicQuadEnds(const Point* cubic, QuadConstruct* quad_pts)
+{
+  if (!quad_pts->startSet) {
+    Point cubic_start_pt;
+    this->cubicPerpRay(cubic, quad_pts->startT, std::addressof(cubic_start_pt),
+                       std::addressof(quad_pts->quad[0]),
+                       std::addressof(quad_pts->tangentStart));
+    quad_pts->startSet = true;
+  }
+
+  if (!quad_pts->endSet) {
+    Point cubic_end_pt;
+    this->cubicPerpRay(cubic, quad_pts->endT, std::addressof(cubic_end_pt),
+                       std::addressof(quad_pts->quad[2]),
+                       std::addressof(quad_pts->tangentEnd));
+    quad_pts->endSet = true;
+  }
+}
+
+bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
+{
+  if (found_tangents_) {
+    ResultType result_type = this->tangentsMeet(cubic, quad_pts);
+    if (result_type != ResultType::kQuad) {
+      if ((result_type == ResultType::kDegenerate ||
+           PointsWithInDist(quad_pts->quad[0], quad_pts->quad[2],
+                            inv_res_scale_)) &&
+          cubicMidOnLine(cubic, quad_pts)) {
+        addDegenerateLine(quad_pts);
+        return true;
+      }
+    }
+    else {
+      found_tangents_ = true;
+    }
+  }
+
+  if (found_tangents_) {
+    ResultType result_type = this->compareQuadCubic(cubic, quad_pts);
+    if (result_type == ResultType::kQuad) {
+      Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+                                                      : std::addressof(inner_);
+      const Point* stroke = quad_pts->quad;
+      path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
+      return true;
+    }
+
+    if (result_type == ResultType::kDegenerate) {
+      if (!quad_pts->opposieTangents) {
+        addDegenerateLine(quad_pts);
+        return true;
+      }
+    }
+  }
+
+  if (glm::isinf(quad_pts->quad[2].x) || glm::isinf(quad_pts->quad[2].y)) {
+    return false;
+  }
+
+  if (++recursion_depth_ > kRecursiveLimit[found_tangents_]) {
+    return false;
+  }
+
+  auto half = std::make_unique<QuadConstruct>();
+  if (!half->initWithStart(quad_pts)) {
+    addDegenerateLine(quad_pts);
+    --recursion_depth_;
+    return true;
+  }
+
+  if (!this->cubicStroke(cubic, half.get())) {
+    return false;
+  }
+
+  if (!half->initWithEnd(quad_pts)) {
+    addDegenerateLine(quad_pts);
+    --recursion_depth_;
+    return true;
+  }
+
+  if (!this->cubicStroke(cubic, half.get())) {
+    return false;
+  }
+
+  --recursion_depth_;
+  return true;
+}
+
+void PathStroker::quadPerpRay(const Point* quad, float t, Point* t_pt,
+                              Point* on_pt, Point* tangent) const
+{
+  Vector dxy;
+  QuadCoeff::EvalQuadAt({quad[0], quad[1], quad[2]}, t, t_pt,
+                        std::addressof(dxy));
+  if (dxy.x == 0 && dxy.y == 0) {
+    dxy = quad[2] - quad[0];
+  }
+
+  setRayPts(*t_pt, std::addressof(dxy), on_pt, tangent);
+}
+
+bool PathStroker::quadStroke(const Point quad[3], QuadConstruct* quad_pts)
+{
+  ResultType result_type = this->compareQuadQuad(quad, quad_pts);
+
+  if (result_type == ResultType::kQuad) {
+    const Point* stroke = quad_pts->quad;
+    Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+                                                    : std::addressof(inner_);
+    path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
+    return true;
+  }
+
+  if (result_type == ResultType::kDegenerate) {
+    addDegenerateLine(quad_pts);
+    return true;
+  }
+
+  if (++recursion_depth_ > kRecursiveLimit[kQuad_RecursiveLimit]) {
+    return false;
+  }
+
+  auto half = std::make_unique<QuadConstruct>();
+  half->initWithStart(quad_pts);
+  if (!this->quadStroke(quad, half.get())) {
+    return false;
+  }
+  half->initWithEnd(quad_pts);
+  if (!this->quadStroke(quad, half.get())) {
+    return false;
+  }
+
+  --recursion_depth_;
+  return true;
+}
+
+void PathStroker::setConicEndNormal(Conic const& conic, Vector const& normalAB,
+                                    Vector const& unitNormalAB,
+                                    Vector* normalBC, Vector* unitNormalBC)
+{
+  setQuadEndNormal(conic.pts, normalAB, unitNormalAB, normalBC, unitNormalBC);
+}
+
 }  // namespace skity

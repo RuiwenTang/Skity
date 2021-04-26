@@ -94,13 +94,13 @@ class PathStroker {
   void cubicQuadEnds(const Point cubic[4], QuadConstruct*);
   void cubicQuadMid(const Point cubic[4], const QuadConstruct*,
                     Point* mid) const;
-  void cubicStroke(const Point cubic[4], QuadConstruct*);
+  bool cubicStroke(const Point cubic[4], QuadConstruct*);
 
   void init(StrokeType strokeType, QuadConstruct*, float tStart, float tEnd);
 
   bool ptInQuadBounds(const Point quad[3], Point const& pt) const;
   void quadPerpRay(const Point quad[3], float, Point*, Point*, Point*) const;
-  void quadStroke(const Point quad[3], QuadConstruct*);
+  bool quadStroke(const Point quad[3], QuadConstruct*);
 
   void setConicEndNormal(Conic const&, Vector const& normalAB,
                          Vector const& unitNormalAB, Vector* normalBC,

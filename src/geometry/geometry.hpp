@@ -104,6 +104,8 @@ struct CubicCoeff {
 
   static void EvalCubicAt(const Point src[4], float t, Point* loc,
                           Vector* tangent, Vector* curvature);
+
+  static void ChopCubicAt(const Point src[4], Point dst[7], float t);
 };
 
 struct Conic;
