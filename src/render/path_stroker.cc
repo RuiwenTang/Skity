@@ -64,6 +64,8 @@ PathStroker::PathStroker(Path const& src, float radius, float miterLimit,
   recursion_depth_ = 0;
 }
 
+PathStroker::~PathStroker() = default;
+
 void PathStroker::moveTo(Point const& pt)
 {
   if (segment_count_ > 0) {

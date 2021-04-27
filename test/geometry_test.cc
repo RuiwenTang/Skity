@@ -6,7 +6,8 @@
 
 #include "src/geometry/math.hpp"
 
-TEST(QUAD, tangents) {
+TEST(QUAD, tangents)
+{
   std::vector<std::array<skity::Point, 3>> pts = {
       {skity::Point{10, 20, 0, 1}, skity::Point{10, 20, 0, 1},
        skity::Point{20, 30, 0, 1}},
@@ -30,7 +31,8 @@ TEST(QUAD, tangents) {
   }
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, const char **argv)
+{
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 }

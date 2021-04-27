@@ -9,3 +9,6 @@ target_link_libraries(geometry_test gtest skity)
 
 add_executable(path_test path_test.cc)
 target_link_libraries(path_test gtest skity)
+
+add_executable(stroke_test stroke_test.cc)
+target_link_libraries(stroke_test gtest skity)

@@ -49,6 +49,7 @@ class PathStroker {
   PathStroker(Path const& src, float radius, float miterLimit, Paint::Cap cap,
               Paint::Join join, float resScale, bool canIgnoreCenter);
 
+  ~PathStroker();
   bool hasOnlyMoveTo() const { return 0 == segment_count_; }
 
   Point moveToPt() const { return first_pt_; }
@@ -158,4 +159,3 @@ class PathStroker {
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_PATH_STROKER_HPP
-

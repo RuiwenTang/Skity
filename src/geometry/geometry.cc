@@ -87,6 +87,30 @@ glm::vec2 CubicCoeff::eval(glm::vec2 const& t)
   return ((A * t + B) * t + C) * t + D;
 }
 
+void CubicCoeff::ChopCubicAt(const Point src[4], Point dst[7], float t)
+{
+  glm::vec2 p0 = FromPoint(src[0]);
+  glm::vec2 p1 = FromPoint(src[1]);
+  glm::vec2 p2 = FromPoint(src[2]);
+  glm::vec2 p3 = FromPoint(src[3]);
+  glm::vec2 tt{t, t};
+
+  glm::vec2 ab = Interp(p0, p1, tt);
+  glm::vec2 bc = Interp(p1, p2, tt);
+  glm::vec2 cd = Interp(p2, p3, tt);
+  glm::vec2 abc = Interp(ab, bc, tt);
+  glm::vec2 bcd = Interp(bc, cd, tt);
+  glm::vec2 abcd = Interp(abc, bcd, tt);
+
+  dst[0] = ToPoint(p0);
+  dst[1] = ToPoint(ab);
+  dst[2] = ToPoint(abc);
+  dst[3] = ToPoint(abcd);
+  dst[4] = ToPoint(bcd);
+  dst[5] = ToPoint(cd);
+  dst[6] = ToPoint(p3);
+}
+
 ConicCoeff::ConicCoeff(Conic const& conic)
 {
   glm::vec2 P0 = FromPoint(conic.pts[0]);
