@@ -86,6 +86,8 @@ class Paint {
 
   void setStrokeJoin(Join join);
 
+  static constexpr const float DefaultMiterLimit = float(4);
+
  private:
   Cap cap_ = kDefault_Cap;
   Join join_ = kDefault_Join;
@@ -97,4 +99,3 @@ class Paint {
 }  // namespace skity
 
 #endif  // SKITY_GRAPHIC_PAINT_HPP
-

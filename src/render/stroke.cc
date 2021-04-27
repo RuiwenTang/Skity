@@ -1,10 +1,12 @@
 #include "src/render/stroke.hpp"
 
+#include <array>
 #include <skity/geometry/point.hpp>
 
 #include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/point_priv.hpp"
+#include "src/render/path_stroker.hpp"
 
 namespace skity {
 
@@ -95,7 +97,94 @@ class AutoTmpPath {
   bool swap_with_src_;
 };
 
-Stroke::Stroke() {}
+Stroke::Stroke()
+    : width_(Float1),
+      miter_limit_(Paint::DefaultMiterLimit),
+      res_scale_(1.f),
+      cap_(Paint::Cap::kDefault_Cap),
+      join_(Paint::Join::kDefault_Join),
+      do_fill_(false)
+{
+}
+
+Stroke::Stroke(Paint const& paint)
+    : width_(paint.getStrokeWidth()),
+      miter_limit_(paint.getStrokeMiter()),
+      res_scale_(1.f),
+      cap_(paint.getStrokeCap()),
+      join_(paint.getStrokeJoin()),
+      do_fill_(paint.getStyle() == Paint::kStrokeAndFill_Style)
+{
+}
+
+void Stroke::strokePath(Path const& path, Path* result) const
+{
+  float radius = FloatHalf * width_;
+
+  AutoTmpPath tmp{path, &result};
+
+  if (radius <= 0) {
+    return;
+  }
+
+  bool ignore_center = do_fill_;
+
+  PathStroker stroker{path,  radius,     miter_limit_, cap_,
+                      join_, res_scale_, ignore_center};
+
+  Path::Iter iter{path, false};
+  Path::Verb last_segment = Path::Verb::kMove;
+
+  for (;;) {
+    std::array<Point, 4> pts;
+    switch (iter.next(pts.data())) {
+      case Path::Verb::kMove:
+        stroker.moveTo(pts[0]);
+        break;
+      case Path::Verb::kLine:
+        stroker.lineTo(pts[1], std::addressof(iter));
+        last_segment = Path::Verb::kLine;
+        break;
+      case Path::Verb::kQuad:
+        stroker.quadTo(pts[1], pts[2]);
+        last_segment = Path::Verb::kQuad;
+        break;
+      case Path::Verb::kConic:
+        stroker.conicTo(pts[1], pts[2], iter.conicWeight());
+        last_segment = Path::Verb::kConic;
+        break;
+      case Path::Verb::kCubic:
+        stroker.cubicTo(pts[1], pts[2], pts[3]);
+        last_segment = Path::Verb::kCubic;
+        break;
+      case Path::Verb::kClose:
+        if (cap_ != Paint::kButt_Cap) {
+          // If the stroke consists of a moveTo followed by a close, treat it as
+          // if it were followed by a zero-length line.
+          // Lines without length can have square and round end caps.
+          if (stroker.hasOnlyMoveTo()) {
+            stroker.lineTo(stroker.moveToPt());
+            goto ZERO_LENGTH;
+          }
+          if (stroker.isCurrentContourEmpty()) {
+          ZERO_LENGTH:
+            last_segment = Path::Verb::kLine;
+            break;
+          }
+        }
+        stroker.close(last_segment == Path::Verb::kLine);
+        break;
+      case Path::Verb::kDone:
+        goto DONE;
+    }
+  }
+DONE:
+  stroker.done(result, last_segment == Path::Verb::kLine);
+
+  if (do_fill_ && !ignore_center) {
+    // can not reach here
+    assert(false);
+  }
+}
 
 }  // namespace skity
-
