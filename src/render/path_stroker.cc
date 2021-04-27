@@ -177,6 +177,18 @@ static bool set_normal_unitnormal(Point const& before, Point const& after,
   return true;
 }
 
+static bool set_normal_unitnormal(Vector const& vec, float radius,
+                                  Vector* normal, Vector* unitNormal)
+{
+  if (!VectorSetNormal(*unitNormal, vec.x, vec.y)) {
+    return false;
+  }
+
+  PointRotateCCW(unitNormal);
+  PointScale(*unitNormal, radius, normal);
+  return true;
+}
+
 void PathStroker::lineTo(Point const& currPt, const Path::Iter* iter)
 {
   bool teenyLine =
@@ -945,4 +957,87 @@ void PathStroker::setConicEndNormal(Conic const& conic, Vector const& normalAB,
   setQuadEndNormal(conic.pts, normalAB, unitNormalAB, normalBC, unitNormalBC);
 }
 
+void PathStroker::setCubicEndNormal(const Point* cubic, Vector const& normalAB,
+                                    Vector const& unitNormalAB,
+                                    Vector* normalCD, Vector* unitNormalCD)
+{
+  Vector ab = cubic[1] - cubic[0];
+  Vector cd = cubic[3] - cubic[2];
+
+  bool degenerate_AB = DegenerateVector(ab);
+  bool degenerate_CD = DegenerateVector(cd);
+
+  if (degenerate_AB && degenerate_CD) {
+    goto DEGENERATE_NORMAL;
+  }
+
+  if (degenerate_AB) {
+    ab = cubic[2] - cubic[0];
+    degenerate_AB = DegenerateVector(ab);
+  }
+
+  if (degenerate_CD) {
+    cd = cubic[3] - cubic[1];
+    degenerate_CD = DegenerateVector(cd);
+  }
+
+  if (degenerate_AB || degenerate_CD) {
+  DEGENERATE_NORMAL:
+    *normalCD = normalAB;
+    *unitNormalCD = unitNormalAB;
+    return;
+  }
+
+  set_normal_unitnormal(cd, radius_, normalCD, unitNormalCD);
+}
+
+PathStroker::ResultType PathStroker::intersectRay(
+    QuadConstruct* quad_pts, IntersectRayType intersect_ray_type) const
+{
+  Point const& start = quad_pts->quad[0];
+  Point const& end = quad_pts->quad[2];
+
+  Vector a_len = quad_pts->tangentStart - start;
+  Vector b_len = quad_pts->tangentEnd - end;
+
+  float denom = CrossProduct(a_len, b_len);
+
+  if (denom == 0 || glm::isinf(denom)) {
+    quad_pts->opposieTangents = glm::dot(a_len, b_len) < 0;
+    return ResultType::kDegenerate;
+  }
+
+  quad_pts->opposieTangents = false;
+  Vector ab0 = start - end;
+  float numberA = CrossProduct(b_len, ab0);
+  float numberB = CrossProduct(a_len, ab0);
+
+  if ((numberA >= 0) == (numberA >= 0)) {
+    // if the prependicular distances from the quad points to the opposite
+    // tangent line are small, a straight line is good enough
+    float dist1 = pt_to_line(start, end, quad_pts->tangentEnd);
+    float dist2 = pt_to_line(end, start, quad_pts->tangentStart);
+    if (glm::max(dist1, dist2) <= inv_res_scale_squared_) {
+      return ResultType::kDegenerate;
+    }
+    return ResultType::kSplit;
+  }
+  // check to see if the denominator is teeny relative to the numerator if the
+  // offset by one will be lost, the ratio is too large
+  numberA /= denom;
+  bool valid_divided = numberA > numberA - 1;
+  if (valid_divided) {
+    if (intersect_ray_type == IntersectRayType::kCtrlPt) {
+      Point* ctrl_pt = std::addressof(quad_pts->quad[1]);
+      PointSet(*ctrl_pt,
+               start.x * (1 - numberA) + quad_pts->tangentStart.x * numberA,
+               start.y * (1 - numberA) + quad_pts->tangentStart.y * numberA);
+    }
+    return ResultType::kQuad;
+  }
+
+  quad_pts->opposieTangents = glm::dot(a_len, b_len) < 0;
+  // if the lines are parallel, straight line is good enough
+  return ResultType::kDegenerate;
+}
 }  // namespace skity

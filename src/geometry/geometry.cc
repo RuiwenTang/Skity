@@ -2,6 +2,7 @@
 #include "src/geometry/geometry.hpp"
 
 #include "src/geometry/conic.hpp"
+#include "src/geometry/point_priv.hpp"
 
 namespace skity {
 
@@ -109,6 +110,29 @@ glm::vec2 ConicCoeff::eval(float t)
   glm::vec2 n = numer.eval(tt);
   glm::vec2 d = denom.eval(tt);
   return n / d;
+}
+
+bool DegenerateVector(Vector const& v) { return !PointCanNormalize(v.x, v.y); }
+
+float pt_to_line(Point const& pt, Point const& lineStart, Point const& lineEnd)
+{
+  Vector dxy = lineEnd - lineStart;
+  Vector ab0 = pt - lineStart;
+
+  float number = VectorDotProduct(dxy, ab0);
+  float denom = VectorDotProduct(dxy, dxy);
+  float t = SkityIEEEFloatDivided(number, denom);
+  if (t >= 0 && t <= 1) {
+    Point hit;
+    hit.x = lineStart.x * (1 - t) + lineEnd.x * t;
+    hit.y = lineStart.y * (1 - t) + lineEnd.y * t;
+    hit.z = 0;
+    hit.w = 1;
+    return PointDistanceToSqd(hit, pt);
+  }
+  else {
+    return PointDistanceToSqd(pt, lineStart);
+  }
 }
 
 }  // namespace skity

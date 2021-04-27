@@ -7,7 +7,6 @@
 #include <skity/geometry/point.hpp>
 
 #include "src/geometry/math.hpp"
-#include "src/geometry/point_priv.hpp"
 
 namespace skity {
 
@@ -342,10 +341,7 @@ inline static int FindCubicInflections(const Point src[4], float tValues[])
                            Ax * By - Ay * Bx, tValues);
 }
 
-static inline bool DegenerateVector(Vector const& v)
-{
-  return !PointCanNormalize(v.x, v.y);
-}
+bool DegenerateVector(Vector const& v);
 
 /**
  * Returns the distance squared from the point to the line segment
@@ -356,27 +352,7 @@ static inline bool DegenerateVector(Vector const& v)
  *
  * @return distance squared value
  */
-static float pt_to_line(Point const& pt, Point const& lineStart,
-                        Point const& lineEnd)
-{
-  Vector dxy = lineEnd - lineStart;
-  Vector ab0 = pt - lineStart;
-
-  float number = VectorDotProduct(dxy, ab0);
-  float denom = VectorDotProduct(dxy, dxy);
-  float t = SkityIEEEFloatDivided(number, denom);
-  if (t >= 0 && t <= 1) {
-    Point hit;
-    hit.x = lineStart.x * (1 - t) + lineEnd.x * t;
-    hit.y = lineStart.y * (1 - t) + lineEnd.y * t;
-    hit.z = 0;
-    hit.w = 1;
-    return PointDistanceToSqd(hit, pt);
-  }
-  else {
-    return PointDistanceToSqd(pt, lineStart);
-  }
-}
+float pt_to_line(Point const& pt, Point const& lineStart, Point const& lineEnd);
 
 /**
  * Given a cubic, determine if all four points are in a line
