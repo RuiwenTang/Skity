@@ -97,6 +97,11 @@ static inline bool PointCanNormalize(float dx, float dy)
   return (!glm::isinf(dx) && !glm::isinf(dy)) && (dx || dy);
 }
 
+static inline bool PointEqualsWithinTolerance(Point const& p1, Point const& p2)
+{
+  return !PointCanNormalize(p1.x - p2.x, p1.y - p2.y);
+}
+
 template <glm::length_t L, typename T, glm::qualifier Q>
 T VectorDotProduct(glm::vec<L, T, Q> const& a, glm::vec<L, T, Q> const& b)
 {

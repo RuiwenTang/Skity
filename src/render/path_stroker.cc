@@ -373,6 +373,14 @@ void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
   this->postJoinTo(pt3, normalCD, unitCD);
 }
 
+void PathStroker::close(bool is_line) { this->finishContour(true, is_line); }
+
+void PathStroker::done(Path* dst, bool is_line)
+{
+  this->finishContour(false, is_line);
+  dst->swap(outer_);
+}
+
 void PathStroker::setQuadEndNormal(const Point* quad, Vector const& normalAB,
                                    Vector const& unitNormalAB, Vector* normalBC,
                                    Vector* unitNormalBC)
