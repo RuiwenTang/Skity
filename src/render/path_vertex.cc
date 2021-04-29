@@ -33,6 +33,9 @@ size_t PathVertexBuilder::appendPoint(const Point& point)
 
 void PathVertexBuilder::appendTriangle(uint32_t p1, uint32_t p2, uint32_t p3)
 {
+  if (p1 == p2 || p2 == p3) {
+    return;
+  }
   Point const& point1 = path_vertex->getPoint(p1);
   Point const& point2 = path_vertex->getPoint(p2);
   Point const& point3 = path_vertex->getPoint(p3);
@@ -47,4 +50,3 @@ void PathVertexBuilder::appendTriangle(uint32_t p1, uint32_t p2, uint32_t p3)
 }
 
 }  // namespace skity
-
