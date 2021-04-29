@@ -10,7 +10,7 @@ namespace skity {
 
 /**
  * @class Canvas
- * Privide an interface for drawing.
+ * Provide an interface for drawing.
  */
 class Canvas {
  public:

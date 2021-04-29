@@ -33,10 +33,11 @@ std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
   std::array<Point, 4> pts;
   Path::Verb verb;
 
+  size_t start_point_index = 0;
+  size_t prev_point_index = 0;
+  size_t current_point_index = 0;
   while ((verb = iter.next(pts.data())) != Path::Verb::kDone) {
-    size_t start_point_index = 0;
-    size_t prev_point_index = 0;
-    size_t current_point_index = 0;
+
     switch (verb) {
       case Path::Verb::kMove:
         start_point_index = builder.appendPoint(pts[0]);

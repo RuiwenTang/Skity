@@ -1,6 +1,8 @@
 
 #include "src/render/path_vertex.hpp"
 
+#include <iostream>
+
 #include "src/geometry/math.hpp"
 
 namespace skity {
@@ -46,6 +48,28 @@ void PathVertexBuilder::appendTriangle(uint32_t p1, uint32_t p2, uint32_t p3)
   }
   else {
     path_vertex->backTriangle(p1, p2, p3);
+  }
+}
+
+void PathVertex::dump()
+{
+  std::cout << "point ------   " << std::endl;
+  size_t index = 0;
+  for (auto& point : this->point_buffer) {
+    std::cout << "P " << index << " {" << point.x << ", " << point.y << "}"
+              << std::endl;
+    index++;
+  }
+
+  std::cout << "front ----- " << std::endl;
+  for (size_t i = 0; i < this->front_vertices.size(); i += 3) {
+    std::cout << "F {" << front_vertices[i] << ", " << front_vertices[i + 1]
+              << ", " << front_vertices[i + 2] << "}" << std::endl;
+  }
+  std::cout << "back ----- " << std::endl;
+  for (size_t i = 0; i < this->back_vertices.size(); i += 3) {
+    std::cout << "B {" << back_vertices[i] << ", " << back_vertices[i + 1]
+              << ", " << back_vertices[i + 2] << "}" << std::endl;
   }
 }
 
