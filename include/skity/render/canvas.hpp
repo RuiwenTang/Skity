@@ -2,6 +2,7 @@
 #ifndef SKITY_RENDER_CANVAS_HPP
 #define SKITY_RENDER_CANVAS_HPP
 
+#include <memory>
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
@@ -112,6 +113,9 @@ class Canvas {
   void drawLine(float x0, float y0, float x1, float y1, Paint const& paint);
 
   void drawPath(Path const& path, Paint const& paint);
+
+  static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
+                                              uint32_t width, uint32_t height);
 };
 
 }  // namespace skity
