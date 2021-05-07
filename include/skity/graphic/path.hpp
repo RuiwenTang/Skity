@@ -150,6 +150,10 @@ class Path {
   Path() = default;
   ~Path() = default;
 
+  Path(Path const&) = default;
+  Path& operator=(Path const&) = default;
+  Path(Path&&) = default;
+
   inline size_t countPoints() const { return points_.size(); }
   inline size_t countVerbs() const { return verbs_.size(); }
 
