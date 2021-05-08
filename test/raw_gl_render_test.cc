@@ -24,14 +24,16 @@ Path make_path()
 {
   Path path;
 
-  path.moveTo(10, 10);
-  path.lineTo(20, 20);
-  path.lineTo(30, 10);
+  path.moveTo(40, 40);
+  path.lineTo(200, 200);
+  path.lineTo(300, 100);
+
+  // path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
 
   Paint paint;
-  paint.setStrokeWidth(4.f);
-  paint.setStrokeCap(Paint::kRound_Cap);
-  paint.setStrokeJoin(Paint::kMiter_Join);
+  paint.setStrokeWidth(10.f);
+  paint.setStrokeCap(Paint::kButt_Cap);
+  paint.setStrokeJoin(Paint::kRound_Join);
 
   Path dst;
   Stroke stroke(paint);
@@ -155,13 +157,54 @@ Mesh setup_mesh(PathVertex* vertex)
 
 void render_window(GLFWwindow* window, PathVertex* path_vertex)
 {
+  path_vertex->dump();
   glClearColor(0.3, 0.4, 0.5, 1.0);
   glClearStencil(0);
+  glStencilMask(0xFF);
+  glEnable(GL_STENCIL_TEST);
+
   GLuint shader = prepare_shader();
+  GLint mvp_location = glGetUniformLocation(shader, "mvp");
+  GLint color_location = glGetUniformLocation(shader, "color");
   Mesh mesh = setup_mesh(path_vertex);
   glm::mat4 mvp = glm::ortho<float>(0, 800, 600, 0, -100, 100);
+
+  glUseProgram(shader);
+  glUniform4f(color_location, 1.f, 1.f, 0.f, 1.f);
+  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
   while (!glfwWindowShouldClose(window)) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(shader);
+
+    glBindVertexArray(mesh.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    // step 1 disable color and stencil path
+    glColorMask(0, 0, 0, 0);
+    glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
+
+    // front triangles
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
+    glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
+                   GL_UNSIGNED_INT, (void*)0);
+
+    glStencilFunc(GL_ALWAYS, 0x00, 0x0F);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
+    glDrawElements(GL_TRIANGLES, path_vertex->backVerticesIndex().size(),
+                   GL_UNSIGNED_INT, (void*)0);
+
+    // step 2 enable color and stencil test fill
+    glColorMask(1, 1, 1, 1);
+    glStencilFunc(GL_EQUAL, 0x01, 0x1F);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
+    glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
+                   GL_UNSIGNED_INT, (void*)0);
 
     glfwSwapBuffers(window);
     glfwPollEvents();

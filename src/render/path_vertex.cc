@@ -43,7 +43,7 @@ void PathVertexBuilder::appendTriangle(uint32_t p1, uint32_t p2, uint32_t p3)
   Point const& point3 = path_vertex->getPoint(p3);
 
   Orientation orientation = CalculateOrientation(point1, point2, point3);
-  if (orientation == Orientation::kClockWise) {
+  if (orientation == Orientation::kAntiClockWise) {
     path_vertex->frontTriangle(p1, p2, p3);
   }
   else {
