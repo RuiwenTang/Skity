@@ -14,9 +14,9 @@ class QuadConstruct;
 
 class PathStroker {
  public:
-  enum class StrokeType {
-    kOuter,
-    kInner,
+  enum StrokeType {
+    kOuter_StrokeType = 1,
+    kInner_StrokeType = -1,
   };
 
   enum class ResultType {
@@ -28,17 +28,17 @@ class PathStroker {
     kQuad,
   };
 
-  enum class ReductionType {
+  enum ReductionType {
     // all curve points are practically identical
-    kPoint,
+    kPoint_ReductionType,
     // the control point is on the line between the ends
-    kLine,
+    kLine_ReductionType,
     // the control point is outside the line between the ends
-    kQuad,
+    kQuad_ReductionType,
     // the control point is on the line but outside the ends
-    kDegenerate,
-    kDegenerate2,
-    kDegenerate3,
+    kDegenerate_ReductionType,
+    kDegenerate2_ReductionType,
+    kDegenerate3_ReductionType,
   };
 
   enum class IntersectRayType {

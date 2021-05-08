@@ -205,8 +205,9 @@ void PathStroker::lineTo(Point const& currPt, const Path::Iter* iter)
 
   Vector normal, unitNormal;
 
-  if (this->preJoinTo(currPt, std::addressof(normal),
-                      std::addressof(unitNormal), true)) {
+  if (!this->preJoinTo(currPt, std::addressof(normal),
+                       std::addressof(unitNormal), true)) {
+    return;
   }
 
   this->line_to(currPt, normal);
@@ -219,7 +220,7 @@ void PathStroker::quadTo(Point const& pt1, Point const& pt2)
   Point reduction;
   ReductionType reduction_type =
       CheckQuadLinear(quad.data(), std::addressof(reduction));
-  if (reduction_type == ReductionType::kPoint) {
+  if (reduction_type == ReductionType::kPoint_ReductionType) {
     // If the stroke consists of a moveTo followed by a degenerate curve, treat
     // it as if it were followed by zero-length line. Lines without length can
     // have square and round end caps
@@ -227,11 +228,11 @@ void PathStroker::quadTo(Point const& pt1, Point const& pt2)
     return;
   }
 
-  if (reduction_type == ReductionType::kLine) {
+  if (reduction_type == ReductionType::kLine_ReductionType) {
     this->lineTo(pt2);
     return;
   }
-  if (reduction_type == ReductionType::kDegenerate) {
+  if (reduction_type == ReductionType::kDegenerate_ReductionType) {
     this->lineTo(reduction);
     auto save_joiner = std::move(joiner_);
     joiner_ = JoinProc::MakeJoinProc(Paint::kRound_Join);
@@ -240,7 +241,7 @@ void PathStroker::quadTo(Point const& pt1, Point const& pt2)
     return;
   }
 
-  assert(reduction_type == ReductionType::kQuad);
+  assert(reduction_type == ReductionType::kQuad_ReductionType);
 
   Vector normalAB, unitAB, normalBC, unitBC;
 
@@ -251,9 +252,9 @@ void PathStroker::quadTo(Point const& pt1, Point const& pt2)
   }
 
   QuadConstruct quad_pts{};
-  this->init(StrokeType::kOuter, std::addressof(quad_pts), 0, 1);
+  this->init(StrokeType::kOuter_StrokeType, std::addressof(quad_pts), 0, 1);
   this->quadStroke(quad.data(), std::addressof(quad_pts));
-  this->init(StrokeType::kInner, std::addressof(quad_pts), 0, 1);
+  this->init(StrokeType::kInner_StrokeType, std::addressof(quad_pts), 0, 1);
   this->quadStroke(quad.data(), std::addressof(quad_pts));
 
   this->setQuadEndNormal(quad.data(), normalAB, unitAB,
@@ -269,17 +270,17 @@ void PathStroker::conicTo(Point const& pt1, Point const& pt2, float weight)
   ReductionType reduction_type =
       CheckConicLinear(conic, std::addressof(reduction));
 
-  if (reduction_type == ReductionType::kPoint) {
+  if (reduction_type == ReductionType::kPoint_ReductionType) {
     this->lineTo(pt2);
     return;
   }
 
-  if (reduction_type == ReductionType::kLine) {
+  if (reduction_type == ReductionType::kLine_ReductionType) {
     this->lineTo(pt2);
     return;
   }
 
-  if (reduction_type == ReductionType::kDegenerate) {
+  if (reduction_type == ReductionType::kDegenerate_ReductionType) {
     this->lineTo(reduction);
     auto save_joiner = std::move(joiner_);
     joiner_ = JoinProc::MakeJoinProc(Paint::kRound_Join);
@@ -296,9 +297,9 @@ void PathStroker::conicTo(Point const& pt1, Point const& pt2, float weight)
   }
 
   QuadConstruct quad_pts;
-  this->init(StrokeType::kOuter, std::addressof(quad_pts), 0, 1);
+  this->init(StrokeType::kOuter_StrokeType, std::addressof(quad_pts), 0, 1);
   this->conicStroke(conic, std::addressof(quad_pts));
-  this->init(StrokeType::kInner, std::addressof(quad_pts), 0, 1);
+  this->init(StrokeType::kInner_StrokeType, std::addressof(quad_pts), 0, 1);
   this->conicStroke(conic, std::addressof(quad_pts));
   this->setConicEndNormal(conic, normalAB, unitAB, std::addressof(normalBC),
                           std::addressof(unitBC));
@@ -313,26 +314,24 @@ void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
   const Point* tangent_pt;
   ReductionType reduction_type = CheckCubicLinear(
       cubic.data(), reductions.data(), std::addressof(tangent_pt));
-  if (reduction_type == ReductionType::kPoint) {
+  if (reduction_type == ReductionType::kPoint_ReductionType) {
     this->lineTo(pt3);
     return;
   }
-  if (reduction_type == ReductionType::kLine) {
+  if (reduction_type == ReductionType::kLine_ReductionType) {
     this->lineTo(pt3);
     return;
   }
 
-  if (reduction_type == ReductionType::kDegenerate ||
-      reduction_type == ReductionType::kDegenerate2 ||
-      reduction_type == ReductionType::kDegenerate3) {
+  if (kDegenerate_ReductionType <= reduction_type &&
+      kDegenerate3_ReductionType >= reduction_type) {
     this->lineTo(reductions[0]);
     auto save_joiner = std::move(joiner_);
     joiner_ = JoinProc::MakeJoinProc(Paint::kRound_Join);
-    if (reduction_type == ReductionType::kDegenerate2 ||
-        reduction_type == ReductionType::kDegenerate3) {
+    if (kDegenerate2_ReductionType <= reduction_type) {
       this->lineTo(reductions[1]);
     }
-    if (reduction_type == ReductionType::kDegenerate3) {
+    if (reduction_type == ReductionType::kDegenerate3_ReductionType) {
       this->lineTo(reductions[2]);
     }
     this->lineTo(reductions[3]);
@@ -352,9 +351,9 @@ void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
   for (int32_t index = 0; index <= count; index++) {
     float next_t = index < count ? t_values[index] : 1;
     QuadConstruct quad_pts;
-    this->init(StrokeType::kOuter, std::addressof(quad_pts), last_t, next_t);
+    this->init(StrokeType::kOuter_StrokeType, std::addressof(quad_pts), last_t, next_t);
     this->cubicStroke(cubic.data(), std::addressof(quad_pts));
-    this->init(StrokeType::kInner, std::addressof(quad_pts), last_t, next_t);
+    this->init(StrokeType::kInner_StrokeType, std::addressof(quad_pts), last_t, next_t);
     this->cubicStroke(cubic.data(), std::addressof(quad_pts));
     last_t = next_t;
   }
@@ -539,7 +538,7 @@ void PathStroker::finishContour(bool close, bool is_line)
 void PathStroker::addDegenerateLine(const QuadConstruct* quad_pts)
 {
   const Point* quad = quad_pts->quad;
-  Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+  Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
                                                   : std::addressof(inner_);
   path->lineTo(quad[2].x, quad[2].y);
 }
@@ -550,24 +549,24 @@ PathStroker::ReductionType PathStroker::CheckConicLinear(Conic const& conic,
   bool degenerate_AB = DegenerateVector(conic.pts[1] - conic.pts[0]);
   bool degenerate_BC = DegenerateVector(conic.pts[2] - conic.pts[1]);
   if (degenerate_AB & degenerate_BC) {
-    return ReductionType::kPoint;
+    return ReductionType::kPoint_ReductionType;
   }
 
   if (degenerate_AB | degenerate_BC) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
   if (!conic_in_line(conic)) {
-    return ReductionType::kQuad;
+    return ReductionType::kQuad_ReductionType;
   }
 
   float t = FindQuadMaxCurvature(conic.pts);
   if (t == 0) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
   conic.evalAt(t, reduction, nullptr);
-  return ReductionType::kDegenerate;
+  return ReductionType::kDegenerate_ReductionType;
 }
 
 PathStroker::ReductionType PathStroker::CheckCubicLinear(
@@ -578,17 +577,17 @@ PathStroker::ReductionType PathStroker::CheckCubicLinear(
   bool degenerate_CD = DegenerateVector(cubic[3] - cubic[2]);
 
   if (degenerate_AB & degenerate_BC & degenerate_CD) {
-    return ReductionType::kPoint;
+    return ReductionType::kPoint_ReductionType;
   }
 
   if (degenerate_AB + degenerate_BC + degenerate_CD == 2) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
   if (!cubic_in_line(cubic)) {
     *tangent_pt_ptr =
         degenerate_AB ? std::addressof(cubic[2]) : std::addressof(cubic[1]);
-    return ReductionType::kQuad;
+    return ReductionType::kQuad_ReductionType;
   }
 
   std::array<float, 3> t_values;
@@ -608,22 +607,17 @@ PathStroker::ReductionType PathStroker::CheckCubicLinear(
   }
 
   if (r_count == 0) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
-  if (r_count == 1) {
-    return ReductionType::kDegenerate;
-  }
-  else if (r_count == 2) {
-    return ReductionType::kDegenerate2;
-  }
-  else if (r_count == 3) {
-    return ReductionType::kDegenerate3;
-  }
-  else {
-    // can not reach here
-    assert(false);
-  }
+  static_assert(kQuad_ReductionType + 1 == kDegenerate_ReductionType,
+                "enum_out_of_whack");
+  static_assert(kQuad_ReductionType + 2 == kDegenerate2_ReductionType,
+                "enum_out_of_whack");
+  static_assert(kQuad_ReductionType + 3 == kDegenerate3_ReductionType,
+                "enum_out_of_whack");
+
+  return static_cast<ReductionType>(kQuad_ReductionType + r_count);
 }
 
 PathStroker::ReductionType PathStroker::CheckQuadLinear(const Point quad[3],
@@ -632,24 +626,24 @@ PathStroker::ReductionType PathStroker::CheckQuadLinear(const Point quad[3],
   bool degenerate_AB = DegenerateVector(quad[1] - quad[0]);
   bool degenerate_BC = DegenerateVector(quad[2] - quad[1]);
   if (degenerate_AB & degenerate_BC) {
-    return ReductionType::kPoint;
+    return ReductionType::kPoint_ReductionType;
   }
 
   if (degenerate_AB | degenerate_BC) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
   if (!quad_in_line(quad)) {
-    return ReductionType::kQuad;
+    return ReductionType::kQuad_ReductionType;
   }
 
   float t = FindQuadMaxCurvature(quad);
   if (0 == t || 1 == t) {
-    return ReductionType::kLine;
+    return ReductionType::kLine_ReductionType;
   }
 
   *reduction = QuadCoeff::EvalQuadAt({quad[0], quad[1], quad[2]}, t);
-  return ReductionType::kDegenerate;
+  return ReductionType::kDegenerate_ReductionType;
 }
 
 PathStroker::ResultType PathStroker::compareQuadConic(Conic const& conic,
@@ -753,7 +747,7 @@ bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts)
   ResultType result_type = this->compareQuadConic(conic, quad_pts);
   if (result_type == ResultType::kQuad) {
     const Point* stroke = quad_pts->quad;
-    Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
                                                     : std::addressof(inner_);
     path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
     return true;
@@ -770,6 +764,10 @@ bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts)
 
   QuadConstruct half;
   half.initWithStart(quad_pts);
+  if (!this->conicStroke(conic, std::addressof(half))) {
+    return false;
+  }
+  half.initWithEnd(quad_pts);
   if (!this->conicStroke(conic, std::addressof(half))) {
     return false;
   }
@@ -864,7 +862,7 @@ bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
   if (found_tangents_) {
     ResultType result_type = this->compareQuadCubic(cubic, quad_pts);
     if (result_type == ResultType::kQuad) {
-      Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+      Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
                                                       : std::addressof(inner_);
       const Point* stroke = quad_pts->quad;
       path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
@@ -931,7 +929,7 @@ bool PathStroker::quadStroke(const Point quad[3], QuadConstruct* quad_pts)
 
   if (result_type == ResultType::kQuad) {
     const Point* stroke = quad_pts->quad;
-    Path* path = stroke_type_ == StrokeType::kOuter ? std::addressof(outer_)
+    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
                                                     : std::addressof(inner_);
     path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
     return true;
@@ -1022,7 +1020,7 @@ PathStroker::ResultType PathStroker::intersectRay(
   float numberA = CrossProduct(b_len, ab0);
   float numberB = CrossProduct(a_len, ab0);
 
-  if ((numberA >= 0) == (numberA >= 0)) {
+  if ((numberA >= 0) == (numberB >= 0)) {
     // if the prependicular distances from the quad points to the opposite
     // tangent line are small, a straight line is good enough
     float dist1 = pt_to_line(start, end, quad_pts->tangentEnd);

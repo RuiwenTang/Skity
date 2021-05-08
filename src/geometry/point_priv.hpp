@@ -149,7 +149,7 @@ static inline bool SharpAngle(const Point quad[3])
     return false;
   }
 
-  float dot = glm::dot(glm::vec2{smaller}, glm::vec2{larger});
+  float dot = glm::dot(smaller, larger);
   return dot > 0;
 }
 

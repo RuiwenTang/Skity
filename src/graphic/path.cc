@@ -19,14 +19,18 @@ class Path_PointIterator {
 
   Path_PointIterator(Path::Direction dir, size_t startIndex)
       : current_(startIndex % N),
-        advance_(dir == Path::Direction::kCW ? 1 : N - 1) {}
+        advance_(dir == Path::Direction::kCW ? 1 : N - 1)
+  {
+  }
 
-  const Point& current() const {
+  const Point& current() const
+  {
     assert(current_ < N);
     return pts[current_];
   }
 
-  const Point& next() {
+  const Point& next()
+  {
     current_ = (current_ + advance_) % N;
     return this->current();
   }
@@ -43,7 +47,8 @@ class Path_RectPointIterator : public Path_PointIterator<4> {
  public:
   Path_RectPointIterator(const Rect& rect, Path::Direction dir,
                          size_t startIndex)
-      : Path_PointIterator<4>(dir, startIndex) {
+      : Path_PointIterator<4>(dir, startIndex)
+  {
     pts[0] = Point{rect.left(), rect.top(), 0, 1};
     pts[1] = Point{rect.right(), rect.top(), 0, 1};
     pts[2] = Point{rect.right(), rect.bottom(), 0, 1};
@@ -55,7 +60,8 @@ class Path_OvalPointIterator : public Path_PointIterator<4> {
  public:
   Path_OvalPointIterator(const Rect& oval, Path::Direction dir,
                          size_t startIndex)
-      : Path_PointIterator<4>(dir, startIndex) {
+      : Path_PointIterator<4>(dir, startIndex)
+  {
     const float cx = oval.centerX();
     const float cy = oval.centerY();
 
@@ -69,7 +75,9 @@ class Path_OvalPointIterator : public Path_PointIterator<4> {
 class AutoDisableDirectionCheck {
  public:
   explicit AutoDisableDirectionCheck(Path* p)
-      : path{p}, saved{p->getFirstDirection()} {}
+      : path{p}, saved{p->getFirstDirection()}
+  {
+  }
   ~AutoDisableDirectionCheck() { path->setFirstDirection(saved); }
 
  private:
@@ -79,7 +87,8 @@ class AutoDisableDirectionCheck {
 
 class AutoPathBoundsUpdate {
  public:
-  AutoPathBoundsUpdate(Path* p, const Rect& r) : path{p}, rect{r} {
+  AutoPathBoundsUpdate(Path* p, const Rect& r) : path{p}, rect{r}
+  {
     rect.sort();
     has_valid_bounds = path->isFinite();
     empty = path->isEmpty();
@@ -90,7 +99,8 @@ class AutoPathBoundsUpdate {
   }
 
  private:
-  static void JoinNoEmptyChecks(Rect* dst, const Rect& src) {
+  static void JoinNoEmptyChecks(Rect* dst, const Rect& src)
+  {
     float s_left = src.left();
     float s_top = src.top();
     float s_right = src.right();
@@ -124,13 +134,17 @@ Path::Iter::Iter()
       close_line_(false),
       move_to_(),
       last_pt_(),
-      segment_state_(SegmentState::kEmptyContour) {}
+      segment_state_(SegmentState::kEmptyContour)
+{
+}
 
-Path::Iter::Iter(const Path& path, bool forceClose) : Iter() {
+Path::Iter::Iter(const Path& path, bool forceClose) : Iter()
+{
   this->setPath(path, forceClose);
 }
 
-void Path::Iter::setPath(Path const& path, bool forceClose) {
+void Path::Iter::setPath(Path const& path, bool forceClose)
+{
   pts_ = path.points_.data();
   verbs_ = path.verbs_.data();
   verb_stop_ = path.verbs_.data() + path.countVerbs();
@@ -144,7 +158,8 @@ void Path::Iter::setPath(Path const& path, bool forceClose) {
   segment_state_ = SegmentState::kEmptyContour;
 }
 
-Path::Verb Path::Iter::next(Point pts[4]) {
+Path::Verb Path::Iter::next(Point pts[4])
+{
   if (verbs_ == verb_stop_) {
     // Close the curve if requested and if there is some curve to close
     if (need_close_ && segment_state_ == SegmentState::kAfterPrimitive) {
@@ -207,7 +222,8 @@ Path::Verb Path::Iter::next(Point pts[4]) {
       verb = this->autoClose(p_pts);
       if (verb == Verb::kLine) {
         verbs_--;
-      } else {
+      }
+      else {
         need_close_ = false;
         segment_state_ = SegmentState::kEmptyContour;
       }
@@ -222,7 +238,8 @@ Path::Verb Path::Iter::next(Point pts[4]) {
 
 float Path::Iter::conicWeight() const { return *conic_weights_; }
 
-bool Path::Iter::isClosedContour() const {
+bool Path::Iter::isClosedContour() const
+{
   if (verbs_ == nullptr || verbs_ == verb_stop_) {
     return false;
   }
@@ -251,7 +268,8 @@ bool Path::Iter::isClosedContour() const {
   return false;
 }
 
-Path::Verb Path::Iter::autoClose(Point* pts) {
+Path::Verb Path::Iter::autoClose(Point* pts)
+{
   if (last_pt_ != move_to_) {
     if (FloatIsNan(last_pt_.x) || FloatIsNan(last_pt_.y) ||
         FloatIsNan(move_to_.x) || FloatIsNan(move_to_.y)) {
@@ -263,13 +281,15 @@ Path::Verb Path::Iter::autoClose(Point* pts) {
     last_pt_ = move_to_;
     close_line_ = true;
     return Verb::kLine;
-  } else {
+  }
+  else {
     pts[0] = move_to_;
     return Verb::kClose;
   }
 }
 
-const Point& Path::Iter::consMoveTo() {
+const Point& Path::Iter::consMoveTo()
+{
   if (segment_state_ == SegmentState::kAfterMove) {
     segment_state_ = SegmentState::kAfterPrimitive;
     return move_to_;
@@ -284,14 +304,18 @@ Path::RawIter::RawIter()
     : pts_(nullptr),
       verbs_(nullptr),
       verb_stop_(nullptr),
-      conic_weights_(nullptr) {}
+      conic_weights_(nullptr)
+{
+}
 
-void Path::RawIter::setPath(const Path& path) {
+void Path::RawIter::setPath(const Path& path)
+{
   pts_ = path.points_.data();
   if (path.countVerbs() > 0) {
     verbs_ = path.verbs_.data();
     verb_stop_ = path.verbs_.data() + path.countVerbs();
-  } else {
+  }
+  else {
     verbs_ = verb_stop_ = nullptr;
   }
 
@@ -305,7 +329,8 @@ void Path::RawIter::setPath(const Path& path) {
   }
 }
 
-Path::Verb Path::RawIter::next(Point pts[4]) {
+Path::Verb Path::RawIter::next(Point pts[4])
+{
   if (verbs_ == verb_stop_) {
     return Verb::kDone;
   }
@@ -349,13 +374,15 @@ Path::Verb Path::RawIter::next(Point pts[4]) {
   return verb;
 }
 
-Path::Verb Path::RawIter::peek() const {
+Path::Verb Path::RawIter::peek() const
+{
   return verbs_ < verb_stop_ ? *verbs_ : Verb::kDone;
 }
 
 float Path::RawIter::conicWeight() const { return *conic_weights_; }
 
-static int _pts_in_verb(Path::Verb verb) {
+static int _pts_in_verb(Path::Verb verb)
+{
   switch (verb) {
     case Path::Verb::kMove:
     case Path::Verb::kLine:
@@ -371,7 +398,8 @@ static int _pts_in_verb(Path::Verb verb) {
   }
 }
 
-Path& Path::moveTo(float x, float y) {
+Path& Path::moveTo(float x, float y)
+{
   last_move_to_index_ = countPoints();
 
   verbs_.emplace_back(Verb::kMove);
@@ -380,7 +408,8 @@ Path& Path::moveTo(float x, float y) {
   return *this;
 }
 
-Path& Path::lineTo(float x, float y) {
+Path& Path::lineTo(float x, float y)
+{
   injectMoveToIfNeed();
 
   verbs_.emplace_back(Verb::kLine);
@@ -389,7 +418,8 @@ Path& Path::lineTo(float x, float y) {
   return *this;
 }
 
-Path& Path::quadTo(float x1, float y1, float x2, float y2) {
+Path& Path::quadTo(float x1, float y1, float x2, float y2)
+{
   injectMoveToIfNeed();
 
   verbs_.emplace_back(Verb::kQuad);
@@ -398,15 +428,19 @@ Path& Path::quadTo(float x1, float y1, float x2, float y2) {
   return *this;
 }
 
-Path& Path::conicTo(float x1, float y1, float x2, float y2, float weight) {
+Path& Path::conicTo(float x1, float y1, float x2, float y2, float weight)
+{
   if (!(weight > 0)) {
     this->lineTo(x2, y2);
-  } else if (glm::isinf(weight)) {
+  }
+  else if (glm::isinf(weight)) {
     this->lineTo(x1, y1);
     this->lineTo(x2, y2);
-  } else if (weight == Float1) {
+  }
+  else if (weight == Float1) {
     this->quadTo(x1, y1, x2, y2);
-  } else {
+  }
+  else {
     injectMoveToIfNeed();
 
     verbs_.emplace_back(Verb::kConic);
@@ -417,8 +451,8 @@ Path& Path::conicTo(float x1, float y1, float x2, float y2, float weight) {
   return *this;
 }
 
-Path& Path::cubicTo(float x1, float y1, float x2, float y2, float x3,
-                    float y3) {
+Path& Path::cubicTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
   injectMoveToIfNeed();
 
   verbs_.emplace_back(Verb::kCubic);
@@ -430,7 +464,8 @@ Path& Path::cubicTo(float x1, float y1, float x2, float y2, float x3,
   return *this;
 }
 
-Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius) {
+Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius)
+{
   if (radius == 0) {
     return lineTo(x1, y1);
   }
@@ -466,12 +501,14 @@ Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius) {
 }
 
 Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
-                  Direction sweep, float x, float y) {
+                  Direction sweep, float x, float y)
+{
   // TODO implement
   return *this;
 }
 
-Path& Path::close() {
+Path& Path::close()
+{
   size_t count = countVerbs();
   if (count > 0) {
     switch (verbs_.back()) {
@@ -495,12 +532,14 @@ Path& Path::close() {
   return *this;
 }
 
-Path& Path::reset() {
+Path& Path::reset()
+{
   *this = Path();
   return *this;
 }
 
-Path& Path::reverseAddPath(const Path& src) {
+Path& Path::reverseAddPath(const Path& src)
+{
   auto verbs_begin = src.verbs_.data();
   auto verbs = verbs_begin + src.verbs_.size();
   auto pts = src.points_.data() + src.countPoints();
@@ -552,7 +591,8 @@ Path& Path::reverseAddPath(const Path& src) {
   return *this;
 }
 
-Path& Path::addCircle(float x, float y, float radius, Direction dir) {
+Path& Path::addCircle(float x, float y, float radius, Direction dir)
+{
   if (radius > 0) {
     addOval(Rect::MakeLTRB(x - radius, y - radius, x + radius, y + radius),
             dir);
@@ -561,15 +601,18 @@ Path& Path::addCircle(float x, float y, float radius, Direction dir) {
   return *this;
 }
 
-Path& Path::addOval(const Rect& oval, Direction dir) {
+Path& Path::addOval(const Rect& oval, Direction dir)
+{
   return addOval(oval, dir, 1);
 }
 
-Path& Path::addOval(const Rect& oval, Direction dir, uint32_t start) {
+Path& Path::addOval(const Rect& oval, Direction dir, uint32_t start)
+{
   bool is_oval = hasOnlyMoveTos();
   if (is_oval) {
     first_direction_ = dir;
-  } else {
+  }
+  else {
     first_direction_ = Direction::kUnknown;
   }
 
@@ -592,7 +635,8 @@ Path& Path::addOval(const Rect& oval, Direction dir, uint32_t start) {
   return *this;
 }
 
-Path& Path::reversePathTo(const Path& src) {
+Path& Path::reversePathTo(const Path& src)
+{
   if (src.verbs_.empty()) {
     return *this;
   }
@@ -632,7 +676,8 @@ Path& Path::reversePathTo(const Path& src) {
   return *this;
 }
 
-bool Path::getLastPt(Point* lastPt) const {
+bool Path::getLastPt(Point* lastPt) const
+{
   size_t count = countPoints();
   if (count > 0) {
     if (lastPt) {
@@ -647,19 +692,22 @@ bool Path::getLastPt(Point* lastPt) const {
   return false;
 }
 
-Point Path::getPoint(int index) const {
+Point Path::getPoint(int index) const
+{
   if (index < countPoints()) {
     return points_[index];
   }
   return Point{0, 0, 0, 1};
 }
 
-bool Path::isFinite() const {
+bool Path::isFinite() const
+{
   computeBounds();
   return is_finite_;
 }
 
-bool Path::operator==(const Path& other) {
+bool Path::operator==(const Path& other)
+{
   return (this == std::addressof(other)) ||
          (last_move_to_index_ == other.last_move_to_index_ &&
           convexity_ == other.convexity_ && is_finite_ == other.is_finite_ &&
@@ -668,7 +716,8 @@ bool Path::operator==(const Path& other) {
           conic_weights_.data() == other.conic_weights_.data());
 }
 
-void Path::swap(Path& that) {
+void Path::swap(Path& that)
+{
   if (this != &that) {
     std::swap(last_move_to_index_, that.last_move_to_index_);
     std::swap(convexity_, that.convexity_);
@@ -679,16 +728,19 @@ void Path::swap(Path& that) {
   }
 }
 
-Path& Path::addPath(const Path& src, float dx, float dy, AddMode mode) {
+Path& Path::addPath(const Path& src, float dx, float dy, AddMode mode)
+{
   Matrix matrix = glm::translate(glm::identity<Matrix>(), glm::vec3{dx, dy, 0});
   return addPath(src, matrix, mode);
 }
 
-Path& Path::addPath(const Path& src, AddMode mode) {
+Path& Path::addPath(const Path& src, AddMode mode)
+{
   return addPath(src, glm::identity<Matrix>(), mode);
 }
 
-Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode) {
+Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode)
+{
   if (src.isEmpty()) {
     return *this;
   }
@@ -731,7 +783,8 @@ Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode) {
               last_pt != pts[0]) {
             lineTo(pts[0].x, pts[0].y);
           }
-        } else {
+        }
+        else {
           moveTo(pts[0].x, pts[0].y);
         }
         break;
@@ -766,20 +819,24 @@ Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode) {
   return *this;
 }
 
-void Path::setLastPt(float x, float y) {
+void Path::setLastPt(float x, float y)
+{
   if (countPoints() == 0) {
     moveTo(x, y);
-  } else {
+  }
+  else {
     PointSet(points_.back(), x, y);
   }
 }
 
-void Path::injectMoveToIfNeed() {
+void Path::injectMoveToIfNeed()
+{
   if (last_move_to_index_ < 0) {
     float x, y;
     if (countVerbs() == 0) {
       x = y = 0;
-    } else {
+    }
+    else {
       Point const& pt = atPoint(~last_move_to_index_);
       x = pt.x;
       y = pt.y;
@@ -788,11 +845,13 @@ void Path::injectMoveToIfNeed() {
   }
 }
 
-void Path::computeBounds() const {
+void Path::computeBounds() const
+{
   is_finite_ = ComputePtBounds(std::addressof(bounds_), *this);
 }
 
-bool Path::hasOnlyMoveTos() const {
+bool Path::hasOnlyMoveTos() const
+{
   for (auto it : verbs_) {
     if (it == Verb::kLine || it == Verb::kQuad || it == Verb::kConic ||
         it == Verb::kCubic) {
@@ -802,11 +861,13 @@ bool Path::hasOnlyMoveTos() const {
   return true;
 }
 
-bool Path::ComputePtBounds(Rect* bounds, const Path& ref) {
+bool Path::ComputePtBounds(Rect* bounds, const Path& ref)
+{
   return bounds->setBoundsCheck(ref.points_.data(), ref.countPoints());
 }
 
-bool Path::isZeroLengthSincePoint(int startPtIndex) const {
+bool Path::isZeroLengthSincePoint(int startPtIndex) const
+{
   int32_t count = countPoints() - startPtIndex;
   if (count < 2) {
     return true;
@@ -825,7 +886,8 @@ bool Path::isZeroLengthSincePoint(int startPtIndex) const {
 
 static void append_params(std::ostream& os, const std::string& label,
                           const Point pts[], int count,
-                          float conicWeight = -12345) {
+                          float conicWeight = -12345)
+{
   os << label << "(";
   for (int i = 0; i < count; i++) {
     const Point* point = pts + i;
@@ -842,7 +904,8 @@ static void append_params(std::ostream& os, const std::string& label,
   os << std::endl;
 }
 
-void Path::dump() {
+void Path::dump()
+{
   Iter iter{*this, false};
 
   Point pts[4];

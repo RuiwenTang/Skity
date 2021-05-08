@@ -24,15 +24,15 @@ Path make_path()
 {
   Path path;
 
-  path.moveTo(40, 40);
-  path.lineTo(200, 200);
-  path.lineTo(300, 100);
+  // path.moveTo(40, 40);
+  // path.lineTo(200, 200);
+  // path.lineTo(300, 100);
 
-  // path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
+  path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
 
   Paint paint;
   paint.setStrokeWidth(10.f);
-  paint.setStrokeCap(Paint::kButt_Cap);
+  paint.setStrokeCap(Paint::kRound_Cap);
   paint.setStrokeJoin(Paint::kRound_Join);
 
   Path dst;
@@ -214,7 +214,7 @@ void render_window(GLFWwindow* window, PathVertex* path_vertex)
 int main(int argc, const char** argv)
 {
   Path path = make_path();
-
+  path.dump();
   auto rastered_path = raster_path(path);
 
   GLFWwindow* window = init_glfw_window(800, 600);
