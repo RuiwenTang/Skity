@@ -24,15 +24,15 @@ Path make_path()
 {
   Path path;
 
-  // path.moveTo(40, 40);
-  // path.lineTo(200, 200);
-  // path.lineTo(300, 100);
+   path.moveTo(40, 40);
+   path.lineTo(200, 200);
+   path.lineTo(300, 100);
 
-  path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
+//    path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
 
   Paint paint;
   paint.setStrokeWidth(10.f);
-  paint.setStrokeCap(Paint::kRound_Cap);
+  paint.setStrokeCap(Paint::kButt_Cap);
   paint.setStrokeJoin(Paint::kRound_Join);
 
   Path dst;
@@ -186,13 +186,12 @@ void render_window(GLFWwindow* window, PathVertex* path_vertex)
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
 
     // front triangles
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
     glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
                    GL_UNSIGNED_INT, (void*)0);
 
-    glStencilFunc(GL_ALWAYS, 0x00, 0x0F);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
     glDrawElements(GL_TRIANGLES, path_vertex->backVerticesIndex().size(),
                    GL_UNSIGNED_INT, (void*)0);

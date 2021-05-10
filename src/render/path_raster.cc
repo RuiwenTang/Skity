@@ -14,7 +14,7 @@ void Eval(COEFF coeff, PathVertexBuilder& builder, size_t step,
           size_t start_point_index, size_t& prev_point_index,
           size_t& current_point_index)
 {
-  for (size_t i = 0; i <= step; i++) {
+  for (size_t i = 1; i <= step; i++) {
     prev_point_index = current_point_index;
     current_point_index =
         builder.appendPoint(coeff.evalAt((float)i / (float)step));
@@ -30,7 +30,7 @@ std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
 
   PathVertexBuilder builder;
 
-  std::array<Point, 4> pts;
+  std::array<Point, 4> pts = {};
   Path::Verb verb;
 
   size_t start_point_index = 0;
@@ -48,7 +48,7 @@ std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
         current_point_index = builder.appendPoint(pts[1]);
         break;
       case Path::Verb::kQuad:
-        Eval(QuadCoeff{pts[0], pts[1], pts[2]}, builder, curve_step,
+        Eval(QuadCoeff{{pts[0], pts[1], pts[2]}}, builder, curve_step,
              start_point_index, prev_point_index, current_point_index);
         continue;
       case Path::Verb::kConic:

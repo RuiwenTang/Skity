@@ -89,7 +89,8 @@ class RoundJoiner : public JoinProc {
             Point const& pivot, Vector const& afterUnitNormal, float radius,
             float invMiterLimit, bool prevIsLine, bool currIsLine) override
   {
-    float dot_prod = glm::dot(beforeUnitNormal, afterUnitNormal);
+//    float dot_prod = glm::dot(beforeUnitNormal, afterUnitNormal);
+    float dot_prod = beforeUnitNormal.x * afterUnitNormal.x + beforeUnitNormal.y * afterUnitNormal.y;
     AngleType angle_type = dot_2_angle_type(dot_prod);
 
     if (angle_type == kNearlyLine) {

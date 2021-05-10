@@ -30,7 +30,8 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
                         Conic dst[kMaxConicsForArc])
 {
   // rotate by x,y so that uStart is (1.0)
-  float x = glm::dot(start, stop);
+//  float x = glm::dot(start, stop);
+  float x = start.x * stop.x + start.y * stop.y;
   float y = CrossProduct(start, stop);
 
   float absY = glm::abs(y);
@@ -107,11 +108,11 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
   }
 
   if (userMatrix) {
-    matrix = *userMatrix * matrix;
+    matrix = matrix * *userMatrix;
   }
 
   for (int i = 0; i < conicCount; i++) {
-    for (int j = 0; i < 3; j++) {
+    for (int j = 0; j < 3; j++) {
       dst[i].pts[j] = dst[i].pts[j] * matrix;
     }
   }
