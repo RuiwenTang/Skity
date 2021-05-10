@@ -31,27 +31,30 @@ static AngleType dot_2_angle_type(float dot)
 static void handle_inner_join(Path* inner, Point const& pivot,
                               Vector const& after)
 {
-  // FIXME: to solve inner join intersect Point position
+//  // FIXME: to solve inner join intersect Point position
+//  Point last;
+//  inner->getLastPt(std::addressof(last));
+//  Point last_prev = inner->getPoint(inner->countPoints() - 2);
+//
+//  Vector v1 = last - pivot;
+//  Vector v2 = -after;
+//  Vector v = v1 + v2;
+//
+//  Vector normal = Vector{-v.y / glm::length(v), v.x / glm::length(v), 0, 0};
+//  Vector dir = last_prev - last;
+//  dir = dir * (1.f / glm::length(dir));
+//
+//  float distance;
+//  if (glm::intersectRayPlane(last, dir, pivot, normal, distance)) {
+//    Point intersect = last + distance * dir;
+//    inner->setLastPt(intersect);
+//  }
+
+//   inner->lineTo(pivot.x, pivot.y);
+//   inner->lineTo(pivot.x - after.x, pivot.y - after.y);
   Point last;
-  inner->getLastPt(std::addressof(last));
-  Point last_prev = inner->getPoint(inner->countPoints() - 2);
-
-  Vector v1 = last - pivot;
-  Vector v2 = -after;
-  Vector v = v1 + v2;
-
-  Vector normal = Vector{-v.y / glm::length(v), v.x / glm::length(v), 0, 0};
-  Vector dir = last_prev - last;
-  dir = dir * (1.f / glm::length(dir));
-
-  float distance;
-  if (glm::intersectRayPlane(last, dir, pivot, normal, distance)) {
-    Point intersect = last + distance * dir;
-    inner->setLastPt(intersect);
-  }
-
-  // inner->lineTo(pivot.x, pivot.y);
-  // inner->lineTo(pivot.x - after.x, pivot.y - after.y);
+  inner->getLastPt(&last);
+  inner->setLastPt(last.x - after.x, last.y - after.y);
 }
 
 class BevelJoiner : public JoinProc {
@@ -108,11 +111,10 @@ class RoundJoiner : public JoinProc {
       dir = RotationDirection::kCCW;
     }
 
-    Matrix matrix;
-    matrix = glm::scale(glm::identity<Matrix>(), {radius, radius, 1});
-    matrix =
-        glm::translate(glm::identity<Matrix>(), {pivot.x, pivot.y, 0}) * matrix;
+    Matrix scale = glm::scale(glm::identity<Matrix>(), {radius, radius, 1});
+    Matrix translate = glm::translate(glm::identity<Matrix>(), {pivot.x, pivot.y, 0});
 
+    Matrix matrix = translate * scale;
     std::array<Conic, Conic::kMaxConicsForArc> conics{};
 
     int32_t count = Conic::BuildUnitArc(before, after, dir,

@@ -101,10 +101,10 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
 
   // now handle counter-clockwise and the initial unitStart rotation
   Matrix matrix;
-  float angle = glm::acos(start.x);
+  float angle = glm::acos(CrossProduct(start, stop) / (glm::length(start) * glm::length(stop)));
   matrix = glm::rotate(glm::identity<Matrix>(), angle, {0, 0, 1});
   if (dir == RotationDirection::kCCW) {
-    matrix = glm::scale(glm::identity<Matrix>(), {Float1, -Float1, 1}) * matrix;
+    matrix = glm::scale(matrix, {Float1, -Float1, 1});
   }
 
   if (userMatrix) {
@@ -113,7 +113,7 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
 
   for (int i = 0; i < conicCount; i++) {
     for (int j = 0; j < 3; j++) {
-      dst[i].pts[j] = dst[i].pts[j] * matrix;
+      dst[i].pts[j] = matrix * dst[i].pts[j];
     }
   }
 
