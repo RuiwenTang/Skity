@@ -41,7 +41,8 @@ std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
     switch (verb) {
       case Path::Verb::kMove:
         start_point_index = builder.appendPoint(pts[0]);
-        prev_point_index = 0;
+        prev_point_index = start_point_index;
+        current_point_index = start_point_index;
         break;
       case Path::Verb::kLine:
         prev_point_index = current_point_index;
