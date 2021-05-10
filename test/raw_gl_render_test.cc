@@ -20,7 +20,7 @@ struct Mesh {
   GLuint back = 0;
 };
 
-Path make_path()
+Path make_stroke()
 {
   Path path;
 
@@ -33,10 +33,11 @@ Path make_path()
   path.quadTo(10, 192, 250, 250);
   path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
   path.addCircle(200, 200, 100);
+  path.addOval(Rect::MakeLTRB(200, 200, 300, 100));
 
   Paint paint;
   paint.setStrokeWidth(10.f);
-  paint.setStrokeCap(Paint::kSquare_Cap);
+  paint.setStrokeCap(Paint::kRound_Cap);
   paint.setStrokeJoin(Paint::kRound_Join);
 
   Path dst;
@@ -44,6 +45,21 @@ Path make_path()
 
   stroke.strokePath(path, &dst);
   return dst;
+}
+
+Path make_fill()
+{
+  Paint paint;
+  paint.setStrokeWidth(10.f);
+  paint.setStrokeCap(Paint::kRound_Cap);
+  paint.setStrokeJoin(Paint::kRound_Join);
+
+  Path path;
+  path.moveTo(10, 10);
+  path.quadTo(256, 64, 128, 128);
+  path.quadTo(10, 192, 250, 250);
+  path.close();
+  return path;
 }
 
 std::unique_ptr<PathVertex> raster_path(Path const& path)
@@ -222,17 +238,22 @@ void render_window(GLFWwindow* window, PathVertex* path_vertex)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
     glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
                    GL_UNSIGNED_INT, (void*)0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
+    glDrawElements(GL_TRIANGLES, path_vertex->backVerticesIndex().size(),
+                   GL_UNSIGNED_INT, (void*)0);
 
     // glUniform4f(color_location, 1.f, 1.f, 1.f, 1.f);
 
     // glDisable(GL_STENCIL_TEST);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
-    // glDrawElements(GL_LINES, path_vertex->frontVerticesIndex().size(),
+    // glDrawElements(GL_TRIANGLE_STRIP,
+    // path_vertex->frontVerticesIndex().size(),
     //                GL_UNSIGNED_INT, (void*)0);
 
     // glUniform4f(color_location, 0.f, 1.f, 1.f, 1.f);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
-    // glDrawElements(GL_LINES, path_vertex->backVerticesIndex().size(),
+    // glDrawElements(GL_TRIANGLE_STRIP,
+    // path_vertex->backVerticesIndex().size(),
     //                GL_UNSIGNED_INT, (void*)0);
 
     glfwSwapBuffers(window);
@@ -242,7 +263,7 @@ void render_window(GLFWwindow* window, PathVertex* path_vertex)
 
 int main(int argc, const char** argv)
 {
-  Path path = make_path();
+  Path path = make_fill();
   path.dump();
   auto rastered_path = raster_path(path);
 
