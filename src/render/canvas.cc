@@ -25,8 +25,7 @@ void Canvas::clipRect(const Rect &rect, ClipOp op) {}
 void Canvas::clipPath(const Path &path, ClipOp op) {}
 
 void Canvas::drawLine(float x0, float y0, float x1, float y1,
-                      const Paint &paint)
-{
+                      const Paint &paint) {
   Path path;
   path.moveTo(x0, y0);
   path.lineTo(x1, y1);

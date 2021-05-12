@@ -18,40 +18,37 @@ enum AngleType {
   kNearlyLine,
 };
 
-static AngleType dot_2_angle_type(float dot)
-{
+static AngleType dot_2_angle_type(float dot) {
   if (dot >= 0) {
     return FloatNearlyZero(Float1 - dot) ? kNearlyLine : kShallow;
-  }
-  else {
+  } else {
     return FloatNearlyZero(Float1 + dot) ? kNearly180 : kSharp;
   }
 }
 
 static void handle_inner_join(Path* inner, Point const& pivot,
-                              Vector const& after)
-{
-//  // FIXME: to solve inner join intersect Point position
-//  Point last;
-//  inner->getLastPt(std::addressof(last));
-//  Point last_prev = inner->getPoint(inner->countPoints() - 2);
-//
-//  Vector v1 = last - pivot;
-//  Vector v2 = -after;
-//  Vector v = v1 + v2;
-//
-//  Vector normal = Vector{-v.y / glm::length(v), v.x / glm::length(v), 0, 0};
-//  Vector dir = last_prev - last;
-//  dir = dir * (1.f / glm::length(dir));
-//
-//  float distance;
-//  if (glm::intersectRayPlane(last, dir, pivot, normal, distance)) {
-//    Point intersect = last + distance * dir;
-//    inner->setLastPt(intersect);
-//  }
+                              Vector const& after) {
+  //  // FIXME: to solve inner join intersect Point position
+  //  Point last;
+  //  inner->getLastPt(std::addressof(last));
+  //  Point last_prev = inner->getPoint(inner->countPoints() - 2);
+  //
+  //  Vector v1 = last - pivot;
+  //  Vector v2 = -after;
+  //  Vector v = v1 + v2;
+  //
+  //  Vector normal = Vector{-v.y / glm::length(v), v.x / glm::length(v), 0, 0};
+  //  Vector dir = last_prev - last;
+  //  dir = dir * (1.f / glm::length(dir));
+  //
+  //  float distance;
+  //  if (glm::intersectRayPlane(last, dir, pivot, normal, distance)) {
+  //    Point intersect = last + distance * dir;
+  //    inner->setLastPt(intersect);
+  //  }
 
-//   inner->lineTo(pivot.x, pivot.y);
-//   inner->lineTo(pivot.x - after.x, pivot.y - after.y);
+  //   inner->lineTo(pivot.x, pivot.y);
+  //   inner->lineTo(pivot.x - after.x, pivot.y - after.y);
   Point last;
   inner->getLastPt(&last);
   inner->setLastPt(last.x - after.x, last.y - after.y);
@@ -66,8 +63,7 @@ class BevelJoiner : public JoinProc {
 
   void proc(Path* outer, Path* inner, Vector const& beforeUnitNormal,
             Point const& pivot, Vector const& afterUnitNormal, float radius,
-            float invMiterLimit, bool prevIsLine, bool currIsLine) override
-  {
+            float invMiterLimit, bool prevIsLine, bool currIsLine) override {
     Vector after{afterUnitNormal.x * radius, afterUnitNormal.y * radius, 0, 0};
 
     if (CalculateOrientation(beforeUnitNormal, afterUnitNormal) !=
@@ -90,10 +86,10 @@ class RoundJoiner : public JoinProc {
 
   void proc(Path* outer, Path* inner, Vector const& beforeUnitNormal,
             Point const& pivot, Vector const& afterUnitNormal, float radius,
-            float invMiterLimit, bool prevIsLine, bool currIsLine) override
-  {
-//    float dot_prod = glm::dot(beforeUnitNormal, afterUnitNormal);
-    float dot_prod = beforeUnitNormal.x * afterUnitNormal.x + beforeUnitNormal.y * afterUnitNormal.y;
+            float invMiterLimit, bool prevIsLine, bool currIsLine) override {
+    //    float dot_prod = glm::dot(beforeUnitNormal, afterUnitNormal);
+    float dot_prod = beforeUnitNormal.x * afterUnitNormal.x +
+                     beforeUnitNormal.y * afterUnitNormal.y;
     AngleType angle_type = dot_2_angle_type(dot_prod);
 
     if (angle_type == kNearlyLine) {
@@ -112,7 +108,8 @@ class RoundJoiner : public JoinProc {
     }
 
     Matrix scale = glm::scale(glm::identity<Matrix>(), {radius, radius, 1});
-    Matrix translate = glm::translate(glm::identity<Matrix>(), {pivot.x, pivot.y, 0});
+    Matrix translate =
+        glm::translate(glm::identity<Matrix>(), {pivot.x, pivot.y, 0});
 
     Matrix matrix = translate * scale;
     std::array<Conic, Conic::kMaxConicsForArc> conics{};
@@ -140,8 +137,7 @@ class MiterJoiner : public JoinProc {
 
   void proc(Path* outer, Path* inner, Vector const& beforeUnitNormal,
             Point const& pivot, const glm::vec4& afterUnitNormal, float radius,
-            float invMiterLimit, bool prevIsLine, bool currIsLine) override
-  {
+            float invMiterLimit, bool prevIsLine, bool currIsLine) override {
     float dot_prod = glm::dot(beforeUnitNormal, afterUnitNormal);
     AngleType angle_type = dot_2_angle_type(dot_prod);
     Vector before = beforeUnitNormal;
@@ -182,8 +178,7 @@ class MiterJoiner : public JoinProc {
       if (ccw) {
         mid = -mid;
       }
-    }
-    else {
+    } else {
       mid = before + after;
     }
 
@@ -194,8 +189,7 @@ class MiterJoiner : public JoinProc {
   DO_MITER:
     if (prevIsLine) {
       outer->setLastPt(pivot.x + mid.x, pivot.y + mid.y);
-    }
-    else {
+    } else {
       outer->lineTo(pivot.x + mid.x, pivot.y + mid.y);
     }
   DO_BLUNT:
@@ -204,18 +198,14 @@ class MiterJoiner : public JoinProc {
   }
 };
 
-std::unique_ptr<JoinProc> JoinProc::MakeJoinProc(Paint::Join join)
-{
+std::unique_ptr<JoinProc> JoinProc::MakeJoinProc(Paint::Join join) {
   if (join == Paint::Join::kBevel_Join) {
     return std::make_unique<BevelJoiner>();
-  }
-  else if (join == Paint::Join::kRound_Join) {
+  } else if (join == Paint::Join::kRound_Join) {
     return std::make_unique<RoundJoiner>();
-  }
-  else if (join == Paint::Join::kRound_Join) {
+  } else if (join == Paint::Join::kRound_Join) {
     return std::make_unique<RoundJoiner>();
-  }
-  else {
+  } else {
     return std::make_unique<MiterJoiner>();
   }
 }

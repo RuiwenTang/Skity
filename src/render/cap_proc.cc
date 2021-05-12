@@ -13,8 +13,7 @@ class ButtCapProc : public CapProc {
   Paint::Cap type() const override { return Paint::Cap::kButt_Cap; }
 
   void proc(Path* paht, Point const& pivot, Vector const& normal,
-            Point const& stop, Path* otherPath) override
-  {
+            Point const& stop, Path* otherPath) override {
     paht->lineTo(stop.x, stop.y);
   }
 };
@@ -27,8 +26,7 @@ class RoundCapProc : public CapProc {
   Paint::Cap type() const override { return Paint::Cap::kRound_Cap; }
 
   void proc(Path* path, Point const& pivot, Vector const& normal,
-            Point const& stop, Path* otherPath) override
-  {
+            Point const& stop, Path* otherPath) override {
     Vector parallel;
     PointRotateCW(normal, std::addressof(parallel));
 
@@ -47,8 +45,7 @@ class SquareCapProc : public CapProc {
   Paint::Cap type() const override { return Paint::Cap::kSquare_Cap; }
 
   void proc(Path* path, Point const& pivot, Vector const& normal,
-            Point const& stop, Path* otherPath) override
-  {
+            Point const& stop, Path* otherPath) override {
     Vector parallel;
     PointRotateCW(normal, std::addressof(parallel));
 
@@ -57,8 +54,7 @@ class SquareCapProc : public CapProc {
                       pivot.y + normal.y + parallel.y);
       path->lineTo(pivot.x - normal.x + parallel.x,
                    pivot.y - normal.y + parallel.y);
-    }
-    else {
+    } else {
       path->lineTo(pivot.x + normal.x + parallel.x,
                    pivot.y + normal.y + parallel.y);
       path->lineTo(pivot.x - normal.x + parallel.x,
@@ -68,8 +64,7 @@ class SquareCapProc : public CapProc {
   }
 };
 
-std::unique_ptr<CapProc> CapProc::MakeCapProc(Paint::Cap cap)
-{
+std::unique_ptr<CapProc> CapProc::MakeCapProc(Paint::Cap cap) {
   if (cap == Paint::Cap::kButt_Cap) {
     return std::make_unique<ButtCapProc>();
   } else if (cap == Paint::Cap::kRound_Cap) {

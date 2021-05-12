@@ -14,8 +14,7 @@ namespace skity {
 #define NearlyZero (Float1 / (1 << 12))
 #define FloatRoot2Over2 0.707106781f
 
-static inline bool FloatNearlyZero(float x, float tolerance = NearlyZero)
-{
+static inline bool FloatNearlyZero(float x, float tolerance = NearlyZero) {
   return glm::abs(x) <= tolerance;
 }
 
@@ -24,8 +23,7 @@ static inline float CubeRoot(float x) { return glm::pow(x, 0.3333333f); }
 static inline bool FloatIsNan(float x) { return x != x; }
 
 [[clang::no_sanitize("float-divide-by-zero")]] static inline float
-SkityIEEEFloatDivided(float number, float denom)
-{
+SkityIEEEFloatDivided(float number, float denom) {
   return number / denom;
 }
 
@@ -33,21 +31,18 @@ SkityIEEEFloatDivided(float number, float denom)
 
 static inline bool FloatIsFinite(float x) { return !glm::isinf(x); }
 
-static inline float CrossProduct(glm::vec4 const& a, glm::vec4 const& b)
-{
+static inline float CrossProduct(glm::vec4 const& a, glm::vec4 const& b) {
   return a.x * b.y - a.y * b.x;
 }
 
-static inline float DotProduct(glm::vec4 const& a, glm::vec4 const& b)
-{
+static inline float DotProduct(glm::vec4 const& a, glm::vec4 const& b) {
   return a.x * b.x + a.y * b.y;
 }
 
 static inline glm::vec2 Times2(glm::vec2 const& value) { return value + value; }
 
 template <class T>
-T Interp(T const& v0, T const& v1, T const& t)
-{
+T Interp(T const& v0, T const& v1, T const& t) {
   return v0 + (v1 - v0) * t;
 }
 
@@ -58,8 +53,7 @@ enum class Orientation {
 };
 
 template <class T>
-Orientation CalculateOrientation(T const& p, T const& q, T const& r)
-{
+Orientation CalculateOrientation(T const& p, T const& q, T const& r) {
   int32_t val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
   if (val == 0) {
@@ -70,8 +64,7 @@ Orientation CalculateOrientation(T const& p, T const& q, T const& r)
 }
 
 template <class V>
-Orientation CalculateOrientation(V const& v1, V const& v2)
-{
+Orientation CalculateOrientation(V const& v1, V const& v2) {
   int32_t val = v1.x * v2.y - v1.y * v2.x;
   if (val == 0) {
     return Orientation::kLinear;
@@ -81,14 +74,12 @@ Orientation CalculateOrientation(V const& v1, V const& v2)
 }
 
 template <typename T>
-T TPin(T const& value, T const& min, T const& max)
-{
+T TPin(T const& value, T const& min, T const& max) {
   return value < min ? min : (value < max ? value : max);
 }
 
 template <typename T>
-void BubbleSort(T array[], int count)
-{
+void BubbleSort(T array[], int count) {
   for (int i = count - 1; i > 0; i--) {
     for (int j = i; j > 0; j--) {
       if (array[j] < array[j - 1]) {

@@ -6,7 +6,6 @@
 
 namespace skity {
 
-
 /**
  * @class Stroke
  *
@@ -40,4 +39,3 @@ class Stroke {
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_STROKE_HPP
-

@@ -18,13 +18,11 @@ enum {
 };
 
 static bool points_within_dist(Point const& nearPt, Point const& farPt,
-                               float limit)
-{
+                               float limit) {
   return PointDistanceToSqd(nearPt, farPt) <= limit * limit;
 }
 
-static bool sharp_angle(const Point quad[3])
-{
+static bool sharp_angle(const Point quad[3]) {
   Vector smaller = quad[1] - quad[0];
   Vector larger = quad[1] - quad[2];
 
@@ -45,8 +43,7 @@ static bool sharp_angle(const Point quad[3])
 }
 
 static int intersect_quad_ray(const Point line[2], const Point quad[3],
-                              float roots[2])
-{
+                              float roots[2]) {
   Vector vec = line[1] - line[0];
   float r[3];
   for (int n = 0; n < 3; n++) {
@@ -63,8 +60,7 @@ static int intersect_quad_ray(const Point line[2], const Point quad[3],
   return FindUnitQuadRoots(A, 2 * B, C, roots);
 }
 
-static bool degenerate_vector(Vector const& v)
-{
+static bool degenerate_vector(Vector const& v) {
   return !PointCanNormalize(v.x, v.y);
 }
 
@@ -72,20 +68,17 @@ static bool degenerate_vector(Vector const& v)
 /// its contents with src when we're done.
 class AutoTmpPath {
  public:
-  AutoTmpPath(Path const& src, Path** dst) : src_(src)
-  {
+  AutoTmpPath(Path const& src, Path** dst) : src_(src) {
     if (&src == *dst) {
       *dst = std::addressof(tmp_dst_);
       swap_with_src_ = true;
-    }
-    else {
+    } else {
       (*dst)->reset();
       swap_with_src_ = false;
     }
   }
 
-  ~AutoTmpPath()
-  {
+  ~AutoTmpPath() {
     if (swap_with_src_) {
       tmp_dst_.swap(*const_cast<Path*>(&src_));
     }
@@ -103,9 +96,7 @@ Stroke::Stroke()
       res_scale_(1.f),
       cap_(Paint::Cap::kDefault_Cap),
       join_(Paint::Join::kDefault_Join),
-      do_fill_(false)
-{
-}
+      do_fill_(false) {}
 
 Stroke::Stroke(Paint const& paint)
     : width_(paint.getStrokeWidth()),
@@ -113,12 +104,9 @@ Stroke::Stroke(Paint const& paint)
       res_scale_(1.f),
       cap_(paint.getStrokeCap()),
       join_(paint.getStrokeJoin()),
-      do_fill_(paint.getStyle() == Paint::kStrokeAndFill_Style)
-{
-}
+      do_fill_(paint.getStyle() == Paint::kStrokeAndFill_Style) {}
 
-void Stroke::strokePath(Path const& path, Path* result) const
-{
+void Stroke::strokePath(Path const& path, Path* result) const {
   float radius = FloatHalf * width_;
 
   AutoTmpPath tmp{path, &result};

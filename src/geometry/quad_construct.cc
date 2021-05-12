@@ -4,8 +4,7 @@
 
 namespace skity {
 
-bool QuadConstruct::init(float start, float end)
-{
+bool QuadConstruct::init(float start, float end) {
   this->startT = start;
   this->midT = (start + end) * FloatHalf;
   this->endT = end;

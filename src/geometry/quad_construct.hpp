@@ -45,4 +45,3 @@ struct QuadConstruct {
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_QUAD_CONSTRUCT_HPP
-

@@ -29,8 +29,9 @@ static const int kRecursiveLimit[] = {
 PathStroker::PathStroker(Path const& src, float radius, float miterLimit,
                          Paint::Cap cap, Paint::Join join, float resScale,
                          bool canIgnoreCenter)
-    : radius_(radius), res_scale_(resScale), can_ignore_center_(canIgnoreCenter)
-{
+    : radius_(radius),
+      res_scale_(resScale),
+      can_ignore_center_(canIgnoreCenter) {
   // This is only used when join is miter, but we initialize it here so that it
   // is always defined.
   inv_miter_limit_ = 0.f;
@@ -38,8 +39,7 @@ PathStroker::PathStroker(Path const& src, float radius, float miterLimit,
   if (join == Paint::kMiter_Join) {
     if (miterLimit <= Float1) {
       join = Paint::kBevel_Join;
-    }
-    else {
+    } else {
       inv_miter_limit_ = FloatInvert(miterLimit);
     }
   }
@@ -66,8 +66,7 @@ PathStroker::PathStroker(Path const& src, float radius, float miterLimit,
 
 PathStroker::~PathStroker() = default;
 
-void PathStroker::moveTo(Point const& pt)
-{
+void PathStroker::moveTo(Point const& pt) {
   if (segment_count_ > 0) {
     this->finishContour(false, false);
   }
@@ -77,14 +76,12 @@ void PathStroker::moveTo(Point const& pt)
   join_complete_ = false;
 }
 
-void PathStroker::line_to(Point const& currPt, Vector const& normal)
-{
+void PathStroker::line_to(Point const& currPt, Vector const& normal) {
   outer_.lineTo(currPt.x + normal.x, currPt.y + normal.y);
   inner_.lineTo(currPt.x - normal.x, currPt.y - normal.y);
 }
 
-static bool has_valid_tangent(const Path::Iter* iter)
-{
+static bool has_valid_tangent(const Path::Iter* iter) {
   Path::Iter copy = *iter;
   Path::Verb verb;
   Point pts[4];
@@ -117,8 +114,7 @@ static bool has_valid_tangent(const Path::Iter* iter)
 }
 
 PathStroker::ResultType PathStroker::strokeCloseEnough(
-    const Point stroke[3], const Point ray[2], QuadConstruct* quadPts) const
-{
+    const Point stroke[3], const Point ray[2], QuadConstruct* quadPts) const {
   std::array<Point, 3> stroke_pts{stroke[0], stroke[1], stroke[2]};
   Point stroke_mid = QuadCoeff::EvalQuadAt(stroke_pts, FloatHalf);
 
@@ -159,16 +155,14 @@ PathStroker::ResultType PathStroker::strokeCloseEnough(
 }
 
 PathStroker::ResultType PathStroker::tangentsMeet(const Point* cubic,
-                                                  QuadConstruct* quadPts)
-{
+                                                  QuadConstruct* quadPts) {
   this->cubicQuadEnds(cubic, quadPts);
   return this->intersectRay(quadPts, IntersectRayType::kResult);
 }
 
 static bool set_normal_unitnormal(Point const& before, Point const& after,
                                   float scale, float radius, Vector* normal,
-                                  Vector* unitNormal)
-{
+                                  Vector* unitNormal) {
   if (!VectorSetNormal(*unitNormal, (after.x - before.x) * scale,
                        (after.y - before.y) * scale)) {
     return false;
@@ -180,8 +174,7 @@ static bool set_normal_unitnormal(Point const& before, Point const& after,
 }
 
 static bool set_normal_unitnormal(Vector const& vec, float radius,
-                                  Vector* normal, Vector* unitNormal)
-{
+                                  Vector* normal, Vector* unitNormal) {
   if (!VectorSetNormal(*unitNormal, vec.x, vec.y)) {
     return false;
   }
@@ -191,8 +184,7 @@ static bool set_normal_unitnormal(Vector const& vec, float radius,
   return true;
 }
 
-void PathStroker::lineTo(Point const& currPt, const Path::Iter* iter)
-{
+void PathStroker::lineTo(Point const& currPt, const Path::Iter* iter) {
   bool teenyLine =
       PointEqualsWithinTolerance(prev_pt_, currPt, NearlyZero * inv_res_scale_);
   if (Paint::Cap::kButt_Cap == caper_->type() && teenyLine) {
@@ -214,8 +206,7 @@ void PathStroker::lineTo(Point const& currPt, const Path::Iter* iter)
   this->postJoinTo(currPt, normal, unitNormal);
 }
 
-void PathStroker::quadTo(Point const& pt1, Point const& pt2)
-{
+void PathStroker::quadTo(Point const& pt1, Point const& pt2) {
   std::array<Point, 3> quad{prev_pt_, pt1, pt2};
   Point reduction;
   ReductionType reduction_type =
@@ -263,8 +254,7 @@ void PathStroker::quadTo(Point const& pt1, Point const& pt2)
   this->postJoinTo(pt2, normalBC, unitBC);
 }
 
-void PathStroker::conicTo(Point const& pt1, Point const& pt2, float weight)
-{
+void PathStroker::conicTo(Point const& pt1, Point const& pt2, float weight) {
   Conic conic{prev_pt_, pt1, pt2, weight};
   Point reduction;
   ReductionType reduction_type =
@@ -307,8 +297,8 @@ void PathStroker::conicTo(Point const& pt1, Point const& pt2, float weight)
   this->postJoinTo(pt2, normalBC, unitBC);
 }
 
-void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
-{
+void PathStroker::cubicTo(Point const& pt1, Point const& pt2,
+                          Point const& pt3) {
   std::array<Point, 4> cubic{prev_pt_, pt1, pt2, pt3};
   std::array<Point, 3> reductions;
   const Point* tangent_pt;
@@ -351,9 +341,11 @@ void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
   for (int32_t index = 0; index <= count; index++) {
     float next_t = index < count ? t_values[index] : 1;
     QuadConstruct quad_pts;
-    this->init(StrokeType::kOuter_StrokeType, std::addressof(quad_pts), last_t, next_t);
+    this->init(StrokeType::kOuter_StrokeType, std::addressof(quad_pts), last_t,
+               next_t);
     this->cubicStroke(cubic.data(), std::addressof(quad_pts));
-    this->init(StrokeType::kInner_StrokeType, std::addressof(quad_pts), last_t, next_t);
+    this->init(StrokeType::kInner_StrokeType, std::addressof(quad_pts), last_t,
+               next_t);
     this->cubicStroke(cubic.data(), std::addressof(quad_pts));
     last_t = next_t;
   }
@@ -374,16 +366,14 @@ void PathStroker::cubicTo(Point const& pt1, Point const& pt2, Point const& pt3)
 
 void PathStroker::close(bool is_line) { this->finishContour(true, is_line); }
 
-void PathStroker::done(Path* dst, bool is_line)
-{
+void PathStroker::done(Path* dst, bool is_line) {
   this->finishContour(false, is_line);
   dst->swap(outer_);
 }
 
 void PathStroker::setQuadEndNormal(const Point* quad, Vector const& normalAB,
                                    Vector const& unitNormalAB, Vector* normalBC,
-                                   Vector* unitNormalBC)
-{
+                                   Vector* unitNormalBC) {
   if (!set_normal_unitnormal(quad[1], quad[2], res_scale_, radius_, normalBC,
                              unitNormalBC)) {
     *normalBC = normalAB;
@@ -392,15 +382,13 @@ void PathStroker::setQuadEndNormal(const Point* quad, Vector const& normalAB,
 }
 
 void PathStroker::init(PathStroker::StrokeType stroke_type,
-                       QuadConstruct* quad_pts, float t_start, float t_end)
-{
+                       QuadConstruct* quad_pts, float t_start, float t_end) {
   stroke_type_ = stroke_type;
   found_tangents_ = false;
   quad_pts->init(t_start, t_end);
 }
 
-bool PathStroker::ptInQuadBounds(const Point* quad, Point const& pt) const
-{
+bool PathStroker::ptInQuadBounds(const Point* quad, Point const& pt) const {
   float x_min = std::min(std::min(quad[0].x, quad[1].x), quad[2].x);
   if (pt.x + inv_res_scale_ < x_min) {
     return false;
@@ -423,8 +411,7 @@ bool PathStroker::ptInQuadBounds(const Point* quad, Point const& pt) const
 }
 
 void PathStroker::setRayPts(Point const& pt, Vector* dxy, Point* on_pt,
-                            Point* tangent) const
-{
+                            Point* tangent) const {
   if (!PointSetLength<false>(*dxy, dxy->x, dxy->y, radius_)) {
     VectorSet(*dxy, radius_, 0);
   }
@@ -441,8 +428,7 @@ void PathStroker::setRayPts(Point const& pt, Vector* dxy, Point* on_pt,
 }
 
 bool PathStroker::preJoinTo(Point const& curr_ptr, Vector* normal,
-                            Vector* unitNormal, bool is_line)
-{
+                            Vector* unitNormal, bool is_line) {
   assert(segment_count_ >= 0);
 
   float prev_x = prev_pt_.x;
@@ -467,8 +453,7 @@ bool PathStroker::preJoinTo(Point const& curr_ptr, Vector* normal,
 
     outer_.moveTo(first_outer_pt_.x, first_outer_pt_.y);
     inner_.moveTo(prev_x - normal->x, prev_y - normal->y);
-  }
-  else {
+  } else {
     // there is a previous segment
     joiner_->proc(std::addressof(outer_), std::addressof(inner_),
                   prev_unit_normal_, prev_pt_, *unitNormal, radius_,
@@ -479,8 +464,7 @@ bool PathStroker::preJoinTo(Point const& curr_ptr, Vector* normal,
 }
 
 void PathStroker::postJoinTo(Point const& curr_ptr, Vector const& normal,
-                             Vector const& unitNormal)
-{
+                             Vector const& unitNormal) {
   join_complete_ = true;
   prev_pt_ = curr_ptr;
   prev_unit_normal_ = unitNormal;
@@ -488,8 +472,7 @@ void PathStroker::postJoinTo(Point const& curr_ptr, Vector const& normal,
   segment_count_ += 1;
 }
 
-void PathStroker::finishContour(bool close, bool is_line)
-{
+void PathStroker::finishContour(bool close, bool is_line) {
   if (segment_count_ > 0) {
     Point pt;
     if (close) {
@@ -502,16 +485,14 @@ void PathStroker::finishContour(bool close, bool is_line)
         // If we can ignore the center just make sure the larger of the two
         // paths is preserved and don't add the smaller one.
         // TODO implement path.getBounds
-      }
-      else {
+      } else {
         // now add inner as its own contour
         inner_.getLastPt(std::addressof(pt));
         outer_.moveTo(pt);
         outer_.reversePathTo(inner_);
         outer_.close();
       }
-    }
-    else {
+    } else {
       // add caps to start and end
 
       // cap the end
@@ -535,17 +516,16 @@ void PathStroker::finishContour(bool close, bool is_line)
   first_outer_pt_index_in_contour_ = outer_.countPoints();
 }
 
-void PathStroker::addDegenerateLine(const QuadConstruct* quad_pts)
-{
+void PathStroker::addDegenerateLine(const QuadConstruct* quad_pts) {
   const Point* quad = quad_pts->quad;
-  Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
-                                                  : std::addressof(inner_);
+  Path* path = stroke_type_ == StrokeType::kOuter_StrokeType
+                   ? std::addressof(outer_)
+                   : std::addressof(inner_);
   path->lineTo(quad[2].x, quad[2].y);
 }
 
 PathStroker::ReductionType PathStroker::CheckConicLinear(Conic const& conic,
-                                                         Point* reduction)
-{
+                                                         Point* reduction) {
   bool degenerate_AB = DegenerateVector(conic.pts[1] - conic.pts[0]);
   bool degenerate_BC = DegenerateVector(conic.pts[2] - conic.pts[1]);
   if (degenerate_AB & degenerate_BC) {
@@ -570,8 +550,7 @@ PathStroker::ReductionType PathStroker::CheckConicLinear(Conic const& conic,
 }
 
 PathStroker::ReductionType PathStroker::CheckCubicLinear(
-    const Point* cubic, Point* redunction, const Point** tangent_pt_ptr)
-{
+    const Point* cubic, Point* redunction, const Point** tangent_pt_ptr) {
   bool degenerate_AB = DegenerateVector(cubic[1] - cubic[0]);
   bool degenerate_BC = DegenerateVector(cubic[2] - cubic[1]);
   bool degenerate_CD = DegenerateVector(cubic[3] - cubic[2]);
@@ -621,8 +600,7 @@ PathStroker::ReductionType PathStroker::CheckCubicLinear(
 }
 
 PathStroker::ReductionType PathStroker::CheckQuadLinear(const Point quad[3],
-                                                        Point* reduction)
-{
+                                                        Point* reduction) {
   bool degenerate_AB = DegenerateVector(quad[1] - quad[0]);
   bool degenerate_BC = DegenerateVector(quad[2] - quad[1]);
   if (degenerate_AB & degenerate_BC) {
@@ -647,8 +625,7 @@ PathStroker::ReductionType PathStroker::CheckQuadLinear(const Point quad[3],
 }
 
 PathStroker::ResultType PathStroker::compareQuadConic(Conic const& conic,
-                                                      QuadConstruct* quad_pts)
-{
+                                                      QuadConstruct* quad_pts) {
   this->conicQuadEnds(conic, quad_pts);
   ResultType result_type =
       this->intersectRay(quad_pts, IntersectRayType::kCtrlPt);
@@ -663,8 +640,7 @@ PathStroker::ResultType PathStroker::compareQuadConic(Conic const& conic,
 }
 
 PathStroker::ResultType PathStroker::compareQuadCubic(const Point* cubic,
-                                                      QuadConstruct* quad_pts)
-{
+                                                      QuadConstruct* quad_pts) {
   this->cubicQuadEnds(cubic, quad_pts);
   ResultType result_type =
       this->intersectRay(quad_pts, IntersectRayType::kCtrlPt);
@@ -679,8 +655,7 @@ PathStroker::ResultType PathStroker::compareQuadCubic(const Point* cubic,
 }
 
 PathStroker::ResultType PathStroker::compareQuadQuad(const Point quad[3],
-                                                     QuadConstruct* quad_pts)
-{
+                                                     QuadConstruct* quad_pts) {
   if (!quad_pts->startSet) {
     Point quad_start_pt;
     this->quadPerpRay(quad, quad_pts->startT, std::addressof(quad_start_pt),
@@ -712,8 +687,7 @@ PathStroker::ResultType PathStroker::compareQuadQuad(const Point quad[3],
 }
 
 void PathStroker::conicPrepRay(Conic const& conic, float t, Point* t_pt,
-                               Point* on_pt, Point* tangent) const
-{
+                               Point* on_pt, Point* tangent) const {
   Vector dxy;
   conic.evalAt(t, t_pt, std::addressof(dxy));
   if (dxy.x == 0 && dxy.y == 0) {
@@ -724,8 +698,7 @@ void PathStroker::conicPrepRay(Conic const& conic, float t, Point* t_pt,
 }
 
 void PathStroker::conicQuadEnds(Conic const& conic,
-                                QuadConstruct* quad_pts) const
-{
+                                QuadConstruct* quad_pts) const {
   if (!quad_pts->startSet) {
     Point conic_start_pt;
     this->conicPrepRay(conic, quad_pts->startT, std::addressof(conic_start_pt),
@@ -742,13 +715,13 @@ void PathStroker::conicQuadEnds(Conic const& conic,
   }
 }
 
-bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts)
-{
+bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts) {
   ResultType result_type = this->compareQuadConic(conic, quad_pts);
   if (result_type == ResultType::kQuad) {
     const Point* stroke = quad_pts->quad;
-    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
-                                                    : std::addressof(inner_);
+    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType
+                     ? std::addressof(outer_)
+                     : std::addressof(inner_);
     path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
     return true;
   }
@@ -776,8 +749,7 @@ bool PathStroker::conicStroke(Conic const& conic, QuadConstruct* quad_pts)
 }
 
 bool PathStroker::cubicMidOnLine(const Point* cubic,
-                                 const QuadConstruct* quad_pts) const
-{
+                                 const QuadConstruct* quad_pts) const {
   Point stroke_mid;
   this->cubicQuadMid(cubic, quad_pts, std::addressof(stroke_mid));
   float dist = pt_to_line(stroke_mid, quad_pts->quad[0], quad_pts->quad[2]);
@@ -785,8 +757,7 @@ bool PathStroker::cubicMidOnLine(const Point* cubic,
 }
 
 void PathStroker::cubicPerpRay(const Point* cubic, float t, Point* t_pt,
-                               Point* on_pt, Point* tangent) const
-{
+                               Point* on_pt, Point* tangent) const {
   Vector dxy;
   std::array<Point, 7> chopped;
   CubicCoeff::EvalCubicAt(cubic, t, t_pt, std::addressof(dxy), nullptr);
@@ -794,11 +765,9 @@ void PathStroker::cubicPerpRay(const Point* cubic, float t, Point* t_pt,
     const Point* c_pts = cubic;
     if (FloatNearlyZero(t)) {
       dxy = cubic[2] - cubic[0];
-    }
-    else if (FloatNearlyZero(1 - t)) {
+    } else if (FloatNearlyZero(1 - t)) {
       dxy = cubic[3] - cubic[1];
-    }
-    else {
+    } else {
       CubicCoeff::ChopCubicAt(cubic, chopped.data(), t);
       dxy = chopped[3] - chopped[2];
       if (dxy.x == 0 && dxy.y == 0) {
@@ -815,15 +784,14 @@ void PathStroker::cubicPerpRay(const Point* cubic, float t, Point* t_pt,
 }
 
 void PathStroker::cubicQuadMid(const Point* cubic,
-                               const QuadConstruct* quad_pts, Point* mid) const
-{
+                               const QuadConstruct* quad_pts,
+                               Point* mid) const {
   Point cubic_mid_pt;
   this->cubicPerpRay(cubic, quad_pts->midT, std::addressof(cubic_mid_pt), mid,
                      nullptr);
 }
 
-void PathStroker::cubicQuadEnds(const Point* cubic, QuadConstruct* quad_pts)
-{
+void PathStroker::cubicQuadEnds(const Point* cubic, QuadConstruct* quad_pts) {
   if (!quad_pts->startSet) {
     Point cubic_start_pt;
     this->cubicPerpRay(cubic, quad_pts->startT, std::addressof(cubic_start_pt),
@@ -841,8 +809,7 @@ void PathStroker::cubicQuadEnds(const Point* cubic, QuadConstruct* quad_pts)
   }
 }
 
-bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
-{
+bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts) {
   if (found_tangents_) {
     ResultType result_type = this->tangentsMeet(cubic, quad_pts);
     if (result_type != ResultType::kQuad) {
@@ -853,8 +820,7 @@ bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
         addDegenerateLine(quad_pts);
         return true;
       }
-    }
-    else {
+    } else {
       found_tangents_ = true;
     }
   }
@@ -862,8 +828,9 @@ bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
   if (found_tangents_) {
     ResultType result_type = this->compareQuadCubic(cubic, quad_pts);
     if (result_type == ResultType::kQuad) {
-      Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
-                                                      : std::addressof(inner_);
+      Path* path = stroke_type_ == StrokeType::kOuter_StrokeType
+                       ? std::addressof(outer_)
+                       : std::addressof(inner_);
       const Point* stroke = quad_pts->quad;
       path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
       return true;
@@ -911,8 +878,7 @@ bool PathStroker::cubicStroke(const Point cubic[4], QuadConstruct* quad_pts)
 }
 
 void PathStroker::quadPerpRay(const Point* quad, float t, Point* t_pt,
-                              Point* on_pt, Point* tangent) const
-{
+                              Point* on_pt, Point* tangent) const {
   Vector dxy;
   QuadCoeff::EvalQuadAt({quad[0], quad[1], quad[2]}, t, t_pt,
                         std::addressof(dxy));
@@ -923,14 +889,14 @@ void PathStroker::quadPerpRay(const Point* quad, float t, Point* t_pt,
   setRayPts(*t_pt, std::addressof(dxy), on_pt, tangent);
 }
 
-bool PathStroker::quadStroke(const Point quad[3], QuadConstruct* quad_pts)
-{
+bool PathStroker::quadStroke(const Point quad[3], QuadConstruct* quad_pts) {
   ResultType result_type = this->compareQuadQuad(quad, quad_pts);
 
   if (result_type == ResultType::kQuad) {
     const Point* stroke = quad_pts->quad;
-    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType ? std::addressof(outer_)
-                                                    : std::addressof(inner_);
+    Path* path = stroke_type_ == StrokeType::kOuter_StrokeType
+                     ? std::addressof(outer_)
+                     : std::addressof(inner_);
     path->quadTo(stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
     return true;
   }
@@ -960,15 +926,13 @@ bool PathStroker::quadStroke(const Point quad[3], QuadConstruct* quad_pts)
 
 void PathStroker::setConicEndNormal(Conic const& conic, Vector const& normalAB,
                                     Vector const& unitNormalAB,
-                                    Vector* normalBC, Vector* unitNormalBC)
-{
+                                    Vector* normalBC, Vector* unitNormalBC) {
   setQuadEndNormal(conic.pts, normalAB, unitNormalAB, normalBC, unitNormalBC);
 }
 
 void PathStroker::setCubicEndNormal(const Point* cubic, Vector const& normalAB,
                                     Vector const& unitNormalAB,
-                                    Vector* normalCD, Vector* unitNormalCD)
-{
+                                    Vector* normalCD, Vector* unitNormalCD) {
   Vector ab = cubic[1] - cubic[0];
   Vector cd = cubic[3] - cubic[2];
 
@@ -1000,8 +964,7 @@ void PathStroker::setCubicEndNormal(const Point* cubic, Vector const& normalAB,
 }
 
 PathStroker::ResultType PathStroker::intersectRay(
-    QuadConstruct* quad_pts, IntersectRayType intersect_ray_type) const
-{
+    QuadConstruct* quad_pts, IntersectRayType intersect_ray_type) const {
   Point const& start = quad_pts->quad[0];
   Point const& end = quad_pts->quad[2];
 

@@ -26,6 +26,7 @@ class PathVertex {
   std::vector<Point> const& vertices() const { return point_buffer; }
 
   void dump();
+
  private:
   PathVertex() = default;
   friend class PathVertexBuilder;

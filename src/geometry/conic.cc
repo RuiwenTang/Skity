@@ -8,12 +8,10 @@
 
 namespace skity {
 
-Conic::Conic(Point const p[3], float weight) : pts{p[0], p[1], p[2]}, w(weight)
-{
-}
+Conic::Conic(Point const p[3], float weight)
+    : pts{p[0], p[1], p[2]}, w(weight) {}
 
-void Conic::evalAt(float t, Point* outP, Vector* outTangent) const
-{
+void Conic::evalAt(float t, Point* outP, Vector* outTangent) const {
   assert(t >= 0 && t <= Float1);
 
   if (outP) {
@@ -27,10 +25,9 @@ void Conic::evalAt(float t, Point* outP, Vector* outTangent) const
 
 int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
                         RotationDirection dir, Matrix* userMatrix,
-                        Conic dst[kMaxConicsForArc])
-{
+                        Conic dst[kMaxConicsForArc]) {
   // rotate by x,y so that uStart is (1.0)
-//  float x = glm::dot(start, stop);
+  //  float x = glm::dot(start, stop);
   float x = start.x * stop.x + start.y * stop.y;
   float y = CrossProduct(start, stop);
 
@@ -55,11 +52,9 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
   int quadrant = 0;
   if (y == 0) {
     quadrant = 2;
-  }
-  else if (x == 0) {
+  } else if (x == 0) {
     quadrant = y > 0 ? 1 : 3;
-  }
-  else {
+  } else {
     if (y < 0) {
       quadrant += 2;
     }
@@ -101,7 +96,8 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
 
   // now handle counter-clockwise and the initial unitStart rotation
   Matrix matrix;
-  float angle = glm::acos(CrossProduct(start, stop) / (glm::length(start) * glm::length(stop)));
+  float angle = glm::acos(CrossProduct(start, stop) /
+                          (glm::length(start) * glm::length(stop)));
   matrix = glm::rotate(glm::identity<Matrix>(), angle, {0, 0, 1});
   if (dir == RotationDirection::kCCW) {
     matrix = glm::scale(matrix, {Float1, -Float1, 1});
@@ -120,13 +116,11 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
   return conicCount;
 }
 
-Point Conic::evalAt(float t) const
-{
+Point Conic::evalAt(float t) const {
   return ToPoint(ConicCoeff{*this}.eval(t));
 }
 
-Vector Conic::evalTangentAt(float t) const
-{
+Vector Conic::evalTangentAt(float t) const {
   // The derivative equation returns a zero tangent vector when t is 0 or 1,
   // and the control point is equal to the end point.
   // In this case, use the conic endpoints to compute the tangent.

@@ -31,9 +31,9 @@ Path make_stroke()
   path.moveTo(10, 10);
   path.quadTo(256, 64, 128, 128);
   path.quadTo(10, 192, 250, 250);
-  path.addOval(Rect::MakeLTRB(100, 100, 500, 500));
+  path.addOval(Rect::MakeLTRB(100, 100, 300, 500));
   path.addCircle(200, 200, 100);
-  path.addOval(Rect::MakeLTRB(200, 200, 300, 100));
+  path.addOval(Rect::MakeLTRB(50, 200, 300, 500));
 
   Paint paint;
   paint.setStrokeWidth(10.f);

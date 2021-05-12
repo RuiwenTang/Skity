@@ -15,19 +15,16 @@ enum class RotationDirection {
   kCCW,
 };
 
-static inline glm::vec2 FromPoint(Point const& p)
-{
+static inline glm::vec2 FromPoint(Point const& p) {
   return glm::vec2{p.x, p.y};
 }
 
-static inline Point ToPoint(glm::vec2 const& x)
-{
+static inline Point ToPoint(glm::vec2 const& x) {
   return Point{x.x, x.y, 0, 1};
 }
 
 static inline bool OnSameSide(std::array<Point, 4> const& src, int testIndex,
-                              int lineIndex)
-{
+                              int lineIndex) {
   Point origin = src[lineIndex];
   Vector line = src[lineIndex + 1] - origin;
   float crosses[2];
@@ -38,16 +35,14 @@ static inline bool OnSameSide(std::array<Point, 4> const& src, int testIndex,
   return crosses[0] * crosses[1] >= 0;
 }
 
-static inline int CollapsDuplicates(float array[], int count)
-{
+static inline int CollapsDuplicates(float array[], int count) {
   for (int n = count; n > 1; n--) {
     if (array[0] == array[1]) {
       for (int i = 1; i < n; i++) {
         array[i - 1] = array[i];
       }
       count -= 1;
-    }
-    else {
+    } else {
       array += 1;
     }
   }
@@ -64,9 +59,7 @@ struct QuadCoeff {
 
   QuadCoeff() = default;
   QuadCoeff(glm::vec2 const& a, glm::vec2 const& b, glm::vec2 const& c)
-      : A{a}, B{b}, C{c}
-  {
-  }
+      : A{a}, B{b}, C{c} {}
 
   explicit QuadCoeff(std::array<Point, 3> const& src);
 
@@ -118,8 +111,7 @@ struct ConicCoeff {
   QuadCoeff denom;
 };
 
-static inline int valid_unit_divide(float number, float denom, float* radio)
-{
+static inline int valid_unit_divide(float number, float denom, float* radio) {
   if (number < 0) {
     number = -number;
     denom = -denom;
@@ -142,16 +134,14 @@ static inline int valid_unit_divide(float number, float denom, float* radio)
   return 1;
 }
 
-static inline int return_check_zero(int value)
-{
+static inline int return_check_zero(int value) {
   if (value == 0) {
     return 0;
   }
   return value;
 }
 
-static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2])
-{
+static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2]) {
   if (A == 0) {
     return return_check_zero(valid_unit_divide(-C, B, roots));
   }
@@ -174,8 +164,7 @@ static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2])
   if (r - roots == 2) {
     if (roots[0] > roots[1]) {
       std::swap(roots[0], roots[1]);
-    }
-    else if (roots[0] == roots[1]) {
+    } else if (roots[0] == roots[1]) {
       r -= 1;
     }
   }
@@ -195,8 +184,7 @@ static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2])
 //
 //  t = - (Ax Bx + Ay By) / (Bx ^ 2 + By ^ 2)
 //
-static inline float FindQuadMaxCurvature(const Point src[3])
-{
+static inline float FindQuadMaxCurvature(const Point src[3]) {
   float Ax = src[1].x - src[0].x;
   float Ay = src[1].y - src[0].y;
   float Bx = src[0].x - src[1].x - src[1].x + src[2].x;
@@ -225,8 +213,7 @@ static inline float FindQuadMaxCurvature(const Point src[3])
     Eliminates repeated roots (so that all tValues are distinct, and are always
     in increasing order.
 */
-inline static int solve_cubic_poly(const float coeff[4], float tValues[3])
-{
+inline static int solve_cubic_poly(const float coeff[4], float tValues[3]) {
   if (FloatNearlyZero(coeff[0])) {  // we're just a quadratic
     return FindUnitQuadRoots(coeff[1], coeff[2], coeff[3], tValues);
   }
@@ -263,8 +250,7 @@ inline static int solve_cubic_poly(const float coeff[4], float tValues[3])
 
     BubbleSort(tValues, 3);
     return CollapsDuplicates(tValues, 3);
-  }
-  else {
+  } else {
     // we have 1 real root
     float A = glm::abs(R) + glm::sqrt(R2MinusQ3);
     A = CubeRoot(A);
@@ -290,8 +276,7 @@ inline static int solve_cubic_poly(const float coeff[4], float tValues[3])
 
     F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 */
-inline static void formulate_F1DotF2(const float src[], float coeff[4])
-{
+inline static void formulate_F1DotF2(const float src[], float coeff[4]) {
   float a = src[2] - src[0];
   float b = src[4] - 2 * src[2] + src[0];
   float c = src[6] + 3 * (src[2] - src[4]) - src[0];
@@ -313,8 +298,7 @@ inline static void formulate_F1DotF2(const float src[], float coeff[4])
 
     F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 */
-inline static int FindCubicMaxCurvature(const Point src[4], float tValues[3])
-{
+inline static int FindCubicMaxCurvature(const Point src[4], float tValues[3]) {
   float coeffX[4], coeffY[4];
   int i;
   glm::vec2 axy[] = {{src[0]}, {src[1]}, {src[2]}, {src[3]}};
@@ -328,8 +312,7 @@ inline static int FindCubicMaxCurvature(const Point src[4], float tValues[3])
   return numRoots;
 }
 
-inline static int FindCubicInflections(const Point src[4], float tValues[])
-{
+inline static int FindCubicInflections(const Point src[4], float tValues[]) {
   float Ax = src[1].x - src[0].x;
   float Ay = src[1].y - src[0].y;
   float Bx = src[2].x - 2 * src[1].x + src[0].x;
@@ -361,8 +344,7 @@ float pt_to_line(Point const& pt, Point const& lineStart, Point const& lineEnd);
  *
  * @return true if inner points is close to a line.
  */
-static bool cubic_in_line(const Point cubic[4])
-{
+static bool cubic_in_line(const Point cubic[4]) {
   float pt_max = -1;
   int32_t outer1 = 0;
   int32_t outer2 = 0;
@@ -392,8 +374,7 @@ static bool cubic_in_line(const Point cubic[4])
  *
  * @return true if all three points are in a line
  */
-static bool quad_in_line(const Point quad[3])
-{
+static bool quad_in_line(const Point quad[3]) {
   float pt_max = -1;
   int32_t outer1 = 0;
   int32_t outer2 = 0;

@@ -58,6 +58,8 @@ set(Skity_src
         src/render/canvas.cc
         src/render/cap_proc.cc
         src/render/cap_proc.hpp
+        src/render/draw.cc
+        src/render/draw.hpp
         src/render/join_proc.cc
         src/render/join_proc.hpp
         src/render/path_raster.cc

@@ -65,8 +65,7 @@ class PathStroker {
 
   float getResScale() const { return res_scale_; }
 
-  bool isCurrentContourEmpty() const
-  {
+  bool isCurrentContourEmpty() const {
     return inner_.isZeroLengthSincePoint(0) &&
            outer_.isZeroLengthSincePoint(first_outer_pt_index_in_contour_);
   }

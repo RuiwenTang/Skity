@@ -12,8 +12,7 @@ void Paint::reset() { *this = Paint(); }
 
 Paint::Style Paint::getStyle() const { return style_; }
 
-void Paint::setStyle(Style style)
-{
+void Paint::setStyle(Style style) {
   if (style > StyleCount) {
     return;
   }
@@ -37,4 +36,3 @@ Paint::Join Paint::getStrokeJoin() const { return join_; }
 
 void Paint::setStrokeJoin(Join join) { join_ = join; }
 }  // namespace skity
-

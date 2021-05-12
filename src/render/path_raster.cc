@@ -12,8 +12,7 @@ namespace skity {
 template <class COEFF>
 void Eval(COEFF coeff, PathVertexBuilder& builder, size_t step,
           size_t start_point_index, size_t& prev_point_index,
-          size_t& current_point_index)
-{
+          size_t& current_point_index) {
   for (size_t i = 1; i <= step; i++) {
     prev_point_index = current_point_index;
     current_point_index =
@@ -24,8 +23,7 @@ void Eval(COEFF coeff, PathVertexBuilder& builder, size_t step,
   }
 }
 
-std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
-{
+std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path) {
   Path::Iter iter{path, false};
 
   PathVertexBuilder builder;
@@ -37,7 +35,6 @@ std::unique_ptr<PathVertex> PathRaster::rasterPath(Path const& path)
   size_t prev_point_index = 0;
   size_t current_point_index = 0;
   while ((verb = iter.next(pts.data())) != Path::Verb::kDone) {
-
     switch (verb) {
       case Path::Verb::kMove:
         start_point_index = builder.appendPoint(pts[0]);
