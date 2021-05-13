@@ -7,12 +7,10 @@ class DrawOp {
 
   void prepare();
 
-  void draw();
+  virtual void draw() = 0;
 
  protected:
   virtual void onPrepare() = 0;
-
-  virtual void onDraw() = 0;
 
  private:
   bool prepared_;

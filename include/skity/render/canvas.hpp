@@ -116,6 +116,10 @@ class Canvas {
 
   static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
                                               uint32_t width, uint32_t height);
+
+ protected:
+  virtual void onClipPath(Path const& path, ClipOp op) = 0;
+  virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
 };
 
 }  // namespace skity

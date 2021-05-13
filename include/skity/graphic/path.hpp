@@ -162,8 +162,7 @@ class Path {
   Path& lineTo(float x, float y);
   Path& quadTo(float x1, float y1, float x2, float y2);
   Path& conicTo(float x1, float y1, float x2, float y2, float weight);
-  Path& conicTo(Point const& p1, Point const& p2, float weight)
-  {
+  Path& conicTo(Point const& p1, Point const& p2, float weight) {
     return this->conicTo(p1.x, p1.y, p2.x, p2.y, weight);
   }
   Path& cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
@@ -229,6 +228,32 @@ class Path {
   Path& addOval(const Rect& oval, Direction dir, uint32_t start);
 
   /**
+   * Adds a new contour to the path, defined by the rect, and wound in the
+   * specified direction. The verbs added to the path will be :
+   *  kMove, kLine, kLine, kLine, kClose
+   *
+   * start specifies which corner to begin the contour:
+   *  0: upper-left corner
+   *  1: upper-right corner
+   *  2: lower-right corner
+   *  3: lower-left corner
+   *
+   * @param rect    Rect to add as a closed contour
+   * @param dir     Path::Direction to orient the new contour
+   * @param startinitial corner of Rect to add
+   * @return Path&  reference to Path
+   */
+  Path& addRect(Rect const& rect, Direction dir, uint32_t start);
+
+  Path& addRect(Rect const& rect, Direction dir = Direction::kCW) {
+    return this->addRect(rect, dir, 0);
+  }
+
+  Path& addRect(float left, float top, float right, float bottom,
+                Direction dir = Direction::kCW) {
+    return this->addRect({left, top, right, bottom}, dir, 0);
+  }
+  /**
    * Append, in reverse order, the first contour of path, ignoring path's last
    * point. If no moveTo() call has been made for this contour, the first point
    * is automatically to (0, 0)
@@ -279,8 +304,7 @@ class Path {
   inline Direction getFirstDirection() { return first_direction_; }
   inline void setFirstDirection(Direction dir) { this->first_direction_ = dir; }
 
-  Rect getBounds()
-  {
+  Rect getBounds() {
     computeBounds();
     return bounds_;
   }
@@ -317,4 +341,3 @@ class Path {
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GRAPHIC_PATH_HPP
-

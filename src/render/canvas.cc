@@ -20,9 +20,15 @@ void Canvas::rotate(float degrees, float px, float py) {}
 
 void Canvas::skew(float sx, float sy) {}
 
-void Canvas::clipRect(const Rect &rect, ClipOp op) {}
+void Canvas::clipRect(const Rect &rect, ClipOp op) {
+  Path path;
+  path.addRect(rect);
+  this->onClipPath(path, op);
+}
 
-void Canvas::clipPath(const Path &path, ClipOp op) {}
+void Canvas::clipPath(const Path &path, ClipOp op) {
+  this->onClipPath(path, op);
+}
 
 void Canvas::drawLine(float x0, float y0, float x1, float y1,
                       const Paint &paint) {
@@ -33,5 +39,7 @@ void Canvas::drawLine(float x0, float y0, float x1, float y1,
   drawPath(path, paint);
 }
 
-void Canvas::drawPath(const Path &path, const Paint &paint) {}
+void Canvas::drawPath(const Path &path, const Paint &paint) {
+  this->onDrawPath(path, paint);
+}
 }  // namespace skity
