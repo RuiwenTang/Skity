@@ -15,6 +15,7 @@ namespace skity {
  */
 class Canvas {
  public:
+  Canvas() = default;
   virtual ~Canvas() = default;
 
   /**
@@ -120,6 +121,15 @@ class Canvas {
  protected:
   virtual void onClipPath(Path const& path, ClipOp op) = 0;
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
+  virtual void onSave() = 0;
+  virtual void onRestore() = 0;
+
+ private:
+  void internalSave();
+  void internalRestore();
+
+ private:
+  uint32_t save_count_ = 0;
 };
 
 }  // namespace skity

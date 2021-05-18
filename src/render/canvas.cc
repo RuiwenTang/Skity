@@ -2,11 +2,20 @@
 
 namespace skity {
 
-int Canvas::save() { return 0; }
+int Canvas::save() {
+  save_count_ += 1;
+  this->internalSave();
+  return this->getSaveCount() - 1;
+}
 
-void Canvas::restore() {}
+void Canvas::restore() {
+  if (save_count_ > 0) {
+    save_count_ -= 1;
+    this->internalRestore();
+  }
+}
 
-int Canvas::getSaveCount() const { return 0; }
+int Canvas::getSaveCount() const { return save_count_; }
 
 void Canvas::restoreToCount(int saveCount) {}
 
@@ -42,4 +51,9 @@ void Canvas::drawLine(float x0, float y0, float x1, float y1,
 void Canvas::drawPath(const Path &path, const Paint &paint) {
   this->onDrawPath(path, paint);
 }
+
+void Canvas::internalSave() { this->onSave(); }
+
+void Canvas::internalRestore() { this->onRestore(); }
+
 }  // namespace skity
