@@ -1,5 +1,6 @@
 #include "test_common.hpp"
 
+#include <cassert>
 #include <cstdlib>
 
 namespace test {
@@ -58,6 +59,34 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
   }
 
   return program;
+}
+
+TestApp::~TestApp() {
+  if (window_) {
+    glfwDestroyWindow(window_);
+    glfwTerminate();
+  }
+}
+
+void TestApp::Start() {
+  Init();
+  RunLoop();
+}
+
+void TestApp::Init() {
+  window_ = init_glfw_window(window_width_, window_height_);
+  assert(window_);
+
+  glfwMakeContextCurrent(window_);
+  this->OnInit();
+}
+
+void TestApp::RunLoop() {
+  while (!glfwWindowShouldClose(window_)) {
+    this->OnDraw();
+    glfwSwapBuffers(window_);
+    glfwPollEvents();
+  }
 }
 
 }  // namespace test
