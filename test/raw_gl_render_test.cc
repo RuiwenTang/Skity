@@ -20,8 +20,7 @@ struct Mesh {
   GLuint back = 0;
 };
 
-Path make_stroke()
-{
+Path make_stroke() {
   Path path;
 
   path.moveTo(40, 40);
@@ -47,8 +46,7 @@ Path make_stroke()
   return dst;
 }
 
-Path make_fill()
-{
+Path make_fill() {
   Paint paint;
   paint.setStrokeWidth(10.f);
   paint.setStrokeCap(Paint::kRound_Cap);
@@ -62,15 +60,13 @@ Path make_fill()
   return path;
 }
 
-std::unique_ptr<PathVertex> raster_path(Path const& path)
-{
+std::unique_ptr<PathVertex> raster_path(Path const& path) {
   PathRaster raster;
 
   return raster.rasterPath(path);
 }
 
-GLFWwindow* init_glfw_window(int width, int height)
-{
+GLFWwindow* init_glfw_window(int width, int height) {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -93,8 +89,7 @@ GLFWwindow* init_glfw_window(int width, int height)
   return window;
 }
 
-GLuint prepare_shader()
-{
+GLuint prepare_shader() {
   const char* vs = R"(
     #version 330 core
     layout(location = 0) in vec3 aPos;
@@ -146,8 +141,7 @@ GLuint prepare_shader()
   return program;
 }
 
-Mesh setup_mesh(PathVertex* vertex)
-{
+Mesh setup_mesh(PathVertex* vertex) {
   Mesh mesh;
 
   glGenVertexArrays(1, &mesh.vao);
@@ -175,8 +169,7 @@ Mesh setup_mesh(PathVertex* vertex)
   return mesh;
 }
 
-void render_window(GLFWwindow* window, PathVertex* path_vertex)
-{
+void render_window(GLFWwindow* window, PathVertex* path_vertex) {
   path_vertex->dump();
   glClearColor(0.3, 0.4, 0.5, 1.0);
   glClearStencil(0x10);
@@ -247,8 +240,7 @@ void render_window(GLFWwindow* window, PathVertex* path_vertex)
   }
 }
 
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
   Path path = make_stroke();
   path.dump();
   auto rastered_path = raster_path(path);
