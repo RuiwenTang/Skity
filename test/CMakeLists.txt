@@ -21,11 +21,20 @@ find_package(PkgConfig)
 if (PkgConfig_FOUND)
   message("Pkg found")
 
+  add_library(test_common
+    OBJECT
+    common/test_common.cc
+    common/test_common.hpp
+  )
+
   pkg_search_module(GLFW REQUIRED glfw3)
 
   link_directories("/usr/local/lib")
   include_directories(${GLFW_INCLUDE_DIRS})
   
-  add_executable(raw_gl_render_test raw_gl_render_test.cc)
+  add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
   target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES})
+
+  add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+  target_link_libraries(ms_paper_test ${GLFW_LIBRARIES})
 endif()

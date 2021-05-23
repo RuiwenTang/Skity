@@ -74,7 +74,7 @@ set(Skity_src
         src/render/stroke.hpp
         )
 
-add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
+add_library(skity ${Skity_header} ${Skity_src})
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
