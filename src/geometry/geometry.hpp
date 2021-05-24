@@ -406,6 +406,17 @@ bool conic_in_line(Conic const& conic);
  */
 float FindCubicCusp(const Point src[4]);
 
+void SubDividedCubic(const Point cubic[4], Point sub_cubic1[4],
+                     Point sub_cubic2[4]);
+
+void SubDividedCubic2(const Point cubic[4], Point sub_cubic[8]);
+
+void SubDividedCubic4(const Point cubic[4], Point sub_cubic[16]);
+
+void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]);
+
+void CubicToQuadratic(const Point cubic[4], Point quad[3]);
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_GEOMETRY_HPP_

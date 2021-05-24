@@ -254,4 +254,49 @@ float FindCubicCusp(const Point src[4]) {
   return -1;
 }
 
+void SubDividedCubic(const Point cubic[4], Point sub_cubic1[4],
+                     Point sub_cubic2[4]) {
+  Point p1 = (cubic[0] + cubic[1]) / 2.f;
+  Point p2 = (cubic[1] + cubic[2]) / 2.f;
+  Point p3 = (cubic[2] + cubic[3]) / 2.f;
+  Point p4 = (p1 + p2) / 2.f;
+  Point p5 = (p2 + p3) / 2.f;
+  Point p6 = (p4 + p5) / 2.f;
+
+  Point p0 = cubic[0];
+  Point p7 = cubic[3];
+
+  sub_cubic1[0] = p0;
+  sub_cubic1[1] = p1;
+  sub_cubic1[2] = p4;
+  sub_cubic1[3] = p6;
+
+  sub_cubic2[0] = p6;
+  sub_cubic2[1] = p5;
+  sub_cubic2[2] = p3;
+  sub_cubic2[3] = p7;
+}
+
+void SubDividedCubic2(const Point cubic[4], Point sub_cubic[8]) {
+  SubDividedCubic(cubic, sub_cubic, sub_cubic + 4);
+}
+
+void SubDividedCubic4(const Point cubic[4], Point sub_cubic[16]) {
+  SubDividedCubic(cubic, sub_cubic, sub_cubic + 8);
+  SubDividedCubic2(sub_cubic, sub_cubic);
+  SubDividedCubic2(sub_cubic + 8, sub_cubic + 8);
+}
+
+void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]) {
+  SubDividedCubic(cubic, sub_cubic, sub_cubic + 16);
+  SubDividedCubic4(sub_cubic, sub_cubic);
+  SubDividedCubic4(sub_cubic + 16, sub_cubic + 16);
+}
+
+void CubicToQuadratic(const Point cubic[4], Point quad[3]) {
+  quad[0] = cubic[0];
+  quad[1] = (3.f * (cubic[1] + cubic[2]) - (cubic[0] + cubic[3])) / 4.f;
+  quad[2] = cubic[3];
+}
+
 }  // namespace skity
