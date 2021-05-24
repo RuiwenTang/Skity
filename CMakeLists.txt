@@ -62,6 +62,10 @@ set(Skity_src
         src/render/draw.hpp
         src/render/gl/gl_canvas.cc
         src/render/gl/gl_canvas.hpp
+        src/render/gl/gl_path_stroke.cc
+        src/render/gl/gl_path_stroke.hpp
+        src/render/gl/gl_vertex.cc
+        src/render/gl/gl_vertex.hpp
         src/render/join_proc.cc
         src/render/join_proc.hpp
         src/render/path_raster.cc
