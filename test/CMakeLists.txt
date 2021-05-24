@@ -36,5 +36,5 @@ if (PkgConfig_FOUND)
   target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES})
 
   add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(ms_paper_test ${GLFW_LIBRARIES})
+  target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES})
 endif()
