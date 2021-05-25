@@ -13,6 +13,16 @@ static inline bool PointIsFinite(Point const& point) {
          std::isfinite(point.z) && std::isfinite(point.w);
 }
 
+static inline bool PointAreFinite(Point points[], uint32_t count) {
+  float prod = 0;
+
+  for (uint32_t i = 0; i < count; i++) {
+    prod *= (points[i].x * points[i].y);
+  }
+
+  return prod == 0;
+}
+
 static inline void PointSet(Point& point, float x, float y) {
   point.x = x;
   point.y = y;

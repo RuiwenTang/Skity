@@ -84,6 +84,25 @@ static uint32_t append_cubic(uint32_t start_point_index,
   for (uint32_t i = 0; i < 8; i++) {
     std::array<skity::Point, 3> quad;
     skity::CubicToQuadratic(sub_cubics.data() + i * 4, quad.data());
+    uint32_t qn_index0 = gl_vertex->AddPoint(
+        quad[0].x, quad[0].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t qn_index1 = gl_vertex->AddPoint(
+        quad[2].x, quad[2].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    uint32_t quad_index0 = gl_vertex->AddPoint(
+        quad[0].x, quad[0].y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.f, 0.f);
+    uint32_t quad_index1 = gl_vertex->AddPoint(
+        quad[1].x, quad[1].y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.5f, 0.f);
+    uint32_t quad_index2 = gl_vertex->AddPoint(
+        quad[2].x, quad[2].y, GLVertex::GL_VERTEX_TYPE_QUAD, 1.f, 1.f);
+
+    if (is_front) {
+      gl_vertex->AddFront(start_point_index, qn_index0, qn_index1);
+      gl_vertex->AddFront(quad_index0, quad_index1, quad_index2);
+    } else {
+      gl_vertex->AddBack(start_point_index, qn_index0, qn_index1);
+      gl_vertex->AddBack(quad_index0, quad_index1, quad_index2);
+    }
   }
 
   return current_index;
@@ -127,6 +146,8 @@ void GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
         previous_point_index = current_point_index;
         current_point_index = append_cubic(
             start_point_index, previous_point_index, pts, gl_vertex);
+        break;
+      case Path::Verb::kConic:
         break;
       default:
         break;

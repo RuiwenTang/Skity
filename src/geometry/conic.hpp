@@ -9,7 +9,10 @@
 namespace skity {
 
 struct Conic {
-  enum { kMaxConicsForArc = 5 };
+  enum {
+    kMaxConicsForArc = 5,
+    kMaxConicToQuadPOW2 = 5,
+  };
 
   static int BuildUnitArc(Vector const& start, Vector const& stop,
                           RotationDirection dir, Matrix* matrix,
@@ -18,20 +21,16 @@ struct Conic {
   Conic() = default;
 
   Conic(Point const& p0, Point const& p1, Point const& p2, float weight)
-      : pts{p0, p1, p2}, w(weight)
-  {
-  }
+      : pts{p0, p1, p2}, w(weight) {}
 
   Conic(Point const p[3], float weight);
 
-  void set(Point const p[3], float weight)
-  {
+  void set(Point const p[3], float weight) {
     std::memcpy(pts, p, 3 * sizeof(Point));
     w = weight;
   }
 
-  void set(const Point& p0, const Point& p1, const Point& p2, float weight)
-  {
+  void set(const Point& p0, const Point& p1, const Point& p2, float weight) {
     pts[0] = p0;
     pts[1] = p1;
     pts[2] = p2;
@@ -42,6 +41,16 @@ struct Conic {
   Point evalAt(float t) const;
   Vector evalTangentAt(float t) const;
 
+  void chop(Conic conics[2]) const;
+
+  /**
+   * @brief Chop this conic into N quads, stored continguously in pts
+   *
+   * @param pts   quad storage
+   * @param pow2  number of quads N = 1 << pow2
+   * @return      number of quad storaged in pts
+   */
+  uint32_t chopIntoQuadsPOW2(Point pts[], uint32_t pow2);
   Point pts[3];
   float w = 0.f;
 };
