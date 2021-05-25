@@ -18,11 +18,16 @@ class GLVertex {
   };
 
  public:
+  enum {
+    GL_VERTEX_TYPE_NORMAL = 0,
+    GL_VERTEX_TYPE_QUAD = 1,
+  };
   using VertexData = std::array<float, GL_VERTEX_SIZE>;
   uint32_t AddPoint(float x, float y, uint32_t type, float u, float v);
   uint32_t AddPoint(VertexData const& data);
   void AddFront(uint32_t v1, uint32_t v2, uint32_t v3);
   void AddBack(uint32_t v1, uint32_t v2, uint32_t v3);
+  VertexData GetVertex(uint32_t index);
 
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }

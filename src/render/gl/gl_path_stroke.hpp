@@ -1,6 +1,8 @@
 #ifndef SKITY_SRC_RENDER_GL_GL_PATH_STROKE
 #define SKITY_SRC_RENDER_GL_GL_PATH_STROKE
 
+#if 0
+
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
@@ -36,5 +38,7 @@ class GLPathStroke {
 };
 
 }  // namespace skity
+
+#endif
 
 #endif  // SKITY_SRC_RENDER_GL_GL_PATH_STROKE

@@ -123,7 +123,7 @@ class CubicFill : public test::TestApp {
       out vec4 FragColor;
 
       void main() {
-        if (TexCoord.x == 1.0 && (TexCoord.z * TexCoord.z - TexCoord.y > 0)) {
+        if (TexCoord.x == 1.0 && (TexCoord.y * TexCoord.y - TexCoord.z > 0)) {
           discard;
         }
         FragColor = vec4(1.0, 0.0, 0.0, 1.0);
@@ -211,8 +211,8 @@ class CubicFill : public test::TestApp {
       vertices_buffer.emplace_back(quad[1].x);
       vertices_buffer.emplace_back(quad[1].y);
       vertices_buffer.emplace_back(1.f);
-      vertices_buffer.emplace_back(0.f);
       vertices_buffer.emplace_back(0.5f);
+      vertices_buffer.emplace_back(0.f);
 
       vertices_buffer.emplace_back(quad[2].x);
       vertices_buffer.emplace_back(quad[2].y);
