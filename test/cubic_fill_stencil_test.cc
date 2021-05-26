@@ -6,46 +6,7 @@
 
 #include "common/test_common.hpp"
 #include "src/geometry/geometry.hpp"
-
-struct RenderMesh {
-  GLuint vao = 0;
-  // [vertex, front_index, back_index]
-  std::array<GLuint, 3> buffers = {};
-  uint32_t front_count = 0;
-  uint32_t back_count = 0;
-
-  void BeforeDraw() {
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-  }
-
-  void DrawFront(GLenum mode = GL_TRIANGLES) {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)(2 * sizeof(float)));
-
-    glDrawElements(mode, front_count, GL_UNSIGNED_INT, 0);
-  }
-  void DrawBack(GLenum mode = GL_TRIANGLES) {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[2]);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)(2 * sizeof(float)));
-
-    glDrawElements(mode, back_count, GL_UNSIGNED_INT, 0);
-  }
-};
+#include "src/render/gl/gl_mesh.hpp"
 
 class CubicFill : public test::TestApp {
  public:
@@ -60,35 +21,45 @@ class CubicFill : public test::TestApp {
   void OnDraw() override {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_STENCIL_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     glUseProgram(stencil_program_);
     glUniformMatrix4fv(stencil_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    mesh_.BeforeDraw();
+    mesh_.BindMesh();
     glColorMask(0, 0, 0, 0);
     glStencilMask(0x0F);
 
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
-    mesh_.DrawFront();
+    mesh_.BindFrontIndex();
+    DrawFront();
     glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
-    mesh_.DrawBack();
+    mesh_.BindBackIndex();
+    DrawBack();
 
     glColorMask(1, 1, 1, 1);
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-    mesh_.DrawFront();
-    mesh_.DrawBack();
+    mesh_.BindFrontIndex();
+    DrawFront();
+    mesh_.BindBackIndex();
+    DrawBack();
 
     glDisable(GL_STENCIL_TEST);
 
     glUseProgram(mesh_program_);
     glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    mesh_.DrawFront(GL_LINE_LOOP);
-    mesh_.DrawBack(GL_LINE_LOOP);
+    mesh_.BindFrontIndex();
+    DrawFront(GL_LINE_LOOP);
+    mesh_.BindBackIndex();
+    DrawBack(GL_LINE_LOOP);
+
+    mesh_.UnBindMesh();
   }
 
  private:
@@ -242,39 +213,55 @@ class CubicFill : public test::TestApp {
       }
     }
 
-    mesh_.front_count = front_index.size();
-    mesh_.back_count = back_index.size();
+    front_count_ = front_index.size();
+    back_count_ = back_index.size();
 
-    glGenVertexArrays(1, &mesh_.vao);
-    glGenBuffers(3, mesh_.buffers.data());
+    mesh_.Init();
 
-    glBindVertexArray(mesh_.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh_.buffers[0]);
-    glBufferData(GL_ARRAY_BUFFER, vertices_buffer.size() * sizeof(float),
-                 vertices_buffer.data(), GL_STATIC_DRAW);
+    mesh_.BindMesh();
+    mesh_.UploadVertexBuffer(vertices_buffer.data(),
+                             vertices_buffer.size() * sizeof(float));
+    mesh_.UploadFrontIndex(front_index.data(),
+                           front_index.size() * sizeof(uint32_t));
+    mesh_.UploadBackIndex(back_index.data(),
+                          back_index.size() * sizeof(uint32_t));
+    mesh_.UnBindMesh();
+  }
 
-    // front
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_.buffers[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, front_index.size() * sizeof(uint32_t),
-                 front_index.data(), GL_STATIC_DRAW);
-    // back
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_.buffers[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, back_index.size() * sizeof(uint32_t),
-                 back_index.data(), GL_STATIC_DRAW);
+  void DrawFront(GLenum mode = GL_TRIANGLES) {
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
+    glDrawElements(mode, front_count_, GL_UNSIGNED_INT, 0);
+  }
+
+  void DrawBack(GLenum mode = GL_TRIANGLES) {
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
+    glDrawElements(mode, back_count_, GL_UNSIGNED_INT, 0);
   }
 
  private:
-  RenderMesh mesh_ = {};
+  skity::GLMesh mesh_;
   glm::mat4 mvp_ = {};
   GLuint stencil_program_ = 0;
   GLint stencil_program_mvp_location_ = -1;
 
   GLuint mesh_program_ = 0;
   GLint mesh_program_mvp_location_ = -1;
+  uint32_t front_count_ = 0;
+  uint32_t back_count_ = 0;
 };
 
 int main(int argc, const char** argv) {

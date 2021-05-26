@@ -62,8 +62,8 @@ set(Skity_src
         src/render/draw.hpp
         src/render/gl/gl_canvas.cc
         src/render/gl/gl_canvas.hpp
-        src/render/gl/gl_path_stroke.cc
-        src/render/gl/gl_path_stroke.hpp
+        src/render/gl/gl_mesh.cc
+        src/render/gl/gl_mesh.hpp
         src/render/gl/gl_path_visitor.cc
         src/render/gl/gl_path_visitor.hpp
         src/render/gl/gl_stroke.cc
