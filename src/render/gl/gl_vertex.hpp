@@ -32,6 +32,19 @@ class GLVertex {
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }
 
+  void* GetVertexData() { return vertex_buffer.data(); }
+  uint32_t GetVertexDataSize() { return vertex_buffer.size() * sizeof(float); }
+
+  void* GetFrontIndexData() { return front_index.data(); }
+  uint32_t GetFrontIndexDataSize() {
+    return front_index.size() * sizeof(float);
+  }
+
+  uint32_t CurrentIndex() { return vertex_buffer.size() / 5; }
+
+  void* GetBackIndexData() { return back_index.data(); }
+  uint32_t GetBackIndexDataSize() { return back_index.size() * sizeof(float); }
+
  private:
   std::vector<float> vertex_buffer;
   std::vector<uint32_t> front_index;

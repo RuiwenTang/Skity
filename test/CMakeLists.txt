@@ -40,4 +40,7 @@ if (PkgConfig_FOUND)
 
   add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
   target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES})
+
+  add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+  target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES})
 endif()

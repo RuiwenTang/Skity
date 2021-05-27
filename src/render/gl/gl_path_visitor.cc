@@ -50,9 +50,15 @@ static uint32_t append_quad(uint32_t start_point_index,
       ctr_point.x, ctr_point.y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.5f, 0.f);
   uint32_t quad_end_index = gl_vertex->AddPoint(
       end_point.x, end_point.y, GLVertex::GL_VERTEX_TYPE_QUAD, 1.f, 1.f);
-
-  if (triangle_is_front(start_point_index, previous_point_index,
-                        current_point_index, gl_vertex)) {
+  if (start_point_index == current_point_index) {
+    if (triangle_is_front(quad_start_index, quad_mid_index, quad_end_index,
+                          gl_vertex)) {
+      gl_vertex->AddFront(quad_start_index, quad_mid_index, quad_end_index);
+    } else {
+      gl_vertex->AddBack(quad_start_index, quad_mid_index, quad_end_index);
+    }
+  } else if (triangle_is_front(start_point_index, previous_point_index,
+                               quad_mid_index, gl_vertex)) {
     gl_vertex->AddFront(start_point_index, previous_point_index,
                         current_point_index);
     gl_vertex->AddFront(quad_start_index, quad_mid_index, quad_end_index);
@@ -111,11 +117,11 @@ static uint32_t append_cubic(uint32_t start_point_index,
 void GLPathVisitor::VisitPath(Path const& path, GLVertex* gl_vertex) {
   Path::Iter iter{path, false};
 
+  uint32_t start_point_index = gl_vertex->CurrentIndex();
+  uint32_t previous_point_index = start_point_index;
+  uint32_t current_point_index = start_point_index;
   for (;;) {
     std::array<Point, 4> pts;
-    uint32_t start_point_index = 0;
-    uint32_t previous_point_index = 0;
-    uint32_t current_point_index = 0;
     Path::Verb type = iter.next(pts.data());
     switch (type) {
       case Path::Verb::kMove:
@@ -155,10 +161,21 @@ void GLPathVisitor::VisitPath(Path const& path, GLVertex* gl_vertex) {
             append_quad(start_point_index, previous_point_index, quads[3],
                         quads[4], gl_vertex);
       } break;
+      case Path::Verb::kClose:
+        previous_point_index = current_point_index;
+        current_point_index = start_point_index;
+        append_triangle(start_point_index, previous_point_index,
+                        current_point_index, gl_vertex);
+        break;
+      case Path::Verb::kDone:
+        goto DONE;
+        break;
       default:
         break;
     }
   }
+DONE:
+  return;
 }
 
 }  // namespace skity
