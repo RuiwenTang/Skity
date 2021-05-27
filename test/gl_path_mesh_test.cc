@@ -178,6 +178,7 @@ class GLPathMeshDemo : public test::TestApp {
     skity::Path path3;
     path3.moveTo(20, 170);
     path3.conicTo(80, 170, 80, 230, 0.707f);
+    path3.conicTo(80, 170, 20, 170, 0.25f);
     path3.close();
 
     skity::GLVertex gl_vertex;
