@@ -36,15 +36,16 @@ class GLStroke {
   Paint::Cap cap_;
   Paint::Join join_;
   GLVertex* gl_vertex_;
-  Point prev_pt_ = {};
+  Point start_pt_ = {};
+  Point prev_to_pt_ = {};
+  Point prev_fromt_pt_ = {};
+  Vector prev_dir_ = {};
   Point prev_pt1_ = {};
   Point prev_pt2_ = {};
   Point first_pt1_;
   Point first_pt2_;
   int32_t first_pt1_index_ = -1;
   int32_t first_pt2_index_ = -1;
-  int32_t prev_pt1_index_ = -1;
-  int32_t prev_pt2_index_ = -1;
 };
 
 }  // namespace skity

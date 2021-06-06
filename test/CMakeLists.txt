@@ -43,4 +43,7 @@ if (PkgConfig_FOUND)
 
   add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
   target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES})
+
+  add_executable(gl_path_stroke_mesh gl_path_stroke_mesh.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+  target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES})
 endif()
