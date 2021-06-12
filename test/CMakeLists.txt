@@ -33,17 +33,17 @@ if (PkgConfig_FOUND)
   include_directories(${GLFW_INCLUDE_DIRS})
   
   add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES})
+  target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
   add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES})
+  target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
   add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES})
+  target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
   add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES})
+  target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
   add_executable(gl_path_stroke_mesh gl_path_stroke_mesh.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES})
+  target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 endif()
