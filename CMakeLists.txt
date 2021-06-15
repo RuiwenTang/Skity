@@ -66,6 +66,8 @@ set(Skity_src
         src/render/gl/gl_mesh.hpp
         src/render/gl/gl_path_visitor.cc
         src/render/gl/gl_path_visitor.hpp
+        src/render/gl/gl_shader.cc
+        src/render/gl/gl_shader.hpp
         src/render/gl/gl_stroke.cc
         src/render/gl/gl_stroke.hpp
         src/render/gl/gl_vertex.cc
