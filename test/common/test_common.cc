@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
 
 namespace test {
 
@@ -36,6 +37,9 @@ GLuint create_shader(const char* source, GLenum type) {
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
+    GLchar info_log[1024];
+    glGetShaderInfoLog(shader, 1204, nullptr, info_log);
+    std::cerr << "shader compile error = " << info_log;
     exit(-4);
   }
 
@@ -55,6 +59,9 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
   glGetProgramiv(program, GL_LINK_STATUS, &success);
 
   if (!success) {
+    GLchar info_log[1024];
+    glGetProgramInfoLog(program, 1024, nullptr, info_log);
+    std::cerr << "program link error " << info_log << std::endl;
     exit(-5);
   }
 

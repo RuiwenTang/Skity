@@ -3,9 +3,11 @@
 #include <skity/geometry/point.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
+#include <string>
 #include <vector>
 
 #include "common/test_common.hpp"
+#include "shader.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_stroke.hpp"
@@ -96,37 +98,12 @@ class GLPathMeshDemo : public test::TestApp {
   }
 
   void InitShader() {
-    const char* stencil_vs_code = R"(
-      #version 330 core
-      layout(location = 0) in vec2 aPos;
-      layout(location = 1) in vec3 aUV;
-      uniform mat4 mvp;
-
-      out vec3 TexCoord;
-
-      void main() {
-        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
-        TexCoord = aUV;
-      }
-    )";
-
-    const char* stencil_fs_code = R"(
-      #version 330 core
-
-      in vec3 TexCoord;
-
-      out vec4 FragColor;
-
-      void main() {
-        if (TexCoord.x == 1.0 && (TexCoord.y * TexCoord.y - TexCoord.z > 0)) {
-          discard;
-        }
-        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-      }
-    )";
-
+    std::string vs_stencil((const char*)vs_stencil_basic_glsl,
+                           vs_stencil_basic_glsl_size);
+    std::string fs_stencil((const char*)fs_stencil_basic_glsl,
+                           fs_stencil_basic_glsl_size);
     stencil_program_ =
-        test::create_shader_program(stencil_vs_code, stencil_fs_code);
+        test::create_shader_program(vs_stencil.c_str(), fs_stencil.c_str());
 
     stencil_program_mvp_location_ =
         glGetUniformLocation(stencil_program_, "mvp");
