@@ -29,6 +29,9 @@ class GLStroke {
                      Point const& control2, Point const& end);
   void HandleClose();
 
+  void HandleBevelJoin(Point const& from, Point const& to,
+                       int32_t prev_pt1_index, int32_t prev_pt2_index);
+
  private:
   float stroke_width_;
   float stroke_radius_;

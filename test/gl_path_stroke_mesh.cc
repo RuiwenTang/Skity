@@ -160,7 +160,7 @@ class GLPathMeshDemo : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
-    paint.setStrokeJoin(skity::Paint::kRound_Join);
+    paint.setStrokeJoin(skity::Paint::kBevel_Join);
 
     skity::Path path;
     path.moveTo(100, 100);
