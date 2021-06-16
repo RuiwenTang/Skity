@@ -76,6 +76,16 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
     // handle line join
     if (join_ == Paint::kBevel_Join) {
       HandleBevelJoin(from, to, prev_pt1_index, prev_pt2_index);
+    } else if (join_ == Paint::kMiter_Join) {
+      // miter join
+      glm::vec4 prev_vertical_line = glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
+      float dot_product = glm::dot(vertical_line, prev_vertical_line);
+      if (FloatNearlyZero(Float1 - dot_product)) {
+        // do nothing
+      } else if (FloatNearlyZero(Float1 + dot_product)) {
+        // oppsite line
+      } else {
+      }
     }
   }
 

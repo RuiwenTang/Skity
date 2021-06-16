@@ -417,6 +417,19 @@ void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]);
 
 void CubicToQuadratic(const Point cubic[4], Point quad[3]);
 
+/**
+ * @brief calculate intersect point of two line p1p2, p3p4
+ *
+ * @param p1        start point of line1
+ * @param p2        end point of line1
+ * @param p3        start point of line2
+ * @param p4        end point of line2
+ * @param result    result point
+ * @return int32_t
+ */
+int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
+                          Point const& p4, Point& result);
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_GEOMETRY_GEOMETRY_HPP_
