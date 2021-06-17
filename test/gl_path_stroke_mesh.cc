@@ -137,13 +137,14 @@ class GLPathMeshDemo : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
-    paint.setStrokeJoin(skity::Paint::kBevel_Join);
+    paint.setStrokeJoin(skity::Paint::kMiter_Join);
 
     skity::Path path;
     path.moveTo(100, 100);
     path.lineTo(180, 200);
     path.lineTo(300, 100);
     path.lineTo(400, 200);
+    path.lineTo(360, 100);
     // path.close();
 
     skity::GLVertex gl_vertex;

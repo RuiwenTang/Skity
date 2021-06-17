@@ -1,5 +1,8 @@
 #include "src/render/gl/gl_stroke.hpp"
 
+#include <glm/gtx/transform.hpp>
+
+#include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
 #include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_vertex.hpp"
@@ -78,14 +81,7 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
       HandleBevelJoin(from, to, prev_pt1_index, prev_pt2_index);
     } else if (join_ == Paint::kMiter_Join) {
       // miter join
-      glm::vec4 prev_vertical_line = glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
-      float dot_product = glm::dot(vertical_line, prev_vertical_line);
-      if (FloatNearlyZero(Float1 - dot_product)) {
-        // do nothing
-      } else if (FloatNearlyZero(Float1 + dot_product)) {
-        // oppsite line
-      } else {
-      }
+      HandleMiterJoin(from, to, vertical_line);
     }
   }
 
@@ -132,6 +128,70 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
 
     gl_vertex_->AddFront(prev_join_index, prev_pt1_index, center_point);
+  }
+}
+
+void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
+                               Vector const& vertical_line) {
+  glm::vec4 prev_vertical_line = glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
+  Point outer;
+  Matrix matrix_pre;
+  Matrix matrix_cur;
+  Point p1 = Point(prev_fromt_pt_.x, prev_fromt_pt_.y, 0, 1);
+  Point p2 = Point(from.x, from.y, 0, 1);
+  Point p3 = Point(to.x, to.y, 0, 1);
+  Point p4 = Point(from.x, from.y, 0, 1);
+  int32_t ret;
+
+  Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
+  if (orientation == Orientation::kLinear) {
+    // same direction do nothing
+  } else if (orientation == Orientation::kClockWise) {
+    matrix_pre =
+        glm::translate(glm::vec3{-prev_vertical_line.x * stroke_radius_,
+                                 -prev_vertical_line.y * stroke_radius_, 0});
+    matrix_cur =
+        glm::translate(glm::vec3{-vertical_line.x * stroke_radius_,
+                                 -vertical_line.y * stroke_radius_, 0});
+  } else {
+    matrix_pre =
+        glm::translate(glm::vec3{prev_vertical_line.x * stroke_radius_,
+                                 prev_vertical_line.y * stroke_radius_, 0});
+    matrix_cur = glm::translate(glm::vec3{vertical_line.x * stroke_radius_,
+                                          vertical_line.y * stroke_radius_, 0});
+  }
+
+  p1 = matrix_pre * p1;
+  p2 = matrix_pre * p2;
+  p3 = matrix_cur * p3;
+  p4 = matrix_cur * p4;
+  ret = IntersectLineLine(p1, p2, p3, p4, outer);
+  float miter_length =
+      glm::length(glm::vec2(from.x - outer.x, from.y - outer.y));
+  if (ret == 2 || ret == 0) {
+    // parallel do nothing
+  } else if (miter_length < 4.5f * stroke_radius_) {
+    // TODO calculate miter limit
+    int32_t p2_index =
+        gl_vertex_->AddPoint(p2.x, p2.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    int32_t p4_index =
+        gl_vertex_->AddPoint(p4.x, p4.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    int32_t outer_index = gl_vertex_->AddPoint(
+        outer.x, outer.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    gl_vertex_->AddFront(p2_index, outer_index, p4_index);
+
+    int32_t center_index = gl_vertex_->AddPoint(
+        from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    gl_vertex_->AddFront(p2_index, center_index, p4_index);
+  } else {
+    // fallback bevel_join
+    int32_t p2_index =
+        gl_vertex_->AddPoint(p2.x, p2.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    int32_t p4_index =
+        gl_vertex_->AddPoint(p4.x, p4.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    int32_t center_index = gl_vertex_->AddPoint(
+        from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    gl_vertex_->AddFront(p2_index, center_index, p4_index);
   }
 }
 

@@ -425,7 +425,7 @@ void CubicToQuadratic(const Point cubic[4], Point quad[3]);
  * @param p3        start point of line2
  * @param p4        end point of line2
  * @param result    result point
- * @return int32_t
+ * @return int32_t  2 means 180, 0 parallel
  */
 int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
                           Point const& p4, Point& result);
