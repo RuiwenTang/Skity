@@ -21,6 +21,8 @@ class GLVertex {
   enum {
     GL_VERTEX_TYPE_NORMAL = 0,
     GL_VERTEX_TYPE_QUAD = 1,
+    GL_VERTEX_TYPE_QUAD_OFF = 2,
+    GL_VERTEX_TYPE_RADIUS = 3,
   };
   using VertexData = std::array<float, GL_VERTEX_SIZE>;
   uint32_t AddPoint(float x, float y, uint32_t type, float u, float v);

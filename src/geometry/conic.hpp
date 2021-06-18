@@ -18,6 +18,9 @@ struct Conic {
                           RotationDirection dir, Matrix* matrix,
                           Conic conics[kMaxConicsForArc]);
 
+  static int BuildUnitArc(glm::vec3 const& start, glm::vec3 const& stop,
+                          RotationDirection dir, glm::mat3* matrix,
+                          Conic conics[kMaxConicsForArc]);
   Conic() = default;
 
   Conic(Point const& p0, Point const& p1, Point const& p2, float weight)
@@ -30,10 +33,25 @@ struct Conic {
     w = weight;
   }
 
+  void set(glm::vec3 const p[3], float weight) {
+    pts[0] = Point(p[0], 1.f);
+    pts[1] = Point(p[1], 1.f);
+    pts[2] = Point(p[2], 1.f);
+    w = weight;
+  }
+
   void set(const Point& p0, const Point& p1, const Point& p2, float weight) {
     pts[0] = p0;
     pts[1] = p1;
     pts[2] = p2;
+    w = weight;
+  }
+
+  void set(glm::vec3 const& p0, glm::vec3 const& p1, glm::vec3 const& p2,
+           float weight) {
+    pts[0] = Point(p0, 1);
+    pts[1] = Point(p1, 1);
+    pts[2] = Point(p2, 1);
     w = weight;
   }
 

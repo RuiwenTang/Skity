@@ -49,8 +49,8 @@ static inline bool PointEqualsWithinTolerance(Point const& pt, Point const& p,
   return FloatNearlyZero(pt.x - p.x, tol) && FloatNearlyZero(pt.y - p.y, tol);
 }
 
-template <bool use_rsqrt>
-bool PointSetLength(Point& pt, float x, float y, float length,
+template <bool use_rsqrt, class POINT>
+bool PointSetLength(POINT& pt, float x, float y, float length,
                     float* orig_length = nullptr) {
   double xx = x;
   double yy = y;
@@ -97,8 +97,9 @@ static inline bool PointCanNormalize(float dx, float dy) {
   return (!glm::isinf(dx) && !glm::isinf(dy)) && (dx || dy);
 }
 
-static inline bool PointEqualsWithinTolerance(Point const& p1,
-                                              Point const& p2) {
+template <class POINT>
+static inline bool PointEqualsWithinTolerance(POINT const& p1,
+                                              POINT const& p2) {
   return !PointCanNormalize(p1.x - p2.x, p1.y - p2.y);
 }
 

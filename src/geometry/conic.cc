@@ -146,16 +146,16 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
   }
 
   // now handle counter-clockwise and the initial unitStart rotation
-  Matrix matrix;
-  float angle = glm::acos(CrossProduct(start, stop) /
-                          (glm::length(start) * glm::length(stop)));
-  matrix = glm::rotate(glm::identity<Matrix>(), angle, {0, 0, 1});
+  Matrix matrix = glm::identity<Matrix>();
+  // float angle = glm::acos(CrossProduct(start, stop) /
+  //                         (glm::length(start) * glm::length(stop)));
+  // matrix = glm::rotate(glm::identity<Matrix>(), angle, {0, 0, 1});
   if (dir == RotationDirection::kCCW) {
     matrix = glm::scale(matrix, {Float1, -Float1, 1});
   }
 
   if (userMatrix) {
-    matrix = matrix * *userMatrix;
+    matrix = *userMatrix * matrix;
   }
 
   for (int i = 0; i < conicCount; i++) {
@@ -228,7 +228,7 @@ void Conic::chop(Conic dst[2]) const {
 
 uint32_t Conic::chopIntoQuadsPOW2(Point* pts, uint32_t pow2) {
   if (pow2 == kMaxConicToQuadPOW2) {
-    std::array<Conic, 2> dst;
+    std::array<Conic, 2> dst = {};
     this->chop(dst.data());
     // check to see if the first chop generates a pair of lines
     if (PointEqualsWithinTolerance(dst[0].pts[1], dst[0].pts[2]) &&

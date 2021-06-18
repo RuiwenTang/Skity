@@ -4,8 +4,10 @@ layout(location = 1) in vec3 aUV;
 uniform mat4 mvp;
 
 out vec3 TexCoord;
+out vec2 vPos;
 
 void main() {
   gl_Position = mvp * vec4(aPos, 0.0, 1.0);
   TexCoord = aUV;
+  vPos = aPos;
 }

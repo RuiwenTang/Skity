@@ -29,6 +29,7 @@ class GLPathMeshDemo : public test::TestApp {
 
     glUseProgram(stencil_program_);
     glUniformMatrix4fv(stencil_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
+    glUniform1f(stencil_program_stroke_radius_location_, 15.f);
 
     mesh_.BindMesh();
     glColorMask(0, 0, 0, 0);
@@ -107,6 +108,8 @@ class GLPathMeshDemo : public test::TestApp {
 
     stencil_program_mvp_location_ =
         glGetUniformLocation(stencil_program_, "mvp");
+    stencil_program_stroke_radius_location_ =
+        glGetUniformLocation(stencil_program_, "stroke_radius");
 
     const char* mesh_vs_code = R"(
       #version 330 core
@@ -135,9 +138,10 @@ class GLPathMeshDemo : public test::TestApp {
   void InitMesh() {
     skity::Paint paint;
     paint.setStyle(skity::Paint::kStroke_Style);
-    paint.setStrokeWidth(10.f);
+    paint.setStrokeWidth(30.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
-    paint.setStrokeJoin(skity::Paint::kMiter_Join);
+    // paint.setStrokeJoin(skity::Paint::kMiter_Join);
+    paint.setStrokeJoin(skity::Paint::kRound_Join);
 
     skity::Path path;
     path.moveTo(100, 100);
@@ -170,7 +174,7 @@ class GLPathMeshDemo : public test::TestApp {
   glm::mat4 mvp_ = {};
   GLuint stencil_program_ = 0;
   GLint stencil_program_mvp_location_ = -1;
-
+  GLint stencil_program_stroke_radius_location_ = -1;
   GLuint mesh_program_ = 0;
   GLint mesh_program_mvp_location_ = -1;
   uint32_t front_count_ = 0;
