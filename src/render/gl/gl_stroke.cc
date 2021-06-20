@@ -85,52 +85,7 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
       HandleMiterJoin(from, to, vertical_line);
     } else if (join_ == Paint::kRound_Join) {
       // handle rond join
-      Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
-      if (orientation != Orientation::kLinear) {
-        glm::vec4 prev_vertical_line =
-            glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
-        Point prev_join1_pt = prev_to_pt_ + prev_vertical_line * stroke_radius_;
-        Point prev_join2_pt = prev_to_pt_ - prev_vertical_line * stroke_radius_;
-
-        Point before_join, after_join;
-        if (orientation == Orientation::kClockWise) {
-          before_join = prev_join2_pt;
-          after_join = fromt_pt2;
-        } else {
-          before_join = prev_join1_pt;
-          after_join = fromt_pt1;
-        }
-        Vector dir = glm::normalize(after_join - before_join);
-        Vector outer = Vector(-dir.y, dir.x, 0, 0);
-        if (orientation == Orientation::kAntiClockWise) {
-          outer = -outer;
-        }
-        Point outer_p;
-        outer_p.x = from.x + outer.x * stroke_radius_ * 2.f;
-        outer_p.y = from.y + outer.y * stroke_radius_ * 2.f;
-        int32_t p1 = gl_vertex_->AddPoint(before_join.x, before_join.y,
-                                          GLVertex::GL_VERTEX_TYPE_RADIUS,
-                                          from.x, from.y);
-        int32_t p2 = gl_vertex_->AddPoint(after_join.x, after_join.y,
-                                          GLVertex::GL_VERTEX_TYPE_RADIUS,
-                                          from.x, from.y);
-        int32_t p3 = gl_vertex_->AddPoint(outer_p.x, outer_p.y,
-                                          GLVertex::GL_VERTEX_TYPE_RADIUS,
-                                          from.x, from.y);
-
-        gl_vertex_->AddFront(p1, p2, p3);
-
-        int32_t n_p1 =
-            gl_vertex_->AddPoint(before_join.x, before_join.y,
-                                 GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
-        int32_t n_p2 =
-            gl_vertex_->AddPoint(after_join.x, after_join.y,
-                                 GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
-        int32_t n_c = gl_vertex_->AddPoint(
-            from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
-
-        gl_vertex_->AddFront(n_p1, n_p2, n_c);
-      }
+      HandleRoundJoin(from, to, vertical_line, fromt_pt1, fromt_pt2);
     }
   }
 
@@ -241,6 +196,80 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
     int32_t center_index = gl_vertex_->AddPoint(
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(p2_index, center_index, p4_index);
+  }
+}
+
+void GLStroke::HandleRoundJoin(Point const& from, Point const& to,
+                               Vector const& vertical_line,
+                               Point const& from_pt1, Point const& from_pt2) {
+  Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
+  if (orientation != Orientation::kLinear) {
+    glm::vec4 prev_vertical_line = glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
+    Point prev_join1_pt = prev_to_pt_ + prev_vertical_line * stroke_radius_;
+    Point prev_join2_pt = prev_to_pt_ - prev_vertical_line * stroke_radius_;
+
+    Point before_join, after_join;
+    if (orientation == Orientation::kClockWise) {
+      before_join = prev_join2_pt;
+      after_join = from_pt2;
+    } else {
+      before_join = prev_join1_pt;
+      after_join = from_pt1;
+    }
+    Vector dir = glm::normalize(after_join - before_join);
+    Vector before_dir = before_join - from;
+    Vector after_dir = after_join - from;
+    float cross_prod = CrossProduct(before_dir, after_dir);
+    Vector outer = Vector(-dir.y, dir.x, 0, 0);
+    if (orientation == Orientation::kAntiClockWise) {
+      outer = -outer;
+    }
+    Point outer_p;
+    outer_p.x = from.x + outer.x * stroke_radius_ * 2.f;
+    outer_p.y = from.y + outer.y * stroke_radius_ * 2.f;
+    if (cross_prod >= 0) {
+      int32_t p1 =
+          gl_vertex_->AddPoint(before_join.x, before_join.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+      int32_t p2 =
+          gl_vertex_->AddPoint(after_join.x, after_join.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+      int32_t p3 =
+          gl_vertex_->AddPoint(outer_p.x, outer_p.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+
+      gl_vertex_->AddFront(p1, p2, p3);
+    } else {
+      Point i_center;
+      IntersectLineLine(before_join, after_join, from, from + outer, i_center);
+
+      int32_t p1 =
+          gl_vertex_->AddPoint(before_join.x, before_join.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+      int32_t p2 =
+          gl_vertex_->AddPoint(after_join.x, after_join.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+
+      int32_t p3 =
+          gl_vertex_->AddPoint(outer_p.x, outer_p.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+
+      int32_t center_index =
+          gl_vertex_->AddPoint(i_center.x, i_center.y,
+                               GLVertex::GL_VERTEX_TYPE_RADIUS, from.x, from.y);
+
+      gl_vertex_->AddFront(p1, p3, center_index);
+      gl_vertex_->AddFront(p3, p2, center_index);
+    }
+
+    int32_t n_p1 = gl_vertex_->AddPoint(before_join.x, before_join.y,
+                                        GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+    int32_t n_p2 = gl_vertex_->AddPoint(
+        after_join.x, after_join.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t n_c = gl_vertex_->AddPoint(
+        from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    gl_vertex_->AddFront(n_p1, n_p2, n_c);
   }
 }
 

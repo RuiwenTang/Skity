@@ -35,6 +35,10 @@ class GLStroke {
   void HandleMiterJoin(Point const& from, Point const& to,
                        Vector const& vertical_line);
 
+  void HandleRoundJoin(Point const& from, Point const& to,
+                       Vector const& vertical_line, Point const& from_pt1,
+                       Point const& from_pt2);
+
  private:
   float stroke_width_;
   float stroke_radius_;
