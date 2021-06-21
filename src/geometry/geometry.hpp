@@ -415,6 +415,9 @@ void SubDividedCubic4(const Point cubic[4], Point sub_cubic[16]);
 
 void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]);
 
+void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
+                    Point sub_quad2[3]);
+
 void CubicToQuadratic(const Point cubic[4], Point quad[3]);
 
 /**
@@ -429,6 +432,9 @@ void CubicToQuadratic(const Point cubic[4], Point quad[3]);
  */
 int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
                           Point const& p4, Point& result);
+
+bool PointInTriangle(Point const& p, Point const& p0, Point const& p1,
+                     Point const& p2);
 
 }  // namespace skity
 

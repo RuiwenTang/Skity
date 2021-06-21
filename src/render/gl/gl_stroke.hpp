@@ -39,6 +39,9 @@ class GLStroke {
                        Vector const& vertical_line, Point const& from_pt1,
                        Point const& from_pt2);
 
+  void AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
+                                    std::array<Point, 3> const& inner);
+
  private:
   float stroke_width_;
   float stroke_radius_;

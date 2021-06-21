@@ -293,6 +293,21 @@ void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]) {
   SubDividedCubic4(sub_cubic + 16, sub_cubic + 16);
 }
 
+void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
+                    Point sub_quad2[3]) {
+  Point p1 = (quad[0] + quad[1]) * 0.5f;
+  Point p2 = (quad[1] + quad[2]) * 0.5f;
+  Point p3 = (p1 + p2) * 0.5f;
+
+  sub_quad1[0] = quad[0];
+  sub_quad1[1] = p1;
+  sub_quad1[2] = p3;
+
+  sub_quad2[0] = p3;
+  sub_quad2[1] = p2;
+  sub_quad2[2] = quad[2];
+}
+
 void CubicToQuadratic(const Point cubic[4], Point quad[3]) {
   quad[0] = cubic[0];
   quad[1] = (3.f * (cubic[1] + cubic[2]) - (cubic[0] + cubic[3])) / 4.f;
@@ -340,6 +355,21 @@ int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
   } else {
     return 1;
   }
+}
+
+bool PointInTriangle(Point const& p, Point const& p0, Point const& p1,
+                     Point const& p2) {
+  // https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
+  float dx = p.x - p2.x;
+  float dy = p.y - p2.y;
+  float dx21 = p2.x - p1.x;
+  float dy12 = p1.y - p2.y;
+  float D = dy12 * (p0.x - p2.x) + dx21 * (p0.y - p2.y);
+  float s = dy12 * dx + dx21 * dy;
+  float t = (p2.y - p0.y) * dx + (p0.x - p2.x) * dy;
+
+  if (D < 0.f) return s <= 0.f && t <= 0 && (s + t) >= D;
+  return s >= 0 && t >= 0 && (s + t) <= D;
 }
 
 }  // namespace skity

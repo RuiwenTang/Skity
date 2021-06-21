@@ -97,7 +97,80 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
 }
 
 void GLStroke::HandleQuadTo(Point const& start, Point const& control,
-                            Point const& end) {}
+                            Point const& end) {
+  Orientation orientation = CalculateOrientation(start, control, end);
+
+  if (orientation == Orientation::kLinear) {
+    // fall back to line to
+    HandleLineTo(start, end);
+    return;
+  }
+
+  Vector start_dir = glm::normalize(control - start);
+  Vector start_vertical_line = Vector(start_dir.y, -start_dir.x, 0, 0);
+  Point start_pt1 = start + start_vertical_line * stroke_radius_;
+  Point start_pt2 = start - start_vertical_line * stroke_radius_;
+
+  Vector end_dir = glm::normalize(end - control);
+  Vector end_vertical_line = Vector(end_dir.y, -end_dir.x, 0, 0);
+  Point end_pt1 = end + end_vertical_line * stroke_radius_;
+  Point end_pt2 = end - end_vertical_line * stroke_radius_;
+
+  Vector control_dir = glm::normalize(start_dir + end_dir);
+  Vector control_vertical_line = Vector(control_dir.y, -control_dir.x, 0, 0);
+  Point control_pt1 =
+      control + control_vertical_line * (stroke_radius_ * 2.25f);
+  Point control_pt2 =
+      control - control_vertical_line * (stroke_radius_ * 2.25f);
+
+  int32_t prev_pt1_index = gl_vertex_->AddPoint(
+      start_pt1.x, start_pt1.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+  int32_t prev_pt2_index = gl_vertex_->AddPoint(
+      start_pt2.x, start_pt2.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
+  if (start_pt_ == start) {
+    // first quad to
+    first_pt1_ = prev_pt1_ = start_pt1;
+    first_pt2_ = prev_pt2_ = start_pt2;
+  } else {
+    // handle line join
+    if (join_ == Paint::kBevel_Join) {
+      HandleBevelJoin(start, control, prev_pt1_index, prev_pt2_index);
+    } else if (join_ == Paint::kMiter_Join) {
+      HandleMiterJoin(start, control, start_vertical_line);
+    } else if (join_ == Paint::kRound_Join) {
+      HandleRoundJoin(start, control, start_vertical_line, start_pt1,
+                      start_pt2);
+    }
+  }
+
+  std::array<Point, 3> outer_quad;
+  std::array<Point, 3> inner_quad;
+
+  if (orientation == Orientation::kAntiClockWise) {
+    outer_quad[0] = start_pt1;
+    outer_quad[1] = control_pt1;
+    outer_quad[2] = end_pt1;
+
+    inner_quad[0] = start_pt2;
+    inner_quad[1] = control_pt2;
+    inner_quad[2] = end_pt2;
+  } else {
+    inner_quad[0] = start_pt1;
+    inner_quad[1] = control_pt1;
+    inner_quad[2] = end_pt1;
+
+    outer_quad[0] = start_pt2;
+    outer_quad[1] = control_pt2;
+    outer_quad[2] = end_pt2;
+  }
+
+  // need to split quad until no overlap
+  AppendQuadOrSplitRecursively(outer_quad, inner_quad);
+
+  prev_to_pt_ = end;
+  prev_fromt_pt_ = control;
+  prev_dir_ = end_dir;
+}
 
 void GLStroke::HandleConicTo(Point const& start, Point const& control,
                              Point const& end, float weight) {}
@@ -270,6 +343,58 @@ void GLStroke::HandleRoundJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     gl_vertex_->AddFront(n_p1, n_p2, n_c);
+  }
+}
+
+void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
+                                            std::array<Point, 3> const& inner) {
+  if (PointInTriangle(inner[1], outer[0], outer[1], outer[2])) {
+    // overlap need split
+    std::array<Point, 3> outer_1;
+    std::array<Point, 3> outer_2;
+    std::array<Point, 3> inner_1;
+    std::array<Point, 3> inner_2;
+    // TODO maybe inner no need to be subdivided
+    SubDividedQuad(outer.data(), outer_1.data(), outer_2.data());
+    SubDividedQuad(inner.data(), inner_1.data(), inner_2.data());
+
+    AppendQuadOrSplitRecursively(outer_1, inner_1);
+    AppendQuadOrSplitRecursively(outer_2, inner_2);
+  } else {
+    // add quad triangle
+    int32_t o_p1 = gl_vertex_->AddPoint(
+        outer[0].x, outer[0].y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.f, 0.f);
+    int32_t o_p2 = gl_vertex_->AddPoint(
+        outer[1].x, outer[1].y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.5f, 0.f);
+    int32_t o_p3 = gl_vertex_->AddPoint(
+        outer[2].x, outer[2].y, GLVertex::GL_VERTEX_TYPE_QUAD, 1.f, 1.f);
+
+    int32_t i_p1 = gl_vertex_->AddPoint(
+        inner[0].x, inner[0].y, GLVertex::GL_VERTEX_TYPE_QUAD_OFF, 0.f, 0.f);
+    int32_t i_p2 = gl_vertex_->AddPoint(
+        inner[1].x, inner[1].y, GLVertex::GL_VERTEX_TYPE_QUAD_OFF, 0.5f, 0.f);
+    int32_t i_p3 = gl_vertex_->AddPoint(
+        inner[2].x, inner[2].y, GLVertex::GL_VERTEX_TYPE_QUAD_OFF, 1.f, 1.f);
+
+    gl_vertex_->AddFront(o_p1, o_p2, o_p3);
+    gl_vertex_->AddFront(i_p1, i_p2, i_p3);
+
+    // add normal triangle
+    int32_t on_p1 = gl_vertex_->AddPoint(
+        outer[0].x, outer[0].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t on_p2 = gl_vertex_->AddPoint(
+        outer[2].x, outer[2].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    int32_t in_p1 = gl_vertex_->AddPoint(
+        inner[0].x, inner[0].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t in_p2 = gl_vertex_->AddPoint(
+        inner[1].x, inner[1].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t in_p3 = gl_vertex_->AddPoint(
+        inner[2].x, inner[2].y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    gl_vertex_->AddFront(on_p1, in_p1, in_p2);
+    gl_vertex_->AddFront(on_p1, in_p2, on_p2);
+    gl_vertex_->AddFront(on_p2, in_p2, in_p3);
   }
 }
 

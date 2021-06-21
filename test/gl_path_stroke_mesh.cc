@@ -29,7 +29,7 @@ class GLPathMeshDemo : public test::TestApp {
 
     glUseProgram(stencil_program_);
     glUniformMatrix4fv(stencil_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
-    glUniform1f(stencil_program_stroke_radius_location_, 15.f);
+    glUniform1f(stencil_program_stroke_radius_location_, 5.f);
 
     mesh_.BindMesh();
     glColorMask(0, 0, 0, 0);
@@ -138,18 +138,23 @@ class GLPathMeshDemo : public test::TestApp {
   void InitMesh() {
     skity::Paint paint;
     paint.setStyle(skity::Paint::kStroke_Style);
-    paint.setStrokeWidth(30.f);
+    paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
     // paint.setStrokeJoin(skity::Paint::kMiter_Join);
     paint.setStrokeJoin(skity::Paint::kRound_Join);
 
     skity::Path path;
-    path.moveTo(100, 100);
-    path.lineTo(180, 200);
-    path.lineTo(300, 100);
-    path.lineTo(400, 200);
-    path.lineTo(360, 100);
+    // path.moveTo(100, 100);
+    // path.lineTo(180, 200);
+    // path.lineTo(300, 100);
+    // path.lineTo(400, 200);
+    // path.lineTo(360, 100);
     // path.close();
+    path.moveTo(50, 10);
+    path.lineTo(40, 50);
+    // path.moveTo(10, 10);
+    path.quadTo(256, 64, 128, 128);
+    path.quadTo(10, 192, 250, 250);
 
     skity::GLVertex gl_vertex;
     skity::GLStroke stroke(paint);
