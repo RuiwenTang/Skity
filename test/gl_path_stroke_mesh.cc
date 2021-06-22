@@ -53,17 +53,17 @@ class GLPathMeshDemo : public test::TestApp {
     mesh_.BindBackIndex();
     DrawBack();
 
-    glDisable(GL_STENCIL_TEST);
+    // glDisable(GL_STENCIL_TEST);
 
-    glUseProgram(mesh_program_);
-    glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
+    // glUseProgram(mesh_program_);
+    // glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    mesh_.BindFrontIndex();
-    DrawFront(GL_LINE_LOOP);
-    mesh_.BindBackIndex();
-    DrawBack(GL_LINE_LOOP);
+    // mesh_.BindFrontIndex();
+    // DrawFront(GL_LINE_LOOP);
+    // mesh_.BindBackIndex();
+    // DrawBack(GL_LINE_LOOP);
 
-    mesh_.UnBindMesh();
+    // mesh_.UnBindMesh();
   }
 
   void DrawFront(GLenum mode = GL_TRIANGLES) {
@@ -150,11 +150,12 @@ class GLPathMeshDemo : public test::TestApp {
     // path.lineTo(400, 200);
     // path.lineTo(360, 100);
     // path.close();
-    path.moveTo(50, 10);
-    path.lineTo(40, 50);
-    // path.moveTo(10, 10);
-    path.quadTo(256, 64, 128, 128);
-    path.quadTo(10, 192, 250, 250);
+    // path.moveTo(50, 10);
+    // path.lineTo(40, 50);
+    path.moveTo(10, 10);
+    path.cubicTo(256, 64, 10, 192, 250, 250);
+    // path.quadTo(256, 64, 128, 128);
+    // path.quadTo(10, 192, 250, 250);
 
     skity::GLVertex gl_vertex;
     skity::GLStroke stroke(paint);

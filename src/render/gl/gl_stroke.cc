@@ -176,7 +176,17 @@ void GLStroke::HandleConicTo(Point const& start, Point const& control,
                              Point const& end, float weight) {}
 
 void GLStroke::HandleCubicTo(Point const& start, Point const& control1,
-                             Point const& control2, Point const& end) {}
+                             Point const& control2, Point const& end) {
+  std::array<Point, 4> cubic{start, control1, control2, end};
+
+  std::array<skity::Point, 32> sub_cubics;
+  SubDividedCubic8(cubic.data(), sub_cubics.data());
+  for (int i = 0; i < 8; i++) {
+    std::array<skity::Point, 3> quad;
+    skity::CubicToQuadratic(sub_cubics.data() + i * 4, quad.data());
+    HandleQuadTo(quad[0], quad[1], quad[2]);
+  }
+}
 
 void GLStroke::HandleClose() {}
 
