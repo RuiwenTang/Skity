@@ -53,17 +53,17 @@ class GLPathMeshDemo : public test::TestApp {
     mesh_.BindBackIndex();
     DrawBack();
 
-    // glDisable(GL_STENCIL_TEST);
+    glDisable(GL_STENCIL_TEST);
 
-    // glUseProgram(mesh_program_);
-    // glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
+    glUseProgram(mesh_program_);
+    glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    // mesh_.BindFrontIndex();
-    // DrawFront(GL_LINE_LOOP);
-    // mesh_.BindBackIndex();
-    // DrawBack(GL_LINE_LOOP);
+    mesh_.BindFrontIndex();
+    DrawFront(GL_LINE_LOOP);
+    mesh_.BindBackIndex();
+    DrawBack(GL_LINE_LOOP);
 
-    // mesh_.UnBindMesh();
+    mesh_.UnBindMesh();
   }
 
   void DrawFront(GLenum mode = GL_TRIANGLES) {

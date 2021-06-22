@@ -118,10 +118,21 @@ void GLStroke::HandleQuadTo(Point const& start, Point const& control,
 
   Vector control_dir = glm::normalize(start_dir + end_dir);
   Vector control_vertical_line = Vector(control_dir.y, -control_dir.x, 0, 0);
-  float control_radius = glm::sqrt(2 * stroke_width_ * stroke_width_) / 1.414f;
 
-  Point control_pt1 = control + control_vertical_line * (control_radius);
-  Point control_pt2 = control - control_vertical_line * (control_radius);
+  Vector outerStart = start_pt1;
+  Vector outerStartControl = start_pt1 + start_dir;
+  Point outerControl;
+  IntersectLineLine(outerStart, outerStartControl, control,
+                    control + control_vertical_line, outerControl);
+
+  Vector innerStart = start_pt2;
+  Vector innerStartControl = start_pt2 + start_dir;
+  Point innerControl;
+  IntersectLineLine(innerStart, innerStartControl, control,
+                    control - control_vertical_line, innerControl);
+
+  Point control_pt1 = outerControl;
+  Point control_pt2 = innerControl;
 
   int32_t prev_pt1_index = gl_vertex_->AddPoint(
       start_pt1.x, start_pt1.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
