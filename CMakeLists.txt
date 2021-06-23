@@ -35,6 +35,9 @@ include_directories(include)
 
 add_library(glad OBJECT third_party/glad/src/glad.c)
 
+# freetype
+find_package(Freetype REQUIRED)
+
 set(Skity_header
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp

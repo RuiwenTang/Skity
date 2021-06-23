@@ -17,7 +17,8 @@ class GLPathMeshDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
-    mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
+    mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100) *
+           glm::translate(glm::identity<glm::mat4>(), glm::vec3(200, 200, 0));
     InitGL();
   }
   void OnDraw() override {
@@ -33,15 +34,15 @@ class GLPathMeshDemo : public test::TestApp {
 
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
 
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
     mesh_.BindFrontIndex();
     DrawFront();
-    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
     mesh_.BindBackIndex();
     DrawBack();
 
     glColorMask(1, 1, 1, 1);
-    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+    glStencilFunc(GL_EQUAL, 0x01, 0x01);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     mesh_.BindFrontIndex();
@@ -162,29 +163,59 @@ class GLPathMeshDemo : public test::TestApp {
     paint.setStrokeJoin(skity::Paint::kRound_Join);
 
     skity::Path path;
-    path.moveTo(10, 10);
-    path.quadTo(256, 64, 128, 128);
-    path.quadTo(10, 192, 250, 250);
+    // path.moveTo(10, 10);
+    // path.quadTo(256, 64, 128, 128);
+    // path.quadTo(10, 192, 250, 250);
+    // path.close();
+    path.moveTo(88.3281, -127);
+    path.quadTo(113.922, -127, 125.688, -116.797);
+    path.quadTo(137.469, -106.594, 137.469, -83.1406);
+    path.lineTo(135.938, -62.9844);
+    path.lineTo(126.969, 0);
+    path.lineTo(91.6406, 0);
+    path.lineTo(93.9531, -15.5938);
+    path.lineTo(93.4375, -15.5938);
+    path.quadTo(78.3438, 3, 51.2031, 3);
+    path.quadTo(33.5312, 3, 22.7812, -6.1875);
+    path.quadTo(12.0312, -15.3906, 12.0312, -29.7031);
+    path.quadTo(12.0312, -44.5156, 21.25, -56.3906);
+    path.quadTo(30.4688, -68.2656, 49.1562, -73.625);
+    path.quadTo(67.8438, -79, 88.3125, -79);
+    path.lineTo(102.656, -79);
+    path.lineTo(102.906, -82.7812);
+    path.quadTo(102.906, -90.0781, 97.0156, -95.4844);
+    path.quadTo(91.125, -100.891, 81.4062, -100.891);
+    path.quadTo(63.4844, -100.891, 48.125, -86);
+    path.lineTo(30.4688, -107.016);
+    path.quadTo(54.5312, -127, 88.3281, -127);
+    path.moveTo(49.4062, -34.8125);
+    path.quadTo(49.4062, -29.4688, 54.1406, -26.2812);
+    path.quadTo(58.875, -23.1094, 65.7969, -23.1094);
+    path.quadTo(77.0625, -23.1094, 86.5312, -28.7031);
+    path.quadTo(96, -34.3125, 98.0469, -46.2812);
+    path.lineTo(99.3281, -54.4219);
+    path.lineTo(90.375, -54.4219);
+    path.quadTo(49.4062, -54.4219, 49.4062, -34.8125);
     path.close();
 
-    skity::Path path2;
+    // skity::Path path2;
 
-    path2.moveTo(400, 10);
-    path2.lineTo(500, 10);
-    path2.lineTo(400, 110);
-    path2.lineTo(500, 110);
-    path2.close();
+    // path2.moveTo(400, 10);
+    // path2.lineTo(500, 10);
+    // path2.lineTo(400, 110);
+    // path2.lineTo(500, 110);
+    // path2.close();
 
-    skity::Path path3;
-    path3.moveTo(20, 170);
-    path3.conicTo(80, 170, 80, 230, 0.707f);
-    path3.conicTo(80, 170, 20, 170, 0.25f);
-    path3.close();
+    // skity::Path path3;
+    // path3.moveTo(20, 170);
+    // path3.conicTo(80, 170, 80, 230, 0.707f);
+    // path3.conicTo(80, 170, 20, 170, 0.25f);
+    // path3.close();
 
     skity::GLVertex gl_vertex;
     skity::GLPathVisitor::VisitPath(path, &gl_vertex);
-    skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
-    skity::GLPathVisitor::VisitPath(path3, &gl_vertex);
+    // skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
+    // skity::GLPathVisitor::VisitPath(path3, &gl_vertex);
 
     mesh_.Init();
     mesh_.BindMesh();
