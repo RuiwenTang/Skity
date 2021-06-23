@@ -155,6 +155,36 @@ class GLPathMeshDemo : public test::TestApp {
     path.moveTo(50, 50);
     path.cubicTo(256, 64, 10, 192, 250, 250);
     path.close();
+
+    const float R = 100.f, C = 300.0f;
+    path.moveTo(C + R, C);
+    for (int i = 1; i < 8; ++i) {
+      float a = 2.6927937f * i;
+      path.lineTo(C + R * std::cos(a), C + R * std::sin(a));
+    }
+    path.close();
+
+    path.moveTo(71.4311121f, 56.f);
+    path.cubicTo(68.6763107f, 56.0058575f, 65.9796704f, 57.5737917f,
+                 64.5928855f, 59.965729f);
+    path.lineTo(43.0238921f, 97.5342563f);
+    path.cubicTo(41.6587026f, 99.9325978f, 41.6587026f, 103.067402f,
+                 43.0238921f, 105.465744f);
+    path.lineTo(64.5928855f, 143.034271f);
+    path.cubicTo(65.9798162f, 145.426228f, 68.6763107f, 146.994582f,
+                 71.4311121f, 147.f);
+    path.lineTo(114.568946f, 147.f);
+    path.cubicTo(117.323748f, 146.994143f, 120.020241f, 145.426228f,
+                 121.407172f, 143.034271f);
+    path.lineTo(142.976161f, 105.465744f);
+    path.cubicTo(144.34135f, 103.067402f, 144.341209f, 99.9325978f, 142.976161f,
+                 97.5342563f);
+    path.lineTo(121.407172f, 59.965729f);
+    path.cubicTo(120.020241f, 57.5737917f, 117.323748f, 56.0054182f,
+                 114.568946f, 56.f);
+    path.lineTo(71.4311121f, 56.f);
+    path.close();
+
     // path.quadTo(256, 64, 128, 128);
     // path.quadTo(10, 192, 250, 250);
 

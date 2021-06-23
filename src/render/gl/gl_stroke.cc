@@ -188,7 +188,14 @@ void GLStroke::HandleQuadTo(Point const& start, Point const& control,
 }
 
 void GLStroke::HandleConicTo(Point const& start, Point const& control,
-                             Point const& end, float weight) {}
+                             Point const& end, float weight) {
+  std::array<Point, 5> quads;
+  Conic conic{start, control, end, weight};
+  conic.chopIntoQuadsPOW2(quads.data(), 1);
+
+  HandleQuadTo(quads[0], quads[1], quads[2]);
+  HandleQuadTo(quads[2], quads[3], quads[4]);
+}
 
 void GLStroke::HandleCubicTo(Point const& start, Point const& control1,
                              Point const& control2, Point const& end) {
