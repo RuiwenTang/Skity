@@ -50,6 +50,7 @@ class GLStroke {
   Paint::Join join_;
   GLVertex* gl_vertex_;
   Point start_pt_ = {};
+  Point start_to_ = {};
   Point prev_to_pt_ = {};
   Point prev_fromt_pt_ = {};
   Vector prev_dir_ = {};
@@ -57,8 +58,7 @@ class GLStroke {
   Point prev_pt2_ = {};
   Point first_pt1_;
   Point first_pt2_;
-  int32_t first_pt1_index_ = -1;
-  int32_t first_pt2_index_ = -1;
+  bool join_last_ = false;
 };
 
 }  // namespace skity

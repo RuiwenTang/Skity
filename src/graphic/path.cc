@@ -200,7 +200,7 @@ Path::Verb Path::Iter::next(Point pts[4]) {
     case Verb::kCubic:
       p_pts[0] = this->consMoveTo();
       std::memcpy(std::addressof(p_pts[1]), src_pts, 3 * sizeof(Point));
-      last_pt_ = src_pts[3];
+      last_pt_ = src_pts[2];
       src_pts += 3;
       break;
     case Verb::kClose:

@@ -152,8 +152,9 @@ class GLPathMeshDemo : public test::TestApp {
     // path.close();
     // path.moveTo(50, 10);
     // path.lineTo(40, 50);
-    path.moveTo(10, 10);
+    path.moveTo(50, 50);
     path.cubicTo(256, 64, 10, 192, 250, 250);
+    path.close();
     // path.quadTo(256, 64, 128, 128);
     // path.quadTo(10, 192, 250, 250);
 

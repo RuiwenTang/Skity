@@ -76,6 +76,8 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
     // first line_to
     first_pt1_ = prev_pt1_ = from + vertical_line * (stroke_radius_);
     first_pt2_ = prev_pt2_ = from - vertical_line * (stroke_radius_);
+    start_to_ = to;
+    join_last_ = true;
   } else {
     // handle line join
     if (join_ == Paint::kBevel_Join) {
@@ -142,6 +144,8 @@ void GLStroke::HandleQuadTo(Point const& start, Point const& control,
     // first quad to
     first_pt1_ = prev_pt1_ = start_pt1;
     first_pt2_ = prev_pt2_ = start_pt2;
+    start_to_ = control;
+    join_last_ = true;
   } else {
     // handle line join
     if (join_ == Paint::kBevel_Join) {
@@ -199,7 +203,21 @@ void GLStroke::HandleCubicTo(Point const& start, Point const& control1,
   }
 }
 
-void GLStroke::HandleClose() {}
+void GLStroke::HandleClose() {
+  if (join_last_) {
+    glm::vec4 curr_dir = glm::normalize(start_to_ - start_pt_);
+    glm::vec4 vertical_line = glm::vec4(curr_dir.y, -curr_dir.x, 0, 0);
+    if (join_ == Paint::kBevel_Join) {
+      // HandleBevelJoin()
+    } else if (join_ == Paint::kMiter_Join) {
+      HandleMiterJoin(start_pt_, start_to_, vertical_line);
+    } else if (join_ == Paint::kRound_Join) {
+      HandleRoundJoin(start_pt_, start_to_, vertical_line, first_pt1_,
+                      first_pt2_);
+    }
+    join_last_ = false;
+  }
+}
 
 void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
                                int32_t prev_pt1_index, int32_t prev_pt2_index) {
