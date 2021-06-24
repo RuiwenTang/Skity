@@ -26,6 +26,7 @@ void GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
     Path::Verb verb = iter.next(pts.data());
     switch (verb) {
       case Path::Verb::kMove:
+        HandleCapIfNeed();
         HandleMoveTo(pts[0]);
         break;
       case Path::Verb::kLine:
@@ -87,7 +88,13 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
       HandleMiterJoin(from, to, vertical_line);
     } else if (join_ == Paint::kRound_Join) {
       // handle rond join
-      HandleRoundJoin(from, to, vertical_line, fromt_pt1, fromt_pt2);
+      bool degent =
+          HandleRoundJoin(from, to, vertical_line, fromt_pt1, fromt_pt2);
+
+      if (degent) {
+        // fallback bevel join
+        HandleBevelJoin(from, to, prev_pt1_index, prev_pt2_index);
+      }
     }
   }
 
@@ -153,8 +160,11 @@ void GLStroke::HandleQuadTo(Point const& start, Point const& control,
     } else if (join_ == Paint::kMiter_Join) {
       HandleMiterJoin(start, control, start_vertical_line);
     } else if (join_ == Paint::kRound_Join) {
-      HandleRoundJoin(start, control, start_vertical_line, start_pt1,
-                      start_pt2);
+      bool degent = HandleRoundJoin(start, control, start_vertical_line,
+                                    start_pt1, start_pt2);
+      if (degent) {
+        HandleBevelJoin(start, control, prev_pt1_index, prev_pt2_index);
+      }
     }
   }
 
@@ -193,8 +203,11 @@ void GLStroke::HandleConicTo(Point const& start, Point const& control,
   Conic conic{start, control, end, weight};
   conic.chopIntoQuadsPOW2(quads.data(), 1);
 
+  Paint::Join save_join = join_;
+  join_ = Paint::kRound_Join;
   HandleQuadTo(quads[0], quads[1], quads[2]);
   HandleQuadTo(quads[2], quads[3], quads[4]);
+  join_ = save_join;
 }
 
 void GLStroke::HandleCubicTo(Point const& start, Point const& control1,
@@ -203,11 +216,14 @@ void GLStroke::HandleCubicTo(Point const& start, Point const& control1,
 
   std::array<skity::Point, 32> sub_cubics;
   SubDividedCubic8(cubic.data(), sub_cubics.data());
+  Paint::Join save_join = join_;
+  join_ = Paint::kRound_Join;
   for (int i = 0; i < 8; i++) {
     std::array<skity::Point, 3> quad;
     skity::CubicToQuadratic(sub_cubics.data() + i * 4, quad.data());
     HandleQuadTo(quad[0], quad[1], quad[2]);
   }
+  join_ = save_join;
 }
 
 void GLStroke::HandleClose() {
@@ -226,6 +242,67 @@ void GLStroke::HandleClose() {
   }
 }
 
+void GLStroke::HandleCapIfNeed() {
+  if (start_pt_ == prev_to_pt_) {
+    // path is close
+    return;
+  }
+
+  if (cap_ == Paint::kButt_Cap) {
+    // no nothing
+    return;
+  }
+
+  // cap start
+  HandleCap(start_pt_, glm::normalize(start_pt_ - start_to_));
+  // cap end
+  HandleCap(prev_to_pt_, glm::normalize(prev_to_pt_ - prev_fromt_pt_));
+}
+
+void GLStroke::HandleCap(Point const& point, Vector const& outer_dir) {
+  Vector vertical_dir = Vector(outer_dir.y, -outer_dir.x, 0, 0);
+  Point p_1 = point + vertical_dir * stroke_radius_;
+  Point p_2 = point - vertical_dir * stroke_radius_;
+  Point p_3 = point + outer_dir * stroke_radius_;
+
+  Point p_1_3 = p_1 + outer_dir * stroke_radius_;
+  Point p_2_3 = p_2 + outer_dir * stroke_radius_;
+
+  if (cap_ == Paint::kRound_Cap) {
+    // round cap
+    int32_t p_index = gl_vertex_->AddPoint(
+        point.x, point.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+    int32_t p_1_index = gl_vertex_->AddPoint(
+        p_1.x, p_1.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+    int32_t p_2_index = gl_vertex_->AddPoint(
+        p_2.x, p_2.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+    int32_t p_3_index = gl_vertex_->AddPoint(
+        p_3.x, p_3.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+    int32_t p_1_3_index = gl_vertex_->AddPoint(
+        p_1_3.x, p_1_3.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+    int32_t p_2_3_index = gl_vertex_->AddPoint(
+        p_2_3.x, p_2_3.y, GLVertex::GL_VERTEX_TYPE_RADIUS, point.x, point.y);
+
+    gl_vertex_->AddFront(p_index, p_1_index, p_1_3_index);
+    gl_vertex_->AddFront(p_index, p_1_3_index, p_3_index);
+    gl_vertex_->AddFront(p_index, p_3_index, p_2_3_index);
+    gl_vertex_->AddFront(p_index, p_2_3_index, p_2_index);
+  } else {
+    // square cap
+    int32_t p_1_index = gl_vertex_->AddPoint(
+        p_1.x, p_1.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t p_1_3_index = gl_vertex_->AddPoint(
+        p_1_3.x, p_1_3.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t p_2_index = gl_vertex_->AddPoint(
+        p_2.x, p_2.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    int32_t p_2_3_index = gl_vertex_->AddPoint(
+        p_2_3.x, p_2_3.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    gl_vertex_->AddFront(p_1_index, p_1_3_index, p_2_3_index);
+    gl_vertex_->AddFront(p_1_index, p_2_3_index, p_2_index);
+  }
+}
+
 void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
                                int32_t prev_pt1_index, int32_t prev_pt2_index) {
   glm::vec4 prev_vertical_line = glm::vec4(prev_dir_.y, -prev_dir_.x, 0, 0);
@@ -233,9 +310,7 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
   Point prev_join2_pt = prev_to_pt_ - prev_vertical_line * stroke_radius_;
   Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
 
-  if (orientation == Orientation::kLinear) {
-    // no need to handle join
-  } else if (orientation == Orientation::kClockWise) {
+  if (orientation != Orientation::kAntiClockWise) {
     int32_t prev_join_index =
         gl_vertex_->AddPoint(prev_join2_pt.x, prev_join2_pt.y,
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
@@ -243,7 +318,7 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
     int32_t center_point = gl_vertex_->AddPoint(
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(prev_join_index, prev_pt2_index, center_point);
-  } else if (orientation == Orientation::kAntiClockWise) {
+  } else {
     int32_t prev_join_index =
         gl_vertex_->AddPoint(prev_join1_pt.x, prev_join1_pt.y,
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
@@ -318,7 +393,7 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
   }
 }
 
-void GLStroke::HandleRoundJoin(Point const& from, Point const& to,
+bool GLStroke::HandleRoundJoin(Point const& from, Point const& to,
                                Vector const& vertical_line,
                                Point const& from_pt1, Point const& from_pt2) {
   Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
@@ -389,7 +464,11 @@ void GLStroke::HandleRoundJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     gl_vertex_->AddFront(n_p1, n_p2, n_c);
+  } else {
+    return true;
   }
+
+  return false;
 }
 
 void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,

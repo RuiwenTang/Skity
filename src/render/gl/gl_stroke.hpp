@@ -29,13 +29,17 @@ class GLStroke {
                      Point const& control2, Point const& end);
   void HandleClose();
 
+  void HandleCapIfNeed();
+
+  void HandleCap(Point const& point, Vector const& outer_dir);
+
   void HandleBevelJoin(Point const& from, Point const& to,
                        int32_t prev_pt1_index, int32_t prev_pt2_index);
 
   void HandleMiterJoin(Point const& from, Point const& to,
                        Vector const& vertical_line);
 
-  void HandleRoundJoin(Point const& from, Point const& to,
+  bool HandleRoundJoin(Point const& from, Point const& to,
                        Vector const& vertical_line, Point const& from_pt1,
                        Point const& from_pt2);
 
