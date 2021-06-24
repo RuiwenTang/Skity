@@ -59,8 +59,6 @@ set(Skity_src
         src/graphic/paint.cc
         src/graphic/path.cc
         src/render/canvas.cc
-        src/render/cap_proc.cc
-        src/render/cap_proc.hpp
         src/render/draw.cc
         src/render/draw.hpp
         src/render/gl/gl_canvas.cc
@@ -75,16 +73,6 @@ set(Skity_src
         src/render/gl/gl_stroke.hpp
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
-        src/render/join_proc.cc
-        src/render/join_proc.hpp
-        src/render/path_raster.cc
-        src/render/path_raster.hpp
-        src/render/path_stroker.cc
-        src/render/path_stroker.hpp
-        src/render/path_vertex.cc
-        src/render/path_vertex.hpp
-        src/render/stroke.cc
-        src/render/stroke.hpp
         )
 
 add_library(skity ${Skity_header} ${Skity_src})

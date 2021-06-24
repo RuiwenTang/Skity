@@ -6,17 +6,12 @@
 #include <string>
 
 #include "common/test_common.hpp"
-#include "src/render/path_raster.hpp"
-#include "src/render/stroke.hpp"
+#include "src/render/gl/gl_mesh.hpp"
+#include "src/render/gl/gl_shader.hpp"
+#include "src/render/gl/gl_stroke.hpp"
+#include "src/render/gl/gl_vertex.hpp"
 
 using namespace skity;
-
-struct Mesh {
-  GLuint vao = 0;
-  GLuint vbo = 0;
-  GLuint front = 0;
-  GLuint back = 0;
-};
 
 Path make_stroke() {
   Path path;
@@ -28,173 +23,165 @@ Path make_stroke() {
   path.moveTo(10, 10);
   path.quadTo(256, 64, 128, 128);
   path.quadTo(10, 192, 250, 250);
-  path.addOval(Rect::MakeLTRB(100, 100, 300, 500));
-  path.addCircle(200, 200, 100);
-  path.addOval(Rect::MakeLTRB(50, 200, 300, 500));
+  path.addOval(Rect::MakeLTRB(300, 100, 600, 500));
+  // path.addCircle(200, 200, 100);
+  path.addOval(Rect::MakeLTRB(50, 300, 300, 500));
 
-  Paint paint;
-  paint.setStrokeWidth(10.f);
-  paint.setStrokeCap(Paint::kRound_Cap);
-  paint.setStrokeJoin(Paint::kRound_Join);
-
-  Path dst;
-  Stroke stroke(paint);
-
-  stroke.strokePath(path, &dst);
-  return dst;
-}
-
-Path make_fill() {
-  Paint paint;
-  paint.setStrokeWidth(10.f);
-  paint.setStrokeCap(Paint::kRound_Cap);
-  paint.setStrokeJoin(Paint::kRound_Join);
-
-  Path path;
-  path.moveTo(10, 10);
-  path.quadTo(256, 64, 128, 128);
-  path.quadTo(10, 192, 250, 250);
-  path.close();
   return path;
 }
 
-std::unique_ptr<PathVertex> raster_path(Path const& path) {
-  PathRaster raster;
+class RawGLRenderTest : public test::TestApp {
+ public:
+  RawGLRenderTest() = default;
+  ~RawGLRenderTest() override = default;
 
-  return raster.rasterPath(path);
-}
+ protected:
+  void OnInit() override {
+    mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
+    InitGL();
+  }
 
-GLuint prepare_shader() {
-  const char* vs = R"(
-    #version 330 core
-    layout(location = 0) in vec3 aPos;
-    uniform mat4 mvp;
+  void InitGL() {
+    glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
+    glClearStencil(0x00);
+    stencil_shader_ = GLShader::CreateStencilShader();
 
-    void main() {
-      gl_Position = mvp * vec4(aPos, 1.0);
-    }
-  )";
+    InitColorShader();
+    InitMesh();
+  }
 
-  const char* fs = R"(
-    #version 330 core
+  void InitColorShader() {
+    const char* color_vs_code = R"(
+      #version 330 core
+      layout(location = 0) in vec2 aPos;
 
-    out vec4 FragColor;
-    uniform vec4 color;
+      uniform mat4 mvp;
+      void main() {
+        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
+      }
+    )";
 
-    void main() {
-      FragColor = color;
-    }
-  )";
+    const char* color_fs_code = R"(
+      #version 330 core
 
-  return test::create_shader_program(vs, fs);
-}
+      out vec4 FragColor;
 
-Mesh setup_mesh(PathVertex* vertex) {
-  Mesh mesh;
+      void main() {
+        FragColor = vec4(1.0, 1.0, 0.0, 0.8);
+      } 
+    )";
 
-  glGenVertexArrays(1, &mesh.vao);
-  glGenBuffers(3, &mesh.vbo);
+    color_program_ = test::create_shader_program(color_vs_code, color_fs_code);
+    color_program_mvp_location_ = glGetUniformLocation(color_program_, "mvp");
+  }
 
-  glBindVertexArray(mesh.vao);
+  void InitMesh() {
+    Path path = make_stroke();
 
-  glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertex->vertices().size() * sizeof(Point),
-               vertex->vertices().data(), GL_STATIC_DRAW);
+    Paint paint;
+    paint.setStrokeWidth(10.f);
+    paint.setStrokeCap(skity::Paint::kRound_Cap);
+    paint.setStrokeJoin(skity::Paint::kRound_Join);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               vertex->frontVerticesIndex().size() * sizeof(uint32_t),
-               vertex->frontVerticesIndex().data(), GL_STATIC_DRAW);
+    GLStroke stroke(paint);
+    GLVertex gl_vertex;
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               vertex->backVerticesIndex().size() * sizeof(uint32_t),
-               vertex->backVerticesIndex().data(), GL_STATIC_DRAW);
+    stroke.strokePath(path, &gl_vertex);
 
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-  return mesh;
-}
+    mesh_.Init();
+    mesh_.BindMesh();
+    mesh_.UploadVertexBuffer(gl_vertex.GetVertexData(),
+                             gl_vertex.GetVertexDataSize());
+    mesh_.UploadFrontIndex(gl_vertex.GetFrontIndexData(),
+                           gl_vertex.GetFrontIndexDataSize());
+    mesh_.UploadBackIndex(gl_vertex.GetBackIndexData(),
+                          gl_vertex.GetBackIndexDataSize());
+    mesh_.UnBindMesh();
 
-void render_window(GLFWwindow* window, PathVertex* path_vertex) {
-  path_vertex->dump();
-  glClearColor(0.3, 0.4, 0.5, 1.0);
-  glClearStencil(0x10);
-  glStencilMask(0xFF);
-  glEnable(GL_STENCIL_TEST);
-  glDisable(GL_DEPTH_TEST);
+    front_count_ = gl_vertex.FrontCount();
+    back_count_ = gl_vertex.BackCount();
+  }
 
-  GLuint shader = prepare_shader();
-  GLint mvp_location = glGetUniformLocation(shader, "mvp");
-  GLint color_location = glGetUniformLocation(shader, "color");
-  Mesh mesh = setup_mesh(path_vertex);
-  glm::mat4 mvp = glm::ortho<float>(0, 800, 600, 0, -100, 100);
+  void OnDraw() override {
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  glUseProgram(shader);
-
-  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
-  while (!glfwWindowShouldClose(window)) {
+    // step 1 stencil path
     glEnable(GL_STENCIL_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glStencilMask(0x0F);
-    glUseProgram(shader);
-    glUniform4f(color_location, 1.f, 1.f, 0.f, 1.f);
 
-    glBindVertexArray(mesh.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    stencil_shader_->Bind();
 
-    // step 1 disable color and stencil path
+    stencil_shader_->SetStrokeRadius(5.f);
+    stencil_shader_->SetMVPMatrix(mvp_);
+
+    mesh_.BindMesh();
     glColorMask(0, 0, 0, 0);
+    glStencilMask(0x0F);
+
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
 
-    // front triangles
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
-    glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
-                   GL_UNSIGNED_INT, (void*)0);
-    // back triangles
-    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
-    glDrawElements(GL_TRIANGLES, path_vertex->backVerticesIndex().size(),
-                   GL_UNSIGNED_INT, (void*)0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+    mesh_.BindFrontIndex();
+    DrawFront();
+    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    mesh_.BindBackIndex();
+    DrawBack();
 
-    // step 2 enable color and stencil test fill
+    stencil_shader_->UnBind();
+
+    // step 2 draw color
     glColorMask(1, 1, 1, 1);
-    glStencilMask(0x1F);
-    //    glStencilFunc(GL_EQUAL, 0x00, 0x1F);
-    //    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    //
-    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
-    //    glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
-    //                   GL_UNSIGNED_INT, (void*)0);
-
-    glUniform4f(color_location, 1.f, 0.f, 0.f, 1.f);
-
-    glStencilFunc(GL_NOTEQUAL, 0x10, 0x1F);
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.front);
-    glDrawElements(GL_TRIANGLES, path_vertex->frontVerticesIndex().size(),
-                   GL_UNSIGNED_INT, (void*)0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.back);
-    glDrawElements(GL_TRIANGLES, path_vertex->backVerticesIndex().size(),
-                   GL_UNSIGNED_INT, (void*)0);
+    glUseProgram(color_program_);
+    glUniformMatrix4fv(color_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    mesh_.BindFrontIndex();
+    DrawFront(GL_TRIANGLES);
+    mesh_.BindBackIndex();
+    DrawBack(GL_TRIANGLES);
+
+    mesh_.UnBindMesh();
   }
-}
+
+  void DrawFront(GLenum mode = GL_TRIANGLES) {
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
+    glDrawElements(mode, front_count_, GL_UNSIGNED_INT, 0);
+  }
+
+  void DrawBack(GLenum mode = GL_TRIANGLES) {
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
+    glDrawElements(mode, back_count_, GL_UNSIGNED_INT, 0);
+  }
+
+ private:
+  Matrix mvp_;
+  std::unique_ptr<StencilShader> stencil_shader_;
+
+  GLMesh mesh_;
+  GLuint color_program_ = 0;
+  GLint color_program_mvp_location_ = 0;
+
+  uint32_t front_count_ = 0;
+  uint32_t back_count_ = 0;
+};
 
 int main(int argc, const char** argv) {
-  Path path = make_stroke();
-  path.dump();
-  auto rastered_path = raster_path(path);
-
-  GLFWwindow* window = test::init_glfw_window(800, 600);
-
-  render_window(window, rastered_path.get());
+  RawGLRenderTest app;
+  app.Start();
   return 0;
 }

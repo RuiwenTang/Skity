@@ -1,7 +1,9 @@
 #ifndef SKITY_SRC_RENDER_GL_GL_STROKE_HPP
 #define SKITY_SRC_RENDER_GL_GL_STROKE_HPP
 
-#include "src/render/stroke.hpp"
+#include <skity/geometry/point.hpp>
+#include <skity/graphic/paint.hpp>
+#include <skity/graphic/path.hpp>
 
 namespace skity {
 

@@ -205,6 +205,7 @@ void GLStroke::HandleConicTo(Point const& start, Point const& control,
 
   Paint::Join save_join = join_;
   join_ = Paint::kRound_Join;
+  quads[0] = start;
   HandleQuadTo(quads[0], quads[1], quads[2]);
   HandleQuadTo(quads[2], quads[3], quads[4]);
   join_ = save_join;
