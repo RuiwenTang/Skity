@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "common/test_common.hpp"
-#include "shader.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_path_visitor.hpp"
+#include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
@@ -27,9 +27,10 @@ class GLPathMeshDemo : public test::TestApp {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_STENCIL_TEST);
 
-    glUseProgram(stencil_program_);
-    glUniformMatrix4fv(stencil_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
-    glUniform1f(stencil_program_stroke_radius_location_, 5.f);
+    stencil_shader->Bind();
+
+    stencil_shader->SetStrokeRadius(5.f);
+    stencil_shader->SetMVPMatrix(mvp_);
 
     mesh_.BindMesh();
     glColorMask(0, 0, 0, 0);
@@ -52,6 +53,8 @@ class GLPathMeshDemo : public test::TestApp {
     DrawFront();
     mesh_.BindBackIndex();
     DrawBack();
+
+    stencil_shader->UnBind();
 
     glDisable(GL_STENCIL_TEST);
 
@@ -99,17 +102,7 @@ class GLPathMeshDemo : public test::TestApp {
   }
 
   void InitShader() {
-    std::string vs_stencil((const char*)vs_stencil_basic_glsl,
-                           vs_stencil_basic_glsl_size);
-    std::string fs_stencil((const char*)fs_stencil_basic_glsl,
-                           fs_stencil_basic_glsl_size);
-    stencil_program_ =
-        test::create_shader_program(vs_stencil.c_str(), fs_stencil.c_str());
-
-    stencil_program_mvp_location_ =
-        glGetUniformLocation(stencil_program_, "mvp");
-    stencil_program_stroke_radius_location_ =
-        glGetUniformLocation(stencil_program_, "stroke_radius");
+    stencil_shader = skity::GLShader::CreateStencilShader();
 
     const char* mesh_vs_code = R"(
       #version 330 core
@@ -209,13 +202,11 @@ class GLPathMeshDemo : public test::TestApp {
  private:
   skity::GLMesh mesh_;
   glm::mat4 mvp_ = {};
-  GLuint stencil_program_ = 0;
-  GLint stencil_program_mvp_location_ = -1;
-  GLint stencil_program_stroke_radius_location_ = -1;
   GLuint mesh_program_ = 0;
   GLint mesh_program_mvp_location_ = -1;
   uint32_t front_count_ = 0;
   uint32_t back_count_ = 0;
+  std::shared_ptr<skity::StencilShader> stencil_shader;
 };
 
 int main(int argc, const char** argv) {

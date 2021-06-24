@@ -1,9 +1,51 @@
 #include "src/render/gl/gl_shader.hpp"
 
+#include <iostream>
+#include <string>
+
 #include "glad/glad.h"
 #include "shader.hpp"
 
 namespace skity {
+
+GLuint create_shader(const char* source, GLenum type) {
+  GLuint shader = glCreateShader(type);
+
+  GLint success;
+  glShaderSource(shader, 1, &source, nullptr);
+  glCompileShader(shader);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    GLchar info_log[1024];
+    glGetShaderInfoLog(shader, 1204, nullptr, info_log);
+    std::cerr << "shader compile error = " << info_log;
+    exit(-4);
+  }
+
+  return shader;
+}
+
+GLuint create_shader_program(const char* vs_code, const char* fs_code) {
+  GLuint program = glCreateProgram();
+  GLint success;
+
+  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
+  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
+
+  glAttachShader(program, vs);
+  glAttachShader(program, fs);
+  glLinkProgram(program);
+  glGetProgramiv(program, GL_LINK_STATUS, &success);
+
+  if (!success) {
+    GLchar info_log[1024];
+    glGetProgramInfoLog(program, 1024, nullptr, info_log);
+    std::cerr << "program link error " << info_log << std::endl;
+    exit(-5);
+  }
+
+  return program;
+}
 
 GLShader::~GLShader() {
   if (program_) {
@@ -33,6 +75,41 @@ void GLShader::SetUniform(int32_t location, glm::mat4 const& value) {
 
 void GLShader::SetUniform(int32_t location, float value) {
   glUniform1f(location, value);
+}
+
+void GLShader::Bind() { glUseProgram(program_); }
+
+void GLShader::UnBind() { glUseProgram(0); }
+
+// StencilShader
+
+void StencilShader::InitLocations() {
+  mvp_location_ = glGetUniformLocation(program_, "mvp");
+  stroke_width_location_ = glGetUniformLocation(program_, "stroke_radius");
+}
+
+void StencilShader::SetStrokeRadius(float width) {
+  glUniform1f(stroke_width_location_, width);
+}
+
+void StencilShader::SetMVPMatrix(Matrix const& matrix) {
+  glUniformMatrix4fv(mvp_location_, 1, GL_FALSE, &matrix[0][0]);
+}
+
+std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
+  std::unique_ptr<StencilShader> stencil_shader{new StencilShader()};
+
+  std::string vs_stencil((const char*)vs_stencil_basic_glsl,
+                         vs_stencil_basic_glsl_size);
+  std::string fs_stencil((const char*)fs_stencil_basic_glsl,
+                         fs_stencil_basic_glsl_size);
+
+  stencil_shader->program_ =
+      create_shader_program(vs_stencil.c_str(), fs_stencil.c_str());
+
+  stencil_shader->InitLocations();
+
+  return stencil_shader;
 }
 
 }  // namespace skity
