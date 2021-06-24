@@ -39,6 +39,18 @@ static uint32_t append_quad(uint32_t start_point_index,
                             uint32_t previous_point_index,
                             Point const& ctr_point, Point const& end_point,
                             GLVertex* gl_vertex) {
+  uint32_t normal_end_point_index = gl_vertex->AddPoint(
+      end_point.x, end_point.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+  if (triangle_is_front(start_point_index, previous_point_index,
+                        normal_end_point_index, gl_vertex)) {
+    gl_vertex->AddFront(start_point_index, previous_point_index,
+                        normal_end_point_index);
+  } else {
+    gl_vertex->AddBack(start_point_index, previous_point_index,
+                       normal_end_point_index);
+  }
+
   uint32_t current_point_index = gl_vertex->AddPoint(
       end_point.x, end_point.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
@@ -50,21 +62,11 @@ static uint32_t append_quad(uint32_t start_point_index,
       ctr_point.x, ctr_point.y, GLVertex::GL_VERTEX_TYPE_QUAD, 0.5f, 0.f);
   uint32_t quad_end_index = gl_vertex->AddPoint(
       end_point.x, end_point.y, GLVertex::GL_VERTEX_TYPE_QUAD, 1.f, 1.f);
-  if (start_point_index == current_point_index) {
-    if (triangle_is_front(quad_start_index, quad_mid_index, quad_end_index,
-                          gl_vertex)) {
-      gl_vertex->AddFront(quad_start_index, quad_mid_index, quad_end_index);
-    } else {
-      gl_vertex->AddBack(quad_start_index, quad_mid_index, quad_end_index);
-    }
-  } else if (triangle_is_front(start_point_index, previous_point_index,
-                               quad_mid_index, gl_vertex)) {
-    gl_vertex->AddFront(start_point_index, previous_point_index,
-                        current_point_index);
+
+  if (triangle_is_front(quad_start_index, quad_mid_index, quad_end_index,
+                        gl_vertex)) {
     gl_vertex->AddFront(quad_start_index, quad_mid_index, quad_end_index);
   } else {
-    gl_vertex->AddBack(start_point_index, previous_point_index,
-                       current_point_index);
     gl_vertex->AddBack(quad_start_index, quad_mid_index, quad_end_index);
   }
 

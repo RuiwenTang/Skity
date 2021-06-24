@@ -61,7 +61,7 @@ int main(int argc, const char** argv) {
     exit(-1);
   }
 
-  auto glyph_index = FT_Get_Char_Index(ft_face, 'a');
+  auto glyph_index = FT_Get_Char_Index(ft_face, 'b');
 
   err = FT_Load_Glyph(ft_face, glyph_index, FT_LOAD_NO_BITMAP);
   if (err) {

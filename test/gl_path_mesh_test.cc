@@ -34,15 +34,15 @@ class GLPathMeshDemo : public test::TestApp {
 
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
 
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
     mesh_.BindFrontIndex();
     DrawFront();
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
     mesh_.BindBackIndex();
     DrawBack();
 
     glColorMask(1, 1, 1, 1);
-    glStencilFunc(GL_EQUAL, 0x01, 0x01);
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     mesh_.BindFrontIndex();
@@ -198,13 +198,13 @@ class GLPathMeshDemo : public test::TestApp {
     path.quadTo(49.4062, -54.4219, 49.4062, -34.8125);
     path.close();
 
-    // skity::Path path2;
+    skity::Path path2;
 
-    // path2.moveTo(400, 10);
-    // path2.lineTo(500, 10);
-    // path2.lineTo(400, 110);
-    // path2.lineTo(500, 110);
-    // path2.close();
+    path2.moveTo(400, 10);
+    path2.lineTo(500, 10);
+    path2.lineTo(400, 110);
+    path2.lineTo(500, 110);
+    path2.close();
 
     // skity::Path path3;
     // path3.moveTo(20, 170);
@@ -214,7 +214,7 @@ class GLPathMeshDemo : public test::TestApp {
 
     skity::GLVertex gl_vertex;
     skity::GLPathVisitor::VisitPath(path, &gl_vertex);
-    // skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
+    skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
     // skity::GLPathVisitor::VisitPath(path3, &gl_vertex);
 
     mesh_.Init();
