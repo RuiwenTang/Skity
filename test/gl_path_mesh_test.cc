@@ -18,7 +18,9 @@ class GLPathMeshDemo : public test::TestApp {
  protected:
   void OnInit() override {
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100) *
-           glm::translate(glm::identity<glm::mat4>(), glm::vec3(200, 200, 0));
+           glm::scale(glm::identity<glm::mat4>(), glm::vec3{3.f, 3.f, 1.f}) *
+           glm::translate(glm::identity<glm::mat4>(), glm::vec3(50, 150, 0));
+
     InitGL();
   }
   void OnDraw() override {
@@ -36,19 +38,19 @@ class GLPathMeshDemo : public test::TestApp {
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
     mesh_.BindFrontIndex();
-    DrawFront(path_2_range);
+    DrawFront(path_1_range);
     glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
     mesh_.BindBackIndex();
-    DrawBack(path_2_range);
+    DrawBack(path_1_range);
 
     glColorMask(1, 1, 1, 1);
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     mesh_.BindFrontIndex();
-    DrawFront(path_2_range);
+    DrawFront(path_1_range);
     mesh_.BindBackIndex();
-    DrawBack(path_2_range);
+    DrawBack(path_1_range);
 
     glDisable(GL_STENCIL_TEST);
 
@@ -56,9 +58,9 @@ class GLPathMeshDemo : public test::TestApp {
     glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
     mesh_.BindFrontIndex();
-    DrawFront(path_2_range, GL_LINE_LOOP);
+    DrawFront(path_1_range, GL_LINE_LOOP);
     mesh_.BindBackIndex();
-    DrawBack(path_2_range, GL_LINE_LOOP);
+    DrawBack(path_1_range, GL_LINE_LOOP);
 
     mesh_.UnBindMesh();
   }

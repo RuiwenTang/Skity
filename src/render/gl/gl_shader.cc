@@ -96,6 +96,19 @@ void StencilShader::SetMVPMatrix(Matrix const& matrix) {
   glUniformMatrix4fv(mvp_location_, 1, GL_FALSE, &matrix[0][0]);
 }
 
+void ColorShader::InitLocations() {
+  mvp_location_ = glGetUniformLocation(program_, "mvp");
+  color_location_ = glGetUniformLocation(program_, "user_color");
+}
+
+void ColorShader::SetMVPMatrix(Matrix const& matrix) {
+  SetUniform(mvp_location_, matrix);
+}
+
+void ColorShader::SetColor(float r, float g, float b, float a) {
+  SetUniform(color_location_, glm::vec4{r, g, b, a});
+}
+
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
   std::unique_ptr<StencilShader> stencil_shader{new StencilShader()};
 
@@ -110,6 +123,23 @@ std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
   stencil_shader->InitLocations();
 
   return stencil_shader;
+}
+
+std::unique_ptr<ColorShader> GLShader::CreateColorShader() {
+  std::unique_ptr<ColorShader> color_shader{new ColorShader};
+
+  std::string vs_shader((const char*)vs_color_basic_glsl,
+                        vs_color_basic_glsl_size);
+
+  std::string fs_shader((const char*)fs_color_basic_glsl,
+                        fs_color_basic_glsl_size);
+
+  color_shader->program_ =
+      create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  color_shader->InitLocations();
+
+  return color_shader;
 }
 
 }  // namespace skity

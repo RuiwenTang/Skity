@@ -43,4 +43,10 @@ GLVertex::VertexData GLVertex::GetVertex(uint32_t index) {
   return result;
 }
 
+void GLVertex::Reset() {
+  vertex_buffer.clear();
+  front_index.clear();
+  back_index.clear();
+}
+
 }  // namespace skity

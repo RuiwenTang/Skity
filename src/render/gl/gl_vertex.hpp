@@ -55,6 +55,8 @@ class GLVertex {
   void* GetBackIndexData() { return back_index.data(); }
   uint32_t GetBackIndexDataSize() { return back_index.size() * sizeof(float); }
 
+  void Reset();
+
  private:
   std::vector<float> vertex_buffer;
   std::vector<uint32_t> front_index;

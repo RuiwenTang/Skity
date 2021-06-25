@@ -115,6 +115,8 @@ class Canvas {
 
   void drawPath(Path const& path, Paint const& paint);
 
+  void flush();
+
   static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
                                               uint32_t width, uint32_t height);
 
@@ -123,6 +125,8 @@ class Canvas {
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
+
+  virtual void onFlush() = 0;
 
  private:
   void internalSave();

@@ -52,6 +52,8 @@ void Canvas::drawPath(const Path &path, const Paint &paint) {
   this->onDrawPath(path, paint);
 }
 
+void Canvas::flush() { this->onFlush(); }
+
 void Canvas::internalSave() { this->onSave(); }
 
 void Canvas::internalRestore() { this->onRestore(); }

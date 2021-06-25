@@ -7,6 +7,7 @@
 namespace skity {
 
 class StencilShader;
+class ColorShader;
 /**
  * @class Shader wrapper for internal use
  */
@@ -24,6 +25,8 @@ class GLShader {
 
   void UnBind();
   static std::unique_ptr<StencilShader> CreateStencilShader();
+
+  static std::unique_ptr<ColorShader> CreateColorShader();
 
  protected:
   GLShader() = default;
@@ -43,6 +46,20 @@ class StencilShader : public GLShader {
  private:
   int32_t stroke_width_location_ = -1;
   int32_t mvp_location_ = -1;
+};
+
+class ColorShader : public GLShader {
+ public:
+  ColorShader() = default;
+  ~ColorShader() override = default;
+
+  void InitLocations();
+  void SetMVPMatrix(Matrix const& matrix);
+  void SetColor(float r, float g, float b, float a);
+
+ private:
+  int32_t mvp_location_ = -1;
+  int32_t color_location_ = -1;
 };
 
 }  // namespace skity

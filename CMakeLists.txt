@@ -59,6 +59,8 @@ set(Skity_src
         src/render/canvas.cc
         src/render/gl/gl_canvas.cc
         src/render/gl/gl_canvas.hpp
+        src/render/gl/gl_draw_op.cc
+        src/render/gl/gl_draw_op.hpp
         src/render/gl/gl_mesh.cc
         src/render/gl/gl_mesh.hpp
         src/render/gl/gl_path_visitor.cc
