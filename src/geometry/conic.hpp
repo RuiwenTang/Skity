@@ -55,10 +55,6 @@ struct Conic {
     w = weight;
   }
 
-  void evalAt(float t, Point* outP, Vector* outTangent = nullptr) const;
-  Point evalAt(float t) const;
-  Vector evalTangentAt(float t) const;
-
   void chop(Conic conics[2]) const;
 
   /**
