@@ -24,7 +24,7 @@ Path make_stroke() {
   path.quadTo(256, 64, 128, 128);
   path.quadTo(10, 192, 250, 250);
   path.addOval(Rect::MakeLTRB(300, 100, 600, 500));
-  // path.addCircle(200, 200, 100);
+  path.addCircle(450, 300, 100);
   path.addOval(Rect::MakeLTRB(50, 300, 300, 500));
 
   return path;
