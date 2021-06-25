@@ -58,15 +58,16 @@ class GLPathMeshDemo : public test::TestApp {
 
     glDisable(GL_STENCIL_TEST);
 
-    glUseProgram(mesh_program_);
-    glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
-
+    color_shader->Bind();
+    color_shader->SetMVPMatrix(mvp_);
+    color_shader->SetColor(1.f, 1.f, 0.f, 1.f);
     mesh_.BindFrontIndex();
     DrawFront(GL_LINE_LOOP);
     mesh_.BindBackIndex();
     DrawBack(GL_LINE_LOOP);
 
     mesh_.UnBindMesh();
+    color_shader->UnBind();
   }
 
   void DrawFront(GLenum mode = GL_TRIANGLES) {
@@ -103,29 +104,7 @@ class GLPathMeshDemo : public test::TestApp {
 
   void InitShader() {
     stencil_shader = skity::GLShader::CreateStencilShader();
-
-    const char* mesh_vs_code = R"(
-      #version 330 core
-      layout(location = 0) in vec2 aPos;
-
-      uniform mat4 mvp;
-      void main() {
-        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
-      }
-    )";
-
-    const char* mesh_fs_code = R"(
-      #version 330 core
-
-      out vec4 FragColor;
-
-      void main() {
-        FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-      } 
-    )";
-
-    mesh_program_ = test::create_shader_program(mesh_vs_code, mesh_fs_code);
-    mesh_program_mvp_location_ = glGetUniformLocation(mesh_program_, "mvp");
+    color_shader = skity::GLShader::CreateColorShader();
   }
 
   void InitMesh() {
@@ -199,10 +178,9 @@ class GLPathMeshDemo : public test::TestApp {
  private:
   skity::GLMesh mesh_;
   glm::mat4 mvp_ = {};
-  GLuint mesh_program_ = 0;
-  GLint mesh_program_mvp_location_ = -1;
   skity::GLMeshRange mesh_range_;
   std::shared_ptr<skity::StencilShader> stencil_shader;
+  std::shared_ptr<skity::ColorShader> color_shader;
 };
 
 int main(int argc, const char** argv) {

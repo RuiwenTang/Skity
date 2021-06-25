@@ -45,34 +45,9 @@ class RawGLRenderTest : public test::TestApp {
     glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
     glClearStencil(0x00);
     stencil_shader_ = GLShader::CreateStencilShader();
+    color_shader_ = GLShader::CreateColorShader();
 
-    InitColorShader();
     InitMesh();
-  }
-
-  void InitColorShader() {
-    const char* color_vs_code = R"(
-      #version 330 core
-      layout(location = 0) in vec2 aPos;
-
-      uniform mat4 mvp;
-      void main() {
-        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
-      }
-    )";
-
-    const char* color_fs_code = R"(
-      #version 330 core
-
-      out vec4 FragColor;
-
-      void main() {
-        FragColor = vec4(1.0, 1.0, 0.0, 0.8);
-      } 
-    )";
-
-    color_program_ = test::create_shader_program(color_vs_code, color_fs_code);
-    color_program_mvp_location_ = glGetUniformLocation(color_program_, "mvp");
   }
 
   void InitMesh() {
@@ -133,8 +108,9 @@ class RawGLRenderTest : public test::TestApp {
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-    glUseProgram(color_program_);
-    glUniformMatrix4fv(color_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
+    color_shader_->Bind();
+    color_shader_->SetMVPMatrix(mvp_);
+    color_shader_->SetColor(1.f, 1.f, 0.f, 0.8f);
 
     mesh_.BindFrontIndex();
     DrawFront(GL_TRIANGLES);
@@ -142,6 +118,7 @@ class RawGLRenderTest : public test::TestApp {
     DrawBack(GL_TRIANGLES);
 
     mesh_.UnBindMesh();
+    color_shader_->UnBind();
   }
 
   void DrawFront(GLenum mode = GL_TRIANGLES) {
@@ -171,10 +148,8 @@ class RawGLRenderTest : public test::TestApp {
  private:
   Matrix mvp_;
   std::unique_ptr<StencilShader> stencil_shader_;
-
+  std::unique_ptr<ColorShader> color_shader_;
   GLMesh mesh_;
-  GLuint color_program_ = 0;
-  GLint color_program_mvp_location_ = 0;
 
   uint32_t front_count_ = 0;
   uint32_t back_count_ = 0;
