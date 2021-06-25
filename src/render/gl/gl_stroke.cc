@@ -18,7 +18,12 @@ GLStroke::GLStroke(Paint const& paint)
       join_(paint.getStrokeJoin()),
       gl_vertex_(nullptr) {}
 
-void GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
+GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
+  GLMeshRange range{};
+  range.front_start = gl_vertex->FrontCount();
+  range.front_count = 0;
+  range.back_start = gl_vertex->BackCount();
+  range.back_count = 0;
   Path::Iter iter{path, false};
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
@@ -50,7 +55,9 @@ void GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
     }
   }
 DONE:
-  return;
+  range.front_count = gl_vertex->FrontCount() - range.front_count;
+  range.back_count = gl_vertex->BackCount() - range.back_count;
+  return range;
 }
 
 void GLStroke::HandleMoveTo(Point const& pt) { start_pt_ = pt; }

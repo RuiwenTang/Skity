@@ -5,6 +5,14 @@
 #include <vector>
 
 namespace skity {
+
+struct GLMeshRange {
+  uint32_t front_start = 0;
+  uint32_t front_count = 0;
+  uint32_t back_start = 0;
+  uint32_t back_count = 0;
+};
+
 class GLVertex {
   enum {
     GL_VERTEX_X = 0,

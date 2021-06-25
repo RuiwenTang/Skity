@@ -116,7 +116,12 @@ static uint32_t append_cubic(uint32_t start_point_index,
   return current_index;
 }
 
-void GLPathVisitor::VisitPath(Path const& path, GLVertex* gl_vertex) {
+GLMeshRange GLPathVisitor::VisitPath(Path const& path, GLVertex* gl_vertex) {
+  GLMeshRange range{};
+  range.front_start = gl_vertex->FrontCount();
+  range.front_count = 0;
+  range.back_start = gl_vertex->BackCount();
+
   Path::Iter iter{path, false};
 
   uint32_t start_point_index = gl_vertex->CurrentIndex();
@@ -177,7 +182,9 @@ void GLPathVisitor::VisitPath(Path const& path, GLVertex* gl_vertex) {
     }
   }
 DONE:
-  return;
+  range.front_count = gl_vertex->FrontCount() - range.front_start;
+  range.back_count = gl_vertex->BackCount() - range.back_start;
+  return range;
 }
 
 }  // namespace skity

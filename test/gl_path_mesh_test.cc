@@ -36,19 +36,19 @@ class GLPathMeshDemo : public test::TestApp {
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
     mesh_.BindFrontIndex();
-    DrawFront();
+    DrawFront(path_2_range);
     glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
     mesh_.BindBackIndex();
-    DrawBack();
+    DrawBack(path_2_range);
 
     glColorMask(1, 1, 1, 1);
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     mesh_.BindFrontIndex();
-    DrawFront();
+    DrawFront(path_2_range);
     mesh_.BindBackIndex();
-    DrawBack();
+    DrawBack(path_2_range);
 
     glDisable(GL_STENCIL_TEST);
 
@@ -56,14 +56,17 @@ class GLPathMeshDemo : public test::TestApp {
     glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
     mesh_.BindFrontIndex();
-    DrawFront(GL_LINE_LOOP);
+    DrawFront(path_2_range, GL_LINE_LOOP);
     mesh_.BindBackIndex();
-    DrawBack(GL_LINE_LOOP);
+    DrawBack(path_2_range, GL_LINE_LOOP);
 
     mesh_.UnBindMesh();
   }
 
-  void DrawFront(GLenum mode = GL_TRIANGLES) {
+  void DrawFront(skity::GLMeshRange const& range, GLenum mode = GL_TRIANGLES) {
+    if (range.front_count == 0) {
+      return;
+    }
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)0);
@@ -72,10 +75,14 @@ class GLPathMeshDemo : public test::TestApp {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)(2 * sizeof(float)));
 
-    glDrawElements(mode, front_count_, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, range.front_count, GL_UNSIGNED_INT,
+                   (void*)(range.front_start * sizeof(GLuint)));
   }
 
-  void DrawBack(GLenum mode = GL_TRIANGLES) {
+  void DrawBack(skity::GLMeshRange const& range, GLenum mode = GL_TRIANGLES) {
+    if (range.back_count == 0) {
+      return;
+    }
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)0);
@@ -84,7 +91,8 @@ class GLPathMeshDemo : public test::TestApp {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)(2 * sizeof(float)));
 
-    glDrawElements(mode, back_count_, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, range.back_count, GL_UNSIGNED_INT,
+                   (void*)(range.back_start * sizeof(GLuint)));
   }
 
   void InitGL() {
@@ -213,8 +221,8 @@ class GLPathMeshDemo : public test::TestApp {
     // path3.close();
 
     skity::GLVertex gl_vertex;
-    skity::GLPathVisitor::VisitPath(path, &gl_vertex);
-    skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
+    path_1_range = skity::GLPathVisitor::VisitPath(path, &gl_vertex);
+    path_2_range = skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
     // skity::GLPathVisitor::VisitPath(path3, &gl_vertex);
 
     mesh_.Init();
@@ -226,9 +234,6 @@ class GLPathMeshDemo : public test::TestApp {
     mesh_.UploadBackIndex(gl_vertex.GetBackIndexData(),
                           gl_vertex.GetBackIndexDataSize());
     mesh_.UnBindMesh();
-
-    front_count_ = gl_vertex.FrontCount();
-    back_count_ = gl_vertex.BackCount();
   }
 
  private:
@@ -239,8 +244,9 @@ class GLPathMeshDemo : public test::TestApp {
 
   GLuint mesh_program_ = 0;
   GLint mesh_program_mvp_location_ = -1;
-  uint32_t front_count_ = 0;
-  uint32_t back_count_ = 0;
+
+  skity::GLMeshRange path_1_range;
+  skity::GLMeshRange path_2_range;
 };
 
 int main(int argc, const char** argv) {

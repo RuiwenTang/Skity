@@ -78,7 +78,7 @@ class GLPathMeshDemo : public test::TestApp {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)(2 * sizeof(float)));
 
-    glDrawElements(mode, front_count_, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, mesh_range_.front_count, GL_UNSIGNED_INT, 0);
   }
 
   void DrawBack(GLenum mode = GL_TRIANGLES) {
@@ -90,7 +90,7 @@ class GLPathMeshDemo : public test::TestApp {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)(2 * sizeof(float)));
 
-    glDrawElements(mode, back_count_, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, mesh_range_.back_count, GL_UNSIGNED_INT, 0);
   }
 
   void InitGL() {
@@ -183,7 +183,7 @@ class GLPathMeshDemo : public test::TestApp {
 
     skity::GLVertex gl_vertex;
     skity::GLStroke stroke(paint);
-    stroke.strokePath(path, &gl_vertex);
+    mesh_range_ = stroke.strokePath(path, &gl_vertex);
 
     mesh_.Init();
     mesh_.BindMesh();
@@ -194,9 +194,6 @@ class GLPathMeshDemo : public test::TestApp {
     mesh_.UploadBackIndex(gl_vertex.GetBackIndexData(),
                           gl_vertex.GetBackIndexDataSize());
     mesh_.UnBindMesh();
-
-    front_count_ = gl_vertex.FrontCount();
-    back_count_ = gl_vertex.BackCount();
   }
 
  private:
@@ -204,8 +201,7 @@ class GLPathMeshDemo : public test::TestApp {
   glm::mat4 mvp_ = {};
   GLuint mesh_program_ = 0;
   GLint mesh_program_mvp_location_ = -1;
-  uint32_t front_count_ = 0;
-  uint32_t back_count_ = 0;
+  skity::GLMeshRange mesh_range_;
   std::shared_ptr<skity::StencilShader> stencil_shader;
 };
 

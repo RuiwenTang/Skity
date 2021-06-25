@@ -8,6 +8,7 @@
 namespace skity {
 
 class GLVertex;
+struct GLMeshRange;
 
 /**
  * @class GLStroke
@@ -19,7 +20,7 @@ class GLStroke {
   explicit GLStroke(Paint const& paint);
   ~GLStroke() = default;
 
-  void strokePath(Path const& path, GLVertex* gl_vertex);
+  GLMeshRange strokePath(Path const& path, GLVertex* gl_vertex);
 
  private:
   void HandleMoveTo(Point const& pt);
