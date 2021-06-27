@@ -1,4 +1,5 @@
 #include "src/render/gl/gl_draw_op.hpp"
+#include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
 
@@ -15,6 +16,22 @@ GLDrawStencilOp::GLDrawStencilOp(uint32_t front_start, uint32_t front_count,
 void GLDrawStencilOp::Draw() {
   DoStencil();
   DoDraw();
+}
+
+void GLDrawStencilOp::DoStencil() {
+    GetStencilShader()->Bind();
+    
+    OnBeforeDoStencil();
+    DrawFront();
+    DrawBack();
+    
+    GetStencilShader()->UnBind();
+}
+
+void GLDrawStencilOp::DoDraw() {
+    OnBeforeDoDraw();
+    DrawFront();
+    DrawBack();
 }
 
 }  // namespace skity
