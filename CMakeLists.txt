@@ -57,6 +57,10 @@ set(Skity_src
         src/graphic/paint.cc
         src/graphic/path.cc
         src/render/canvas.cc
+        src/render/gl/draw/gl_draw_mesh_op.cc
+        src/render/gl/draw/gl_draw_mesh_op.hpp
+        src/render/gl/draw/gl_stencil_op.cc
+        src/render/gl/draw/gl_stencil_op.hpp
         src/render/gl/gl_canvas.cc
         src/render/gl/gl_canvas.hpp
         src/render/gl/gl_draw_op.cc

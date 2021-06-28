@@ -1,37 +1,27 @@
 #include "src/render/gl/gl_draw_op.hpp"
+
 #include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
 
-GLDrawStencilOp::GLDrawStencilOp(uint32_t front_start, uint32_t front_count,
-                                 uint32_t back_start, uint32_t back_count,
-                                 StencilShader* stencil_shader)
-    : GLDrawOp(),
-      front_start_(front_start),
-      front_count_(front_count),
-      back_start_(back_start),
-      back_count_(back_count),
-      stencil_shader_(stencil_shader) {}
-
-void GLDrawStencilOp::Draw() {
-  DoStencil();
-  DoDraw();
+void GLDrawOp::Draw() {
+  OnBeforeDraw();
+  OnDraw();
 }
 
-void GLDrawStencilOp::DoStencil() {
-    GetStencilShader()->Bind();
-    
-    OnBeforeDoStencil();
-    DrawFront();
-    DrawBack();
-    
-    GetStencilShader()->UnBind();
-}
+void GLDrawOp::Init() { OnInit(); }
 
-void GLDrawStencilOp::DoDraw() {
-    OnBeforeDoDraw();
-    DrawFront();
-    DrawBack();
-}
+uint32_t GLDrawOpBuilder::front_start = 0;
+uint32_t GLDrawOpBuilder::front_count = 0;
+uint32_t GLDrawOpBuilder::back_start = 0;
+uint32_t GLDrawOpBuilder::back_count = 0;
+
+void GLDrawOpBuilder::UpdateFrontStart(uint32_t value) { front_start = value; }
+
+void GLDrawOpBuilder::UpdateFrontCount(uint32_t value) { front_count = value; }
+
+void GLDrawOpBuilder::UpdateBackStart(uint32_t value) { back_start = value; }
+
+void GLDrawOpBuilder::UpdateBackCount(uint32_t value) { back_count = value; }
 
 }  // namespace skity
