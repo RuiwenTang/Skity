@@ -15,6 +15,8 @@ class GLStencilDrawOp : public GLDrawMeshOp {
   ~GLStencilDrawOp() override = default;
 
  protected:
+  void OnBeforeDraw() override;
+  void OnAfterDraw() override;
   void UpdateStrokeWidth(float width);
 
   void UpdateStencilValues();

@@ -17,6 +17,16 @@ GLStencilDrawOp::GLStencilDrawOp(uint32_t front_start, uint32_t front_count,
   UpdateStencilValues();
 }
 
+void GLStencilDrawOp::OnBeforeDraw() {
+  GLDrawMeshOp::OnBeforeDraw();
+  glColorMask(0, 0, 0, 0);
+}
+
+void GLStencilDrawOp::OnAfterDraw() {
+  GLDrawMeshOp::OnAfterDraw();
+  glColorMask(1, 1, 1, 1);
+}
+
 void GLStencilDrawOp::UpdateStrokeWidth(float width) {
   shader_->SetStrokeRadius(width / 2.f);
 }

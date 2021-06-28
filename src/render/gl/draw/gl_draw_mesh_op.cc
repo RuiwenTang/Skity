@@ -21,6 +21,8 @@ GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
 
 void GLDrawMeshOp::OnBeforeDraw() {}
 
+void GLDrawMeshOp::OnAfterDraw() {}
+
 void GLDrawMeshOp::OnDraw() {
   mesh_->BindMesh();
   shader_->Bind();

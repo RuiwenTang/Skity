@@ -7,6 +7,7 @@ namespace skity {
 void GLDrawOp::Draw() {
   OnBeforeDraw();
   OnDraw();
+  OnAfterDraw();
 }
 
 void GLDrawOp::Init() { OnInit(); }

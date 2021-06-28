@@ -23,6 +23,7 @@ class GLDrawMeshOp : public GLDrawOp {
 
  protected:
   void OnBeforeDraw() override;
+  void OnAfterDraw() override;
   void OnDraw() override;
   void OnInit() override;
 

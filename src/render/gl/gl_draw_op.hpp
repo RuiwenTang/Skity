@@ -26,6 +26,7 @@ class GLDrawOp {
   inline uint32_t back_count() const { return back_count_; }
 
   virtual void OnBeforeDraw() = 0;
+  virtual void OnAfterDraw() = 0;
   virtual void OnDraw() = 0;
   virtual void OnInit() = 0;
 
