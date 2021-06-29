@@ -14,9 +14,19 @@ class GLStencilDrawOp : public GLDrawMeshOp {
                   StencilShader* shader, GLMesh* mesh, bool positive = true);
   ~GLStencilDrawOp() override = default;
 
+  void SetStencilValue(uint32_t value) { stencil_value_ = value; }
+
+  void SetStencilMask(uint32_t mask) { stencil_mask_ = mask; }
+
+  void SetStencilFrontFlag(uint32_t flag) { front_flag_ = flag; }
+
+  void SetStencilBackFlag(uint32_t flag) { back_flag_ = flag; }
+
  protected:
   void OnBeforeDraw() override;
   void OnAfterDraw() override;
+  void OnBeforeDrawFront() override;
+  void OnBeforeDrawBack() override;
   void UpdateStrokeWidth(float width);
 
   void UpdateStencilValues();
@@ -24,6 +34,10 @@ class GLStencilDrawOp : public GLDrawMeshOp {
  private:
   StencilShader* shader_;
   bool postive_ = true;
+  uint32_t stencil_value_;
+  uint32_t stencil_mask_;
+  uint32_t front_flag_;
+  uint32_t back_flag_;
 };
 
 }  // namespace skity

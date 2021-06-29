@@ -11,11 +11,6 @@ GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
                            uint32_t back_start, uint32_t back_count,
                            GLShader* shader, GLMesh* mesh)
     : GLDrawOp(front_start, front_count, back_start, back_count),
-
-      stencil_value_(0x01),
-      stencil_mask_(0x0F),
-      front_flag_(GL_INCR_WRAP),
-      back_flag_(GL_DECR_WRAP),
       shader_(shader),
       mesh_(mesh) {}
 
