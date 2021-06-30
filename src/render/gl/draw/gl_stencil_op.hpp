@@ -22,6 +22,8 @@ class GLStencilDrawOp : public GLDrawMeshOp {
 
   void SetStencilBackFlag(uint32_t flag) { back_flag_ = flag; }
 
+  void SetStrokeWidth(float width) { stroke_width_ = width; }
+
  protected:
   void OnBeforeDraw() override;
   void OnAfterDraw() override;
@@ -38,6 +40,7 @@ class GLStencilDrawOp : public GLDrawMeshOp {
   uint32_t stencil_mask_;
   uint32_t front_flag_;
   uint32_t back_flag_;
+  float stroke_width_ = 0.f;
 };
 
 }  // namespace skity

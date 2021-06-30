@@ -81,10 +81,18 @@ void GLShader::Bind() { glUseProgram(program_); }
 
 void GLShader::UnBind() { glUseProgram(0); }
 
+void GLShader::SetMVPMatrix(Matrix const& matrix) {
+  SetUniform(mvp_location_, matrix);
+}
+
+void GLShader::InitLocations() {
+  mvp_location_ = glGetUniformLocation(program_, "mvp");
+}
+
 // StencilShader
 
 void StencilShader::InitLocations() {
-  mvp_location_ = glGetUniformLocation(program_, "mvp");
+  GLShader::InitLocations();
   stroke_width_location_ = glGetUniformLocation(program_, "stroke_radius");
 }
 
@@ -92,17 +100,9 @@ void StencilShader::SetStrokeRadius(float width) {
   glUniform1f(stroke_width_location_, width);
 }
 
-void StencilShader::SetMVPMatrix(Matrix const& matrix) {
-  glUniformMatrix4fv(mvp_location_, 1, GL_FALSE, &matrix[0][0]);
-}
-
 void ColorShader::InitLocations() {
-  mvp_location_ = glGetUniformLocation(program_, "mvp");
+  GLShader::InitLocations();
   color_location_ = glGetUniformLocation(program_, "user_color");
-}
-
-void ColorShader::SetMVPMatrix(Matrix const& matrix) {
-  SetUniform(mvp_location_, matrix);
 }
 
 void ColorShader::SetColor(float r, float g, float b, float a) {

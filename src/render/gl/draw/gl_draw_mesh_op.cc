@@ -12,21 +12,26 @@ GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
                            GLShader* shader, GLMesh* mesh)
     : GLDrawOp(front_start, front_count, back_start, back_count),
       shader_(shader),
-      mesh_(mesh) {}
+      mesh_(mesh),
+      matrix_(1.f) {}
 
-void GLDrawMeshOp::OnBeforeDraw() {}
-
-void GLDrawMeshOp::OnAfterDraw() {}
-
-void GLDrawMeshOp::OnDraw() {
+void GLDrawMeshOp::OnBeforeDraw() {
   mesh_->BindMesh();
   shader_->Bind();
+
+  shader_->SetMVPMatrix(matrix_);
+}
+
+void GLDrawMeshOp::OnAfterDraw() {
+  shader_->UnBind();
+  mesh_->UnBindMesh();
+}
+
+void GLDrawMeshOp::OnDraw() {
   OnBeforeDrawFront();
   DrawFront();
   OnBeforeDrawBack();
   DrawBack();
-  shader_->UnBind();
-  mesh_->UnBindMesh();
 }
 
 void GLDrawMeshOp::OnInit() {}

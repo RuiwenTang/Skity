@@ -26,6 +26,10 @@ void GLStencilDrawOp::OnBeforeDraw() {
   glColorMask(0, 0, 0, 0);
   glStencilMask(stencil_mask_);
   glStencilFunc(GL_ALWAYS, 0x01, stencil_mask_);
+
+  if (stroke_width_ > 0.f) {
+    UpdateStrokeWidth(stroke_width_);
+  }
 }
 
 void GLStencilDrawOp::OnAfterDraw() {

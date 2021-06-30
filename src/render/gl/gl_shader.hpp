@@ -20,10 +20,13 @@ class GLShader {
   void SetUniform(int32_t location, glm::vec2 const& value);
   void SetUniform(int32_t location, glm::mat4 const& value);
   void SetUniform(int32_t location, float value);
-
+  void SetMVPMatrix(Matrix const& mvp);
   void Bind();
 
   void UnBind();
+
+  virtual void InitLocations();
+
   static std::unique_ptr<StencilShader> CreateStencilShader();
 
   static std::unique_ptr<ColorShader> CreateColorShader();
@@ -32,6 +35,7 @@ class GLShader {
   GLShader() = default;
 
   int32_t program_ = 0;
+  int32_t mvp_location_ = -1;
 };
 
 class StencilShader : public GLShader {
@@ -39,13 +43,11 @@ class StencilShader : public GLShader {
   StencilShader() = default;
   ~StencilShader() override = default;
   void SetStrokeRadius(float width);
-  void SetMVPMatrix(Matrix const& mvp);
 
-  void InitLocations();
+  void InitLocations() override;
 
  private:
   int32_t stroke_width_location_ = -1;
-  int32_t mvp_location_ = -1;
 };
 
 class ColorShader : public GLShader {
@@ -53,12 +55,10 @@ class ColorShader : public GLShader {
   ColorShader() = default;
   ~ColorShader() override = default;
 
-  void InitLocations();
-  void SetMVPMatrix(Matrix const& matrix);
+  void InitLocations() override;
   void SetColor(float r, float g, float b, float a);
 
  private:
-  int32_t mvp_location_ = -1;
   int32_t color_location_ = -1;
 };
 

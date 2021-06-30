@@ -5,6 +5,9 @@
 
 namespace skity {
 
+class StencilShader;
+class GLMesh;
+
 class GLDrawOp {
  public:
   GLDrawOp(uint32_t front_start, uint32_t front_count, uint32_t back_start,
@@ -42,6 +45,9 @@ class GLDrawOpBuilder final {
   GLDrawOpBuilder() = delete;
   ~GLDrawOpBuilder() = delete;
 
+  static void UpdateStencilShader(StencilShader* shader);
+
+  static void UpdateMesh(GLMesh* mesh);
   static void UpdateFrontStart(uint32_t value);
 
   static void UpdateFrontCount(uint32_t value);
@@ -50,12 +56,15 @@ class GLDrawOpBuilder final {
 
   static void UpdateBackCount(uint32_t value);
 
-  static std::unique_ptr<GLDrawOp> CreateStencilOp(float stroke_width = 0.f);
+  static std::unique_ptr<GLDrawOp> CreateStencilOp(float stroke_width = 0.f,
+                                                   bool positive = true);
 
   static std::unique_ptr<GLDrawOp> CreateColorOp(float r, float g, float b,
                                                  float a);
 
  private:
+  static StencilShader* stencil_shader;
+  static GLMesh* gl_mesh;
   static uint32_t front_start;
   static uint32_t front_count;
   static uint32_t back_start;
