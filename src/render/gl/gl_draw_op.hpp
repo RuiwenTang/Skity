@@ -3,9 +3,12 @@
 
 #include <memory>
 
+#include "glm/glm.hpp"
+
 namespace skity {
 
 class StencilShader;
+class ColorShader;
 class GLMesh;
 
 class GLDrawOp {
@@ -46,8 +49,9 @@ class GLDrawOpBuilder final {
   ~GLDrawOpBuilder() = delete;
 
   static void UpdateStencilShader(StencilShader* shader);
-
+  static void UpdateColorShader(ColorShader* shader);
   static void UpdateMesh(GLMesh* mesh);
+  static void UpdateMVPMatrix(glm::mat4 const& matrix);
   static void UpdateFrontStart(uint32_t value);
 
   static void UpdateFrontCount(uint32_t value);
@@ -64,7 +68,9 @@ class GLDrawOpBuilder final {
 
  private:
   static StencilShader* stencil_shader;
+  static ColorShader* color_shader;
   static GLMesh* gl_mesh;
+  static glm::mat4 mvp_matrix;
   static uint32_t front_start;
   static uint32_t front_count;
   static uint32_t back_start;

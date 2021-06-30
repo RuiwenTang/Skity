@@ -24,6 +24,7 @@ GLStencilDrawOp::GLStencilDrawOp(uint32_t front_start, uint32_t front_count,
 void GLStencilDrawOp::OnBeforeDraw() {
   GLDrawMeshOp::OnBeforeDraw();
   glColorMask(0, 0, 0, 0);
+  glEnable(GL_STENCIL_TEST);
   glStencilMask(stencil_mask_);
   glStencilFunc(GL_ALWAYS, 0x01, stencil_mask_);
 

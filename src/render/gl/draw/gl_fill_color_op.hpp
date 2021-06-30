@@ -18,6 +18,7 @@ class GLFillColorOp : public GLDrawMeshOp {
 
  protected:
   void OnBeforeDraw() override;
+  void OnAfterDraw() override;
 
  private:
   ColorShader* shader_;

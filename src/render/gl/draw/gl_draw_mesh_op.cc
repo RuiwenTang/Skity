@@ -43,12 +43,26 @@ void GLDrawMeshOp::OnBeforeDrawBack() {}
 void GLDrawMeshOp::DrawFront() {
   mesh_->BindFrontIndex();
 
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void*)(2 * sizeof(float)));
+
   glDrawElements(GL_TRIANGLES, front_count(), GL_UNSIGNED_INT,
                  (void*)(front_start() * sizeof(GLuint)));
 }
 
 void GLDrawMeshOp::DrawBack() {
-  mesh_->BindFrontIndex();
+  mesh_->BindBackIndex();
+
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void*)(2 * sizeof(float)));
 
   glDrawElements(GL_TRIANGLES, back_count(), GL_UNSIGNED_INT,
                  (void*)(back_start() * sizeof(GLuint)));

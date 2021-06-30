@@ -27,10 +27,12 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   Path::Iter iter{path, false};
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
+  bool has_close = false;
   for (;;) {
     Path::Verb verb = iter.next(pts.data());
     switch (verb) {
       case Path::Verb::kMove:
+        has_close = false;
         HandleCapIfNeed();
         HandleMoveTo(pts[0]);
         break;
@@ -48,6 +50,7 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
         break;
       case Path::Verb::kClose:
         HandleClose();
+        has_close = true;
         break;
       case Path::Verb::kDone:
         goto DONE;
@@ -55,6 +58,9 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
     }
   }
 DONE:
+  if (!has_close) {
+    HandleCapIfNeed();
+  }
   range.front_count = gl_vertex->FrontCount() - range.front_count;
   range.back_count = gl_vertex->BackCount() - range.back_count;
   return range;

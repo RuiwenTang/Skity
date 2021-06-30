@@ -1,5 +1,7 @@
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
 
+#include <glad/glad.h>
+
 #include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
@@ -21,6 +23,17 @@ void GLFillColorOp::SetColor(float r, float g, float b, float a) {
 void GLFillColorOp::OnBeforeDraw() {
   GLDrawMeshOp::OnBeforeDraw();
   shader_->SetColor(r_, g_, b_, a_);
+
+  glEnable(GL_STENCIL_TEST);
+  glColorMask(1, 1, 1, 1);
+  glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
+
+void GLFillColorOp::OnAfterDraw() {
+  GLDrawMeshOp::OnAfterDraw();
+
+  glDisable(GL_STENCIL_TEST);
 }
 
 }  // namespace skity
