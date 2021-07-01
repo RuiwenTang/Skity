@@ -9,6 +9,7 @@
 
 #include "common/test_common.hpp"
 #include "src/render/gl/gl_mesh.hpp"
+#include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
@@ -50,6 +51,11 @@ class GLDrawOpDemo : public test::TestApp {
     path.moveTo(350, 50);
     path.cubicTo(556, 64, 310, 192, 550, 250);
 
+    skity::Path path_fill;
+    path_fill.moveTo(350, 50);
+    path_fill.cubicTo(556, 64, 310, 192, 550, 250);
+    path_fill.close();
+
     skity::Path path2;
     const float R = 100.f, C = 300.0f;
     path2.moveTo(C + R, C);
@@ -87,6 +93,9 @@ class GLDrawOpDemo : public test::TestApp {
     skity::GLStroke stroke2(paint);
     skity::GLStroke stroke3(paint);
 
+    auto path_fill_range =
+        skity::GLPathVisitor::VisitPath(path_fill, &gl_vertex);
+
     auto path1_range = stroke.strokePath(path, &gl_vertex);
     auto path2_range = stroke2.strokePath(path2, &gl_vertex);
     auto path3_range = stroke3.strokePath(path3, &gl_vertex);
@@ -107,6 +116,16 @@ class GLDrawOpDemo : public test::TestApp {
     skity::GLDrawOpBuilder::UpdateColorShader(color_shader_.get());
 
     skity::GLDrawOpBuilder::UpdateMesh(&mesh_);
+
+    skity::GLDrawOpBuilder::UpdateFrontStart(path_fill_range.front_start);
+    skity::GLDrawOpBuilder::UpdateFrontCount(path_fill_range.front_count);
+    skity::GLDrawOpBuilder::UpdateBackStart(path_fill_range.back_start);
+    skity::GLDrawOpBuilder::UpdateBackCount(path_fill_range.back_count);
+
+    draw_ops_.emplace_back(
+        std::move(skity::GLDrawOpBuilder::CreateStencilOp()));
+    draw_ops_.emplace_back(
+        std::move(skity::GLDrawOpBuilder::CreateColorOp(1.f, 1.f, 1.f, 1.f)));
 
     skity::GLDrawOpBuilder::UpdateFrontStart(path1_range.front_start);
     skity::GLDrawOpBuilder::UpdateFrontCount(path1_range.front_count);
