@@ -5,7 +5,6 @@
 #include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
-#include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 namespace skity {

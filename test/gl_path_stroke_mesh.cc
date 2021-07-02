@@ -8,7 +8,6 @@
 
 #include "common/test_common.hpp"
 #include "src/render/gl/gl_mesh.hpp"
-#include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
