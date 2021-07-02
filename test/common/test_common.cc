@@ -1,6 +1,7 @@
 #include "test_common.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 
@@ -99,10 +100,25 @@ void TestApp::Init() {
 }
 
 void TestApp::RunLoop() {
+  float frame_count = 0;
+  uint64_t frame_total_caust = 0;
   while (!glfwWindowShouldClose(window_)) {
+    auto frame_start = std::chrono::system_clock::now();
     this->OnDraw();
     glfwSwapBuffers(window_);
     glfwPollEvents();
+    auto frame_end = std::chrono::system_clock::now();
+    auto frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          frame_end - frame_start)
+                          .count();
+    frame_count++;
+    frame_total_caust += frame_time;
+    if (frame_total_caust >= 1000) {
+      std::cout << "FPS = " << (frame_count * (1000.f / frame_total_caust))
+                << std::endl;
+      frame_count = 0;
+      frame_total_caust = 0;
+    }
   }
 }
 
