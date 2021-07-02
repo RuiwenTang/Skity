@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "common/test_common.hpp"
+#include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -28,8 +29,13 @@ class GLDrawOpDemo : public test::TestApp {
   void OnDraw() override {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+    int32_t index = 0;
     for (const auto& op : draw_ops_) {
+      if (index % 2 == 0) {
+        glClear(GL_STENCIL_BUFFER_BIT);
+      }
       op->Draw();
+      index++;
     }
   }
 
@@ -92,13 +98,12 @@ class GLDrawOpDemo : public test::TestApp {
     skity::GLStroke stroke(paint);
     skity::GLStroke stroke2(paint);
     skity::GLStroke stroke3(paint);
-
-    auto path_fill_range =
-        skity::GLPathVisitor::VisitPath(path_fill, &gl_vertex);
+    skity::GLFill gl_fill;
 
     auto path1_range = stroke.strokePath(path, &gl_vertex);
     auto path2_range = stroke2.strokePath(path2, &gl_vertex);
     auto path3_range = stroke3.strokePath(path3, &gl_vertex);
+    auto path_fill_range = gl_fill.fillPath(path_fill, paint, &gl_vertex);
 
     mesh_.Init();
     mesh_.BindMesh();

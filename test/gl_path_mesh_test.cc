@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "common/test_common.hpp"
+#include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_mesh.hpp"
-#include "src/render/gl/gl_path_visitor.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 class GLPathMeshDemo : public test::TestApp {
@@ -223,9 +223,9 @@ class GLPathMeshDemo : public test::TestApp {
     // path3.close();
 
     skity::GLVertex gl_vertex;
-    path_1_range = skity::GLPathVisitor::VisitPath(path, &gl_vertex);
-    path_2_range = skity::GLPathVisitor::VisitPath(path2, &gl_vertex);
-    // skity::GLPathVisitor::VisitPath(path3, &gl_vertex);
+    skity::GLFill gl_fill;
+    path_1_range = gl_fill.fillPath(path, paint, &gl_vertex);
+    path_2_range = gl_fill.fillPath(path2, paint, &gl_vertex);
 
     mesh_.Init();
     mesh_.BindMesh();

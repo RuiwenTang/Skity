@@ -31,6 +31,7 @@ class GLFill final {
  private:
   GLVertex* gl_vertex_ = nullptr;
   Point start_pt_ = {};
+  uint32_t start_pt_index_ = 0;
 };
 
 }  // namespace skity

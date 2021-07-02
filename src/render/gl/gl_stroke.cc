@@ -61,8 +61,8 @@ DONE:
   if (!has_close) {
     HandleCapIfNeed();
   }
-  range.front_count = gl_vertex->FrontCount() - range.front_count;
-  range.back_count = gl_vertex->BackCount() - range.back_count;
+  range.front_count = gl_vertex->FrontCount() - range.front_start;
+  range.back_count = gl_vertex->BackCount() - range.back_start;
   return range;
 }
 
