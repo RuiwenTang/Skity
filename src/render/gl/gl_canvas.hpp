@@ -1,5 +1,6 @@
 #include <skity/render/canvas.hpp>
 
+#include "src/render/gl/gl_draw_op.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_vertex.hpp"
@@ -28,6 +29,7 @@ class GLCanvas : public Canvas {
 
  private:
   std::unique_ptr<StencilShader> stencil_shader_;
+  std::unique_ptr<ColorShader> color_shader_;
   std::unique_ptr<GLVertex> vertex_;
   std::unique_ptr<GLMesh> mesh_;
 };

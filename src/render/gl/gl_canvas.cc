@@ -11,6 +11,7 @@ void GLCanvas::Init() {
 
 void GLCanvas::InitShader() {
   stencil_shader_ = GLShader::CreateStencilShader();
+  color_shader_ = GLShader::CreateColorShader();
 }
 
 void GLCanvas::InitMesh() {

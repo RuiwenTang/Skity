@@ -66,6 +66,8 @@ class GLDrawOpBuilder final {
   static std::unique_ptr<GLDrawOp> CreateColorOp(float r, float g, float b,
                                                  float a);
 
+  static std::unique_ptr<GLDrawOp> CreateClearStencilOp();
+
  private:
   static StencilShader* stencil_shader;
   static ColorShader* color_shader;

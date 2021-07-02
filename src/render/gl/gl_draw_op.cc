@@ -1,6 +1,7 @@
 #include "src/render/gl/gl_draw_op.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "src/render/gl/draw/gl_clear_stencil_op.hpp"
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
 #include "src/render/gl/draw/gl_stencil_op.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -67,6 +68,10 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateColorOp(float r, float g,
   op->SetColor(r, g, b, a);
 
   return op;
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateClearStencilOp() {
+  return std::make_unique<GLClearStencilOp>();
 }
 
 }  // namespace skity
