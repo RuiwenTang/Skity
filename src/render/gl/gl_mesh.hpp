@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_GL_GL_MESH_HPP
 
 #include <array>
+#include <cstdint>
 
 namespace skity {
 

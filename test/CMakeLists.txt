@@ -11,21 +11,29 @@ add_executable(path_test path_test.cc)
 target_link_libraries(path_test gtest skity)
 
 #GLFW
-find_package(PkgConfig)
-if (PkgConfig_FOUND)
-  message("Pkg found")
-
-  add_library(test_common
-    OBJECT
-    common/test_common.cc
-    common/test_common.hpp
-  )
-
-  pkg_search_module(GLFW REQUIRED glfw3)
-
-  link_directories("/usr/local/lib")
-  include_directories(${GLFW_INCLUDE_DIRS})
+if (WIN32)
+  set(glfw3_DIR "C:/Program Files (x86)/GLFW")
+  set(GLFW_INCLUDE_DIRS ${glfw3_DIR}/include)
   
+  find_package(OpenGL REQUIRED)
+  set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
+  include_directories(${GLFW_INCLUDE_DIRS})
+else()
+find_package(PkgConfig)
+  if (PkgConfig_FOUND)
+    message("Pkg found")
+    pkg_search_module(GLFW REQUIRED glfw3)
+
+    link_directories("/usr/local/lib")
+    include_directories(${GLFW_INCLUDE_DIRS})
+  endif()
+endif()
+
+add_library(test_common
+  OBJECT
+  common/test_common.cc
+  common/test_common.hpp
+)
   add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
   target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
@@ -48,4 +56,4 @@ if (PkgConfig_FOUND)
   add_executable(freetype_path_test freetype_path_test.cc)
   target_include_directories(freetype_path_test PRIVATE ${FREETYPE_INCLUDE_DIRS})
   target_link_libraries(freetype_path_test ${FREETYPE_LIBRARIES})
-endif()
+

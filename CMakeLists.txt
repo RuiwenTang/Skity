@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.14)
 project(Skity)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -36,7 +36,8 @@ include_directories(include)
 add_library(glad OBJECT third_party/glad/src/glad.c)
 
 # freetype
-find_package(Freetype REQUIRED)
+
+find_package(Freetype)
 
 set(Skity_header
         include/skity/geometry/point.hpp

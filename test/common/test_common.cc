@@ -6,10 +6,17 @@
 
 namespace test {
 
+extern "C" void framebuffer_size_callback(GLFWwindow* window, int width,
+                                          int height) {
+  glViewport(0, 0, width, height);
+}
+
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height) {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  // multisample
+  glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -85,6 +92,9 @@ void TestApp::Init() {
   assert(window_);
 
   glfwMakeContextCurrent(window_);
+  glEnable(GL_MULTISAMPLE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   this->OnInit();
 }
 
