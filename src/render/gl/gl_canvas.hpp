@@ -1,4 +1,8 @@
+#ifndef SKITY_SRC_RENDER_GL_GL_CANVAS_HPP
+#define SKITY_SRC_RENDER_GL_GL_CANVAS_HPP
+
 #include <skity/render/canvas.hpp>
+#include <vector>
 
 #include "src/render/gl/gl_draw_op.hpp"
 #include "src/render/gl/gl_mesh.hpp"
@@ -8,7 +12,7 @@
 namespace skity {
 class GLCanvas : public Canvas {
  public:
-  GLCanvas();
+  explicit GLCanvas(Matrix const& mvp);
   ~GLCanvas() override = default;
 
  protected:
@@ -26,11 +30,19 @@ class GLCanvas : public Canvas {
   void Init();
   void InitShader();
   void InitMesh();
+  void InitDrawOpBuilder();
+  void UpdateDrawOpBuilder(GLMeshRange const& range);
 
  private:
-  std::unique_ptr<StencilShader> stencil_shader_;
-  std::unique_ptr<ColorShader> color_shader_;
-  std::unique_ptr<GLVertex> vertex_;
-  std::unique_ptr<GLMesh> mesh_;
+  std::unique_ptr<StencilShader> stencil_shader_ = {};
+  std::unique_ptr<ColorShader> color_shader_ = {};
+  std::unique_ptr<GLVertex> vertex_ = {};
+  std::unique_ptr<GLMesh> mesh_ = {};
+  std::vector<std::unique_ptr<GLDrawOp>> draw_ops_ = {};
+  GLVertex gl_vertex_ = {};
+
+  Matrix mvp_;
 };
 }  // namespace skity
+
+#endif  // SKITY_SRC_RENDER_GL_GL_CANVAS_HPP

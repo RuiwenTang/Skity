@@ -2,6 +2,7 @@
 #define SKITY_GRAPHIC_PAINT_HPP
 
 #include <cstdint>
+#include <skity/geometry/point.hpp>
 
 namespace skity {
 
@@ -88,12 +89,22 @@ class Paint {
 
   static constexpr const float DefaultMiterLimit = float(4);
 
+  void SetStrokeColor(float r, float g, float b, float a);
+
+  Vector GetStrokeColor() const;
+
+  void SetFillColor(float r, float g, float b, float a);
+
+  Vector GetFillColor() const;
+
  private:
   Cap cap_ = kDefault_Cap;
   Join join_ = kDefault_Join;
   Style style_ = kFill_Style;
   float stroke_width_ = 1.0f;
   float miter_limit_ = 0.f;
+  Vector fill_color_ = {1, 1, 1, 1};
+  Vector stroke_color_ = {1, 1, 1, 1};
 };
 
 }  // namespace skity

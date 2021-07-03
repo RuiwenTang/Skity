@@ -471,6 +471,11 @@ Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
   return *this;
 }
 
+Path& Path::addRect(Rect const& rect, Direction dir, uint32_t start) {
+  // TODO implement
+  return *this;
+}
+
 Path& Path::close() {
   size_t count = countVerbs();
   if (count > 0) {
