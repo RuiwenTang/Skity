@@ -23,6 +23,8 @@ void GLCanvas::Init() {
   InitMesh();
   InitDrawOpBuilder();
   gl_vertex_.Reset();
+  // clear stencil buffer
+  glClearStencil(0x0);
 }
 
 void GLCanvas::InitShader() {
@@ -97,8 +99,8 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     GLMeshRange stroke_range = gl_stroke.strokePath(path, &gl_vertex_);
 
     UpdateDrawOpBuilder(stroke_range);
-    draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateStencilOp()));
+    draw_ops_.emplace_back(std::move(
+        skity::GLDrawOpBuilder::CreateStencilOp(paint.getStrokeWidth())));
 
     auto stroke_color = paint.GetStrokeColor();
 
@@ -118,7 +120,7 @@ void GLCanvas::onFlush() {
   mesh_->UploadBackIndex(gl_vertex_.GetBackIndexData(),
                          gl_vertex_.GetBackIndexDataSize());
 
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   for (auto const& op : draw_ops_) {
     op->Draw();
   }
