@@ -38,9 +38,9 @@ class GLCanvas : public Canvas {
   std::unique_ptr<ColorShader> color_shader_ = {};
   std::unique_ptr<GLVertex> vertex_ = {};
   std::unique_ptr<GLMesh> mesh_ = {};
+  GLDrawOpBuilder draw_op_builder_ = {};
   std::vector<std::unique_ptr<GLDrawOp>> draw_ops_ = {};
   GLVertex gl_vertex_ = {};
-
   Matrix mvp_;
 };
 }  // namespace skity

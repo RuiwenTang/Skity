@@ -16,15 +16,6 @@ void GLDrawOp::Draw() {
 
 void GLDrawOp::Init() { OnInit(); }
 
-StencilShader* GLDrawOpBuilder::stencil_shader = nullptr;
-ColorShader* GLDrawOpBuilder::color_shader = nullptr;
-GLMesh* GLDrawOpBuilder::gl_mesh = nullptr;
-glm::mat4 GLDrawOpBuilder::mvp_matrix = glm::identity<glm::mat4>();
-uint32_t GLDrawOpBuilder::front_start = 0;
-uint32_t GLDrawOpBuilder::front_count = 0;
-uint32_t GLDrawOpBuilder::back_start = 0;
-uint32_t GLDrawOpBuilder::back_count = 0;
-
 void GLDrawOpBuilder::UpdateStencilShader(StencilShader* shader) {
   stencil_shader = shader;
 }

@@ -39,19 +39,19 @@ void GLCanvas::InitMesh() {
 }
 
 void GLCanvas::InitDrawOpBuilder() {
-  skity::GLDrawOpBuilder::UpdateStencilShader(stencil_shader_.get());
-  skity::GLDrawOpBuilder::UpdateColorShader(color_shader_.get());
-  skity::GLDrawOpBuilder::UpdateMesh(mesh_.get());
-  skity::GLDrawOpBuilder::UpdateMVPMatrix(mvp_);
+  draw_op_builder_.UpdateStencilShader(stencil_shader_.get());
+  draw_op_builder_.UpdateColorShader(color_shader_.get());
+  draw_op_builder_.UpdateMesh(mesh_.get());
+  draw_op_builder_.UpdateMVPMatrix(mvp_);
 }
 
 void GLCanvas::onClipPath(Path const& path, ClipOp op) {}
 
 void GLCanvas::UpdateDrawOpBuilder(GLMeshRange const& range) {
-  skity::GLDrawOpBuilder::UpdateFrontStart(range.front_start);
-  skity::GLDrawOpBuilder::UpdateFrontCount(range.front_count);
-  skity::GLDrawOpBuilder::UpdateBackStart(range.back_start);
-  skity::GLDrawOpBuilder::UpdateBackCount(range.back_count);
+  draw_op_builder_.UpdateFrontStart(range.front_start);
+  draw_op_builder_.UpdateFrontCount(range.front_count);
+  draw_op_builder_.UpdateBackStart(range.back_start);
+  draw_op_builder_.UpdateBackCount(range.back_count);
 }
 
 void onClipPath(Path const& path, Canvas::ClipOp op) {}
@@ -79,17 +79,16 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     GLMeshRange fill_range = gl_fill.fillPath(path, paint, &gl_vertex_);
 
     UpdateDrawOpBuilder(fill_range);
-    draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateStencilOp()));
+    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateStencilOp()));
 
     auto fill_color = paint.GetFillColor();
 
-    draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateColorOp(
+    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
         fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
 
     // clear current stencil value
     draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateStencilOp(0, false)));
+        std::move(draw_op_builder_.CreateStencilOp(0, false)));
   }
 
   if (need_stroke) {
@@ -97,17 +96,17 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     GLMeshRange stroke_range = gl_stroke.strokePath(path, &gl_vertex_);
 
     UpdateDrawOpBuilder(stroke_range);
-    draw_ops_.emplace_back(std::move(
-        skity::GLDrawOpBuilder::CreateStencilOp(paint.getStrokeWidth())));
+    draw_ops_.emplace_back(
+        std::move(draw_op_builder_.CreateStencilOp(paint.getStrokeWidth())));
 
     auto stroke_color = paint.GetStrokeColor();
 
-    draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateColorOp(
+    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
         stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3])));
 
     // clear stencil value
-    draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateStencilOp(
-        paint.getStrokeWidth(), false)));
+    draw_ops_.emplace_back(std::move(
+        draw_op_builder_.CreateStencilOp(paint.getStrokeWidth(), false)));
   }
 }
 

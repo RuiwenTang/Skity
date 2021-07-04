@@ -114,61 +114,61 @@ class GLDrawOpDemo : public test::TestApp {
                           gl_vertex.GetBackIndexDataSize());
 
     auto mvp = glm::ortho<float>(0, 800, 600, 0, -100, 100);
-    skity::GLDrawOpBuilder::UpdateMVPMatrix(mvp);
+    draw_op_builder.UpdateMVPMatrix(mvp);
 
-    skity::GLDrawOpBuilder::UpdateStencilShader(stencil_shader_.get());
-    skity::GLDrawOpBuilder::UpdateColorShader(color_shader_.get());
+    draw_op_builder.UpdateStencilShader(stencil_shader_.get());
+    draw_op_builder.UpdateColorShader(color_shader_.get());
 
-    skity::GLDrawOpBuilder::UpdateMesh(&mesh_);
+    draw_op_builder.UpdateMesh(&mesh_);
 
-    skity::GLDrawOpBuilder::UpdateFrontStart(path_fill_range.front_start);
-    skity::GLDrawOpBuilder::UpdateFrontCount(path_fill_range.front_count);
-    skity::GLDrawOpBuilder::UpdateBackStart(path_fill_range.back_start);
-    skity::GLDrawOpBuilder::UpdateBackCount(path_fill_range.back_count);
+    draw_op_builder.UpdateFrontStart(path_fill_range.front_start);
+    draw_op_builder.UpdateFrontCount(path_fill_range.front_count);
+    draw_op_builder.UpdateBackStart(path_fill_range.back_start);
+    draw_op_builder.UpdateBackCount(path_fill_range.back_count);
+
+    draw_ops_.emplace_back(std::move(draw_op_builder.CreateStencilOp()));
+    draw_ops_.emplace_back(
+        std::move(draw_op_builder.CreateColorOp(1.f, 1.f, 1.f, 1.f)));
+
+    draw_op_builder.UpdateFrontStart(path1_range.front_start);
+    draw_op_builder.UpdateFrontCount(path1_range.front_count);
+    draw_op_builder.UpdateBackStart(path1_range.back_start);
+    draw_op_builder.UpdateBackCount(path1_range.back_count);
 
     draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateStencilOp()));
-    draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateColorOp(1.f, 1.f, 1.f, 1.f)));
-
-    skity::GLDrawOpBuilder::UpdateFrontStart(path1_range.front_start);
-    skity::GLDrawOpBuilder::UpdateFrontCount(path1_range.front_count);
-    skity::GLDrawOpBuilder::UpdateBackStart(path1_range.back_start);
-    skity::GLDrawOpBuilder::UpdateBackCount(path1_range.back_count);
-
-    draw_ops_.emplace_back(std::move(
-        skity::GLDrawOpBuilder::CreateStencilOp(paint.getStrokeWidth())));
+        std::move(draw_op_builder.CreateStencilOp(paint.getStrokeWidth())));
 
     draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateColorOp(1.f, 1.f, 0.f, 1.f)));
+        std::move(draw_op_builder.CreateColorOp(1.f, 1.f, 0.f, 1.f)));
 
-    skity::GLDrawOpBuilder::UpdateFrontStart(path2_range.front_start);
-    skity::GLDrawOpBuilder::UpdateFrontCount(path2_range.front_count);
-    skity::GLDrawOpBuilder::UpdateBackStart(path2_range.back_start);
-    skity::GLDrawOpBuilder::UpdateBackCount(path2_range.back_count);
-
-    draw_ops_.emplace_back(std::move(
-        skity::GLDrawOpBuilder::CreateStencilOp(paint.getStrokeWidth())));
+    draw_op_builder.UpdateFrontStart(path2_range.front_start);
+    draw_op_builder.UpdateFrontCount(path2_range.front_count);
+    draw_op_builder.UpdateBackStart(path2_range.back_start);
+    draw_op_builder.UpdateBackCount(path2_range.back_count);
 
     draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateColorOp(1.f, 0.f, 0.f, 1.f)));
-
-    skity::GLDrawOpBuilder::UpdateFrontStart(path3_range.front_start);
-    skity::GLDrawOpBuilder::UpdateFrontCount(path3_range.front_count);
-    skity::GLDrawOpBuilder::UpdateBackStart(path3_range.back_start);
-    skity::GLDrawOpBuilder::UpdateBackCount(path3_range.back_count);
-
-    draw_ops_.emplace_back(std::move(
-        skity::GLDrawOpBuilder::CreateStencilOp(paint.getStrokeWidth())));
+        std::move(draw_op_builder.CreateStencilOp(paint.getStrokeWidth())));
 
     draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateColorOp(0.f, 0.f, 1.f, 1.f)));
+        std::move(draw_op_builder.CreateColorOp(1.f, 0.f, 0.f, 1.f)));
+
+    draw_op_builder.UpdateFrontStart(path3_range.front_start);
+    draw_op_builder.UpdateFrontCount(path3_range.front_count);
+    draw_op_builder.UpdateBackStart(path3_range.back_start);
+    draw_op_builder.UpdateBackCount(path3_range.back_count);
+
+    draw_ops_.emplace_back(
+        std::move(draw_op_builder.CreateStencilOp(paint.getStrokeWidth())));
+
+    draw_ops_.emplace_back(
+        std::move(draw_op_builder.CreateColorOp(0.f, 0.f, 1.f, 1.f)));
   }
 
  private:
   std::unique_ptr<skity::StencilShader> stencil_shader_;
   std::unique_ptr<skity::ColorShader> color_shader_;
   skity::GLMesh mesh_;
+  skity::GLDrawOpBuilder draw_op_builder = {};
   std::vector<std::unique_ptr<skity::GLDrawOp>> draw_ops_;
 };
 

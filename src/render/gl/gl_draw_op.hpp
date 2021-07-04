@@ -45,38 +45,37 @@ class GLDrawOp {
 
 class GLDrawOpBuilder final {
  public:
-  GLDrawOpBuilder() = delete;
-  ~GLDrawOpBuilder() = delete;
+  GLDrawOpBuilder() = default;
+  ~GLDrawOpBuilder() = default;
 
-  static void UpdateStencilShader(StencilShader* shader);
-  static void UpdateColorShader(ColorShader* shader);
-  static void UpdateMesh(GLMesh* mesh);
-  static void UpdateMVPMatrix(glm::mat4 const& matrix);
-  static void UpdateFrontStart(uint32_t value);
+  void UpdateStencilShader(StencilShader* shader);
+  void UpdateColorShader(ColorShader* shader);
+  void UpdateMesh(GLMesh* mesh);
+  void UpdateMVPMatrix(glm::mat4 const& matrix);
+  void UpdateFrontStart(uint32_t value);
 
-  static void UpdateFrontCount(uint32_t value);
+  void UpdateFrontCount(uint32_t value);
 
-  static void UpdateBackStart(uint32_t value);
+  void UpdateBackStart(uint32_t value);
 
-  static void UpdateBackCount(uint32_t value);
+  void UpdateBackCount(uint32_t value);
 
-  static std::unique_ptr<GLDrawOp> CreateStencilOp(float stroke_width = 0.f,
-                                                   bool positive = true);
+  std::unique_ptr<GLDrawOp> CreateStencilOp(float stroke_width = 0.f,
+                                            bool positive = true);
 
-  static std::unique_ptr<GLDrawOp> CreateColorOp(float r, float g, float b,
-                                                 float a);
+  std::unique_ptr<GLDrawOp> CreateColorOp(float r, float g, float b, float a);
 
-  static std::unique_ptr<GLDrawOp> CreateClearStencilOp();
+  std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
  private:
-  static StencilShader* stencil_shader;
-  static ColorShader* color_shader;
-  static GLMesh* gl_mesh;
-  static glm::mat4 mvp_matrix;
-  static uint32_t front_start;
-  static uint32_t front_count;
-  static uint32_t back_start;
-  static uint32_t back_count;
+  StencilShader* stencil_shader = nullptr;
+  ColorShader* color_shader = nullptr;
+  GLMesh* gl_mesh = nullptr;
+  glm::mat4 mvp_matrix = {};
+  uint32_t front_start = 0;
+  uint32_t front_count = 0;
+  uint32_t back_start = 0;
+  uint32_t back_count = 0;
 };
 
 }  // namespace skity
