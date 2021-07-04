@@ -75,9 +75,6 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
   // TODO handle clip
   if (need_fill) {
-    draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateClearStencilOp()));
-
     GLFill gl_fill{};
     GLMeshRange fill_range = gl_fill.fillPath(path, paint, &gl_vertex_);
 
@@ -89,12 +86,13 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateColorOp(
         fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
+
+    // clear current stencil value
+    draw_ops_.emplace_back(
+        std::move(skity::GLDrawOpBuilder::CreateStencilOp(0, false)));
   }
 
   if (need_stroke) {
-    draw_ops_.emplace_back(
-        std::move(skity::GLDrawOpBuilder::CreateClearStencilOp()));
-
     GLStroke gl_stroke(paint);
     GLMeshRange stroke_range = gl_stroke.strokePath(path, &gl_vertex_);
 
@@ -106,6 +104,10 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateColorOp(
         stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3])));
+
+    // clear stencil value
+    draw_ops_.emplace_back(std::move(skity::GLDrawOpBuilder::CreateStencilOp(
+        paint.getStrokeWidth(), false)));
   }
 }
 

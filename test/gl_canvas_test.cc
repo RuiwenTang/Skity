@@ -18,7 +18,7 @@ class GLCanvasDemo : public test::TestApp {
   void OnDraw() override {
     skity::Paint paint;
     paint.setStyle(skity::Paint::kStrokeAndFill_Style);
-    paint.setStrokeWidth(10.f);
+    paint.setStrokeWidth(8.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
     paint.setStrokeJoin(skity::Paint::kRound_Join);
     paint.SetStrokeColor(1.f, 0.f, 0.f, 1.f);
@@ -27,6 +27,7 @@ class GLCanvasDemo : public test::TestApp {
     skity::Path path;
     path.moveTo(350, 50);
     path.cubicTo(556, 64, 310, 192, 550, 250);
+    path.close();
 
     canvas_->drawPath(path, paint);
 

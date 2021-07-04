@@ -49,9 +49,9 @@ void GLDrawOpBuilder::UpdateBackCount(uint32_t value) { back_count = value; }
 
 std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateStencilOp(float stroke_width,
                                                            bool positive) {
-  auto op =
-      std::make_unique<GLStencilDrawOp>(front_start, front_count, back_start,
-                                        back_count, stencil_shader, gl_mesh);
+  auto op = std::make_unique<GLStencilDrawOp>(
+      front_start, front_count, back_start, back_count, stencil_shader, gl_mesh,
+      positive);
 
   op->SetMVPMatrix(mvp_matrix);
   op->SetStrokeWidth(stroke_width);
