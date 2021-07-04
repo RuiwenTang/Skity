@@ -338,36 +338,6 @@ bool DegenerateVector(Vector const& v);
 float pt_to_line(Point const& pt, Point const& lineStart, Point const& lineEnd);
 
 /**
- * Given a cubic, determine if all four points are in a line
- *
- * @param cubic[4] cubic points
- *
- * @return true if inner points is close to a line.
- */
-static bool cubic_in_line(const Point cubic[4]) {
-  float pt_max = -1;
-  int32_t outer1 = 0;
-  int32_t outer2 = 0;
-  for (int index = 0; index < 3; index++) {
-    for (int inner = index + 1; inner < 4; inner++) {
-      Vector test_diff = cubic[inner] - cubic[index];
-      float test_max = std::max(std::abs(test_diff.x), std::abs(test_diff.y));
-      if (pt_max < test_max) {
-        outer1 = index;
-        outer2 = inner;
-        pt_max = test_max;
-      }
-    }
-  }
-
-  int32_t mid1 = (1 + (2 >> outer2)) >> outer1;
-  int32_t mid2 = outer1 ^ outer2 ^ mid1;
-  float line_slop = pt_max * pt_max * 0.00001f;
-  return pt_to_line(cubic[mid1], cubic[outer1], cubic[outer2]) <= line_slop &&
-         pt_to_line(cubic[mid2], cubic[outer1], cubic[outer2]) <= line_slop;
-}
-
-/**
  * Given quad, see if all three points are in a line
  *
  * @param quad[3]
@@ -395,16 +365,6 @@ static bool quad_in_line(const Point quad[3]) {
   float lineSlop = pt_max * pt_max * kCurvatureSlop;
   return pt_to_line(quad[mid], quad[outer1], quad[outer2]) <= lineSlop;
 }
-
-bool conic_in_line(Conic const& conic);
-
-/**
- * Return location (in t) of cubic cusp, if there is one.
- *
- * @param src    cubic points
- * @return float
- */
-float FindCubicCusp(const Point src[4]);
 
 void SubDividedCubic(const Point cubic[4], Point sub_cubic1[4],
                      Point sub_cubic2[4]);

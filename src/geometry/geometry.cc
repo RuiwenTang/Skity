@@ -7,8 +7,6 @@
 
 namespace skity {
 
-bool conic_in_line(Conic const& conic) { return quad_in_line(conic.pts); }
-
 static Vector eval_cubic_derivative(const Point src[4], float t) {
   QuadCoeff coeff;
   glm::vec2 P0 = FromPoint(src[0]);
@@ -206,52 +204,6 @@ float pt_to_line(Point const& pt, Point const& lineStart,
   } else {
     return PointDistanceToSqd(pt, lineStart);
   }
-}
-
-float FindCubicCusp(const Point src[4]) {
-  // When the adjacent control point matches the end point, it behaves as if
-  // the cubic has a cusp: there's a point of max curvature where the derivative
-  // goes to zero. Ideally, this would be where t is zero or one, but math
-  // error makes not so. It is not uncommon to create cubics this way; skip
-  // them.
-  if (src[0] == src[1]) {
-    return -1;
-  }
-
-  if (src[2] == src[3]) {
-    return -1;
-  }
-
-  // Cubics only have a cusp if the line segments formed by the control and end
-  // points cross. Detect crossing if line ends are on opposite sides of plane
-  // formed by the other line.
-  std::array<Point, 4> cubic{src[0], src[1], src[2], src[3]};
-  if (OnSameSide(cubic, 0, 2) || OnSameSide(cubic, 2, 0)) {
-    return -1;
-  }
-  // Cubics may have multiple points of maximum curvature, although at most only
-  // one is a cusp.
-  std::array<float, 3> max_curvature;
-  int roots = FindCubicMaxCurvature(src, max_curvature.data());
-  for (int32_t index = 0; index < roots; index++) {
-    float test_t = max_curvature[index];
-    if (0 >= test_t || test_t >= 1) {
-      continue;
-    }
-    // A cusp is at the max curvature, and also has a derivative close to zero.
-    // Choose the 'close to zero' meaning by comparing the derivative length
-    // with the overall cubic size.
-    Vector d_pt = eval_cubic_derivative(src, test_t);
-    float d_pt_magnitude = PointLengthSqd(d_pt);
-    float precision = calc_cubic_precision(src);
-    if (d_pt_magnitude < precision) {
-      // All three max curvature t values may be close to the cusp;
-      // return thie first one
-      return test_t;
-    }
-  }
-
-  return -1;
 }
 
 void SubDividedCubic(const Point cubic[4], Point sub_cubic1[4],
