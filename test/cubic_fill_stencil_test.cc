@@ -40,9 +40,23 @@ class CubicFill : public test::TestApp {
     mesh_.BindBackIndex();
     DrawBack();
 
+    glStencilMask(0x1F);
+    glStencilFunc(GL_NOTEQUAL, 0x10, 0x0F);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    mesh_.BindFrontIndex();
+    DrawFront();
+    mesh_.BindBackIndex();
+    DrawBack();
+
+    glStencilMask(0x0F);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
     glColorMask(1, 1, 1, 1);
-    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+    glStencilFunc(GL_EQUAL, 0x10, 0x1F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glStencilMask(0xFF);
 
     mesh_.BindFrontIndex();
     DrawFront();
