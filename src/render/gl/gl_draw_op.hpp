@@ -7,6 +7,7 @@
 
 namespace skity {
 
+class GLShader;
 class StencilShader;
 class ColorShader;
 class GLMesh;
@@ -14,14 +15,15 @@ class GLMesh;
 class GLDrawOp {
  public:
   GLDrawOp(uint32_t front_start, uint32_t front_count, uint32_t back_start,
-           uint32_t back_count)
+           uint32_t back_count, GLShader* shader)
       : front_start_(front_start),
         front_count_(front_count),
         back_start_(back_start),
-        back_count_(back_count) {}
+        back_count_(back_count),
+        shader_(shader) {}
   virtual ~GLDrawOp() = default;
 
-  void Draw();
+  void Draw(glm::mat4 const& mvp);
 
   void Init();
 
@@ -30,9 +32,10 @@ class GLDrawOp {
   inline uint32_t front_count() const { return front_count_; }
   inline uint32_t back_start() const { return back_start_; }
   inline uint32_t back_count() const { return back_count_; }
+  inline GLShader* shader() { return shader_; }
 
-  virtual void OnBeforeDraw() = 0;
-  virtual void OnAfterDraw() = 0;
+  virtual void OnBeforeDraw();
+  virtual void OnAfterDraw();
   virtual void OnDraw() = 0;
   virtual void OnInit() = 0;
 
@@ -41,6 +44,7 @@ class GLDrawOp {
   uint32_t front_count_;
   uint32_t back_start_;
   uint32_t back_count_;
+  GLShader* shader_;
 };
 
 class GLDrawOpBuilder final {

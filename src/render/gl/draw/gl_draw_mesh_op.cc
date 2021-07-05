@@ -10,20 +10,16 @@ namespace skity {
 GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
                            uint32_t back_start, uint32_t back_count,
                            GLShader* shader, GLMesh* mesh)
-    : GLDrawOp(front_start, front_count, back_start, back_count),
-      shader_(shader),
-      mesh_(mesh),
-      matrix_(1.f) {}
+    : GLDrawOp(front_start, front_count, back_start, back_count, shader),
+      mesh_(mesh) {}
 
 void GLDrawMeshOp::OnBeforeDraw() {
+  GLDrawOp::OnBeforeDraw();
   mesh_->BindMesh();
-  shader_->Bind();
-
-  shader_->SetMVPMatrix(matrix_);
 }
 
 void GLDrawMeshOp::OnAfterDraw() {
-  shader_->UnBind();
+  GLDrawOp::OnAfterDraw();
   mesh_->UnBindMesh();
 }
 

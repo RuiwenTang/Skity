@@ -14,8 +14,6 @@ class GLDrawMeshOp : public GLDrawOp {
   GLDrawMeshOp(uint32_t front_start, uint32_t front_count, uint32_t back_start,
                uint32_t back_count, GLShader* shader, GLMesh* mesh);
 
-  void SetMVPMatrix(glm::mat4 const& matrix) { matrix_ = matrix; }
-
  protected:
   void OnBeforeDraw() override;
   void OnAfterDraw() override;
@@ -30,9 +28,7 @@ class GLDrawMeshOp : public GLDrawOp {
   void DrawBack();
 
  private:
-  GLShader* shader_;
   GLMesh* mesh_;
-  glm::mat4 matrix_;
 };
 
 }  // namespace skity

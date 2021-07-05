@@ -8,10 +8,27 @@
 
 namespace skity {
 
-void GLDrawOp::Draw() {
+void GLDrawOp::Draw(glm::mat4 const& mvp) {
   OnBeforeDraw();
+
+  if (shader_) {
+    shader_->SetMVPMatrix(mvp);
+  }
+
   OnDraw();
   OnAfterDraw();
+}
+
+void GLDrawOp::OnBeforeDraw() {
+  if (shader_) {
+    shader_->Bind();
+  }
+}
+
+void GLDrawOp::OnAfterDraw() {
+  if (shader_) {
+    shader_->UnBind();
+  }
 }
 
 void GLDrawOp::Init() { OnInit(); }
@@ -44,7 +61,6 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateStencilOp(float stroke_width,
       front_start, front_count, back_start, back_count, stencil_shader, gl_mesh,
       positive);
 
-  op->SetMVPMatrix(mvp_matrix);
   op->SetStrokeWidth(stroke_width);
 
   return op;
@@ -55,7 +71,6 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateColorOp(float r, float g,
   auto op = std::make_unique<GLFillColorOp>(
       front_start, front_count, back_start, back_count, color_shader, gl_mesh);
 
-  op->SetMVPMatrix(mvp_matrix);
   op->SetColor(r, g, b, a);
 
   return op;

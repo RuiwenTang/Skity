@@ -4,7 +4,7 @@
 
 namespace skity {
 
-GLClearStencilOp::GLClearStencilOp() : GLDrawOp(0, 0, 0, 0) {}
+GLClearStencilOp::GLClearStencilOp() : GLDrawOp(0, 0, 0, 0, nullptr) {}
 
 void GLClearStencilOp::OnBeforeDraw() {}
 

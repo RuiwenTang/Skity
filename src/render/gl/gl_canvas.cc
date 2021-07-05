@@ -123,7 +123,7 @@ void GLCanvas::onFlush() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   for (auto const& op : draw_ops_) {
-    op->Draw();
+    op->Draw(mvp_);
   }
 
   draw_ops_.clear();
