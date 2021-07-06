@@ -43,10 +43,6 @@ void GLDrawOpBuilder::UpdateColorShader(ColorShader* shader) {
 
 void GLDrawOpBuilder::UpdateMesh(GLMesh* mesh) { gl_mesh = mesh; }
 
-void GLDrawOpBuilder::UpdateMVPMatrix(glm::mat4 const& matrix) {
-  mvp_matrix = matrix;
-}
-
 void GLDrawOpBuilder::UpdateFrontStart(uint32_t value) { front_start = value; }
 
 void GLDrawOpBuilder::UpdateFrontCount(uint32_t value) { front_count = value; }

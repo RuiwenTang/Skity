@@ -55,7 +55,6 @@ class GLDrawOpBuilder final {
   void UpdateStencilShader(StencilShader* shader);
   void UpdateColorShader(ColorShader* shader);
   void UpdateMesh(GLMesh* mesh);
-  void UpdateMVPMatrix(glm::mat4 const& matrix);
   void UpdateFrontStart(uint32_t value);
 
   void UpdateFrontCount(uint32_t value);
@@ -75,7 +74,6 @@ class GLDrawOpBuilder final {
   StencilShader* stencil_shader = nullptr;
   ColorShader* color_shader = nullptr;
   GLMesh* gl_mesh = nullptr;
-  glm::mat4 mvp_matrix = {};
   uint32_t front_start = 0;
   uint32_t front_count = 0;
   uint32_t back_start = 0;

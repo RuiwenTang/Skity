@@ -33,7 +33,7 @@ class GLDrawOpDemo : public test::TestApp {
       if (index % 2 == 0) {
         glClear(GL_STENCIL_BUFFER_BIT);
       }
-      op->Draw();
+      op->Draw(mvp_);
       index++;
     }
   }
@@ -113,8 +113,7 @@ class GLDrawOpDemo : public test::TestApp {
     mesh_.UploadBackIndex(gl_vertex.GetBackIndexData(),
                           gl_vertex.GetBackIndexDataSize());
 
-    auto mvp = glm::ortho<float>(0, 800, 600, 0, -100, 100);
-    draw_op_builder.UpdateMVPMatrix(mvp);
+    mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
 
     draw_op_builder.UpdateStencilShader(stencil_shader_.get());
     draw_op_builder.UpdateColorShader(color_shader_.get());
@@ -170,6 +169,7 @@ class GLDrawOpDemo : public test::TestApp {
   skity::GLMesh mesh_;
   skity::GLDrawOpBuilder draw_op_builder = {};
   std::vector<std::unique_ptr<skity::GLDrawOp>> draw_ops_;
+  glm::mat4 mvp_;
 };
 
 int main(int argc, const char** argv) {

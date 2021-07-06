@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include <cassert>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "src/render/gl/gl_fill.hpp"
@@ -16,7 +17,48 @@ std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
   return std::make_unique<GLCanvas>(mvp);
 }
 
-GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) { Init(); }
+GLCanvasState::GLCanvasState() {
+  State init_state;
+  init_state.matrix = glm::identity<glm::mat4>();
+
+  state_stack_.emplace_back(init_state);
+}
+
+void GLCanvasState::UpdateCurrentMatrix(Matrix const& matrix) {
+  assert(!state_stack_.empty());
+  state_stack_.back().matrix = matrix;
+}
+
+void GLCanvasState::UpdateCurrentClipPathRange(GLMeshRange const& range) {
+  assert(!state_stack_.empty());
+  state_stack_.back().clip_path_range = range;
+  state_stack_.back().has_clip = true;
+}
+
+Matrix const& GLCanvasState::CurrentMatrix() {
+  assert(!state_stack_.empty());
+  return state_stack_.back().matrix;
+}
+
+void DoClipPath(uint32_t stack_depth) {}
+
+int32_t GLCanvasState::CurrentStackDepth() const { return state_stack_.size(); }
+
+void GLCanvasState::PushStack() {
+  State state;
+  state.matrix = CurrentMatrix();
+  state_stack_.push_back(state);
+}
+
+void GLCanvasState::PopStack(int32_t target_stack_depth) {
+  state_stack_.erase(state_stack_.begin() + target_stack_depth,
+                     state_stack_.end());
+}
+
+GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) {
+  state_ = std::make_unique<GLCanvasState>();
+  Init();
+}
 
 void GLCanvas::Init() {
   InitShader();
@@ -42,7 +84,6 @@ void GLCanvas::InitDrawOpBuilder() {
   draw_op_builder_.UpdateStencilShader(stencil_shader_.get());
   draw_op_builder_.UpdateColorShader(color_shader_.get());
   draw_op_builder_.UpdateMesh(mesh_.get());
-  draw_op_builder_.UpdateMVPMatrix(mvp_);
 }
 
 void GLCanvas::onClipPath(Path const& path, ClipOp op) {}
@@ -123,7 +164,8 @@ void GLCanvas::onFlush() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   for (auto const& op : draw_ops_) {
-    op->Draw(mvp_);
+    Matrix mvp = mvp_ * state_->CurrentMatrix();
+    op->Draw(mvp);
   }
 
   draw_ops_.clear();

@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_GL_GL_CANVAS_HPP
 #define SKITY_SRC_RENDER_GL_GL_CANVAS_HPP
 
+#include <memory>
 #include <skity/render/canvas.hpp>
 #include <vector>
 
@@ -10,6 +11,34 @@
 #include "src/render/gl/gl_vertex.hpp"
 
 namespace skity {
+
+class GLCanvasState final {
+  struct State {
+    Matrix matrix = {};
+    GLMeshRange clip_path_range;
+    bool has_clip = false;
+  };
+
+ public:
+  GLCanvasState();
+  ~GLCanvasState() = default;
+
+  void UpdateCurrentMatrix(Matrix const& mvp);
+  void UpdateCurrentClipPathRange(GLMeshRange const& range);
+  Matrix const& CurrentMatrix();
+
+  void DoClipPath(uint32_t stack_depth);
+
+  int32_t CurrentStackDepth() const;
+
+  void PushStack();
+
+  void PopStack(int32_t target_stack_depth);
+
+ private:
+  std::vector<State> state_stack_;
+};
+
 class GLCanvas : public Canvas {
  public:
   explicit GLCanvas(Matrix const& mvp);
@@ -42,6 +71,7 @@ class GLCanvas : public Canvas {
   std::vector<std::unique_ptr<GLDrawOp>> draw_ops_ = {};
   GLVertex gl_vertex_ = {};
   Matrix mvp_;
+  std::unique_ptr<GLCanvasState> state_;
 };
 }  // namespace skity
 
