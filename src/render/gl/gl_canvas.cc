@@ -18,7 +18,7 @@ class GLCanvasStateOp : public GLDrawOp {
   ~GLCanvasStateOp() override = default;
 
  protected:
-  void OnDraw() override {}
+  void OnDraw(bool has_clip) override {}
 
   void OnInit() override {}
 
@@ -32,7 +32,7 @@ class GLCanvasSaveOp : public GLCanvasStateOp {
   ~GLCanvasSaveOp() override = default;
 
  protected:
-  void OnDraw() override { state_->PushStack(); }
+  void OnDraw(bool has_clip) override { state_->PushStack(); }
 };
 
 class GLCanvasRestoreOp : public GLCanvasStateOp {
@@ -41,7 +41,7 @@ class GLCanvasRestoreOp : public GLCanvasStateOp {
   ~GLCanvasRestoreOp() override = default;
 
  protected:
-  void OnDraw() override { state_->PopStack(); }
+  void OnDraw(bool has_clip) override { state_->PopStack(); }
 };
 
 class GLCanvasTranslateOp : public GLCanvasStateOp {
@@ -52,7 +52,7 @@ class GLCanvasTranslateOp : public GLCanvasStateOp {
   ~GLCanvasTranslateOp() override = default;
 
  protected:
-  void OnDraw() override {
+  void OnDraw(bool has_clip) override {
     auto current_matrix = state_->CurrentMatrix();
     auto translate_matrix =
         glm::translate(glm::identity<glm::mat4>(), {dx_, dy_, 0.f});
@@ -74,7 +74,7 @@ class GLCanvasScaleOp : public GLCanvasStateOp {
   ~GLCanvasScaleOp() override = default;
 
  protected:
-  void OnDraw() override {
+  void OnDraw(bool has_clip) override {
     auto current_matrix = state_->CurrentMatrix();
     auto scale_matrix = glm::scale(glm::identity<glm::mat4>(), {sx_, sy_, 1.f});
 
@@ -95,7 +95,7 @@ class GLCanvasRotateOp : public GLCanvasStateOp {
   ~GLCanvasRotateOp() override = default;
 
  protected:
-  void OnDraw() override {
+  void OnDraw(bool has_clip) override {
     auto current_matrix = state_->CurrentMatrix();
     auto rotate_matrix = glm::rotate(glm::identity<glm::mat4>(),
                                      glm::radians(degree_), {0.f, 0.f, 1.f});
@@ -120,6 +120,7 @@ GLCanvasState::GLCanvasState() {
   init_state.matrix = glm::identity<glm::mat4>();
 
   state_stack_.emplace_back(init_state);
+  clip_stack_.emplace_back(false);
 }
 
 void GLCanvasState::UpdateCurrentMatrix(Matrix const& matrix) {
@@ -146,11 +147,14 @@ void GLCanvasState::PushStack() {
   State state;
   state.matrix = CurrentMatrix();
   state_stack_.push_back(state);
+  clip_stack_.emplace_back(clip_stack_.back());
 }
 
 void GLCanvasState::PopStack(int32_t target_stack_depth) {
   state_stack_.erase(state_stack_.begin() + target_stack_depth,
                      state_stack_.end());
+  clip_stack_.erase(clip_stack_.begin() + target_stack_depth,
+                    clip_stack_.end());
 }
 
 void GLCanvasState::PopStack() {
@@ -159,7 +163,10 @@ void GLCanvasState::PopStack() {
   }
 
   state_stack_.pop_back();
+  clip_stack_.pop_back();
 }
+
+bool GLCanvasState::HasClip() { return clip_stack_.back(); }
 
 GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) {
   state_ = std::make_unique<GLCanvasState>();
@@ -271,7 +278,7 @@ void GLCanvas::onFlush() {
   glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   for (auto const& op : draw_ops_) {
     Matrix mvp = mvp_ * state_->CurrentMatrix();
-    op->Draw(mvp);
+    op->Draw(mvp, state_->HasClip());
   }
 
   draw_ops_.clear();

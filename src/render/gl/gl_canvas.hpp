@@ -36,8 +36,11 @@ class GLCanvasState final {
   void PopStack(int32_t target_stack_depth);
   void PopStack();
 
+  bool HasClip();
+
  private:
   std::vector<State> state_stack_;
+  std::vector<bool> clip_stack_;
 };
 
 class GLCanvas : public Canvas {

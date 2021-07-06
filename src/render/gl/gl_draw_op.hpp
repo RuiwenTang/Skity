@@ -23,7 +23,7 @@ class GLDrawOp {
         shader_(shader) {}
   virtual ~GLDrawOp() = default;
 
-  void Draw(glm::mat4 const& mvp);
+  void Draw(glm::mat4 const& mvp, bool has_clip = false);
 
   void Init();
 
@@ -34,9 +34,9 @@ class GLDrawOp {
   inline uint32_t back_count() const { return back_count_; }
   inline GLShader* shader() { return shader_; }
 
-  virtual void OnBeforeDraw();
-  virtual void OnAfterDraw();
-  virtual void OnDraw() = 0;
+  virtual void OnBeforeDraw(bool has_clip);
+  virtual void OnAfterDraw(bool has_clip);
+  virtual void OnDraw(bool has_clip) = 0;
   virtual void OnInit() = 0;
 
  private:

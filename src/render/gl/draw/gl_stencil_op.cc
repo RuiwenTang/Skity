@@ -21,8 +21,8 @@ GLStencilDrawOp::GLStencilDrawOp(uint32_t front_start, uint32_t front_count,
   UpdateStencilValues();
 }
 
-void GLStencilDrawOp::OnBeforeDraw() {
-  GLDrawMeshOp::OnBeforeDraw();
+void GLStencilDrawOp::OnBeforeDraw(bool has_clip) {
+  GLDrawMeshOp::OnBeforeDraw(has_clip);
   glColorMask(0, 0, 0, 0);
   glEnable(GL_STENCIL_TEST);
   glStencilMask(stencil_mask_);
@@ -33,8 +33,8 @@ void GLStencilDrawOp::OnBeforeDraw() {
   }
 }
 
-void GLStencilDrawOp::OnAfterDraw() {
-  GLDrawMeshOp::OnAfterDraw();
+void GLStencilDrawOp::OnAfterDraw(bool has_clip) {
+  GLDrawMeshOp::OnAfterDraw(has_clip);
   glColorMask(1, 1, 1, 1);
 }
 

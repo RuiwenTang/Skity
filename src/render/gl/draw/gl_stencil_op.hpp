@@ -25,8 +25,8 @@ class GLStencilDrawOp : public GLDrawMeshOp {
   void SetStrokeWidth(float width) { stroke_width_ = width; }
 
  protected:
-  void OnBeforeDraw() override;
-  void OnAfterDraw() override;
+  void OnBeforeDraw(bool has_clip) override;
+  void OnAfterDraw(bool has_clip) override;
   void OnBeforeDrawFront() override;
   void OnBeforeDrawBack() override;
   void UpdateStrokeWidth(float width);

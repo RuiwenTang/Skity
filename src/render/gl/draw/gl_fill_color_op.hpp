@@ -17,8 +17,8 @@ class GLFillColorOp : public GLDrawMeshOp {
   void SetColor(float r, float g, float b, float a);
 
  protected:
-  void OnBeforeDraw() override;
-  void OnAfterDraw() override;
+  void OnBeforeDraw(bool has_clip) override;
+  void OnAfterDraw(bool has_clip) override;
 
  private:
   ColorShader* shader_;

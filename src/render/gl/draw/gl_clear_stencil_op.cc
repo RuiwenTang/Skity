@@ -6,11 +6,11 @@ namespace skity {
 
 GLClearStencilOp::GLClearStencilOp() : GLDrawOp(0, 0, 0, 0, nullptr) {}
 
-void GLClearStencilOp::OnBeforeDraw() {}
+void GLClearStencilOp::OnBeforeDraw(bool has_clip) {}
 
-void GLClearStencilOp::OnAfterDraw() {}
+void GLClearStencilOp::OnAfterDraw(bool has_clip) {}
 
-void GLClearStencilOp::OnDraw() { glClear(GL_STENCIL_BUFFER_BIT); }
+void GLClearStencilOp::OnDraw(bool has_clip) { glClear(GL_STENCIL_BUFFER_BIT); }
 
 void GLClearStencilOp::OnInit() {}
 

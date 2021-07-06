@@ -15,9 +15,9 @@ class GLDrawMeshOp : public GLDrawOp {
                uint32_t back_count, GLShader* shader, GLMesh* mesh);
 
  protected:
-  void OnBeforeDraw() override;
-  void OnAfterDraw() override;
-  void OnDraw() override;
+  void OnBeforeDraw(bool has_clip) override;
+  void OnAfterDraw(bool has_clip) override;
+  void OnDraw(bool has_clip) override;
   void OnInit() override;
 
   virtual void OnBeforeDrawFront();

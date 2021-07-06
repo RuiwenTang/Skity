@@ -13,17 +13,17 @@ GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
     : GLDrawOp(front_start, front_count, back_start, back_count, shader),
       mesh_(mesh) {}
 
-void GLDrawMeshOp::OnBeforeDraw() {
-  GLDrawOp::OnBeforeDraw();
+void GLDrawMeshOp::OnBeforeDraw(bool has_clip) {
+  GLDrawOp::OnBeforeDraw(has_clip);
   mesh_->BindMesh();
 }
 
-void GLDrawMeshOp::OnAfterDraw() {
-  GLDrawOp::OnAfterDraw();
+void GLDrawMeshOp::OnAfterDraw(bool has_clip) {
+  GLDrawOp::OnAfterDraw(has_clip);
   mesh_->UnBindMesh();
 }
 
-void GLDrawMeshOp::OnDraw() {
+void GLDrawMeshOp::OnDraw(bool has_clip) {
   OnBeforeDrawFront();
   DrawFront();
   OnBeforeDrawBack();

@@ -20,8 +20,8 @@ void GLFillColorOp::SetColor(float r, float g, float b, float a) {
   a_ = a;
 }
 
-void GLFillColorOp::OnBeforeDraw() {
-  GLDrawMeshOp::OnBeforeDraw();
+void GLFillColorOp::OnBeforeDraw(bool has_clip) {
+  GLDrawMeshOp::OnBeforeDraw(has_clip);
   shader_->SetColor(r_, g_, b_, a_);
 
   glEnable(GL_STENCIL_TEST);
@@ -30,8 +30,8 @@ void GLFillColorOp::OnBeforeDraw() {
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
-void GLFillColorOp::OnAfterDraw() {
-  GLDrawMeshOp::OnAfterDraw();
+void GLFillColorOp::OnAfterDraw(bool has_clip) {
+  GLDrawMeshOp::OnAfterDraw(has_clip);
 
   glDisable(GL_STENCIL_TEST);
 }

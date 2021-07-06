@@ -8,24 +8,24 @@
 
 namespace skity {
 
-void GLDrawOp::Draw(glm::mat4 const& mvp) {
-  OnBeforeDraw();
+void GLDrawOp::Draw(glm::mat4 const& mvp, bool has_clip) {
+  OnBeforeDraw(has_clip);
 
   if (shader_) {
     shader_->SetMVPMatrix(mvp);
   }
 
-  OnDraw();
-  OnAfterDraw();
+  OnDraw(has_clip);
+  OnAfterDraw(has_clip);
 }
 
-void GLDrawOp::OnBeforeDraw() {
+void GLDrawOp::OnBeforeDraw(bool has_clip) {
   if (shader_) {
     shader_->Bind();
   }
 }
 
-void GLDrawOp::OnAfterDraw() {
+void GLDrawOp::OnAfterDraw(bool has_clip) {
   if (shader_) {
     shader_->UnBind();
   }

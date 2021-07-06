@@ -11,9 +11,9 @@ class GLClearStencilOp : public GLDrawOp {
   ~GLClearStencilOp() override = default;
 
  protected:
-  void OnBeforeDraw() override;
-  void OnAfterDraw() override;
-  void OnDraw() override;
+  void OnBeforeDraw(bool has_clip) override;
+  void OnAfterDraw(bool has_clip) override;
+  void OnDraw(bool has_clip) override;
   void OnInit() override;
 };
 
