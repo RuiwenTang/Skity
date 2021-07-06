@@ -29,7 +29,10 @@ class GLCanvasDemo : public test::TestApp {
     path.cubicTo(556, 64, 310, 192, 550, 250);
     path.close();
 
+    canvas_->save();
+    canvas_->translate(100, 100);
     canvas_->drawPath(path, paint);
+    canvas_->restore();
 
     skity::Path path2;
     path2.moveTo(199, 34);

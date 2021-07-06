@@ -125,7 +125,10 @@ class Canvas {
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
-
+  virtual void onTranslate(float dx, float dy) = 0;
+  virtual void onScale(float sx, float sy) = 0;
+  virtual void onRotate(float degree) = 0;
+  virtual void onRotate(float degree, float px, float py) = 0;
   virtual void onFlush() = 0;
 
  private:

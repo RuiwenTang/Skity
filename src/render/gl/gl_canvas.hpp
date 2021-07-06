@@ -25,7 +25,7 @@ class GLCanvasState final {
 
   void UpdateCurrentMatrix(Matrix const& mvp);
   void UpdateCurrentClipPathRange(GLMeshRange const& range);
-  Matrix const& CurrentMatrix();
+  Matrix CurrentMatrix();
 
   void DoClipPath(uint32_t stack_depth);
 
@@ -34,6 +34,7 @@ class GLCanvasState final {
   void PushStack();
 
   void PopStack(int32_t target_stack_depth);
+  void PopStack();
 
  private:
   std::vector<State> state_stack_;
@@ -54,6 +55,14 @@ class GLCanvas : public Canvas {
   void onSave() override;
 
   void onRestore() override;
+
+  void onTranslate(float dx, float dy) override;
+
+  void onScale(float sx, float sy) override;
+
+  void onRotate(float degree) override;
+
+  void onRotate(float degree, float px, float py) override;
 
  private:
   void Init();

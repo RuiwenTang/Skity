@@ -10,6 +10,104 @@
 
 namespace skity {
 
+class GLCanvasStateOp : public GLDrawOp {
+ public:
+  GLCanvasStateOp(GLCanvasState* state)
+      : GLDrawOp(0, 0, 0, 0, nullptr), state_(state) {}
+
+  ~GLCanvasStateOp() override = default;
+
+ protected:
+  void OnDraw() override {}
+
+  void OnInit() override {}
+
+ protected:
+  GLCanvasState* state_;
+};
+
+class GLCanvasSaveOp : public GLCanvasStateOp {
+ public:
+  GLCanvasSaveOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
+  ~GLCanvasSaveOp() override = default;
+
+ protected:
+  void OnDraw() override { state_->PushStack(); }
+};
+
+class GLCanvasRestoreOp : public GLCanvasStateOp {
+ public:
+  GLCanvasRestoreOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
+  ~GLCanvasRestoreOp() override = default;
+
+ protected:
+  void OnDraw() override { state_->PopStack(); }
+};
+
+class GLCanvasTranslateOp : public GLCanvasStateOp {
+ public:
+  GLCanvasTranslateOp(GLCanvasState* state, float dx, float dy)
+      : GLCanvasStateOp(state), dx_(dx), dy_(dy) {}
+
+  ~GLCanvasTranslateOp() override = default;
+
+ protected:
+  void OnDraw() override {
+    auto current_matrix = state_->CurrentMatrix();
+    auto translate_matrix =
+        glm::translate(glm::identity<glm::mat4>(), {dx_, dy_, 0.f});
+
+    auto final_matrix = translate_matrix * current_matrix;
+    state_->UpdateCurrentMatrix(final_matrix);
+  }
+
+ private:
+  float dx_;
+  float dy_;
+};
+
+class GLCanvasScaleOp : public GLCanvasStateOp {
+ public:
+  GLCanvasScaleOp(GLCanvasState* state, float sx, float sy)
+      : GLCanvasStateOp(state), sx_(sx), sy_(sy) {}
+
+  ~GLCanvasScaleOp() override = default;
+
+ protected:
+  void OnDraw() override {
+    auto current_matrix = state_->CurrentMatrix();
+    auto scale_matrix = glm::scale(glm::identity<glm::mat4>(), {sx_, sy_, 1.f});
+
+    auto final_matrix = scale_matrix * current_matrix;
+    state_->UpdateCurrentMatrix(final_matrix);
+  }
+
+ private:
+  float sx_;
+  float sy_;
+};
+
+class GLCanvasRotateOp : public GLCanvasStateOp {
+ public:
+  GLCanvasRotateOp(GLCanvasState* state, float degree)
+      : GLCanvasStateOp(state), degree_(degree) {}
+
+  ~GLCanvasRotateOp() override = default;
+
+ protected:
+  void OnDraw() override {
+    auto current_matrix = state_->CurrentMatrix();
+    auto rotate_matrix = glm::rotate(glm::identity<glm::mat4>(),
+                                     glm::radians(degree_), {0.f, 0.f, 1.f});
+
+    auto final_matrix = rotate_matrix * current_matrix;
+    state_->UpdateCurrentMatrix(final_matrix);
+  }
+
+ private:
+  float degree_;
+};
+
 std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
                                              uint32_t width, uint32_t height) {
   Matrix mvp = glm::ortho<float>(x, x + width, y + height, y);
@@ -35,7 +133,7 @@ void GLCanvasState::UpdateCurrentClipPathRange(GLMeshRange const& range) {
   state_stack_.back().has_clip = true;
 }
 
-Matrix const& GLCanvasState::CurrentMatrix() {
+Matrix GLCanvasState::CurrentMatrix() {
   assert(!state_stack_.empty());
   return state_stack_.back().matrix;
 }
@@ -53,6 +151,14 @@ void GLCanvasState::PushStack() {
 void GLCanvasState::PopStack(int32_t target_stack_depth) {
   state_stack_.erase(state_stack_.begin() + target_stack_depth,
                      state_stack_.end());
+}
+
+void GLCanvasState::PopStack() {
+  if (state_stack_.size() <= 1) {
+    return;
+  }
+
+  state_stack_.pop_back();
 }
 
 GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) {
@@ -173,8 +279,29 @@ void GLCanvas::onFlush() {
   gl_vertex_.Reset();
 }
 
-void GLCanvas::onSave() {}
+void GLCanvas::onSave() {
+  draw_ops_.emplace_back(std::make_unique<GLCanvasSaveOp>(state_.get()));
+}
 
-void GLCanvas::onRestore() {}
+void GLCanvas::onRestore() {
+  draw_ops_.emplace_back(std::make_unique<GLCanvasRestoreOp>(state_.get()));
+}
+
+void GLCanvas::onTranslate(float dx, float dy) {
+  draw_ops_.emplace_back(
+      std::make_unique<GLCanvasTranslateOp>(state_.get(), dx, dy));
+}
+
+void GLCanvas::onScale(float sx, float sy) {
+  draw_ops_.emplace_back(
+      std::make_unique<GLCanvasScaleOp>(state_.get(), sx, sy));
+}
+
+void GLCanvas::onRotate(float degree) {
+  draw_ops_.emplace_back(
+      std::make_unique<GLCanvasRotateOp>(state_.get(), degree));
+}
+
+void GLCanvas::onRotate(float degree, float px, float py) {}
 
 }  // namespace skity

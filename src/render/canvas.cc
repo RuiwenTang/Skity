@@ -19,13 +19,15 @@ int Canvas::getSaveCount() const { return save_count_; }
 
 void Canvas::restoreToCount(int saveCount) {}
 
-void Canvas::translate(float dx, float dy) {}
+void Canvas::translate(float dx, float dy) { onTranslate(dx, dy); }
 
-void Canvas::scale(float sx, float sy) {}
+void Canvas::scale(float sx, float sy) { onScale(sx, sy); }
 
-void Canvas::rotate(float degrees) {}
+void Canvas::rotate(float degrees) { onRotate(degrees); }
 
-void Canvas::rotate(float degrees, float px, float py) {}
+void Canvas::rotate(float degrees, float px, float py) {
+  onRotate(degrees, px, py);
+}
 
 void Canvas::skew(float sx, float sy) {}
 
