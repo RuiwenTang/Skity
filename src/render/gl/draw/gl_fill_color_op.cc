@@ -26,7 +26,11 @@ void GLFillColorOp::OnBeforeDraw(bool has_clip) {
 
   glEnable(GL_STENCIL_TEST);
   glColorMask(1, 1, 1, 1);
-  glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+  if (has_clip) {
+    glStencilFunc(GL_NOTEQUAL, 0x10, 0x1F);
+  } else {
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+  }
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 

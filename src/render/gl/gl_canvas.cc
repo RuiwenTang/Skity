@@ -26,6 +26,19 @@ class GLCanvasStateOp : public GLDrawOp {
   GLCanvasState* state_;
 };
 
+class GLCanvasClipOp : public GLCanvasStateOp {
+ public:
+  GLCanvasClipOp(GLCanvasState* state, int32_t stack_depth)
+      : GLCanvasStateOp(state), stack_depth_(stack_depth) {}
+  ~GLCanvasClipOp() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override { state_->DoClipPath(stack_depth_); }
+
+ private:
+  int32_t stack_depth_;
+};
+
 class GLCanvasSaveOp : public GLCanvasStateOp {
  public:
   GLCanvasSaveOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
@@ -41,7 +54,13 @@ class GLCanvasRestoreOp : public GLCanvasStateOp {
   ~GLCanvasRestoreOp() override = default;
 
  protected:
-  void OnDraw(bool has_clip) override { state_->PopStack(); }
+  void OnDraw(bool has_clip) override {
+    bool need_do_clip = state_->CurrentHasClipPath();
+    state_->PopStack();
+    if (need_do_clip) {
+      state_->DoClipPath(state_->CurrentStackDepth());
+    }
+  }
 };
 
 class GLCanvasTranslateOp : public GLCanvasStateOp {
@@ -132,6 +151,7 @@ void GLCanvasState::UpdateCurrentClipPathRange(GLMeshRange const& range) {
   assert(!state_stack_.empty());
   state_stack_.back().clip_path_range = range;
   state_stack_.back().has_clip = true;
+  clip_stack_.back() = true;
 }
 
 Matrix GLCanvasState::CurrentMatrix() {
@@ -168,6 +188,14 @@ void GLCanvasState::PopStack() {
 
 bool GLCanvasState::HasClip() { return clip_stack_.back(); }
 
+bool GLCanvasState::CurrentHasClipPath() {
+  return state_stack_.back().has_clip;
+}
+
+void GLCanvasState::DoClipPath(uint32_t stack_depth) {
+  // TODO implement
+}
+
 GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) {
   state_ = std::make_unique<GLCanvasState>();
   Init();
@@ -199,7 +227,14 @@ void GLCanvas::InitDrawOpBuilder() {
   draw_op_builder_.UpdateMesh(mesh_.get());
 }
 
-void GLCanvas::onClipPath(Path const& path, ClipOp op) {}
+void GLCanvas::onClipPath(Path const& path, ClipOp op) {
+  GLFill gl_fill{};
+  skity::Paint paint;
+  GLMeshRange clip_range = gl_fill.fillPath(path, paint, &gl_vertex_);
+
+  state_->UpdateCurrentClipPathRange(clip_range);
+  int32_t depth = state_->CurrentStackDepth();
+}
 
 void GLCanvas::UpdateDrawOpBuilder(GLMeshRange const& range) {
   draw_op_builder_.UpdateFrontStart(range.front_start);

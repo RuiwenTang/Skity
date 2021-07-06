@@ -57,6 +57,14 @@ class GLCanvasDemo : public test::TestApp {
 
     canvas_->drawPath(path2, paint2);
 
+    skity::Path path3;
+    path3.addCircle(200, 200, 150);
+
+    canvas_->save();
+    // canvas_->clipPath(path2);
+    canvas_->drawPath(path3, paint);
+    canvas_->restore();
+
     canvas_->flush();
   }
 

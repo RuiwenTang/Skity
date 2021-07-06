@@ -38,6 +38,8 @@ class GLCanvasState final {
 
   bool HasClip();
 
+  bool CurrentHasClipPath();
+
  private:
   std::vector<State> state_stack_;
   std::vector<bool> clip_stack_;
