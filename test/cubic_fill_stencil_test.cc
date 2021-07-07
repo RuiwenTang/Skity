@@ -53,7 +53,7 @@ class CubicFill : public test::TestApp {
     glClear(GL_STENCIL_BUFFER_BIT);
 
     glColorMask(1, 1, 1, 1);
-    glStencilFunc(GL_EQUAL, 0x10, 0x1F);
+    glStencilFunc(GL_GREATER, 0x10, 0x1F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     glStencilMask(0xFF);

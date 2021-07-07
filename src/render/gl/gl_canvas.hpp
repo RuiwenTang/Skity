@@ -20,7 +20,8 @@ class GLCanvasState final {
   };
 
  public:
-  GLCanvasState();
+  GLCanvasState(Matrix mvp, GLMesh* mesh, StencilShader* shader,
+                ColorShader* color_shader);
   ~GLCanvasState() = default;
 
   void UpdateCurrentMatrix(Matrix const& mvp);
@@ -41,8 +42,16 @@ class GLCanvasState final {
   bool CurrentHasClipPath();
 
  private:
+  void DrawFront(GLMeshRange const& range);
+  void DrawBack(GLMeshRange const& range);
+
+ private:
   std::vector<State> state_stack_;
   std::vector<bool> clip_stack_;
+  Matrix mvp_;
+  GLMesh* mesh_;
+  StencilShader* shader_;
+  ColorShader* color_shader_;
 };
 
 class GLCanvas : public Canvas {

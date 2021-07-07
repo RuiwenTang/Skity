@@ -27,7 +27,8 @@ void GLFillColorOp::OnBeforeDraw(bool has_clip) {
   glEnable(GL_STENCIL_TEST);
   glColorMask(1, 1, 1, 1);
   if (has_clip) {
-    glStencilFunc(GL_NOTEQUAL, 0x10, 0x1F);
+    glStencilMask(0x1F);
+    glStencilFunc(GL_LESS, 0x10, 0x1F);
   } else {
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
   }
@@ -38,6 +39,7 @@ void GLFillColorOp::OnAfterDraw(bool has_clip) {
   GLDrawMeshOp::OnAfterDraw(has_clip);
 
   glDisable(GL_STENCIL_TEST);
+  glColorMask(0, 0, 0, 0);
 }
 
 }  // namespace skity
