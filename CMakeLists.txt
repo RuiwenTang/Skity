@@ -82,7 +82,7 @@ set(Skity_src
         src/render/gl/gl_vertex.hpp
         )
 
-add_library(skity ${Skity_header} ${Skity_src})
+add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
