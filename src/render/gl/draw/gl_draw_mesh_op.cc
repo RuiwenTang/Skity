@@ -11,7 +11,8 @@ GLDrawMeshOp::GLDrawMeshOp(uint32_t front_start, uint32_t front_count,
                            uint32_t back_start, uint32_t back_count,
                            GLShader* shader, GLMesh* mesh)
     : GLDrawOp(front_start, front_count, back_start, back_count, shader),
-      mesh_(mesh) {}
+      mesh_(mesh),
+      draw_mode_(GL_TRIANGLES) {}
 
 void GLDrawMeshOp::OnBeforeDraw(bool has_clip) {
   GLDrawOp::OnBeforeDraw(has_clip);
@@ -46,7 +47,7 @@ void GLDrawMeshOp::DrawFront() {
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                         (void*)(2 * sizeof(float)));
 
-  glDrawElements(GL_TRIANGLES, front_count(), GL_UNSIGNED_INT,
+  glDrawElements(draw_mode_, front_count(), GL_UNSIGNED_INT,
                  (void*)(front_start() * sizeof(GLuint)));
 }
 
@@ -60,7 +61,7 @@ void GLDrawMeshOp::DrawBack() {
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                         (void*)(2 * sizeof(float)));
 
-  glDrawElements(GL_TRIANGLES, back_count(), GL_UNSIGNED_INT,
+  glDrawElements(draw_mode_, back_count(), GL_UNSIGNED_INT,
                  (void*)(back_start() * sizeof(GLuint)));
 }
 
