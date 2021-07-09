@@ -2,6 +2,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "src/render/gl/draw/gl_clear_stencil_op.hpp"
+#include "src/render/gl/draw/gl_draw_debug_line_op.hpp"
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
 #include "src/render/gl/draw/gl_stencil_op.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -56,7 +57,7 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateStencilOp(float stroke_width,
   auto op = std::make_unique<GLStencilDrawOp>(
       front_start, front_count, back_start, back_count, stencil_shader, gl_mesh,
       positive);
-
+  op->Init();
   op->SetStrokeWidth(stroke_width);
 
   return op;
@@ -66,14 +67,25 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateColorOp(float r, float g,
                                                          float b, float a) {
   auto op = std::make_unique<GLFillColorOp>(
       front_start, front_count, back_start, back_count, color_shader, gl_mesh);
-
+  op->Init();
   op->SetColor(r, g, b, a);
 
   return op;
 }
 
 std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateClearStencilOp() {
-  return std::make_unique<GLClearStencilOp>();
+  auto op = std::make_unique<GLClearStencilOp>();
+  op->Init();
+  return op;
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateDebugLineOp() {
+  auto op = std::make_unique<GLDrawDebugLineOp>(
+      front_start, front_count, back_start, back_count, color_shader, gl_mesh);
+
+  op->Init();
+
+  return op;
 }
 
 }  // namespace skity

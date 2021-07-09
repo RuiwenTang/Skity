@@ -18,4 +18,17 @@ void GLDrawDebugLineOp::OnInit() {
   UpdateDrawMode(GL_LINE_LOOP);
 }
 
+void GLDrawDebugLineOp::OnBeforeDraw(bool has_clip) {
+  GLDrawMeshOp::OnBeforeDraw(has_clip);
+  shader_->SetColor(1.f, 0.5f, .8f, .5f);
+  glColorMask(1, 1, 1, 1);
+  glDisable(GL_STENCIL_TEST);
+}
+
+void GLDrawDebugLineOp::OnAfterDraw(bool has_clip) {
+  GLDrawMeshOp::OnAfterDraw(has_clip);
+  glColorMask(0, 0, 0, 0);
+  glEnable(GL_STENCIL_TEST);
+}
+
 }  // namespace skity

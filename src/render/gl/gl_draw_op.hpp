@@ -70,6 +70,8 @@ class GLDrawOpBuilder final {
 
   std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
+  std::unique_ptr<GLDrawOp> CreateDebugLineOp();
+
  private:
   StencilShader* stencil_shader = nullptr;
   ColorShader* color_shader = nullptr;

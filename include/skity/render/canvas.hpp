@@ -117,6 +117,8 @@ class Canvas {
 
   void flush();
 
+  inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
+
   static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
                                               uint32_t width, uint32_t height);
 
@@ -131,12 +133,15 @@ class Canvas {
   virtual void onRotate(float degree, float px, float py) = 0;
   virtual void onFlush() = 0;
 
+  inline bool isDrawDebugLine() const { return draw_debug_line_; }
+
  private:
   void internalSave();
   void internalRestore();
 
  private:
   uint32_t save_count_ = 0;
+  bool draw_debug_line_ = false;
 };
 
 }  // namespace skity

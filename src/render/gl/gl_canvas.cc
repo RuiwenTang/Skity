@@ -351,6 +351,10 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     // clear current stencil value
     draw_ops_.emplace_back(
         std::move(draw_op_builder_.CreateStencilOp(0, false)));
+
+    if (isDrawDebugLine()) {
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
+    }
   }
 
   if (need_stroke) {
@@ -369,6 +373,10 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     // clear stencil value
     draw_ops_.emplace_back(std::move(
         draw_op_builder_.CreateStencilOp(paint.getStrokeWidth(), false)));
+
+    if (isDrawDebugLine()) {
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
+    }
   }
 }
 
