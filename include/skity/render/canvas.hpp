@@ -6,6 +6,7 @@
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
+#include <skity_config.hpp>
 
 namespace skity {
 
@@ -116,6 +117,9 @@ class Canvas {
   void drawPath(Path const& path, Paint const& paint);
 
   void flush();
+
+  // just draw text not a usable interface
+  void drawSimpleText(const char* text, float x, float y, Paint const& paint);
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 

@@ -36,8 +36,8 @@ include_directories(include)
 add_library(glad OBJECT third_party/glad/src/glad.c)
 
 # freetype
+include(FindFreetype)
 
-find_package(Freetype)
 
 set(Skity_header
         include/skity/geometry/point.hpp
@@ -84,7 +84,30 @@ set(Skity_src
         src/render/gl/gl_vertex.hpp
         )
 
+set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Avenir.ttf")
+
+if (${FREETYPE_FOUND})
+    message("Find freetype with version ${FREETYPE_VERSION_STRING}")
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+
+    set(Skity_src ${Skity_src}
+        src/render/text/ft_library_wrap.cc
+        src/render/text/ft_library_wrap.hpp
+    )
+
+    set(ENABLE_TEXT_RENDER ON CACHE BOOL "")
+endif()
+
+#config file
+configure_file(skity_config.h.in skity_config.hpp @ONLY)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
+
+if (${FREETYPE_FOUND})
+    target_link_libraries(skity ${FREETYPE_LIBRARIES})
+endif()
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

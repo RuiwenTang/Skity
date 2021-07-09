@@ -56,6 +56,17 @@ void Canvas::drawPath(const Path &path, const Paint &paint) {
 
 void Canvas::flush() { this->onFlush(); }
 
+void Canvas::drawSimpleText(const char *text, float x, float y,
+                            Paint const &paint) {
+#ifdef ENABLE_TEXT_RENDER
+  this->save();
+
+  this->translate(x, y);
+
+  this->restore();
+#endif
+}
+
 void Canvas::internalSave() { this->onSave(); }
 
 void Canvas::internalRestore() { this->onRestore(); }
