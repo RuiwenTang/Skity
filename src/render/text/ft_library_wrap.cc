@@ -10,14 +10,14 @@ namespace skity {
 
 static int HandleMoveTo(const FT_Vector* to, void* user) {
   Path* path = static_cast<Path*>(user);
-  path->moveTo(to->x, to->y);
+  path->moveTo(to->x / 64.f, to->y / 64.f);
 
   return 0;
 }
 
 static int HandleLineTo(const FT_Vector* to, void* user) {
   Path* path = static_cast<Path*>(user);
-  path->lineTo(to->x, to->y);
+  path->lineTo(to->x / 64.f, to->y / 64.f);
 
   return 0;
 }
@@ -25,15 +25,16 @@ static int HandleLineTo(const FT_Vector* to, void* user) {
 static int HandleConicTo(const FT_Vector* control, const FT_Vector* to,
                          void* user) {
   Path* path = static_cast<Path*>(user);
-  path->quadTo(control->x, control->y, to->x, to->y);
+  path->quadTo(control->x / 64.f, control->y / 64.f, to->x / 64.f,
+               to->y / 64.f);
   return 0;
 }
 
 static int HandleCubicTo(const FT_Vector* control1, const FT_Vector* control2,
                          const FT_Vector* to, void* user) {
   Path* path = static_cast<Path*>(user);
-  path->cubicTo(control1->x, control1->y, control2->x, control2->y, to->x,
-                to->y);
+  path->cubicTo(control1->x / 64.f, control1->y / 64.f, control2->x / 64.f,
+                control2->y / 64.f, to->x / 64.f, to->y / 64.f);
   return 0;
 }
 
@@ -63,8 +64,8 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const char* file_path) {
 
 FTTypeFace::~FTTypeFace() { FT_Done_Face(ft_face_); }
 
-std::vector<Path> FTTypeFace::LoadGlyph(const char* text) {
-  std::vector<Path> paths;
+std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text) {
+  std::vector<FTGlyphInfo> infos;
 
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> utf32_conv;
 
@@ -82,14 +83,14 @@ std::vector<Path> FTTypeFace::LoadGlyph(const char* text) {
     }
 
     FilpOutline();
+
+    float advance_x = ft_face_->glyph->advance.x >> 4;
     Path glyph_path = ExtractOutLine();
 
-    // glyph_path.dump();
-
-    paths.emplace_back(glyph_path);
+    infos.emplace_back(FTGlyphInfo{glyph_path, advance_x});
   }
 
-  return paths;
+  return infos;
 }
 
 void FTTypeFace::FilpOutline() {
@@ -113,7 +114,7 @@ Path FTTypeFace::ExtractOutLine() {
   callback.conic_to = HandleConicTo;
   callback.cubic_to = HandleCubicTo;
 
-  callback.shift = 0;
+  callback.shift = 2;
   callback.delta = 0;
 
   FT_Error error =

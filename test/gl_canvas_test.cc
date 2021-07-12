@@ -67,6 +67,12 @@ class GLCanvasDemo : public test::TestApp {
     canvas_->drawPath(path3, paint);
     canvas_->restore();
 
+    canvas_->drawDebugLine(true);
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.SetFillColor(1.f, 0.f, 0.f, 1.f);
+    canvas_->drawSimpleText("Hello World", 100, 450, paint);
+    canvas_->drawDebugLine(false);
+
     canvas_->flush();
   }
 

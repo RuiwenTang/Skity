@@ -12,6 +12,12 @@ namespace skity {
 
 class FTTypeFace;
 
+struct FTGlyphInfo {
+  Path path;
+  float advance_x;
+  float width;
+};
+
 class FTLibrary final {
   friend class FTTypeFace;
 
@@ -31,7 +37,7 @@ class FTTypeFace final {
       : ft_library_wrap_(ft_library), ft_face_(ft_face) {}
   ~FTTypeFace();
 
-  std::vector<Path> LoadGlyph(const char* text);
+  std::vector<FTGlyphInfo> LoadGlyph(const char* text);
 
  private:
   void FilpOutline();

@@ -2,6 +2,12 @@
 
 namespace skity {
 
+Canvas::Canvas() {
+#ifdef ENABLE_TEXT_RENDER
+  ft_typeface_ = ft_library_.LoadTypeface(BUILD_IN_FONT_FILE);
+#endif
+}
+
 int Canvas::save() {
   save_count_ += 1;
   this->internalSave();
@@ -62,6 +68,17 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
   this->save();
 
   this->translate(x, y);
+
+  auto glyphs = ft_typeface_->LoadGlyph(text);
+  uint32_t index = 0;
+  for (; index < glyphs.size(); index++) {
+    auto const &info = glyphs[index];
+    if (index > 0) {
+      this->translate(glyphs[index - 1].advance_x, 0);
+    }
+
+    this->drawPath(info.path, paint);
+  }
 
   this->restore();
 #endif
