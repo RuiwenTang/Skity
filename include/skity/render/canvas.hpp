@@ -128,7 +128,8 @@ class Canvas {
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 
   static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
-                                              uint32_t width, uint32_t height);
+                                              uint32_t width, uint32_t height,
+                                              void* procss_loader);
 
  protected:
   virtual void onClipPath(Path const& path, ClipOp op) = 0;

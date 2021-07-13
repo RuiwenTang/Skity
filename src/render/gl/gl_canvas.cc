@@ -133,7 +133,13 @@ class GLCanvasRotateOp : public GLCanvasStateOp {
 };
 
 std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
-                                             uint32_t width, uint32_t height) {
+                                             uint32_t width, uint32_t height,
+                                             void* procss_loader) {
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(procss_loader))) {
+    // gl context init failed
+    return nullptr;
+  }
+
   Matrix mvp = glm::ortho<float>(x, x + width, y + height, y);
 
   return std::make_unique<GLCanvas>(mvp);

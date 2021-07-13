@@ -4,6 +4,8 @@
 
 #include "common/test_common.hpp"
 #include "src/geometry/geometry.hpp"
+// Fixme
+#include <GLFW/glfw3.h>
 
 struct Mesh {
   GLuint vao = 0;
@@ -17,6 +19,10 @@ class PaperTest : public test::TestApp {
 
  protected:
   void OnInit() override {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+      // gl context init failed
+      exit(-3);
+    }
     // init matrix
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
     // init gl context

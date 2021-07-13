@@ -9,6 +9,8 @@
 #include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+// Fixme
+#include <GLFW/glfw3.h>
 
 class GLPathMeshDemo : public test::TestApp {
  public:
@@ -17,6 +19,10 @@ class GLPathMeshDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+      // gl context init failed
+      exit(-3);
+    }
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100) *
            glm::scale(glm::identity<glm::mat4>(), glm::vec3{3.f, 3.f, 1.f}) *
            glm::translate(glm::identity<glm::mat4>(), glm::vec3(50, 150, 0));

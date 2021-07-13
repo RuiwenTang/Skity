@@ -10,7 +10,8 @@ class GLCanvasDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
-    canvas_ = skity::Canvas::MakeGLCanvas(0, 0, 800, 600);
+    canvas_ =
+        skity::Canvas::MakeGLCanvas(0, 0, 800, 600, (void*)glfwGetProcAddress);
     // FIXME: when implement Canvas::clearColor(); remove this code
     glClearColor(0.3, 0.4, 0.5, 1.0);
     glClearStencil(0x00);
