@@ -5,9 +5,6 @@
 #include <vector>
 
 #include "common/test_common.hpp"
-// Fixme
-#include <GLFW/glfw3.h>
-
 #include "src/geometry/geometry.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 
@@ -18,10 +15,6 @@ class CubicFill : public test::TestApp {
 
  protected:
   void OnInit() override {
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-      // gl context init failed
-      exit(-3);
-    }
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
     InitGL();
   }

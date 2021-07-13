@@ -1,40 +1,40 @@
 #include "src/render/gl/gl_mesh.hpp"
 
-// TODO use KHR header files
-#include <glad/glad.h>
-
 #include <cassert>
+
+#include "src/render/gl/gl_interface.hpp"
 
 namespace skity {
 
 GLMesh::~GLMesh() {
   if (buffers_[0] != 0) {
-    glDeleteBuffers(3, buffers_.data());
+    GL_CALL(DeleteBuffers, 3, buffers_.data());
   }
   if (vao_ != 0) {
-    glDeleteVertexArrays(1, &vao_);
+    GL_CALL(DeleteVertexArrays, 1, &vao_);
   }
 }
 
 void GLMesh::UploadVertexBuffer(void* data, uint32_t length) {
   assert(buffers_[0] != 0);
-  glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
-  glBufferData(GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
+  GL_CALL(BufferData, GL_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, 0);
 }
 
 void GLMesh::UploadFrontIndex(void* data, uint32_t length) {
   assert(buffers_[1] != 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
+  GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   assert(buffers_[2] != 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
+  GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void GLMesh::Init() {
@@ -43,26 +43,26 @@ void GLMesh::Init() {
   assert(buffers_[1] == 0);
   assert(buffers_[2] == 0);
 
-  glGenVertexArrays(1, &vao_);
-  glGenBuffers(3, buffers_.data());
+  GL_CALL(GenVertexArrays, 1, &vao_);
+  GL_CALL(GenBuffers, 3, buffers_.data());
 }
 
 void GLMesh::BindMesh() {
-  glBindVertexArray(vao_);
-  glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
+  GL_CALL(BindVertexArray, vao_);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
 }
 
 void GLMesh::BindFrontIndex() {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
 }
 
 void GLMesh::BindBackIndex() {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
 }
 
 void GLMesh::UnBindMesh() {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, 0);
+  GL_CALL(BindVertexArray, 0);
 }
 }  // namespace skity

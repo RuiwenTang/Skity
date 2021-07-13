@@ -1,6 +1,6 @@
 #include "src/render/gl/draw/gl_clear_stencil_op.hpp"
 
-#include <glad/glad.h>
+#include "src/render/gl/gl_interface.hpp"
 
 namespace skity {
 
@@ -10,7 +10,9 @@ void GLClearStencilOp::OnBeforeDraw(bool has_clip) {}
 
 void GLClearStencilOp::OnAfterDraw(bool has_clip) {}
 
-void GLClearStencilOp::OnDraw(bool has_clip) { glClear(GL_STENCIL_BUFFER_BIT); }
+void GLClearStencilOp::OnDraw(bool has_clip) {
+  GL_CALL(Clear, GL_STENCIL_BUFFER_BIT);
+}
 
 void GLClearStencilOp::OnInit() {}
 

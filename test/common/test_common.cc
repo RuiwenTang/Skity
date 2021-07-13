@@ -30,10 +30,9 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height) {
 
   glfwMakeContextCurrent(window);
 
-  // if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-  // {
-  //   exit(-3);
-  // }
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    exit(-3);
+  }
 
   return window;
 }

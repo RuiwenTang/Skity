@@ -1,23 +1,23 @@
 #include "src/render/gl/gl_shader.hpp"
 
 #include <iostream>
+#include <shader.hpp>
 #include <string>
 
-#include "glad/glad.h"
-#include "shader.hpp"
+#include "src/render/gl/gl_interface.hpp"
 
 namespace skity {
 
 GLuint create_shader(const char* source, GLenum type) {
-  GLuint shader = glCreateShader(type);
+  GLuint shader = GL_CALL(CreateShader, type);
 
   GLint success;
-  glShaderSource(shader, 1, &source, nullptr);
-  glCompileShader(shader);
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  GL_CALL(ShaderSource, shader, 1, &source, nullptr);
+  GL_CALL(CompileShader, shader);
+  GL_CALL(GetShaderiv, shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     GLchar info_log[1024];
-    glGetShaderInfoLog(shader, 1204, nullptr, info_log);
+    GL_CALL(GetShaderInfoLog, shader, 1204, nullptr, info_log);
     std::cerr << "shader compile error = " << info_log;
     exit(-4);
   }
@@ -26,20 +26,20 @@ GLuint create_shader(const char* source, GLenum type) {
 }
 
 GLuint create_shader_program(const char* vs_code, const char* fs_code) {
-  GLuint program = glCreateProgram();
+  GLuint program = GL_CALL(CreateProgram);
   GLint success;
 
   GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
   GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
 
-  glAttachShader(program, vs);
-  glAttachShader(program, fs);
-  glLinkProgram(program);
-  glGetProgramiv(program, GL_LINK_STATUS, &success);
+  GL_CALL(AttachShader, program, vs);
+  GL_CALL(AttachShader, program, fs);
+  GL_CALL(LinkProgram, program);
+  GL_CALL(GetProgramiv, program, GL_LINK_STATUS, &success);
 
   if (!success) {
     GLchar info_log[1024];
-    glGetProgramInfoLog(program, 1024, nullptr, info_log);
+    GL_CALL(GetProgramInfoLog, program, 1024, nullptr, info_log);
     std::cerr << "program link error " << info_log << std::endl;
     exit(-5);
   }
@@ -49,60 +49,61 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
 
 GLShader::~GLShader() {
   if (program_) {
-    glDeleteProgram(program_);
+    GL_CALL(DeleteProgram, program_);
   }
 }
 
 int32_t GLShader::GetUniformLocation(const char* name) {
-  return glGetUniformLocation(program_, name);
+  return GL_CALL(GetUniformLocation, program_, name);
 }
 
 void GLShader::SetUniform(int32_t location, glm::vec4 const& value) {
-  glUniform4f(location, value[0], value[1], value[2], value[3]);
+  GL_CALL(Uniform4f, location, value[0], value[1], value[2], value[3]);
 }
 
 void GLShader::SetUniform(int32_t location, glm::vec3 const& value) {
-  glUniform3f(location, value[0], value[1], value[2]);
+  GL_CALL(Uniform3f, location, value[0], value[1], value[2]);
 }
 
 void GLShader::SetUniform(int32_t location, glm::vec2 const& value) {
-  glUniform2f(location, value[0], value[1]);
+  GL_CALL(Uniform2f, location, value[0], value[1]);
 }
 
 void GLShader::SetUniform(int32_t location, glm::mat4 const& value) {
-  glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+  GL_CALL(UniformMatrix4fv, location, 1, GL_FALSE, &value[0][0]);
 }
 
 void GLShader::SetUniform(int32_t location, float value) {
-  glUniform1f(location, value);
+  GL_CALL(Uniform1f, location, value);
 }
 
-void GLShader::Bind() { glUseProgram(program_); }
+void GLShader::Bind() { GL_CALL(UseProgram, program_); }
 
-void GLShader::UnBind() { glUseProgram(0); }
+void GLShader::UnBind() { GL_CALL(UseProgram, 0); }
 
 void GLShader::SetMVPMatrix(Matrix const& matrix) {
   SetUniform(mvp_location_, matrix);
 }
 
 void GLShader::InitLocations() {
-  mvp_location_ = glGetUniformLocation(program_, "mvp");
+  mvp_location_ = GL_CALL(GetUniformLocation, program_, "mvp");
 }
 
 // StencilShader
 
 void StencilShader::InitLocations() {
   GLShader::InitLocations();
-  stroke_width_location_ = glGetUniformLocation(program_, "stroke_radius");
+  stroke_width_location_ =
+      GL_CALL(GetUniformLocation, program_, "stroke_radius");
 }
 
 void StencilShader::SetStrokeRadius(float width) {
-  glUniform1f(stroke_width_location_, width);
+  GL_CALL(Uniform1f, stroke_width_location_, width);
 }
 
 void ColorShader::InitLocations() {
   GLShader::InitLocations();
-  color_location_ = glGetUniformLocation(program_, "user_color");
+  color_location_ = GL_CALL(GetUniformLocation, program_, "user_color");
 }
 
 void ColorShader::SetColor(float r, float g, float b, float a) {

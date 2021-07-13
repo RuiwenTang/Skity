@@ -1,7 +1,6 @@
 #include "src/render/gl/draw/gl_draw_debug_line_op.hpp"
 
-#include <glad/glad.h>
-
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
@@ -21,14 +20,14 @@ void GLDrawDebugLineOp::OnInit() {
 void GLDrawDebugLineOp::OnBeforeDraw(bool has_clip) {
   GLDrawMeshOp::OnBeforeDraw(has_clip);
   shader_->SetColor(1.f, 0.5f, .8f, .5f);
-  glColorMask(1, 1, 1, 1);
-  glDisable(GL_STENCIL_TEST);
+  GL_CALL(ColorMask, 1, 1, 1, 1);
+  GL_CALL(Disable, GL_STENCIL_TEST);
 }
 
 void GLDrawDebugLineOp::OnAfterDraw(bool has_clip) {
   GLDrawMeshOp::OnAfterDraw(has_clip);
-  glColorMask(0, 0, 0, 0);
-  glEnable(GL_STENCIL_TEST);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
+  GL_CALL(Enable, GL_STENCIL_TEST);
 }
 
 }  // namespace skity

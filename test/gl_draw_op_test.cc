@@ -13,8 +13,6 @@
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
-// Fixme
-#include <GLFW/glfw3.h>
 
 class GLDrawOpDemo : public test::TestApp {
  public:
@@ -23,10 +21,6 @@ class GLDrawOpDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-      // gl context init failed
-      exit(-3);
-    }
     InitGL();
     InitPath();
   }

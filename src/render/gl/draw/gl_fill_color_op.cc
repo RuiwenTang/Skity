@@ -1,7 +1,6 @@
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
 
-#include <glad/glad.h>
-
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
@@ -24,22 +23,22 @@ void GLFillColorOp::OnBeforeDraw(bool has_clip) {
   GLDrawMeshOp::OnBeforeDraw(has_clip);
   shader_->SetColor(r_, g_, b_, a_);
 
-  glEnable(GL_STENCIL_TEST);
-  glColorMask(1, 1, 1, 1);
+  GL_CALL(Enable, GL_STENCIL_TEST);
+  GL_CALL(ColorMask, 1, 1, 1, 1);
   if (has_clip) {
-    glStencilMask(0x1F);
-    glStencilFunc(GL_LESS, 0x10, 0x1F);
+    GL_CALL(StencilMask, 0x1F);
+    GL_CALL(StencilFunc, GL_LESS, 0x10, 0x1F);
   } else {
-    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x00, 0x0F);
   }
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
 void GLFillColorOp::OnAfterDraw(bool has_clip) {
   GLDrawMeshOp::OnAfterDraw(has_clip);
 
-  glDisable(GL_STENCIL_TEST);
-  glColorMask(0, 0, 0, 0);
+  GL_CALL(Disable, GL_STENCIL_TEST);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
 }
 
 }  // namespace skity

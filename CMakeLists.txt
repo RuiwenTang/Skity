@@ -28,12 +28,13 @@ endfunction()
 create_resources(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}/shader.hpp)
 
 #include
-include_directories(third_party/glad/include)
+
 include_directories(third_party/glm)
+include_directories(third_party/OpenGL)
 
 include_directories(include)
 
-add_library(glad OBJECT third_party/glad/src/glad.c)
+
 
 # freetype
 include(FindFreetype)
@@ -74,6 +75,8 @@ set(Skity_src
         src/render/gl/gl_draw_op.hpp
         src/render/gl/gl_fill.cc
         src/render/gl/gl_fill.hpp
+        src/render/gl/gl_interface.cc
+        src/render/gl/gl_interface.hpp
         src/render/gl/gl_mesh.cc
         src/render/gl/gl_mesh.hpp
         src/render/gl/gl_shader.cc
@@ -103,7 +106,7 @@ configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(skity ${Skity_header} ${Skity_src} $<TARGET_OBJECTS:glad>)
+add_library(skity ${Skity_header} ${Skity_src} )
 
 if (${FREETYPE_FOUND})
     target_link_libraries(skity ${FREETYPE_LIBRARIES})

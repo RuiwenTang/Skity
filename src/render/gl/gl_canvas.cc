@@ -1,12 +1,11 @@
 #include "src/render/gl/gl_canvas.hpp"
 
-#include <glad/glad.h>
-
 #include <cassert>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 #include "src/render/gl/gl_fill.hpp"
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 
 namespace skity {
@@ -135,11 +134,7 @@ class GLCanvasRotateOp : public GLCanvasStateOp {
 std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
                                              uint32_t width, uint32_t height,
                                              void* procss_loader) {
-  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(procss_loader))) {
-    // gl context init failed
-    return nullptr;
-  }
-
+  GLInterface::InitGlobalInterface(procss_loader);
   Matrix mvp = glm::ortho<float>(x, x + width, y + height, y);
 
   return std::make_unique<GLCanvas>(mvp);
@@ -181,37 +176,37 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   }
 
   if (clip_index < 0) {
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glStencilMask(0x0F);
+    GL_CALL(StencilMask, 0xFF);
+    GL_CALL(Clear, GL_STENCIL_BUFFER_BIT);
+    GL_CALL(StencilMask, 0x0F);
     return;
   }
   // FIXME: make sure no color is output
-  glColorMask(0, 0, 0, 0);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
   State const& state = state_stack_[clip_index];
   Matrix final_matrix = mvp_ * state.matrix;
   shader_->Bind();
   shader_->SetMVPMatrix(final_matrix);
   // clear all stencil buffer
-  glStencilMask(0xFF);
-  glClear(GL_STENCIL_BUFFER_BIT);
+  GL_CALL(StencilMask, 0xFF);
+  GL_CALL(Clear, GL_STENCIL_BUFFER_BIT);
   // step 2 stencil path as fill path do
-  glStencilMask(0x0F);
-  glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
+  GL_CALL(StencilMask, 0x0F);
+  GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
 
   mesh_->BindMesh();
   // front
   mesh_->BindFrontIndex();
-  glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
   DrawFront(state.clip_path_range);
   // back
   mesh_->BindBackIndex();
-  glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
   DrawBack(state.clip_path_range);
 
-  glStencilMask(0x1F);
-  glStencilFunc(GL_NOTEQUAL, 0x10, 0x0F);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  GL_CALL(StencilMask, 0x1F);
+  GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x0F);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
   // front
   mesh_->BindFrontIndex();
   DrawFront(state.clip_path_range);
@@ -219,31 +214,33 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   mesh_->BindBackIndex();
   DrawBack(state.clip_path_range);
   // reset stencil mask
-  glStencilMask(0x0F);
+  GL_CALL(StencilMask, 0x0F);
 }
 
 void GLCanvasState::DrawFront(GLMeshRange const& range) {
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)0);
 
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void*)(2 * sizeof(float)));
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)(2 * sizeof(float)));
 
-  glDrawElements(GL_TRIANGLES, range.front_count, GL_UNSIGNED_INT,
-                 (void*)(range.front_start * sizeof(GLuint)));
+  GL_CALL(DrawElements, GL_TRIANGLES, range.front_count, GL_UNSIGNED_INT,
+          (void*)(range.front_start * sizeof(GLuint)));
 }
 
 void GLCanvasState::DrawBack(GLMeshRange const& range) {
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)0);
 
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void*)(2 * sizeof(float)));
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)(2 * sizeof(float)));
 
-  glDrawElements(GL_TRIANGLES, range.back_count, GL_UNSIGNED_INT,
-                 (void*)(range.back_start * sizeof(GLuint)));
+  GL_CALL(DrawElements, GL_TRIANGLES, range.back_count, GL_UNSIGNED_INT,
+          (void*)(range.back_start * sizeof(GLuint)));
 }
 
 int32_t GLCanvasState::CurrentStackDepth() const { return state_stack_.size(); }
@@ -285,7 +282,7 @@ void GLCanvas::Init() {
   InitDrawOpBuilder();
   gl_vertex_.Reset();
   // clear stencil buffer
-  glClearStencil(0x0);
+  GL_CALL(ClearStencil, 0x0);
   // Init state
   state_ = std::make_unique<GLCanvasState>(
       mvp_, mesh_.get(), stencil_shader_.get(), color_shader_.get());
@@ -397,9 +394,9 @@ void GLCanvas::onFlush() {
   mesh_->UploadBackIndex(gl_vertex_.GetBackIndexData(),
                          gl_vertex_.GetBackIndexDataSize());
 
-  glColorMask(1, 1, 1, 1);
-  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  glColorMask(0, 0, 0, 0);
+  GL_CALL(ColorMask, 1, 1, 1, 1);
+  GL_CALL(Clear, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
   for (auto const& op : draw_ops_) {
     Matrix mvp = mvp_ * state_->CurrentMatrix();
     op->Draw(mvp, state_->HasClip());

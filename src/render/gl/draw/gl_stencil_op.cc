@@ -1,7 +1,6 @@
 #include "src/render/gl/draw/gl_stencil_op.hpp"
 
-#include <glad/glad.h>
-
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
 namespace skity {
@@ -23,10 +22,10 @@ GLStencilDrawOp::GLStencilDrawOp(uint32_t front_start, uint32_t front_count,
 
 void GLStencilDrawOp::OnBeforeDraw(bool has_clip) {
   GLDrawMeshOp::OnBeforeDraw(has_clip);
-  glColorMask(0, 0, 0, 0);
-  glEnable(GL_STENCIL_TEST);
-  glStencilMask(stencil_mask_);
-  glStencilFunc(GL_ALWAYS, 0x01, stencil_mask_);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
+  GL_CALL(Enable, GL_STENCIL_TEST);
+  GL_CALL(StencilMask, stencil_mask_);
+  GL_CALL(StencilFunc, GL_ALWAYS, 0x01, stencil_mask_);
 
   if (stroke_width_ > 0.f) {
     UpdateStrokeWidth(stroke_width_);
@@ -35,17 +34,17 @@ void GLStencilDrawOp::OnBeforeDraw(bool has_clip) {
 
 void GLStencilDrawOp::OnAfterDraw(bool has_clip) {
   GLDrawMeshOp::OnAfterDraw(has_clip);
-  glColorMask(1, 1, 1, 1);
+  GL_CALL(ColorMask, 1, 1, 1, 1);
 }
 
 void GLStencilDrawOp::OnBeforeDrawFront() {
   GLDrawMeshOp::OnBeforeDrawFront();
-  glStencilOp(GL_KEEP, GL_KEEP, front_flag_);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, front_flag_);
 }
 
 void GLStencilDrawOp::OnBeforeDrawBack() {
   GLDrawMeshOp::OnBeforeDrawBack();
-  glStencilOp(GL_KEEP, GL_KEEP, back_flag_);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, back_flag_);
 }
 
 void GLStencilDrawOp::UpdateStrokeWidth(float width) {

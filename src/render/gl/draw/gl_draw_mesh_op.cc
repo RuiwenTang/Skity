@@ -1,7 +1,6 @@
 #include "src/render/gl/draw/gl_draw_mesh_op.hpp"
 
-#include <glad/glad.h>
-
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
@@ -40,29 +39,31 @@ void GLDrawMeshOp::OnBeforeDrawBack() {}
 void GLDrawMeshOp::DrawFront() {
   mesh_->BindFrontIndex();
 
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)0);
 
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void*)(2 * sizeof(float)));
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)(2 * sizeof(float)));
 
-  glDrawElements(draw_mode_, front_count(), GL_UNSIGNED_INT,
-                 (void*)(front_start() * sizeof(GLuint)));
+  GL_CALL(DrawElements, draw_mode_, front_count(), GL_UNSIGNED_INT,
+          (void*)(front_start() * sizeof(GLuint)));
 }
 
 void GLDrawMeshOp::DrawBack() {
   mesh_->BindBackIndex();
 
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)0);
 
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void*)(2 * sizeof(float)));
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)(2 * sizeof(float)));
 
-  glDrawElements(draw_mode_, back_count(), GL_UNSIGNED_INT,
-                 (void*)(back_start() * sizeof(GLuint)));
+  GL_CALL(DrawElements, draw_mode_, back_count(), GL_UNSIGNED_INT,
+          (void*)(back_start() * sizeof(GLuint)));
 }
 
 }  // namespace skity

@@ -11,8 +11,6 @@
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
-// Fixme
-#include <GLFW/glfw3.h>
 
 class GLPathMeshDemo : public test::TestApp {
  public:
@@ -21,10 +19,6 @@ class GLPathMeshDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-      // gl context init failed
-      exit(-3);
-    }
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
     InitGL();
   }
