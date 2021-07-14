@@ -1,4 +1,8 @@
 
+#include <glad/glad.h>
+// window
+#include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/graphic/paint.hpp>
@@ -6,6 +10,7 @@
 #include <string>
 
 #include "common/test_common.hpp"
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke.hpp"
@@ -37,6 +42,8 @@ class RawGLRenderTest : public test::TestApp {
 
  protected:
   void OnInit() override {
+    // manualy init GLInterface
+    GLInterface::InitGlobalInterface((void*)glfwGetProcAddress);
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
     InitGL();
   }

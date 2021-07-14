@@ -1,3 +1,7 @@
+#include <glad/glad.h>
+// window
+#include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/geometry/point.hpp>
@@ -7,6 +11,7 @@
 
 #include "common/test_common.hpp"
 #include "src/render/gl/gl_fill.hpp"
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
@@ -17,6 +22,7 @@ class GLPathMeshDemo : public test::TestApp {
 
  protected:
   void OnInit() override {
+    skity::GLInterface::InitGlobalInterface((void*)glfwGetProcAddress);
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100) *
            glm::scale(glm::identity<glm::mat4>(), glm::vec3{3.f, 3.f, 1.f}) *
            glm::translate(glm::identity<glm::mat4>(), glm::vec3(50, 150, 0));

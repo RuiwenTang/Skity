@@ -1,3 +1,7 @@
+#include <glad/glad.h>
+// window
+#include <GLFW/glfw3.h>
+
 #include <array>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,6 +10,7 @@
 
 #include "common/test_common.hpp"
 #include "src/geometry/geometry.hpp"
+#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 
 class CubicFill : public test::TestApp {
@@ -15,6 +20,7 @@ class CubicFill : public test::TestApp {
 
  protected:
   void OnInit() override {
+    skity::GLInterface::InitGlobalInterface((void*)glfwGetProcAddress);
     mvp_ = glm::ortho<float>(0, 800, 600, 0, -100, 100);
     InitGL();
   }
