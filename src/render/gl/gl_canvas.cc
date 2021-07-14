@@ -6,6 +6,7 @@
 
 #include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_interface.hpp"
+#include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_stroke.hpp"
 
 namespace skity {
@@ -218,29 +219,11 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
 }
 
 void GLCanvasState::DrawFront(GLMeshRange const& range) {
-  GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)0);
-
-  GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)(2 * sizeof(float)));
-
-  GL_CALL(DrawElements, GL_TRIANGLES, range.front_count, GL_UNSIGNED_INT,
-          (void*)(range.front_start * sizeof(GLuint)));
+  GLMeshDraw{GL_TRIANGLES, range.front_start, range.front_count}();
 }
 
 void GLCanvasState::DrawBack(GLMeshRange const& range) {
-  GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)0);
-
-  GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)(2 * sizeof(float)));
-
-  GL_CALL(DrawElements, GL_TRIANGLES, range.back_count, GL_UNSIGNED_INT,
-          (void*)(range.back_start * sizeof(GLuint)));
+  GLMeshDraw{GL_TRIANGLES, range.back_start, range.back_count}();
 }
 
 int32_t GLCanvasState::CurrentStackDepth() const { return state_stack_.size(); }

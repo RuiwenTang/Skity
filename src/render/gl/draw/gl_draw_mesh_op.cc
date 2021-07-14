@@ -39,31 +39,13 @@ void GLDrawMeshOp::OnBeforeDrawBack() {}
 void GLDrawMeshOp::DrawFront() {
   mesh_->BindFrontIndex();
 
-  GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)0);
-
-  GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)(2 * sizeof(float)));
-
-  GL_CALL(DrawElements, draw_mode_, front_count(), GL_UNSIGNED_INT,
-          (void*)(front_start() * sizeof(GLuint)));
+  GLMeshDraw{draw_mode_, front_start(), front_count()}();
 }
 
 void GLDrawMeshOp::DrawBack() {
   mesh_->BindBackIndex();
 
-  GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)0);
-
-  GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)(2 * sizeof(float)));
-
-  GL_CALL(DrawElements, draw_mode_, back_count(), GL_UNSIGNED_INT,
-          (void*)(back_start() * sizeof(GLuint)));
+  GLMeshDraw{draw_mode_, back_start(), back_count()}();
 }
 
 }  // namespace skity

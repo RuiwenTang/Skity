@@ -39,6 +39,23 @@ class GLMesh {
   // [vertex_buffer, front_index, back_index]
   std::array<uint32_t, 3> buffers_ = {};
 };
+
+/**
+ * @brief Helper class to draw fixed layout vertex buffer
+ *  [x, y, type , curve, v]
+ */
+class GLMeshDraw final {
+ public:
+  GLMeshDraw(uint32_t mode, uint32_t start, uint32_t count);
+  ~GLMeshDraw() = default;
+  void operator()();
+
+ private:
+  uint32_t mode_;
+  uint32_t start_;
+  uint32_t count_;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_GL_GL_MESH_HPP
