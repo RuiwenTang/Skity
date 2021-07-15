@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec3 TexCoord;
-in vec2 vPos;
+in vec3 vPos;
 
 out vec4 FragColor;
 

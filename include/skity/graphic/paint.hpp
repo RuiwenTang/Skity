@@ -97,6 +97,16 @@ class Paint {
 
   Vector GetFillColor() const;
 
+  /**
+   * Requests, but does not require, that edge pixels draw opaque or with
+   * partial transparency.
+   *
+   * @param aa setting for antialiasing
+   */
+  void setAntiAlias(bool aa);
+
+  bool isAntiAlias() const;
+
  private:
   Cap cap_ = kDefault_Cap;
   Join join_ = kDefault_Join;
@@ -105,6 +115,7 @@ class Paint {
   float miter_limit_ = 0.f;
   Vector fill_color_ = {1, 1, 1, 1};
   Vector stroke_color_ = {1, 1, 1, 1};
+  bool is_anti_alias_ = false;
 };
 
 }  // namespace skity

@@ -54,4 +54,8 @@ void Paint::SetFillColor(float r, float g, float b, float a) {
 
 Vector Paint::GetFillColor() const { return fill_color_; }
 
+void Paint::setAntiAlias(bool aa) { is_anti_alias_ = aa; }
+
+bool Paint::isAntiAlias() const { return is_anti_alias_; }
+
 }  // namespace skity
