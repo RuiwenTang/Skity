@@ -66,6 +66,8 @@ class GLStroke {
   Point first_pt1_;
   Point first_pt2_;
   bool join_last_ = false;
+  bool is_anti_alias_ = false;
+  float anti_alias_width_ = 0.f;
 };
 
 }  // namespace skity

@@ -15,7 +15,8 @@ GLStroke::GLStroke(Paint const& paint)
       miter_limit_(paint.getStrokeMiter()),
       cap_(paint.getStrokeCap()),
       join_(paint.getStrokeJoin()),
-      gl_vertex_(nullptr) {}
+      gl_vertex_(nullptr),
+      is_anti_alias_(paint.isAntiAlias()) {}
 
 GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   GLMeshRange range{};
@@ -27,6 +28,11 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
   bool has_close = false;
+
+  if (is_anti_alias_) {
+    anti_alias_width_ = std::min(.5f, stroke_width_ / 2.f);
+  }
+
   for (;;) {
     Path::Verb verb = iter.next(pts.data());
     switch (verb) {
@@ -115,6 +121,44 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
   prev_to_pt_ = to;
   prev_fromt_pt_ = from;
   prev_dir_ = curr_dir;
+
+  if (is_anti_alias_) {
+    Point from_pt1_aa = fromt_pt1 + vertical_line * anti_alias_width_;
+    Point from_pt2_aa = fromt_pt2 - vertical_line * anti_alias_width_;
+    Point to_pt1_aa = to_pt1 + vertical_line * anti_alias_width_;
+    Point to_pt2_aa = to_pt2 - vertical_line * anti_alias_width_;
+
+    uint32_t from_pt1_aa_index =
+        gl_vertex_->AddPoint(from_pt1_aa.x, from_pt1_aa.y, 0.f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t from_pt2_aa_index =
+        gl_vertex_->AddPoint(from_pt2_aa.x, from_pt2_aa.y, 0.f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    uint32_t from_pt1_index =
+        gl_vertex_->AddPoint(fromt_pt1.x, fromt_pt1.y, .5f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t from_pt2_index =
+        gl_vertex_->AddPoint(fromt_pt2.x, fromt_pt2.y, .5f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    uint32_t to_pt1_aa_index =
+        gl_vertex_->AddPoint(to_pt1_aa.x, to_pt1_aa.y, 0.f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t to_pt2_aa_index =
+        gl_vertex_->AddPoint(to_pt2_aa.x, to_pt2_aa.y, 0.f,
+                             GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t to_pt1_index = gl_vertex_->AddPoint(
+        to_pt1.x, to_pt1.y, .5f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+    uint32_t to_pt2_index = gl_vertex_->AddPoint(
+        to_pt2.x, to_pt2.y, .5f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+
+    gl_vertex_->AddFront(from_pt1_aa_index, from_pt1_index, to_pt1_index);
+    gl_vertex_->AddFront(from_pt1_aa_index, to_pt1_aa_index, to_pt1_index);
+
+    gl_vertex_->AddFront(from_pt2_aa_index, from_pt2_index, to_pt2_index);
+    gl_vertex_->AddFront(from_pt2_aa_index, to_pt2_aa_index, to_pt2_index);
+  }
 }
 
 void GLStroke::HandleQuadTo(Point const& start, Point const& control,
@@ -533,6 +577,9 @@ void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
     gl_vertex_->AddFront(on_p1, in_p1, in_p2);
     gl_vertex_->AddFront(on_p1, in_p2, on_p2);
     gl_vertex_->AddFront(on_p2, in_p2, in_p3);
+
+    if (is_anti_alias_) {
+    }
   }
 }
 

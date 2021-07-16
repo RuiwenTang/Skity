@@ -8,7 +8,7 @@ namespace skity {
 
 GLMesh::~GLMesh() {
   if (buffers_[0] != 0) {
-    GL_CALL(DeleteBuffers, 3, buffers_.data());
+    GL_CALL(DeleteBuffers, buffers_.size(), buffers_.data());
   }
   if (vao_ != 0) {
     GL_CALL(DeleteVertexArrays, 1, &vao_);
@@ -44,7 +44,7 @@ void GLMesh::Init() {
   assert(buffers_[2] == 0);
 
   GL_CALL(GenVertexArrays, 1, &vao_);
-  GL_CALL(GenBuffers, 3, buffers_.data());
+  GL_CALL(GenBuffers, buffers_.size(), buffers_.data());
 }
 
 void GLMesh::BindMesh() {

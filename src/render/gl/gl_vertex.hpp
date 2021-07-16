@@ -51,13 +51,15 @@ class GLVertex {
 
   void* GetFrontIndexData() { return front_index.data(); }
   uint32_t GetFrontIndexDataSize() {
-    return front_index.size() * sizeof(float);
+    return front_index.size() * sizeof(uint32_t);
   }
 
   uint32_t CurrentIndex() { return vertex_buffer.size() / GL_VERTEX_SIZE; }
 
   void* GetBackIndexData() { return back_index.data(); }
-  uint32_t GetBackIndexDataSize() { return back_index.size() * sizeof(float); }
+  uint32_t GetBackIndexDataSize() {
+    return back_index.size() * sizeof(uint32_t);
+  }
 
   void Reset();
 
