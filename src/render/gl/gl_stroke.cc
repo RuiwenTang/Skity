@@ -30,7 +30,7 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   bool has_close = false;
 
   if (is_anti_alias_) {
-    anti_alias_width_ = std::min(.5f, stroke_width_ / 2.f);
+    anti_alias_width_ = std::min(1.f, stroke_width_ / 2.f);
   }
 
   for (;;) {
@@ -136,10 +136,10 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     uint32_t from_pt1_index =
-        gl_vertex_->AddPoint(fromt_pt1.x, fromt_pt1.y, .5f,
+        gl_vertex_->AddPoint(fromt_pt1.x, fromt_pt1.y, 1.f,
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
     uint32_t from_pt2_index =
-        gl_vertex_->AddPoint(fromt_pt2.x, fromt_pt2.y, .5f,
+        gl_vertex_->AddPoint(fromt_pt2.x, fromt_pt2.y, 1.f,
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     uint32_t to_pt1_aa_index =
@@ -149,9 +149,9 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
         gl_vertex_->AddPoint(to_pt2_aa.x, to_pt2_aa.y, 0.f,
                              GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
     uint32_t to_pt1_index = gl_vertex_->AddPoint(
-        to_pt1.x, to_pt1.y, .5f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+        to_pt1.x, to_pt1.y, 1.f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
     uint32_t to_pt2_index = gl_vertex_->AddPoint(
-        to_pt2.x, to_pt2.y, .5f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
+        to_pt2.x, to_pt2.y, 1.f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     gl_vertex_->AddFront(from_pt1_aa_index, from_pt1_index, to_pt1_index);
     gl_vertex_->AddFront(from_pt1_aa_index, to_pt1_aa_index, to_pt1_index);
