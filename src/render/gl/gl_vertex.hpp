@@ -48,7 +48,7 @@ class GLVertex {
 
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }
-  uint32_t AAOutlineCount() const { return back_index.size(); }
+  uint32_t AAOutlineCount() const { return aa_index.size(); }
 
   void* GetVertexData() { return vertex_buffer.data(); }
   uint32_t GetVertexDataSize() { return vertex_buffer.size() * sizeof(float); }

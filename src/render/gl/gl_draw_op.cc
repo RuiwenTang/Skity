@@ -65,8 +65,16 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateStencilOp(float stroke_width,
 
 std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateColorOp(float r, float g,
                                                          float b, float a) {
-  auto op = std::make_unique<GLFillColorOp>(
-      front_start, front_count, back_start, back_count, color_shader, gl_mesh);
+  return CreateColorOpAA(r, g, b, a, 0, 0);
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateColorOpAA(float r, float g,
+                                                           float b, float a,
+                                                           uint32_t aa_start,
+                                                           uint32_t aa_count) {
+  auto op = std::make_unique<GLFillColorOp>(front_start, front_count,
+                                            back_start, back_count, aa_start,
+                                            aa_count, color_shader, gl_mesh);
   op->Init();
   op->SetColor(r, g, b, a);
 

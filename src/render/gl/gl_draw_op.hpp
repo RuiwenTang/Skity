@@ -68,6 +68,9 @@ class GLDrawOpBuilder final {
 
   std::unique_ptr<GLDrawOp> CreateColorOp(float r, float g, float b, float a);
 
+  std::unique_ptr<GLDrawOp> CreateColorOpAA(float r, float g, float b, float a,
+                                            uint32_t aa_start,
+                                            uint32_t aa_count);
   std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
   std::unique_ptr<GLDrawOp> CreateDebugLineOp();

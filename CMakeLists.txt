@@ -65,6 +65,8 @@ set(Skity_src
         src/render/gl/draw/gl_draw_debug_line_op.hpp
         src/render/gl/draw/gl_draw_mesh_op.cc
         src/render/gl/draw/gl_draw_mesh_op.hpp
+        src/render/gl/draw/gl_draw_mesh_op_aa.cc
+        src/render/gl/draw/gl_draw_mesh_op_aa.hpp
         src/render/gl/draw/gl_fill_color_op.cc
         src/render/gl/draw/gl_fill_color_op.hpp
         src/render/gl/draw/gl_stencil_op.cc

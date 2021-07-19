@@ -1,16 +1,20 @@
 #ifndef SKITY_SRC_RENDER_GL_DRAW_GL_FILL_COLOR_OP_H
 #define SKITY_SRC_RENDER_GL_DRAW_GL_FILL_COLOR_OP_H
 
-#include "src/render/gl/draw/gl_draw_mesh_op.hpp"
+#include "src/render/gl/draw/gl_draw_mesh_op_aa.hpp"
 
 namespace skity {
 
 class ColorShader;
 
-class GLFillColorOp : public GLDrawMeshOp {
+class GLFillColorOp : public GLDrawMeshOpAA {
  public:
   GLFillColorOp(uint32_t front_start, uint32_t front_count, uint32_t back_start,
                 uint32_t back_count, ColorShader* shader, GLMesh* mesh);
+
+  GLFillColorOp(uint32_t front_start, uint32_t front_count, uint32_t back_start,
+                uint32_t aa_start, uint32_t aa_count, uint32_t back_count,
+                ColorShader* shader, GLMesh* mesh);
 
   ~GLFillColorOp() override = default;
 
@@ -18,7 +22,6 @@ class GLFillColorOp : public GLDrawMeshOp {
 
  protected:
   void OnBeforeDraw(bool has_clip) override;
-  void OnAfterDraw(bool has_clip) override;
 
  private:
   ColorShader* shader_;

@@ -24,10 +24,14 @@ void GLDrawMeshOp::OnAfterDraw(bool has_clip) {
 }
 
 void GLDrawMeshOp::OnDraw(bool has_clip) {
-  OnBeforeDrawFront();
-  DrawFront();
-  OnBeforeDrawBack();
-  DrawBack();
+  if (front_count() > 0) {
+    OnBeforeDrawFront();
+    DrawFront();
+  }
+  if (back_count() > 0) {
+    OnBeforeDrawBack();
+    DrawBack();
+  }
 }
 
 void GLDrawMeshOp::OnInit() {}

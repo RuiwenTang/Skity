@@ -68,6 +68,10 @@ void GLMesh::BindBackIndex() {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
 }
 
+void GLMesh::BindAAOutlineIndex() {
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
+}
+
 void GLMesh::UnBindMesh() {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, 0);
