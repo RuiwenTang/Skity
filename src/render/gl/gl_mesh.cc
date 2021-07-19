@@ -37,11 +37,19 @@ void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void GLMesh::UploadAAOulineIndex(void* data, uint32_t length) {
+  assert(buffers_[3] != 0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
+  GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void GLMesh::Init() {
   assert(vao_ == 0);
   assert(buffers_[0] == 0);
   assert(buffers_[1] == 0);
   assert(buffers_[2] == 0);
+  assert(buffers_[3] == 0);
 
   GL_CALL(GenVertexArrays, 1, &vao_);
   GL_CALL(GenBuffers, buffers_.size(), buffers_.data());

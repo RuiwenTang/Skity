@@ -11,6 +11,8 @@ struct GLMeshRange {
   uint32_t front_count = 0;
   uint32_t back_start = 0;
   uint32_t back_count = 0;
+  uint32_t aa_outline_start = 0;
+  uint32_t aa_outline_count = 0;
 };
 
 class GLVertex {
@@ -41,10 +43,12 @@ class GLVertex {
   uint32_t AddPoint(VertexData const& data);
   void AddFront(uint32_t v1, uint32_t v2, uint32_t v3);
   void AddBack(uint32_t v1, uint32_t v2, uint32_t v3);
+  void AddAAOutline(uint32_t v1, uint32_t v2, uint32_t v3);
   VertexData GetVertex(uint32_t index);
 
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }
+  uint32_t AAOutlineCount() const { return back_index.size(); }
 
   void* GetVertexData() { return vertex_buffer.data(); }
   uint32_t GetVertexDataSize() { return vertex_buffer.size() * sizeof(float); }
@@ -54,6 +58,8 @@ class GLVertex {
     return front_index.size() * sizeof(uint32_t);
   }
 
+  void* GetAAIndexData() { return aa_index.data(); }
+  uint32_t GetAAIndexDataSize() { return aa_index.size() * sizeof(uint32_t); }
   uint32_t CurrentIndex() { return vertex_buffer.size() / GL_VERTEX_SIZE; }
 
   void* GetBackIndexData() { return back_index.data(); }
@@ -67,6 +73,7 @@ class GLVertex {
   std::vector<float> vertex_buffer;
   std::vector<uint32_t> front_index;
   std::vector<uint32_t> back_index;
+  std::vector<uint32_t> aa_index;
 };
 
 }  // namespace skity

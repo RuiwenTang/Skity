@@ -20,7 +20,10 @@ void Paint::setStyle(Style style) {
   style_ = style;
 }
 
-void Paint::setStrokeWidth(float width) { stroke_width_ = width; }
+void Paint::setStrokeWidth(float width) {
+  stroke_width_ = width;
+  updateMiterLimit();
+}
 
 float Paint::getStrokeWidth() const { return stroke_width_; }
 
@@ -57,5 +60,10 @@ Vector Paint::GetFillColor() const { return fill_color_; }
 void Paint::setAntiAlias(bool aa) { is_anti_alias_ = aa; }
 
 bool Paint::isAntiAlias() const { return is_anti_alias_; }
+
+void Paint::updateMiterLimit() {
+  // FIXME: hard code miter limit
+  miter_limit_ = 4.5f * stroke_width_ / 2.f;
+}
 
 }  // namespace skity

@@ -13,6 +13,7 @@ namespace skity {
  *    2. raw_vertex_buffer
  *    3. index_buffer for front triangle list
  *    4. index_buffer for back triangle list
+ *    5. index_buffer for AA triangle list
  */
 class GLMesh {
  public:
@@ -22,7 +23,7 @@ class GLMesh {
   void UploadVertexBuffer(void* data, uint32_t length);
   void UploadFrontIndex(void* data, uint32_t length);
   void UploadBackIndex(void* data, uint32_t length);
-
+  void UploadAAOulineIndex(void* data, uint32_t length);
   // generate vao and gl_buffers
   void Init();
 
@@ -32,17 +33,19 @@ class GLMesh {
 
   void BindBackIndex();
 
+  void BindAAOutlineIndex();
+
   void UnBindMesh();
 
  private:
   uint32_t vao_ = 0;
-  // [vertex_buffer, front_index, back_index]
-  std::array<uint32_t, 3> buffers_ = {};
+  // [vertex_buffer, front_index, back_index, aa_index]
+  std::array<uint32_t, 4> buffers_ = {};
 };
 
 /**
  * @brief Helper class to draw fixed layout vertex buffer
- *  [x, y, type , curve, v]
+ *  [x, y, alpha, type , curve, v]
  */
 class GLMeshDraw final {
  public:

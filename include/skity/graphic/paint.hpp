@@ -108,6 +108,9 @@ class Paint {
   bool isAntiAlias() const;
 
  private:
+  void updateMiterLimit();
+
+ private:
   Cap cap_ = kDefault_Cap;
   Join join_ = kDefault_Join;
   Style style_ = kFill_Style;

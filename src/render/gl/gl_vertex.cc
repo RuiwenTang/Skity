@@ -35,6 +35,12 @@ void GLVertex::AddBack(uint32_t v1, uint32_t v2, uint32_t v3) {
   back_index.emplace_back(v3);
 }
 
+void GLVertex::AddAAOutline(uint32_t v1, uint32_t v2, uint32_t v3) {
+  aa_index.emplace_back(v1);
+  aa_index.emplace_back(v2);
+  aa_index.emplace_back(v3);
+}
+
 GLVertex::VertexData GLVertex::GetVertex(uint32_t index) {
   assert(index < vertex_buffer.size());
   VertexData result;

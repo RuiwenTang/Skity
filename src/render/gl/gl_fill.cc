@@ -15,6 +15,8 @@ GLMeshRange GLFill::fillPath(Path const& path, Paint const& paint,
   range.front_count = 0;
   range.back_start = gl_vertex->BackCount();
   range.back_count = 0;
+  range.aa_outline_start = gl_vertex->AAOutlineCount();
+  range.aa_outline_count = 0;
 
   Path::Iter iter(path, true);
   gl_vertex_ = gl_vertex;
@@ -50,6 +52,7 @@ GLMeshRange GLFill::fillPath(Path const& path, Paint const& paint,
 DONE:
   range.front_count = gl_vertex->FrontCount() - range.front_start;
   range.back_count = gl_vertex->BackCount() - range.back_start;
+  range.aa_outline_count = gl_vertex->AAOutlineCount() - range.aa_outline_start;
   return range;
 }
 

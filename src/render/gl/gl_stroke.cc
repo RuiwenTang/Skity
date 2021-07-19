@@ -24,6 +24,8 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   range.front_count = 0;
   range.back_start = gl_vertex->BackCount();
   range.back_count = 0;
+  range.aa_outline_start = gl_vertex->AAOutlineCount();
+  range.aa_outline_count = 0;
   Path::Iter iter{path, false};
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
@@ -68,6 +70,7 @@ DONE:
   }
   range.front_count = gl_vertex->FrontCount() - range.front_start;
   range.back_count = gl_vertex->BackCount() - range.back_start;
+  range.aa_outline_count = gl_vertex->AAOutlineCount() - range.aa_outline_start;
   return range;
 }
 
@@ -425,7 +428,7 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
       glm::length(glm::vec2(from.x - outer.x, from.y - outer.y));
   if (ret == 2 || ret == 0) {
     // parallel do nothing
-  } else if (miter_length < 4.5f * stroke_radius_) {
+  } else if (miter_length < miter_limit_) {
     // TODO calculate miter limit
     int32_t p2_index =
         gl_vertex_->AddPoint(p2.x, p2.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
