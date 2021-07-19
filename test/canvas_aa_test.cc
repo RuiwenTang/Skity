@@ -24,6 +24,10 @@ class CanvasAATest : public test::TestApp {
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
 
+  void OnWindowSizeUpdate(uint32_t width, uint32_t height) override {
+    canvas_->updateViewport(width, height);
+  }
+
   void OnDraw() override {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 

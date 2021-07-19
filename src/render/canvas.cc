@@ -84,6 +84,10 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
 #endif
 }
 
+void Canvas::updateViewport(uint32_t width, uint32_t height) {
+  this->onUpdateViewport(width, height);
+}
+
 void Canvas::internalSave() { this->onSave(); }
 
 void Canvas::internalRestore() { this->onRestore(); }

@@ -9,7 +9,8 @@ namespace test {
 
 extern "C" void framebuffer_size_callback(GLFWwindow* window, int width,
                                           int height) {
-  glViewport(0, 0, width, height);
+  TestApp* app = (TestApp*)glfwGetWindowUserPointer(window);
+  app->UpdateWindowSize(width, height);
 }
 
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height) {
@@ -92,8 +93,15 @@ void TestApp::Init() {
   window_ = init_glfw_window(window_width_, window_height_);
   assert(window_);
 
+  glfwSetWindowUserPointer(window_, this);
+  glfwSetWindowSizeCallback(window_, framebuffer_size_callback);
   glfwMakeContextCurrent(window_);
   this->OnInit();
+}
+
+void TestApp::UpdateWindowSize(uint32_t width, uint32_t height) {
+  // glViewport(0, 0, width, height);
+  OnWindowSizeUpdate(width, height);
 }
 
 void TestApp::RunLoop() {

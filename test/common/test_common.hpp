@@ -15,10 +15,12 @@ class TestApp {
   virtual ~TestApp();
 
   void Start();
+  void UpdateWindowSize(uint32_t width, uint32_t height);
 
  protected:
   virtual void OnInit() = 0;
   virtual void OnDraw() = 0;
+  virtual void OnWindowSizeUpdate(uint32_t width, uint32_t height) {}
 
  private:
   void Init();

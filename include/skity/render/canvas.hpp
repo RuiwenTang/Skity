@@ -127,6 +127,7 @@ class Canvas {
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 
+  void updateViewport(uint32_t width, uint32_t height);
   static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
                                               uint32_t width, uint32_t height,
                                               void* procss_loader);
@@ -142,6 +143,7 @@ class Canvas {
   virtual void onRotate(float degree, float px, float py) = 0;
   virtual void onFlush() = 0;
 
+  virtual void onUpdateViewport(uint32_t width, uint32_t height) = 0;
   inline bool isDrawDebugLine() const { return draw_debug_line_; }
 
  private:

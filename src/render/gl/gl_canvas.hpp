@@ -78,6 +78,8 @@ class GLCanvas : public Canvas {
 
   void onRotate(float degree, float px, float py) override;
 
+  void onUpdateViewport(uint32_t width, uint32_t height) override;
+
  private:
   void Init();
   void InitShader();

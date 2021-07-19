@@ -415,4 +415,8 @@ void GLCanvas::onRotate(float degree) {
 
 void GLCanvas::onRotate(float degree, float px, float py) {}
 
+void GLCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
+  mvp_ = glm::ortho<float>(0, width, height, 0);
+}
+
 }  // namespace skity
