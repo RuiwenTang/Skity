@@ -353,9 +353,14 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     auto stroke_color = paint.GetStrokeColor();
 
-    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
-        stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3])));
-
+    if (stroke_range.aa_outline_count > 0) {
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
+          stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3],
+          stroke_range.aa_outline_start, stroke_range.aa_outline_count)));
+    } else {
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
+          stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3])));
+    }
     // clear stencil value
     draw_ops_.emplace_back(std::move(
         draw_op_builder_.CreateStencilOp(paint.getStrokeWidth(), false)));
@@ -376,6 +381,9 @@ void GLCanvas::onFlush() {
 
   mesh_->UploadBackIndex(gl_vertex_.GetBackIndexData(),
                          gl_vertex_.GetBackIndexDataSize());
+
+  mesh_->UploadAAOulineIndex(gl_vertex_.GetAAIndexData(),
+                             gl_vertex_.GetAAIndexDataSize());
 
   GL_CALL(ColorMask, 1, 1, 1, 1);
   GL_CALL(Clear, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
