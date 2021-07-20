@@ -49,7 +49,7 @@ class CanvasAATest : public test::TestApp {
     path.close();
 
     path.moveTo(350, 50);
-    path.cubicTo(556, 64, 310, 192, 550, 250);
+    path.cubicTo(556, 64, 310, 192, 550, 450);
     path.close();
 
     canvas_->drawPath(path, paint);
