@@ -39,7 +39,7 @@ class CanvasAATest : public test::TestApp {
     paint.SetStrokeColor(1.f, 0.f, 0.f, 1.f);
     paint.SetFillColor(1.f, 1.f, 0.f, 1.f);
 
-    paint.setAntiAlias(true);
+    // paint.setAntiAlias(true);
 
     skity::Path path;
 
@@ -74,7 +74,7 @@ class CanvasAATest : public test::TestApp {
     paint2.SetStrokeColor(0, 0, 1, 1);
     paint2.SetFillColor(150.f / 255.f, 150.f / 255.f, 1.f, 1.f);
     paint2.setStyle(skity::Paint::kFill_Style);
-    paint2.setAntiAlias(true);
+    // paint2.setAntiAlias(true);
 
     canvas_->drawPath(path2, paint2);
 

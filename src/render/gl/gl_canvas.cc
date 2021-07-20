@@ -8,6 +8,7 @@
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_stroke.hpp"
+#include "src/render/gl/gl_stroke_aa.hpp"
 
 namespace skity {
 
@@ -331,8 +332,17 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     auto fill_color = paint.GetFillColor();
 
-    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
-        fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
+    if (!need_stroke && paint.isAntiAlias()) {
+      GLStrokeAA strokeAA(1.f);
+      GLMeshRange aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
+
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
+          fill_color[0], fill_color[1], fill_color[2], fill_color[3],
+          aa_range.aa_outline_start, aa_range.aa_outline_count)));
+    } else {
+      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
+          fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
+    }
 
     // clear current stencil value
     draw_ops_.emplace_back(

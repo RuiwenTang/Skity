@@ -49,6 +49,8 @@ class GLStroke {
   void AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
                                     std::array<Point, 3> const& inner);
 
+  void AppendAAQuadRecursively(std::array<Point, 3> const& quad, bool on);
+
  private:
   float stroke_width_;
   float stroke_radius_;

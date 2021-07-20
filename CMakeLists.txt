@@ -85,6 +85,8 @@ set(Skity_src
         src/render/gl/gl_shader.hpp
         src/render/gl/gl_stroke.cc
         src/render/gl/gl_stroke.hpp
+        src/render/gl/gl_stroke_aa.cc
+        src/render/gl/gl_stroke_aa.hpp
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
         )

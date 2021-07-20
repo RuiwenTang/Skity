@@ -582,83 +582,53 @@ void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
     gl_vertex_->AddFront(on_p2, in_p2, in_p3);
 
     if (is_anti_alias_) {
-      float outer_length =
-          glm::length(glm::vec2(outer[1] - (outer[0] + outer[2]) / 2.f));
-
-      // FIXME: hard code threshold for split anti-alias
-      if (outer_length >= 4.f) {
-        std::array<Point, 3> outer_aa_1{};
-        std::array<Point, 3> outer_aa_2{};
-        SubDividedQuad(outer.data(), outer_aa_1.data(), outer_aa_2.data());
-
-        int32_t o_aa_p1 =
-            gl_vertex_->AddPoint(outer_aa_1[0].x, outer_aa_1[0].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p2 =
-            gl_vertex_->AddPoint(outer_aa_1[1].x, outer_aa_1[1].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p3 =
-            gl_vertex_->AddPoint(outer_aa_1[2].x, outer_aa_1[2].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p4 =
-            gl_vertex_->AddPoint(outer_aa_2[0].x, outer_aa_2[0].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p5 =
-            gl_vertex_->AddPoint(outer_aa_2[1].x, outer_aa_2[1].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p6 =
-            gl_vertex_->AddPoint(outer_aa_2[2].x, outer_aa_2[2].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-
-        gl_vertex_->AddAAOutline(o_aa_p1, o_aa_p2, o_aa_p3);
-        gl_vertex_->AddAAOutline(o_aa_p4, o_aa_p5, o_aa_p6);
-
-        std::array<Point, 3> inner_aa_1{};
-        std::array<Point, 3> inner_aa_2{};
-
-        SubDividedQuad(inner.data(), inner_aa_1.data(), inner_aa_2.data());
-
-        int32_t i_aa_p1 =
-            gl_vertex_->AddPoint(inner_aa_1[0].x, inner_aa_1[0].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p2 =
-            gl_vertex_->AddPoint(inner_aa_1[1].x, inner_aa_1[1].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p3 =
-            gl_vertex_->AddPoint(inner_aa_1[2].x, inner_aa_1[2].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p4 =
-            gl_vertex_->AddPoint(inner_aa_2[0].x, inner_aa_2[0].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p5 =
-            gl_vertex_->AddPoint(inner_aa_2[1].x, inner_aa_2[1].y, 1.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p6 =
-            gl_vertex_->AddPoint(inner_aa_2[2].x, inner_aa_2[2].y, 0.f,
-                                 GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-
-        gl_vertex_->AddAAOutline(i_aa_p1, i_aa_p2, i_aa_p3);
-        gl_vertex_->AddAAOutline(i_aa_p4, i_aa_p5, i_aa_p6);
-      } else {
-        int32_t o_aa_p1 = gl_vertex_->AddPoint(
-            outer[0].x, outer[0].y, .5f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p2 = gl_vertex_->AddPoint(
-            outer[1].x, outer[1].y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t o_aa_p3 = gl_vertex_->AddPoint(
-            outer[2].x, outer[2].y, .5f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-
-        gl_vertex_->AddAAOutline(o_aa_p1, o_aa_p2, o_aa_p3);
-
-        int32_t i_aa_p1 = gl_vertex_->AddPoint(
-            inner[0].x, inner[0].y, .5f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p2 = gl_vertex_->AddPoint(
-            inner[1].x, inner[1].y, .5f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-        int32_t i_aa_p3 = gl_vertex_->AddPoint(
-            inner[2].x, inner[2].y, .5f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
-
-        gl_vertex_->AddAAOutline(i_aa_p1, i_aa_p2, i_aa_p3);
-      }
+      AppendAAQuadRecursively(outer, true);
+      AppendAAQuadRecursively(inner, false);
     }
+  }
+}
+
+void GLStroke::AppendAAQuadRecursively(std::array<Point, 3> const& quad,
+                                       bool on) {
+  if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
+    std::array<Point, 3> quad_1{};
+    std::array<Point, 3> quad_2{};
+    SubDividedQuad(quad.data(), quad_1.data(), quad_2.data());
+
+    AppendAAQuadRecursively(quad_1, on);
+    AppendAAQuadRecursively(quad_2, on);
+  } else {
+    // TODO handle on off direction
+    Point from = quad[0];
+    Point to = quad[2];
+    glm::vec2 curr_dir = glm::normalize(glm::vec2(to - from));
+    glm::vec4 vertical_line = glm::vec4(curr_dir.y, -curr_dir.x, 0, 0);
+
+    Point from_1 = from + vertical_line * anti_alias_width_;
+    Point from_2 = from - vertical_line * anti_alias_width_;
+    Point to_1 = to + vertical_line * anti_alias_width_;
+    Point to_2 = to - vertical_line * anti_alias_width_;
+
+    int32_t from_index = gl_vertex_->AddPoint(
+        from.x, from.y, 1.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+    int32_t to_index = gl_vertex_->AddPoint(
+        to.x, to.y, 1.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+    int32_t from_1_index = gl_vertex_->AddPoint(
+        from_1.x, from_1.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+    int32_t from_2_index = gl_vertex_->AddPoint(
+        from_2.x, from_2.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+    int32_t to_1_index = gl_vertex_->AddPoint(
+        to_1.x, to_1.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+    int32_t to_2_index = gl_vertex_->AddPoint(
+        to_2.x, to_2.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+    gl_vertex_->AddAAOutline(from_1_index, from_index, to_index);
+    gl_vertex_->AddAAOutline(from_1_index, to_index, to_1_index);
+
+    gl_vertex_->AddAAOutline(from_2_index, from_index, to_index);
+    gl_vertex_->AddAAOutline(from_2_index, to_index, to_2_index);
   }
 }
 
