@@ -582,6 +582,49 @@ void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
     gl_vertex_->AddFront(on_p2, in_p2, in_p3);
 
     if (is_anti_alias_) {
+      std::array<Point, 3> outer_aa_1{};
+      std::array<Point, 3> outer_aa_2{};
+
+      SubDividedQuad(outer.data(), outer_aa_1.data(), outer_aa_2.data());
+
+      int32_t o_aa_p1 =
+          gl_vertex_->AddPoint(outer_aa_1[0].x, outer_aa_1[0].y, 1.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t o_aa_p2 =
+          gl_vertex_->AddPoint(outer_aa_1[1].x, outer_aa_1[1].y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t o_aa_p3 =
+          gl_vertex_->AddPoint(outer_aa_1[2].x, outer_aa_1[2].y, 1.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+      gl_vertex_->AddAAOutline(o_aa_p1, o_aa_p2, o_aa_p3);
+
+      std::array<Point, 3> inner_aa_1{};
+      std::array<Point, 3> inner_aa_2{};
+
+      SubDividedQuad(inner.data(), inner_aa_1.data(), inner_aa_2.data());
+
+      int32_t i_aa_p1 =
+          gl_vertex_->AddPoint(inner_aa_1[0].x, inner_aa_1[0].y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t i_aa_p2 =
+          gl_vertex_->AddPoint(inner_aa_1[1].x, inner_aa_1[1].y, 1.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t i_aa_p3 =
+          gl_vertex_->AddPoint(inner_aa_1[2].x, inner_aa_1[2].y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t i_aa_p4 =
+          gl_vertex_->AddPoint(inner_aa_2[0].x, inner_aa_2[0].y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t i_aa_p5 =
+          gl_vertex_->AddPoint(inner_aa_2[1].x, inner_aa_2[1].y, 1.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t i_aa_p6 =
+          gl_vertex_->AddPoint(inner_aa_2[2].x, inner_aa_2[2].y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+      gl_vertex_->AddAAOutline(i_aa_p1, i_aa_p2, i_aa_p3);
+      gl_vertex_->AddAAOutline(i_aa_p4, i_aa_p5, i_aa_p6);
     }
   }
 }
