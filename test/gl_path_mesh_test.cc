@@ -76,12 +76,12 @@ class GLPathMeshDemo : public test::TestApp {
       return;
     }
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                          (void*)(3 * sizeof(float)));
 
     glDrawElements(mode, range.front_count, GL_UNSIGNED_INT,
                    (void*)(range.front_start * sizeof(GLuint)));
@@ -92,12 +92,12 @@ class GLPathMeshDemo : public test::TestApp {
       return;
     }
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                          (void*)(3 * sizeof(float)));
 
     glDrawElements(mode, range.back_count, GL_UNSIGNED_INT,
                    (void*)(range.back_start * sizeof(GLuint)));
@@ -114,14 +114,14 @@ class GLPathMeshDemo : public test::TestApp {
   void InitShader() {
     const char* stencil_vs_code = R"(
       #version 330 core
-      layout(location = 0) in vec2 aPos;
+      layout(location = 0) in vec3 aPos;
       layout(location = 1) in vec3 aUV;
       uniform mat4 mvp;
 
       out vec3 TexCoord;
 
       void main() {
-        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
+        gl_Position = mvp * vec4(aPos.xy, 0.0, 1.0);
         TexCoord = aUV;
       }
     )";
@@ -149,11 +149,11 @@ class GLPathMeshDemo : public test::TestApp {
 
     const char* mesh_vs_code = R"(
       #version 330 core
-      layout(location = 0) in vec2 aPos;
+      layout(location = 0) in vec3 aPos;
 
       uniform mat4 mvp;
       void main() {
-        gl_Position = mvp * vec4(aPos, 0.0, 1.0);
+        gl_Position = mvp * vec4(aPos.xy, 0.0, 1.0);
       }
     )";
 
