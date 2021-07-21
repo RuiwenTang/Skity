@@ -125,3 +125,4 @@ include_directories(third_party/gtest/googletest/include)
 # Fixme to include private generate header
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(test)
+add_subdirectory(example)

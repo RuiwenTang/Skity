@@ -8,11 +8,12 @@
 #include <skity/graphic/path.hpp>
 #include <skity_config.hpp>
 
-#ifdef ENABLE_TEXT_RENDER
-#include "src/render/text/ft_library_wrap.hpp"
-#endif
-
 namespace skity {
+
+#ifdef ENABLE_TEXT_RENDER
+class FTLibrary;
+class FTTypeFace;
+#endif
 
 /**
  * @class Canvas
@@ -21,7 +22,7 @@ namespace skity {
 class Canvas {
  public:
   Canvas();
-  virtual ~Canvas() = default;
+  virtual ~Canvas();
 
   /**
    * Save Matrix and clip.
@@ -154,7 +155,7 @@ class Canvas {
   uint32_t save_count_ = 0;
   bool draw_debug_line_ = false;
 #ifdef ENABLE_TEXT_RENDER
-  FTLibrary ft_library_;
+  std::unique_ptr<FTLibrary> ft_library_;
   std::unique_ptr<FTTypeFace> ft_typeface_;
 #endif
 };

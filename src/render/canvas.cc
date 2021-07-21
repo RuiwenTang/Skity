@@ -1,12 +1,19 @@
 #include "skity/render/canvas.hpp"
 
+#ifdef ENABLE_TEXT_RENDER
+#include "src/render/text/ft_library_wrap.hpp"
+#endif
+
 namespace skity {
 
 Canvas::Canvas() {
 #ifdef ENABLE_TEXT_RENDER
-  ft_typeface_ = ft_library_.LoadTypeface(BUILD_IN_FONT_FILE);
+  ft_library_ = std::make_unique<FTLibrary>();
+  ft_typeface_ = ft_library_->LoadTypeface(BUILD_IN_FONT_FILE);
 #endif
 }
+
+Canvas::~Canvas() = default;
 
 int Canvas::save() {
   save_count_ += 1;
