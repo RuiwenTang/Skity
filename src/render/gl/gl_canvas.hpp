@@ -30,6 +30,8 @@ class GLCanvasState final {
 
   void DoClipPath(uint32_t stack_depth);
 
+  void UnDoClipPath();
+
   int32_t CurrentStackDepth() const;
 
   void PushStack();

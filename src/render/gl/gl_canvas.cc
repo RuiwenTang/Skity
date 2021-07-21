@@ -61,6 +61,7 @@ class GLCanvasRestoreOp : public GLCanvasStateOp {
 
  protected:
   void OnDraw(bool has_clip) override {
+    state_->UnDoClipPath();
     bool need_do_clip = state_->CurrentHasClipPath();
     state_->PopStack();
     if (need_do_clip) {
@@ -178,9 +179,6 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   }
 
   if (clip_index < 0) {
-    GL_CALL(StencilMask, 0xFF);
-    GL_CALL(Clear, GL_STENCIL_BUFFER_BIT);
-    GL_CALL(StencilMask, 0x0F);
     return;
   }
   // FIXME: make sure no color is output
@@ -189,9 +187,6 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   Matrix final_matrix = mvp_ * state.matrix;
   shader_->Bind();
   shader_->SetMVPMatrix(final_matrix);
-  // clear all stencil buffer
-  GL_CALL(StencilMask, 0xFF);
-  GL_CALL(Clear, GL_STENCIL_BUFFER_BIT);
   // step 2 stencil path as fill path do
   GL_CALL(StencilMask, 0x0F);
   GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
@@ -217,6 +212,33 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   DrawBack(state.clip_path_range);
   // reset stencil mask
   GL_CALL(StencilMask, 0x0F);
+}
+
+void GLCanvasState::UnDoClipPath() {
+  if (state_stack_.empty() || !state_stack_.back().has_clip) {
+    return;
+  }
+  auto const& state = state_stack_.back();
+  Matrix final_matrix = mvp_ * state.matrix;
+
+  shader_->Bind();
+  shader_->SetMVPMatrix(final_matrix);
+
+  GL_CALL(StencilMask, 0x1F);
+  GL_CALL(StencilFunc, GL_ALWAYS, 0x00, 0x1F);
+  GL_CALL(ColorMask, 0, 0, 0, 0);
+  mesh_->BindMesh();
+  // front
+  mesh_->BindFrontIndex();
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
+  DrawFront(state.clip_path_range);
+  // back
+  mesh_->BindBackIndex();
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
+  DrawBack(state.clip_path_range);
+
+  GL_CALL(StencilMask, 0x0F);
+  GL_CALL(ColorMask, 1, 1, 1, 1);
 }
 
 void GLCanvasState::DrawFront(GLMeshRange const& range) {
