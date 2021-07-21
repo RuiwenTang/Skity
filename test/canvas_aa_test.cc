@@ -39,44 +39,27 @@ class CanvasAATest : public test::TestApp {
     paint.SetStrokeColor(1.f, 0.f, 0.f, 1.f);
     paint.SetFillColor(1.f, 1.f, 0.f, 1.f);
 
-    // paint.setAntiAlias(true);
-
     skity::Path path;
 
-    path.moveTo(50, 20);
-    path.lineTo(100, 60);
-    path.lineTo(70, 140);
-    path.close();
-
-    path.moveTo(350, 50);
-    path.cubicTo(556, 64, 310, 192, 550, 450);
+    path.moveTo(50, 50);
+    path.cubicTo(256, 64, 10, 192, 250, 450);
     path.close();
 
     canvas_->drawPath(path, paint);
 
-    skity::Path path2;
-    path2.moveTo(199, 34);
-    path2.lineTo(253, 143);
-    path2.lineTo(374, 160);
-    path2.lineTo(287, 244);
-    path2.lineTo(307, 365);
-    path2.lineTo(199, 309);
-    path2.lineTo(97, 365);
-    path2.lineTo(112, 245);
-    path2.lineTo(26, 161);
-    path2.lineTo(146, 143);
-    path2.close();
+    canvas_->save();
+    canvas_->translate(100, 0);
+    paint.setAntiAlias(true);
+    canvas_->drawPath(path, paint);
+    canvas_->restore();
 
-    skity::Paint paint2;
-    paint2.setStrokeWidth(3.f);
-    paint2.setStrokeJoin(skity::Paint::kRound_Join);
-    paint2.setStrokeCap(skity::Paint::kRound_Cap);
-    paint2.SetStrokeColor(0, 0, 1, 1);
-    paint2.SetFillColor(150.f / 255.f, 150.f / 255.f, 1.f, 1.f);
-    paint2.setStyle(skity::Paint::kFill_Style);
-    // paint2.setAntiAlias(true);
+    skity::Paint font_paint;
+    font_paint.setStyle(skity::Paint::kFill_Style);
+    font_paint.SetFillColor(1.f, 0.f, 0.f, 1.f);
 
-    canvas_->drawPath(path2, paint2);
+    canvas_->drawSimpleText("Hello World no AA", 250, 50, font_paint);
+    font_paint.setAntiAlias(true);
+    canvas_->drawSimpleText("Hello World with AA", 250, 120, font_paint);
 
     canvas_->flush();
   }
