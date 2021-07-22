@@ -91,7 +91,7 @@ class AutoPathBoundsUpdate {
 
   ~AutoPathBoundsUpdate() {
     if ((this->empty || has_valid_bounds) && rect.isFinite()) {
-        // TODO path->setBounds(rect);
+      // TODO path->setBounds(rect);
     }
   }
 
@@ -473,7 +473,146 @@ Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius) {
 
 Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
                   Direction sweep, float x, float y) {
-  // TODO implement
+  this->injectMoveToIfNeed();
+  std::array<Point, 2> src_pts{};
+  this->getLastPt(src_pts.data());
+  // If rx = 0 or ry = 0 then this arc is treated as a straight line segment
+  // joining the endpoints.
+  // http://www.w3.org/TR/SVG/implnote.html#ArcOutOfRangeParameters
+  if (!rx || !ry) {
+    return this->lineTo(x, y);
+  }
+  // If the current point and target point for the arc are identical, it should
+  // be treated as a zero length path. This ensures continuity in animations.
+  src_pts[1].x = x;
+  src_pts[1].y = y;
+  src_pts[1].z = 0;
+  src_pts[1].w = 1;
+
+  if (src_pts[0] == src_pts[1]) {
+    return this->lineTo(x, y);
+  }
+
+  rx = std::abs(rx);
+  ry = std::abs(ry);
+  Vector mid_point_distance = (src_pts[0] - src_pts[1]) * 0.5f;
+
+  Matrix point_transform =
+      glm::rotate(glm::identity<Matrix>(), -xAxisRotate, glm::vec3(0, 0, 1.f));
+
+  Point transformed_mid_point = point_transform * mid_point_distance;
+  float square_rx = rx * rx;
+  float square_ry = ry * ry;
+  float square_x = transformed_mid_point.x * transformed_mid_point.x;
+  float square_y = transformed_mid_point.y * transformed_mid_point.y;
+
+  // Check if the radii are big enough to draw the arc, scale radii if not.
+  //  http://www.w3.org/TR/SVG/implnote.html#ArcCorrectionOutOfRangeRadii
+  float radii_scale = square_x / square_rx + square_y / square_ry;
+  if (radii_scale > 1.f) {
+    radii_scale = std::sqrt(radii_scale);
+    rx *= radii_scale;
+    ry *= radii_scale;
+  }
+
+  point_transform =
+      glm::scale(glm::identity<Matrix>(), glm::vec3(1.f / rx, 1.f / ry, 1.f));
+
+  point_transform =
+      point_transform * glm::rotate(glm::identity<Matrix>(), -xAxisRotate,
+                                    glm::vec3{0.f, 0.f, 1.f});
+
+  std::array<Point, 2> unit_pts{};
+  unit_pts[0] = point_transform * src_pts[0];
+  unit_pts[1] = point_transform * src_pts[1];
+
+  Vector delta = unit_pts[1] - unit_pts[0];
+  float d = delta.x * delta.x + delta.y * delta.y;
+  float scale_factor_squared = std::max(1.f / d - 0.25f, 0.f);
+  float scale_factor = std::sqrt(scale_factor_squared);
+
+  if ((sweep == Direction::kCCW) != (bool)largeArc) {
+    scale_factor = -scale_factor;
+  }
+
+  PointScale(delta, scale_factor, &delta);
+  Point center_point = (unit_pts[0] + unit_pts[1]) * 0.5f;
+  center_point.x -= delta.y;
+  center_point.y += delta.x;
+  unit_pts[0] -= center_point;
+  unit_pts[1] -= center_point;
+  float theta1 = std::atan2(unit_pts[0].y, unit_pts[0].x);
+  float theta2 = std::atan2(unit_pts[1].y, unit_pts[1].x);
+  float theta_arc = theta2 - theta1;
+  if (theta_arc < 0 && (sweep == Direction::kCW)) {
+    // sweep flipped from the original implementation
+    theta_arc += glm::pi<float>() * 2.f;
+  } else if (theta_arc > 0 && (sweep != Direction::kCW)) {
+    theta_arc -= glm::pi<float>() * 2.f;
+  }
+
+  // Very tiny angles cause our subsequent math to go wonky (skbug.com/9272)
+  // so we do a quick check here. The precise tolerance amount is just made up.
+  // PI/million happens to fix the bug in 9272, but a larger value is probably
+  // ok too.
+  if (std::abs(theta_arc) < (glm::pi<float>() / (1000.f * 1000.f))) {
+    return this->lineTo(x, y);
+  }
+
+  point_transform = glm::rotate(glm::identity<Matrix>(), xAxisRotate,
+                                glm::vec3{0.f, 0.f, 1.f});
+  point_transform = point_transform *
+                    glm::scale(glm::identity<Matrix>(), glm::vec3{rx, ry, 1.f});
+
+  // the arc may be slightly bigger than 1/4 circle, so allow up to 1/3rd
+  int segments =
+      std::ceil(std::abs(theta_arc / (2.f * glm::pi<float>() / 3.f)));
+  float theta_width = theta_arc / segments;
+  float t = std::tan(theta_width * 0.5f);
+
+  if (!FloatIsFinite(t)) {
+    return *this;
+  }
+
+  float start_theta = theta1;
+  float w = std::sqrt(FloatHalf + std::cos(theta_width) * FloatHalf);
+  auto float_is_integer = [](float scalar) -> bool {
+    return scalar == std::floor(scalar);
+  };
+
+  bool expect_integers =
+      FloatNearlyZero(glm::pi<float>() / 2.f - std::abs(theta_width)) &&
+      float_is_integer(rx) && float_is_integer(ry) && float_is_integer(x) &&
+      float_is_integer(y);
+
+  for (int i = 0; i < segments; i++) {
+    float end_theta = start_theta + theta_width;
+    float sin_end_theta = FloatSinSnapToZero(end_theta);
+    float cos_end_theta = FloatCosSnapToZero(end_theta);
+
+    PointSet(unit_pts[1], cos_end_theta, sin_end_theta);
+    unit_pts[1] += center_point;
+    unit_pts[1].w = 1;  // FIXME
+
+    unit_pts[0] = unit_pts[1];
+    unit_pts[0].x += t * sin_end_theta;
+    unit_pts[0].y += -t * cos_end_theta;
+
+    std::array<Point, 2> mapped;
+    mapped[0] = unit_pts[0] * point_transform;
+    mapped[1] = unit_pts[1] * point_transform;
+
+    if (expect_integers) {
+      for (auto& point : mapped) {
+        point.x = std::round(point.x);
+        point.y = std::round(point.y);
+      }
+    }
+
+    this->conicTo(mapped[0], mapped[1], w);
+    start_theta = end_theta;
+  }
+
   return *this;
 }
 

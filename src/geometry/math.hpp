@@ -31,6 +31,16 @@ SkityIEEEFloatDivided(float number, float denom) {
 
 static inline bool FloatIsFinite(float x) { return !glm::isinf(x); }
 
+static inline float FloatSinSnapToZero(float radians) {
+  float v = std::sin(radians);
+  return FloatNearlyZero(v) ? 0.f : v;
+}
+
+static inline float FloatCosSnapToZero(float radians) {
+  float v = std::cos(radians);
+  return FloatNearlyZero(v) ? 0.f : v;
+}
+
 static inline float CrossProduct(glm::vec4 const& a, glm::vec4 const& b) {
   return a.x * b.y - a.y * b.x;
 }
