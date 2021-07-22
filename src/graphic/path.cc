@@ -89,6 +89,12 @@ class AutoPathBoundsUpdate {
     degenerate = is_degenerate(*path);
   }
 
+  ~AutoPathBoundsUpdate() {
+    if ((this->empty || has_valid_bounds) && rect.isFinite()) {
+        // TODO path->setBounds(rect);
+    }
+  }
+
  private:
   static void JoinNoEmptyChecks(Rect* dst, const Rect& src) {
     float s_left = src.left();
@@ -472,7 +478,19 @@ Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
 }
 
 Path& Path::addRect(Rect const& rect, Direction dir, uint32_t start) {
-  // TODO implement
+  this->setFirstDirection(this->hasOnlyMoveTos() ? dir : Direction::kUnknown);
+
+  AutoDisableDirectionCheck addc{this};
+  AutoPathBoundsUpdate adbu(this, rect);
+
+  Path_RectPointIterator iter{rect, dir, start};
+
+  this->moveTo(iter.current());
+  this->lineTo(iter.next());
+  this->lineTo(iter.next());
+  this->lineTo(iter.next());
+  this->close();
+
   return *this;
 }
 

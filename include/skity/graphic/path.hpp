@@ -159,6 +159,7 @@ class Path {
 
   Path& moveTo(float x, float y);
   Path& moveTo(Point const& point) { return moveTo(point.x, point.y); }
+  Path& lineTo(Point const& point) { return lineTo(point.x, point.y); }
   Path& lineTo(float x, float y);
   Path& quadTo(float x1, float y1, float x2, float y2);
   Path& conicTo(float x1, float y1, float x2, float y2, float weight);

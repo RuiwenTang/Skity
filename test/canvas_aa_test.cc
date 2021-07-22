@@ -61,6 +61,13 @@ class CanvasAATest : public test::TestApp {
     font_paint.setAntiAlias(true);
     canvas_->drawSimpleText("Hello World with AA", 250, 120, font_paint);
 
+
+    skity::Rect rect{400, 400, 600, 500};
+
+    skity::Path mix_path;
+    mix_path.addRect(rect);
+
+    canvas_->drawPath(mix_path, paint);
     canvas_->flush();
   }
 
