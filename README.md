@@ -2,7 +2,8 @@
 
 ## Example
 
-same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)
+same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
+<br/>
 ![skia_demo](./resources/skia_demo.png)
 
 ## Simple Demo
