@@ -63,6 +63,47 @@ void Canvas::drawLine(float x0, float y0, float x1, float y1,
   drawPath(path, paint);
 }
 
+void Canvas::drawCircle(float cx, float cy, float radius, Paint const &paint) {
+  if (radius < 0) {
+    radius = 0;
+  }
+
+  Rect r;
+  r.setLTRB(cx - radius, cy - radius, cx + radius, cy + radius);
+  this->drawOval(r, paint);
+}
+
+void Canvas::drawOval(Rect const &oval, Paint const &paint) {
+  RRect rrect;
+  rrect.setOval(oval);
+  this->drawRRect(rrect, paint);
+}
+
+void Canvas::drawRect(Rect const &rect, Paint const &paint) {
+  Path path;
+  path.addRect(rect);
+
+  this->drawPath(path, paint);
+}
+
+void Canvas::drawRRect(RRect const &rrect, Paint const &paint) {
+  Path path;
+  path.addRRect(rrect);
+
+  this->drawPath(path, paint);
+}
+
+void Canvas::drawRoundRect(Rect const &rect, float rx, float ry,
+                           Paint const &paint) {
+  if (rx > 0 && ry > 0) {
+    RRect rrect;
+    rrect.setRectXY(rect, rx, ry);
+    this->drawRRect(rrect, paint);
+  } else {
+    this->drawRect(rect, paint);
+  }
+}
+
 void Canvas::drawPath(const Path &path, const Paint &paint) {
   this->onDrawPath(path, paint);
 }

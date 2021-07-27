@@ -1,5 +1,10 @@
 # Vector Render based on OpenGL
 
+## Example
+
+same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)
+![skia_demo](./resources/skia_demo.png)
+
 ## Simple Demo
 
 ![demo](./resources/gl_canvas_test.png)

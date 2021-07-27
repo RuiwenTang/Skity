@@ -4,6 +4,7 @@
 #include <array>
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
+#include <skity/geometry/rrect.hpp>
 #include <vector>
 
 namespace skity {
@@ -254,6 +255,16 @@ class Path {
                 Direction dir = Direction::kCW) {
     return this->addRect({left, top, right, bottom}, dir, 0);
   }
+
+  Path& addRoundRect(Rect const& rect, float rx, float ry,
+                     Direction dir = Direction::kCW);
+
+  Path& addRoundRect(Rect const& rect, const float radii[],
+                     Direction dir = Direction::kCW);
+
+  Path& addRRect(RRect const& rrect, Direction dir = Direction::kCW);
+
+  Path& addRRect(RRect const& rrect, Direction dir, uint32_t start);
   /**
    * Append, in reverse order, the first contour of path, ignoring path's last
    * point. If no moveTo() call has been made for this contour, the first point

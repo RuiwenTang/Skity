@@ -119,6 +119,51 @@ class Canvas {
    */
   void drawLine(float x0, float y0, float x1, float y1, Paint const& paint);
 
+  /**
+   * Draws circle at center with radius using clip, Matrix, and Paint paint.
+   *
+   * @param cx      circle center on the x-axis
+   * @param cy      circle center on the y-axis
+   * @param radius  half the diameter of circle
+   * @param paint   Paint stroke or fill, blend, color, and so on, used to draw
+   */
+  void drawCircle(float cx, float cy, float radius, Paint const& paint);
+
+  /**
+   * Draws oval oval using clip, Matrix, and Paint.
+   *
+   * @param oval    Rect bounds of oval
+   * @param paint   Paint stroke or fill, blend, color, and so on, used to draw
+   */
+  void drawOval(Rect const& oval, Paint const& paint);
+
+  /**
+   * Draws Rect rect using clip, Matrix, and Paint paint.
+   *
+   * @param rect  rectangle to draw
+   * @param paint stroke or fill, blend, color, and so on, used to draw
+   */
+  void drawRect(Rect const& rect, Paint const& paint);
+
+  /**
+   * Draws RRect rrect using clip, Matrix, and Paint paint.
+   *
+   * @param rrect RRect with up to eight corner radii to draw
+   * @param paint Paint stroke or fill, blend, color, and so on, used to draw
+   */
+  void drawRRect(RRect const& rrect, Paint const& paint);
+
+  /**
+   * Draws RRect bounded by Rect rect, with corner radii (rx, ry) using clip,
+   * Matrix, and Paint paint.
+   *
+   * @param rect    Rect bounds of RRect to draw
+   * @param rx      axis length of x-axis of oval describing rounded corners
+   * @param ry      axis length on y-axis of oval describing rounded corners
+   * @param paint   stroke, blend, color, and so on, used to draw
+   */
+  void drawRoundRect(Rect const& rect, float rx, float ry, Paint const& paint);
+
   void drawPath(Path const& path, Paint const& paint);
 
   void flush();

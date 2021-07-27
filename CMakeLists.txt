@@ -43,6 +43,7 @@ include(FindFreetype)
 set(Skity_header
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
+        include/skity/geometry/rrect.hpp
         include/skity/graphic/paint.hpp
         include/skity/graphic/path.hpp
         include/skity/render/canvas.hpp
@@ -56,6 +57,7 @@ set(Skity_src
         src/geometry/math.hpp
         src/geometry/point_priv.hpp
         src/geometry/rect.cc
+        src/geometry/rrect.cc
         src/graphic/paint.cc
         src/graphic/path.cc
         src/render/canvas.cc

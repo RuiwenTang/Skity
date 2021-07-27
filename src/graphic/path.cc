@@ -66,6 +66,28 @@ class Path_OvalPointIterator : public Path_PointIterator<4> {
   }
 };
 
+class Path_RRectPointIterator : public Path_PointIterator<8> {
+ public:
+  Path_RRectPointIterator(RRect const& rrect, Path::Direction dir,
+                          uint32_t start_index)
+      : Path_PointIterator(dir, start_index) {
+    Rect const& bounds = rrect.getBounds();
+    float L = bounds.left();
+    float T = bounds.top();
+    float R = bounds.right();
+    float B = bounds.bottom();
+
+    pts[0] = Point{L + rrect.radii(RRect::kUpperLeft).x, T, 0, 1.f};
+    pts[1] = Point{R - rrect.radii(RRect::kUpperRight).x, T, 0, 1.f};
+    pts[2] = Point{R, T + rrect.radii(RRect::kUpperRight).y, 0, 1.f};
+    pts[3] = Point{R, B - rrect.radii(RRect::kLowerRight).y, 0, 1.f};
+    pts[4] = Point{R - rrect.radii(RRect::kLowerRight).x, B, 0, 1.f};
+    pts[5] = Point{L + rrect.radii(RRect::kLowerLeft).x, B, 0, 1.f};
+    pts[6] = Point{L, B - rrect.radii(RRect::kLowerLeft).y, 0, 1.f};
+    pts[7] = Point{L, T + rrect.radii(RRect::kUpperLeft).y, 0, 1.f};
+  }
+};
+
 class AutoDisableDirectionCheck {
  public:
   explicit AutoDisableDirectionCheck(Path* p)
@@ -653,6 +675,77 @@ Path& Path::close() {
 
   last_move_to_index_ ^=
       ~last_move_to_index_ >> (8 * sizeof(last_move_to_index_) - 1);
+
+  return *this;
+}
+
+Path& Path::addRoundRect(Rect const& rect, float rx, float ry, Direction dir) {
+  if (rx < 0 || ry < 0) {
+    return *this;
+  }
+
+  RRect rrect;
+  rrect.setRectXY(rect, rx, ry);
+
+  return this->addRRect(rrect, dir);
+}
+
+Path& Path::addRRect(RRect const& rrect, Direction dir) {
+  // legacy start indices: 6 (CW) and 7(CCW)
+  return this->addRRect(rrect, dir, dir == Direction::kCW ? 6 : 7);
+}
+
+Path& Path::addRRect(RRect const& rrect, Direction dir, uint32_t start_index) {
+  bool is_rrect = hasOnlyMoveTos();
+
+  Rect const& bounds = rrect.getBounds();
+
+  if (rrect.isRect() || rrect.isEmpty()) {
+    // degenerate(rect) => radii points are collapsing
+    this->addRect(bounds, dir, (start_index + 1) / 2);
+  } else if (rrect.isOval()) {
+    // degenerate(oval) => line points are collapsing
+    this->addOval(bounds, dir, start_index / 2);
+  } else {
+    this->setFirstDirection(this->hasOnlyMoveTos() ? dir : Direction::kUnknown);
+
+    AutoPathBoundsUpdate apbu{this, bounds};
+    AutoDisableDirectionCheck addc{this};
+
+    // we start with a conic on odd indices when moving CW vs.
+    // even indices when moving CCW
+    bool starts_with_conic = ((start_index & 1) == (dir == Direction::kCW));
+    float weight = FloatRoot2Over2;
+
+    int initial_verb_count = this->countVerbs();
+    int verbs = starts_with_conic
+                    ? 9    // moveTo + 4x conicTo + 3x lineTo + close
+                    : 10;  // moveTo + 4x lineTo + 4x conicTo + close
+
+    Path_RRectPointIterator rrect_iter{rrect, dir, start_index};
+    // Corner iterator indices follow the collapsed radii model,
+    // adjusted such that the start pt is "behind" the radii start pt.
+    uint32_t rect_start_index =
+        start_index / 2 + (dir == Direction::kCW ? 0 : 1);
+    Path_RectPointIterator rect_iter{bounds, dir, rect_start_index};
+
+    this->moveTo(rrect_iter.current());
+    if (starts_with_conic) {
+      for (uint32_t i = 0; i < 3; i++) {
+        this->conicTo(rect_iter.next(), rrect_iter.next(), weight);
+        this->lineTo(rrect_iter.next());
+      }
+      this->conicTo(rect_iter.next(), rrect_iter.next(), weight);
+      // final lineTo handled by close().
+    } else {
+      for (uint32_t i = 0; i < 4; i++) {
+        this->lineTo(rrect_iter.next());
+        this->conicTo(rect_iter.next(), rrect_iter.next(), weight);
+      }
+    }
+
+    this->close();
+  }
 
   return *this;
 }

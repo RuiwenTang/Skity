@@ -150,6 +150,10 @@ class Rect {
     return Rect{x, y, x + w, y + h};
   }
 
+  static float HalfWidth(Rect const& rect);
+
+  static float HalfHeight(Rect const& rect);
+
  private:
   float left_;
   float top_;

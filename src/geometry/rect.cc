@@ -5,7 +5,7 @@
 
 namespace skity {
 
-bool Rect::setBoundsCheck(const Point *pts, int count) {
+bool Rect::setBoundsCheck(const Point* pts, int count) {
   if (count <= 0) {
     setEmpty();
     return true;
@@ -62,6 +62,14 @@ bool Rect::isFinite() const {
   accum *= bottom_;
 
   return !FloatIsNan(accum);
+}
+
+float Rect::HalfWidth(Rect const& rect) {
+  return rect.right_ * FloatHalf - rect.left_ * FloatHalf;
+}
+
+float Rect::HalfHeight(Rect const& rect) {
+  return rect.bottom_ * FloatHalf - rect.top_ * FloatHalf;
 }
 
 }  // namespace skity

@@ -5,6 +5,7 @@
 
 namespace skity {
 
+using Vec2 = glm::vec2;
 using Point = glm::vec4;
 using Vector = Point;
 using Matrix = glm::mat4;
@@ -12,4 +13,3 @@ using Matrix = glm::mat4;
 }  // namespace skity
 
 #endif  // SKITY_INCLUDE_SKITY_GEOMETRY_POINT_HPP_
-
