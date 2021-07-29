@@ -75,6 +75,8 @@ struct QuadCoeff {
                          Vector* outTangent);
 
   static Vector EvalQuadTangentAt(std::array<Point, 3> const& src, float t);
+
+  static void ChopQuadAt(const Point src[3], Point dst[5], float t);
 };
 
 /**

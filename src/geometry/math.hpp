@@ -14,9 +14,25 @@ namespace skity {
 #define NearlyZero (Float1 / (1 << 12))
 #define FloatRoot2Over2 0.707106781f
 
+#define FixedToFloat(x) ((x)*1.52587890625e-5f)
+
 static inline bool FloatNearlyZero(float x, float tolerance = NearlyZero) {
   return glm::abs(x) <= tolerance;
 }
+
+static inline float FloatInterp(float A, float B, float t) {
+  return A + (B - A) * t;
+}
+
+static void P3DInterp(const float src[7], float dst[7], float t) {
+  float ab = FloatInterp(src[0], src[3], t);
+  float bc = FloatInterp(src[3], src[6], t);
+  dst[0] = ab;
+  dst[3] = FloatInterp(ab, bc, t);
+  dst[6] = bc;
+}
+
+static inline float SkityFloatHalf(float v) { return v * FloatHalf; }
 
 static inline float CubeRoot(float x) { return glm::pow(x, 0.3333333f); }
 

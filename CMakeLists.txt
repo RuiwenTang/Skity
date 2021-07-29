@@ -41,6 +41,7 @@ include(FindFreetype)
 
 
 set(Skity_header
+        include/skity/effect/path_effect.hpp
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
         include/skity/geometry/rrect.hpp
@@ -50,8 +51,13 @@ set(Skity_header
         )
 
 set(Skity_src
+        src/effect/discrete_path_effect.cc
+        src/effect/discrete_path_effect.hpp
+        src/effect/path_effect.cc
         src/geometry/conic.cc
         src/geometry/conic.hpp
+        src/geometry/contour_measure.cc
+        src/geometry/contour_measure.hpp
         src/geometry/geometry.cc
         src/geometry/geometry.hpp
         src/geometry/math.hpp
@@ -60,6 +66,8 @@ set(Skity_src
         src/geometry/rrect.cc
         src/graphic/paint.cc
         src/graphic/path.cc
+        src/graphic/path_measure.cc
+        src/graphic/path_measure.hpp
         src/graphic/path_priv.hpp
         src/render/canvas.cc
         src/render/gl/draw/gl_clear_stencil_op.cc

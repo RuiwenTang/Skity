@@ -249,11 +249,17 @@ class Path {
   Path& lineTo(Point const& point) { return lineTo(point.x, point.y); }
   Path& lineTo(float x, float y);
   Path& quadTo(float x1, float y1, float x2, float y2);
+  Path& quadTo(Point const& p1, Point const& p2) {
+    return this->quadTo(p1.x, p1.y, p2.x, p2.y);
+  }
   Path& conicTo(float x1, float y1, float x2, float y2, float weight);
   Path& conicTo(Point const& p1, Point const& p2, float weight) {
     return this->conicTo(p1.x, p1.y, p2.x, p2.y, weight);
   }
   Path& cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
+  Path& cubicTo(Point const& p1, Point const& p2, Point const& p3) {
+    return this->cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+  }
   Path& arcTo(float x1, float y1, float x2, float y2, float radius);
 
   enum ArcSize {

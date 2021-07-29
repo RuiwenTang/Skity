@@ -56,7 +56,12 @@ struct Conic {
   }
 
   void chop(Conic conics[2]) const;
+  bool chopAt(float t, Conic dst[2]) const;
+  void chopAt(float t1, float t2, Conic* dst) const;
 
+  void evalAt(float t, Point* pos, Vector* tangent = nullptr) const;
+  Point evalAt(float t) const;
+  Vector evalTangentAt(float t) const;
   /**
    * @brief Chop this conic into N quads, stored continguously in pts
    *
