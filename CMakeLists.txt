@@ -60,6 +60,7 @@ set(Skity_src
         src/geometry/rrect.cc
         src/graphic/paint.cc
         src/graphic/path.cc
+        src/graphic/path_priv.hpp
         src/render/canvas.cc
         src/render/gl/draw/gl_clear_stencil_op.cc
         src/render/gl/draw/gl_clear_stencil_op.hpp

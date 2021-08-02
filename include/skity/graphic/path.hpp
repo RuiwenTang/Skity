@@ -411,6 +411,11 @@ class Path {
    */
   void dump();
 
+  const Verb* verbsBegin() const { return verbs_.data(); }
+  const Verb* verbsEnd() const { return verbs_.data() + countVerbs(); }
+  const Point* points() const { return points_.data(); }
+  const float* conicWeights() const { return conic_weights_.data(); }
+
  private:
   void injectMoveToIfNeed();
   void computeBounds() const;
