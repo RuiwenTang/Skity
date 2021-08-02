@@ -148,6 +148,92 @@ class Path {
     const float* conic_weights_;
   };
 
+  class RangeIter final {
+   public:
+    RangeIter() = default;
+    RangeIter(const Verb* verbs, const Point* points, const float* weights)
+        : verb_(verbs), points_(points), weights_(weights) {}
+
+    bool operator!=(RangeIter const& other) const {
+      return verb_ != other.verb_;
+    }
+
+    bool operator==(RangeIter const& other) const {
+      return verb_ == other.verb_;
+    }
+
+    RangeIter& operator++() {
+      auto verb = *verb_++;
+      points_ += pts_advance_after_verb(verb);
+      if (verb == Verb::kConic) {
+        ++weights_;
+      }
+      return *this;
+    }
+
+    RangeIter operator++(int) {
+      RangeIter copy = *this;
+      this->operator++();
+      return copy;
+    }
+
+    std::tuple<Verb, const Point*, const float*> operator*() const {
+      Verb verb = this->peekVerb();
+      int backset = pts_backset_for_verb(verb);
+      return {verb, points_ + backset, weights_};
+    }
+
+    Verb peekVerb() const { return *verb_; }
+
+   private:
+    constexpr static int pts_advance_after_verb(Verb verb) {
+      switch (verb) {
+        case Verb::kMove:
+          return 1;
+        case Verb::kLine:
+          return 1;
+        case Verb::kQuad:
+          return 2;
+        case Verb::kConic:
+          return 2;
+        case Verb::kCubic:
+          return 3;
+        case Verb::kClose:
+          return 0;
+        default:
+          break;
+      }
+      // can not reach here
+      return 0;
+    }
+
+    constexpr static int pts_backset_for_verb(Verb verb) {
+      switch (verb) {
+        case Verb::kMove:
+          return 0;
+        case Verb::kLine:
+          return -1;
+        case Verb::kQuad:
+          return -1;
+        case Verb::kConic:
+          return -1;
+        case Verb::kCubic:
+          return -1;
+        case Verb::kClose:
+          return -1;
+        default:
+          break;
+      }
+      // can not reach here
+      return 0;
+    }
+
+   private:
+    const Verb* verb_ = nullptr;
+    const Point* points_ = nullptr;
+    const float* weights_ = nullptr;
+  };
+
   Path() = default;
   ~Path() = default;
 
