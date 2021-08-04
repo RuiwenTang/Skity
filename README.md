@@ -4,7 +4,7 @@
 
 same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
 <br/>
-<img src="./resources/skia_demo.png" width="300" height="300">
+<img src="./resources/skia_demo.png" width="600" height="600">
 
 ## Simple Demo
 
