@@ -2,9 +2,12 @@
 #define SKITY_GRAPHIC_PAINT_HPP
 
 #include <cstdint>
+#include <memory>
 #include <skity/geometry/point.hpp>
 
 namespace skity {
+
+class PathEffect;
 
 /**
  * @class Paint
@@ -107,6 +110,12 @@ class Paint {
 
   bool isAntiAlias() const;
 
+  void setPathEffect(std::shared_ptr<PathEffect> pathEffect) {
+    path_effect_ = pathEffect;
+  }
+
+  std::shared_ptr<PathEffect> getPathEffect() const { return path_effect_; }
+
  private:
   void updateMiterLimit();
 
@@ -119,6 +128,7 @@ class Paint {
   Vector fill_color_ = {1, 1, 1, 1};
   Vector stroke_color_ = {1, 1, 1, 1};
   bool is_anti_alias_ = false;
+  std::shared_ptr<PathEffect> path_effect_;
 };
 
 }  // namespace skity

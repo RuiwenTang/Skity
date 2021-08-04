@@ -1,6 +1,8 @@
 #ifndef SKITY_SRC_RENDER_GL_GL_STROKE_HPP
 #define SKITY_SRC_RENDER_GL_GL_STROKE_HPP
 
+#include <memory>
+#include <skity/effect/path_effect.hpp>
 #include <skity/geometry/point.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
@@ -70,6 +72,7 @@ class GLStroke {
   bool join_last_ = false;
   bool is_anti_alias_ = false;
   float anti_alias_width_ = 0.f;
+  std::shared_ptr<PathEffect> path_effect_;
 };
 
 }  // namespace skity

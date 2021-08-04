@@ -44,6 +44,26 @@ static inline void PointScale(Point const& src, float scale, Point* dst) {
   dst->w = 1;
 }
 
+static inline void PointRotateCCW(Point const& src, Point* dst) {
+  float tmp = src.x;
+  dst->x = src.y;
+  dst->y = -tmp;
+  dst->z = 0.f;
+  dst->w = 1.f;
+}
+
+static inline void PointRotateCCW(Point* pt) { PointRotateCCW(*pt, pt); }
+
+static inline void PointRotateCW(Point const& src, Point* dst) {
+  float tmp = src.x;
+  dst->x = -src.y;
+  dst->y = tmp;
+  dst->z = 0.f;
+  dst->w = 1.f;
+}
+
+static inline void PointRotateCW(Point* pt) { PointRotateCW(*pt, pt); }
+
 static inline bool PointEqualsWithinTolerance(Point const& pt, Point const& p,
                                               float tol) {
   return FloatNearlyZero(pt.x - p.x, tol) && FloatNearlyZero(pt.y - p.y, tol);
@@ -87,6 +107,10 @@ static inline float PointDistanceToSqd(Point const& pt, Point const& a) {
   float dx = pt.x - a.x;
   float dy = pt.y - a.y;
   return dx * dx + dy * dy;
+}
+
+static inline float PointDistance(Point const& a, Point const& b) {
+  return glm::length(glm::vec2(a - b));
 }
 
 static inline float PointLengthSqd(Point const& pt) {

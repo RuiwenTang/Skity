@@ -16,7 +16,8 @@ GLStroke::GLStroke(Paint const& paint)
       cap_(paint.getStrokeCap()),
       join_(paint.getStrokeJoin()),
       gl_vertex_(nullptr),
-      is_anti_alias_(paint.isAntiAlias()) {}
+      is_anti_alias_(paint.isAntiAlias()),
+      path_effect_(paint.getPathEffect()) {}
 
 GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   GLMeshRange range{};
@@ -26,7 +27,17 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   range.back_count = 0;
   range.aa_outline_start = gl_vertex->AAOutlineCount();
   range.aa_outline_count = 0;
-  Path::Iter iter{path, false};
+
+  const Path* dst;
+  Path tmp;
+  if (path_effect_ && path_effect_->filterPath(&tmp, path, false)) {
+    dst = &tmp;
+  } else {
+    dst = &path;
+  }
+
+  Path::Iter iter(*dst, true);
+
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
   bool has_close = false;

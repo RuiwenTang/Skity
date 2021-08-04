@@ -2,6 +2,8 @@
 // should after glad.h
 #include <GLFW/glfw3.h>
 
+#include <cmath>
+#include <skity/effect/path_effect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
@@ -31,7 +33,7 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
   return window;
 }
 
-void draw_canvas(skity::Canvas* canvas) {
+static void draw_basic_example(skity::Canvas* canvas) {
   skity::Paint paint;
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setAntiAlias(true);
@@ -56,8 +58,35 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->drawRoundRect(rect, 10, 10, paint);
 }
 
+static void draw_path_effect_example(skity::Canvas* canvas) {
+  const float R = 115.2f, C = 128.f;
+  skity::Path path;
+  path.moveTo(C + R, C);
+  for (int32_t i = 1; i < 8; i++) {
+    float a = 2.6927937f * i;
+    path.lineTo(C + R * std::cos(a), C + R * std::sin(a));
+  }
+
+  skity::Paint paint;
+  paint.setPathEffect(skity::PathEffect::MakeDiscretePathEffect(10.f, 4.f));
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setStrokeWidth(2.f);
+  paint.setAntiAlias(true);
+  paint.SetStrokeColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+  canvas->drawPath(path, paint);
+}
+
+void draw_canvas(skity::Canvas* canvas) {
+  draw_basic_example(canvas);
+
+  canvas->save();
+  canvas->translate(300, 0);
+  draw_path_effect_example(canvas);
+  canvas->restore();
+}
+
 int main(int argc, const char** argv) {
-  GLFWwindow* window = init_glfw_window(300, 300, "SKITY render example");
+  GLFWwindow* window = init_glfw_window(600, 600, "SKITY render example");
 
   glClearColor(1.f, 1.f, 1.f, 1.f);
   glClearStencil(0x0);
@@ -67,7 +96,7 @@ int main(int argc, const char** argv) {
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   auto canvas =
-      skity::Canvas::MakeGLCanvas(0, 0, 300, 300, (void*)glfwGetProcAddress);
+      skity::Canvas::MakeGLCanvas(0, 0, 600, 600, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

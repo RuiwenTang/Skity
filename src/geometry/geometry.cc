@@ -1,6 +1,8 @@
 
 #include "src/geometry/geometry.hpp"
 
+#include <cassert>
+
 #include "src/geometry/conic.hpp"
 #include "src/geometry/math.hpp"
 #include "src/geometry/point_priv.hpp"
@@ -85,6 +87,24 @@ Vector QuadCoeff::EvalQuadTangentAt(std::array<Point, 3> const& src, float t) {
   glm::vec2 T = A * glm::vec2{t, t} + B;
 
   return Vector{T + T, 0, 0};
+}
+
+void QuadCoeff::ChopQuadAt(const Point src[3], Point dst[5], float t) {
+  assert(t > 0 && t < Float1);
+
+  Vec2 p0 = FromPoint(src[0]);
+  Vec2 p1 = FromPoint(src[1]);
+  Vec2 p2 = FromPoint(src[2]);
+  Vec2 tt{t};
+
+  Vec2 p01 = Interp(p0, p1, tt);
+  Vec2 p12 = Interp(p1, p2, tt);
+
+  dst[0] = ToPoint(p0);
+  dst[1] = ToPoint(p01);
+  dst[2] = ToPoint(Interp(p01, p12, tt));
+  dst[3] = ToPoint(p12);
+  dst[4] = ToPoint(p2);
 }
 
 CubicCoeff::CubicCoeff(std::array<Point, 4> const& src) {

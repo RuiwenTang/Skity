@@ -187,6 +187,97 @@ void Conic::chop(Conic dst[2]) const {
   dst[0].w = dst[1].w = new_weight;
 }
 
+static void ratquad_mapTo3D(const Point src[3], float w, Vec3 dst[3]) {
+  dst[0].x = src[0].x * 1.f;
+  dst[0].y = src[0].y * 1.f;
+  dst[0].z = 1.f;
+
+  dst[1].x = src[1].x * w;
+  dst[1].y = src[1].y * w;
+  dst[1].z = w;
+
+  dst[2].x = src[2].x * 1.f;
+  dst[2].y = src[2].y * 1.f;
+  dst[2].z = 1.f;
+}
+
+static inline Point project_down(Vec3 const& src) {
+  return Point{src.x / src.z, src.y / src.z, 0.f, 1.f};
+}
+
+bool Conic::chopAt(float t, Conic dst[2]) const {
+  std::array<Vec3, 3> tmp, tmp2;
+
+  ratquad_mapTo3D(pts, w, tmp.data());
+
+  P3DInterp(&tmp[0].x, &tmp2[0].x, t);
+  P3DInterp(&tmp[0].y, &tmp2[0].y, t);
+  P3DInterp(&tmp[0].z, &tmp2[0].z, t);
+
+  dst[0].pts[0] = this->pts[0];
+  dst[0].pts[1] = project_down(tmp2[0]);
+  dst[0].pts[2] = project_down(tmp2[1]);
+
+  dst[1].pts[0] = dst[0].pts[2];
+  dst[1].pts[1] = project_down(tmp2[2]);
+  dst[1].pts[2] = this->pts[2];
+
+  // to put in "standard form", where w0 and w2 are both 1, we compute the
+  // new w1 as sqrt(w1*w1/w0*w2)
+  // or
+  // w1 /= sqrt(w0*w2)
+  //
+  // However, in our case, we know that for dst[0]:
+  //     w0 == 1, and for dst[1], w2 == 1
+  //
+  float root = std::sqrt(tmp2[1].z);
+  dst[0].w = tmp2[0].z / root;
+  dst[1].w = tmp2[2].z / root;
+  return FloatIsFinite(dst[0].pts[0].x) && FloatIsFinite(dst[0].pts[0].y) &&
+         FloatIsFinite(dst[0].pts[1].x) && FloatIsFinite(dst[0].pts[1].y) &&
+         FloatIsFinite(dst[0].pts[2].x) && FloatIsFinite(dst[0].pts[2].y) &&
+         FloatIsFinite(dst[0].w) && FloatIsFinite(dst[1].pts[0].x) &&
+         FloatIsFinite(dst[1].pts[0].y) && FloatIsFinite(dst[1].pts[1].x) &&
+         FloatIsFinite(dst[1].pts[1].y) && FloatIsFinite(dst[1].pts[2].x) &&
+         FloatIsFinite(dst[1].pts[2].y) && FloatIsFinite(dst[1].w);
+}
+
+void Conic::chopAt(float t1, float t2, Conic* dst) const {
+  if (0 == t1 || 1 == t2) {
+    if (0 == t1 && 1 == t2) {
+      *dst = *this;
+      return;
+    } else {
+      Conic pair[2];
+      if (this->chopAt(t1 ? t1 : t2, pair)) {
+        *dst = pair[(t1 != 0) ? 1 : 0];
+        return;
+      }
+    }
+  }
+
+  ConicCoeff coeff{*this};
+
+  Vec2 tt1{t1};
+  Vec2 aXY = coeff.numer.eval(tt1);
+  Vec2 aZZ = coeff.denom.eval(tt1);
+  Vec2 midTT{(t1 + t2) / 2};
+  Vec2 dXY = coeff.numer.eval(midTT);
+  Vec2 dZZ = coeff.denom.eval(midTT);
+
+  Vec2 tt2{t2};
+  Vec2 cXY = coeff.numer.eval(tt2);
+  Vec2 cZZ = coeff.denom.eval(tt2);
+  Vec2 bXY = Times2(dXY) - (aXY + cXY) * Vec2{0.5f};
+  Vec2 bZZ = Times2(dZZ) - (aZZ + cZZ) * Vec2{0.5f};
+  dst->pts[0] = ToPoint(aXY / aZZ);
+  dst->pts[1] = ToPoint(bXY / bZZ);
+  dst->pts[2] = ToPoint(cXY / cZZ);
+
+  Vec2 ww = bZZ / (glm::sqrt(aZZ * cZZ));
+  dst->w = ww[0];
+}
+
 uint32_t Conic::chopIntoQuadsPOW2(Point* pts, uint32_t pow2) {
   if (pow2 == kMaxConicToQuadPOW2) {
     std::array<Conic, 2> dst = {};
@@ -213,6 +304,48 @@ commonFinitePtCheck:
   }
 
   return 1 << pow2;
+}
+
+void Conic::evalAt(float t, Point* pt, Vector* tangent) const {
+  assert(t >= 0 && t <= Float1);
+
+  if (pt) {
+    *pt = this->evalAt(t);
+  }
+
+  if (tangent) {
+    *tangent = this->evalTangentAt(t);
+  }
+}
+
+Point Conic::evalAt(float t) const {
+  return ToPoint(ConicCoeff{*this}.eval(t));
+}
+
+Vector Conic::evalTangentAt(float t) const {
+  // The derivative equation returns a zero tangent vector when t is 0 or 1,
+  // and the control point is equal to the end point.
+  // In this case, use the conic endpoints to compute the tangent.
+  if ((t == 0 && pts[0] == pts[1]) || (t == 1 && pts[1] == pts[2])) {
+    return pts[2] - pts[0];
+  }
+
+  Vec2 p0 = FromPoint(pts[0]);
+  Vec2 p1 = FromPoint(pts[1]);
+  Vec2 p2 = FromPoint(pts[2]);
+
+  Vec2 ww{this->w};
+
+  Vec2 p20 = p2 - p0;
+  Vec2 p10 = p1 - p0;
+
+  Vec2 C = ww * p10;
+  Vec2 A = ww * p20 - p20;
+  Vec2 B = p20 - C - C;
+
+  auto ret = QuadCoeff{A, B, C}.eval(t);
+
+  return Vector{ret, 0, 0};
 }
 
 }  // namespace skity

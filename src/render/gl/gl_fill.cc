@@ -1,6 +1,7 @@
 #include "src/render/gl/gl_fill.hpp"
 
 #include <array>
+#include <skity/effect/path_effect.hpp>
 
 #include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"
@@ -18,7 +19,16 @@ GLMeshRange GLFill::fillPath(Path const& path, Paint const& paint,
   range.aa_outline_start = gl_vertex->AAOutlineCount();
   range.aa_outline_count = 0;
 
-  Path::Iter iter(path, true);
+  const Path* dst;
+  Path tmp;
+  if (paint.getPathEffect() &&
+      paint.getPathEffect()->filterPath(&tmp, path, false)) {
+    dst = &tmp;
+  } else {
+    dst = &path;
+  }
+
+  Path::Iter iter(*dst, true);
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts;
 
