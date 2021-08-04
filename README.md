@@ -26,6 +26,8 @@ same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<
 
 - Line caps and joins (done)
 
-- PathEffect dash (in progress)
+- PathEffect dash (in progress, fill with aa is not working)
+
+  - implement a simple discrete path effect
 
 - Image (in progress)
