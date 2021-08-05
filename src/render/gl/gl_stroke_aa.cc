@@ -25,7 +25,7 @@ GLMeshRange GLStrokeAA::StrokePathAA(Path const& path, GLVertex* gl_vertex) {
     Path::Verb verb = iter.next(pts.data());
     switch (verb) {
       case Path::Verb::kMove:
-        // no need to handle move
+        prev_pt_ = pts[0];
         break;
       case Path::Verb::kLine:
         HandleLineTo(pts[0], pts[1]);
@@ -82,6 +82,34 @@ void GLStrokeAA::HandleLineTo(Point const& from, Point const& to) {
 
   gl_vertex_->AddAAOutline(from_2_index, from_index, to_index);
   gl_vertex_->AddAAOutline(from_2_index, to_index, to_2_index);
+
+  if (prev_pt_ != from) {
+    Vector prev_dir = glm::normalize(from - prev_pt_);
+    Vector prev_vertical_dir = Vector{prev_dir.y, -prev_dir.x, 0, 0};
+    Vector outer_dir = (prev_dir - curr_dir) * 0.5f;
+    Point aa_p1;
+    if (glm::dot(outer_dir, prev_vertical_dir) < 0) {
+      aa_p1 = from - prev_vertical_dir * aa_width_;
+    } else {
+      aa_p1 = from + prev_vertical_dir * aa_width_;
+    }
+
+    Point aa_p2 = from_1;
+    if (glm::dot(outer_dir, vertical_line) < 0) {
+      aa_p2 = from_2;
+    }
+
+    int32_t aa_p1_index = gl_vertex_->AddPoint(
+        aa_p1.x, aa_p1.y, 0.0f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+    int32_t aa_p2_index = gl_vertex_->AddPoint(
+        aa_p2.x, aa_p2.y, 0.0f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+    int32_t aa_from_index = gl_vertex_->AddPoint(
+        from.x, from.y, 1.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+    gl_vertex_->AddAAOutline(aa_p1_index, aa_p2_index, aa_from_index);
+  }
+
+  prev_pt_ = from;
 }
 
 void GLStrokeAA::HandleQuadTo(Point const& start, Point const& control,

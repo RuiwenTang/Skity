@@ -33,6 +33,8 @@ class GLStrokeAA final {
  private:
   float aa_width_;
   GLVertex* gl_vertex_;
+  Point prev_pt_ = {};
+  bool first_line_ = true;
 };
 
 }  // namespace skity

@@ -6,6 +6,7 @@
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+#include "src/render/gl/gl_stroke_aa.hpp"
 
 namespace skity {
 
@@ -359,6 +360,15 @@ void GLStroke::HandleCap(Point const& point, Vector const& outer_dir) {
     gl_vertex_->AddFront(p_index, p_1_3_index, p_3_index);
     gl_vertex_->AddFront(p_index, p_3_index, p_2_3_index);
     gl_vertex_->AddFront(p_index, p_2_3_index, p_2_index);
+
+    if (is_anti_alias_) {
+      GLStrokeAA stroke_aa{1.f};
+      Path temp_path;
+      temp_path.moveTo(p_1);
+      temp_path.conicTo(p_1_3, p_3, FloatRoot2Over2);
+      temp_path.conicTo(p_2_3, p_2, FloatRoot2Over2);
+      stroke_aa.StrokePathAA(temp_path, gl_vertex_);
+    }
   } else {
     // square cap
     int32_t p_1_index = gl_vertex_->AddPoint(
