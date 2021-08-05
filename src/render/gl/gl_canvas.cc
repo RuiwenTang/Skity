@@ -354,7 +354,17 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     auto fill_color = paint.GetFillColor();
 
-    if (!need_stroke && paint.isAntiAlias()) {
+    bool need_antialias = paint.isAntiAlias();
+
+    if (need_stroke && need_antialias) {
+      need_antialias = false;
+      if (paint.getPathEffect() && paint.getPathEffect()->asADash(nullptr) ==
+                                       PathEffect::DashType::kDash) {
+        need_antialias = true;
+      }
+    }
+
+    if (need_antialias) {
       GLStrokeAA strokeAA(1.f);
       GLMeshRange aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
 
