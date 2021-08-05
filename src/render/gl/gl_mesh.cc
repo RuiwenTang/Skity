@@ -37,7 +37,7 @@ void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLMesh::UploadAAOulineIndex(void* data, uint32_t length) {
+void GLMesh::uploadAaOutlineIndex(void* data, uint32_t length) {
   assert(buffers_[3] != 0);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
   GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, data, GL_STATIC_DRAW);

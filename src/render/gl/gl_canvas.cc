@@ -414,8 +414,8 @@ void GLCanvas::onFlush() {
   mesh_->UploadBackIndex(gl_vertex_.GetBackIndexData(),
                          gl_vertex_.GetBackIndexDataSize());
 
-  mesh_->UploadAAOulineIndex(gl_vertex_.GetAAIndexData(),
-                             gl_vertex_.GetAAIndexDataSize());
+  mesh_->uploadAaOutlineIndex(gl_vertex_.GetAAIndexData(),
+                              gl_vertex_.GetAAIndexDataSize());
 
   GL_CALL(ColorMask, 1, 1, 1, 1);
   GL_CALL(Clear, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

@@ -70,7 +70,7 @@ struct Conic {
    * @return      number of quad storaged in pts
    */
   uint32_t chopIntoQuadsPOW2(Point pts[], uint32_t pow2);
-  Point pts[3];
+  Point pts[3] = {};
   float w = 0.f;
 };
 

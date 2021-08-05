@@ -23,7 +23,7 @@ class GLMesh {
   void UploadVertexBuffer(void* data, uint32_t length);
   void UploadFrontIndex(void* data, uint32_t length);
   void UploadBackIndex(void* data, uint32_t length);
-  void UploadAAOulineIndex(void* data, uint32_t length);
+  void uploadAaOutlineIndex(void* data, uint32_t length);
   // generate vao and gl_buffers
   void Init();
 

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <skity/geometry/point.hpp>
+#include <utility>
 
 namespace skity {
 
@@ -111,7 +112,7 @@ class Paint {
   bool isAntiAlias() const;
 
   void setPathEffect(std::shared_ptr<PathEffect> pathEffect) {
-    path_effect_ = pathEffect;
+    path_effect_ = std::move(pathEffect);
   }
 
   std::shared_ptr<PathEffect> getPathEffect() const { return path_effect_; }

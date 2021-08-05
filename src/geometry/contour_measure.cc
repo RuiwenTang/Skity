@@ -118,8 +118,8 @@ static void contour_measure_seg_to(const Point pts[], unsigned segType,
     return;
   }
 
-  std::array<Point, 7> tmp0;
-  std::array<Point, 7> tmp1;
+  std::array<Point, 7> tmp0 = {};
+  std::array<Point, 7> tmp1 = {};
 
   switch (segType) {
     case ContourMeasure::kLine_SegType:
@@ -245,7 +245,7 @@ float ContourMeasureIter::Impl::ComputeLineSeg(Point p0, Point p1,
   distance += d;
   if (distance > prevD) {
     assert(pt_index < pts_.size());
-    ContourMeasure::Segment seg;
+    ContourMeasure::Segment seg{};
     seg.distance = distance;
     seg.pt_index = pt_index;
     seg.type = ContourMeasure::kLine_SegType;
@@ -259,8 +259,8 @@ float ContourMeasureIter::Impl::ComputedQuadSegs(const Point pts[3],
                                                  float distance, int mint,
                                                  int maxt, uint32_t pt_index) {
   if (tspan_big_enough(maxt - mint) && quad_too_curvy(pts, to_lerance_)) {
-    std::array<Point, 3> tmp1;
-    std::array<Point, 3> tmp2;
+    std::array<Point, 3> tmp1{};
+    std::array<Point, 3> tmp2{};
     int halft = (mint + maxt) >> 1;
 
     SubDividedQuad(pts, tmp1.data(), tmp2.data());
@@ -274,7 +274,7 @@ float ContourMeasureIter::Impl::ComputedQuadSegs(const Point pts[3],
     distance += d;
     if (distance > prevD) {
       assert(pt_index < pts_.size());
-      ContourMeasure::Segment seg;
+      ContourMeasure::Segment seg{};
       seg.distance = distance;
       seg.pt_index = pt_index;
       seg.type = ContourMeasure::kQuad_SegType;
@@ -308,7 +308,7 @@ float ContourMeasureIter::Impl::ComputeConicSegs(Conic const& conic,
     distance += d;
     if (distance > prevD) {
       assert(pt_index < pts_.size());
-      ContourMeasure::Segment seg;
+      ContourMeasure::Segment seg{};
       seg.distance = distance;
       seg.pt_index = pt_index;
       seg.type = ContourMeasure::kConic_SegType;
@@ -324,8 +324,8 @@ float ContourMeasureIter::Impl::ComputeCubicSegs(const Point pts[4],
                                                  float distance, int mint,
                                                  int maxt, uint32_t pt_index) {
   if (tspan_big_enough(maxt - mint) && cubic_too_curvy(pts, to_lerance_)) {
-    std::array<Point, 4> tmp1;
-    std::array<Point, 4> tmp2;
+    std::array<Point, 4> tmp1{};
+    std::array<Point, 4> tmp2{};
     int halft = (mint + maxt) >> 1;
 
     SubDividedCubic(pts, tmp1.data(), tmp2.data());
@@ -340,7 +340,7 @@ float ContourMeasureIter::Impl::ComputeCubicSegs(const Point pts[4],
     if (distance > prevD) {
       assert(pt_index < pts_.size());
 
-      ContourMeasure::Segment seg;
+      ContourMeasure::Segment seg{};
       seg.distance = distance;
       seg.pt_index = pt_index;
       seg.type = ContourMeasure::kCubic_SegType;
@@ -446,7 +446,7 @@ ContourMeasure* ContourMeasureIter::Impl::buildSegments() {
     return nullptr;
   }
 
-  if (segments_.size() == 0) {
+  if (segments_.empty()) {
     return nullptr;
   }
 
@@ -466,14 +466,14 @@ ContourMeasure* ContourMeasureIter::Impl::buildSegments() {
 
 //--------------------------------- ContourMeasureIter --------------------
 
-ContourMeasureIter::ContourMeasureIter() {}
+ContourMeasureIter::ContourMeasureIter() = default;
 
 ContourMeasureIter::ContourMeasureIter(Path const& path, bool forceClosed,
                                        float resScale) {
   this->reset(path, forceClosed, resScale);
 }
 
-ContourMeasureIter::~ContourMeasureIter() {}
+ContourMeasureIter::~ContourMeasureIter() = default;
 
 void ContourMeasureIter::reset(Path const& path, bool forceClosed,
                                float resScale) {
@@ -545,7 +545,7 @@ bool ContourMeasure::getPosTan(float distance, Point* position,
   }
 
   float length = this->length();
-  assert(length > 0 && segments_.size() > 0);
+  assert(length > 0 && !segments_.empty());
 
   if (distance < 0) {
     distance = 0;
