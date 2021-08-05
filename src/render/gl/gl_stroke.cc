@@ -37,7 +37,7 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
     dst = &path;
   }
 
-  Path::Iter iter(*dst, true);
+  Path::Iter iter(*dst, false);
 
   gl_vertex_ = gl_vertex;
   std::array<Point, 4> pts{};

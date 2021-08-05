@@ -76,6 +76,34 @@ static void draw_path_effect_example(skity::Canvas* canvas) {
   canvas->drawPath(path, paint);
 }
 
+static void draw_dash_start_example(skity::Canvas* canvas) {
+  skity::Path path;
+  path.moveTo(199, 34);
+  path.lineTo(253, 143);
+  path.lineTo(374, 160);
+  path.lineTo(287, 244);
+  path.lineTo(307, 365);
+  path.lineTo(199, 309);
+  path.lineTo(97, 365);
+  path.lineTo(112, 245);
+  path.lineTo(26, 161);
+  path.lineTo(146, 143);
+  path.close();
+
+  skity::Paint paint;
+  paint.setStrokeWidth(3.f);
+  paint.setStrokeJoin(skity::Paint::kRound_Join);
+  paint.setStrokeCap(skity::Paint::kRound_Cap);
+  paint.SetStrokeColor(0, 0, 1, 1);
+  paint.SetFillColor(150.f / 255.f, 150.f / 255.f, 1.f, 1.f);
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kStrokeAndFill_Style);
+  float pattern[2] = {10.f, 10.f};
+  paint.setPathEffect(skity::PathEffect::MakeDashPathEffect(pattern, 2, 0));
+
+  canvas->drawPath(path, paint);
+}
+
 void draw_canvas(skity::Canvas* canvas) {
   draw_basic_example(canvas);
 
@@ -83,10 +111,15 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->translate(300, 0);
   draw_path_effect_example(canvas);
   canvas->restore();
+
+  canvas->save();
+  canvas->translate(0, 300);
+  draw_dash_start_example(canvas);
+  canvas->restore();
 }
 
 int main(int argc, const char** argv) {
-  GLFWwindow* window = init_glfw_window(600, 600, "SKITY render example");
+  GLFWwindow* window = init_glfw_window(800, 800, "SKITY render example");
 
   glClearColor(1.f, 1.f, 1.f, 1.f);
   glClearStencil(0x0);
@@ -96,7 +129,7 @@ int main(int argc, const char** argv) {
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   auto canvas =
-      skity::Canvas::MakeGLCanvas(0, 0, 600, 600, (void*)glfwGetProcAddress);
+      skity::Canvas::MakeGLCanvas(0, 0, 800, 800, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
