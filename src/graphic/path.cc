@@ -914,6 +914,24 @@ bool Path::isFinite() const {
   return is_finite_;
 }
 
+bool Path::isLine(Point* line) const {
+  int verb_count = this->countVerbs();
+
+  if (2 == verb_count) {
+    assert(verbs_.front() == Verb::kMove);
+    if (verbs_[1] == Verb::kLine) {
+      assert(2 == this->countPoints());
+      if (line) {
+        const Point * pts = points();
+        line[0] = pts[0];
+        line[1] = pts[1];
+      }
+    }
+  }
+
+  return false;
+}
+
 bool Path::operator==(const Path& other) {
   return (this == std::addressof(other)) ||
          (last_move_to_index_ == other.last_move_to_index_ &&

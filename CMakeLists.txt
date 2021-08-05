@@ -51,6 +51,8 @@ set(Skity_header
         )
 
 set(Skity_src
+        src/effect/dash_path_effect.cc
+        src/effect/dash_path_effect.hpp
         src/effect/discrete_path_effect.cc
         src/effect/discrete_path_effect.hpp
         src/effect/path_effect.cc

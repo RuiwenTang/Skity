@@ -17,7 +17,8 @@ GLStroke::GLStroke(Paint const& paint)
       join_(paint.getStrokeJoin()),
       gl_vertex_(nullptr),
       is_anti_alias_(paint.isAntiAlias()),
-      path_effect_(paint.getPathEffect()) {}
+      path_effect_(paint.getPathEffect()),
+      paint_(paint) {}
 
 GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   GLMeshRange range{};
@@ -30,7 +31,7 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
 
   const Path* dst;
   Path tmp;
-  if (path_effect_ && path_effect_->filterPath(&tmp, path, false)) {
+  if (path_effect_ && path_effect_->filterPath(&tmp, path, true, paint_)) {
     dst = &tmp;
   } else {
     dst = &path;
@@ -39,7 +40,7 @@ GLMeshRange GLStroke::strokePath(Path const& path, GLVertex* gl_vertex) {
   Path::Iter iter(*dst, true);
 
   gl_vertex_ = gl_vertex;
-  std::array<Point, 4> pts;
+  std::array<Point, 4> pts{};
   bool has_close = false;
 
   if (is_anti_alias_) {

@@ -374,6 +374,13 @@ class Path {
    * @return true if all Point values are finite
    */
   bool isFinite() const;
+  /**
+   * Returns true if Path contains only one line;
+   * @param line    if Path contains one line and line is not nullptr, line is
+   *                set to this array
+   * @return        true if Path contains exactly one line
+   */
+  bool isLine(Point line[2]) const;
   bool isEmpty() const { return 0 == countVerbs(); }
 
   bool operator==(const Path& other);

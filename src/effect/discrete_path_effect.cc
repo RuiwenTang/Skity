@@ -62,8 +62,8 @@ DiscretePathEffect::DiscretePathEffect(float seg_length, float deviation,
       perterb_(deviation),
       seed_assist_(seed_assist) {}
 
-bool DiscretePathEffect::onFilterPath(Path* dst, Path const& src,
-                                      bool stroke) const {
+bool DiscretePathEffect::onFilterPath(Path* dst, Path const& src, bool stroke,
+                                      Paint const&) const {
   bool do_fill = !stroke;
 
   PathMeasure meas{src, do_fill};

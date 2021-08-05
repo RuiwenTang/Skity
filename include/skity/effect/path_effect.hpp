@@ -6,6 +6,7 @@
 namespace skity {
 
 class Path;
+class Paint;
 
 /**
  * @class PathEffect
@@ -27,10 +28,12 @@ class PathEffect {
    * @param dst			output of this effect
    * @param src			input of this effect
    * @param stroke	specify if path need stroke
+   * @param paint       current paint for drawing this path
    * @return true		this effect can be applied
    * @return false	this effect cannot be applied
    */
-  bool filterPath(Path* dst, Path const& src, bool stroke) const;
+  bool filterPath(Path* dst, Path const& src, bool stroke,
+                  Paint const& paint) const;
 
   /**
    * If the PathEffect can be represented as a dash pattern, asADash will return
@@ -74,10 +77,13 @@ class PathEffect {
   static std::shared_ptr<PathEffect> MakeDiscretePathEffect(
       float seg_length, float dev, uint32_t seed_assist = 0);
 
+  static std::shared_ptr<PathEffect> MakeDashPathEffect(const float intervals[],
+                                                        int count, float phase);
+
  protected:
   PathEffect() = default;
 
-  virtual bool onFilterPath(Path*, Path const&, bool) const = 0;
+  virtual bool onFilterPath(Path*, Path const&, bool, Paint const&) const = 0;
 
   virtual DashType onAsADash(DashInfo*) const { return DashType::kNone; }
 };

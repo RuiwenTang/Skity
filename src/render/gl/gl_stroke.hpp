@@ -73,6 +73,7 @@ class GLStroke {
   bool is_anti_alias_ = false;
   float anti_alias_width_ = 0.f;
   std::shared_ptr<PathEffect> path_effect_;
+  Paint paint_;
 };
 
 }  // namespace skity

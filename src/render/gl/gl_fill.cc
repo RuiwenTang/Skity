@@ -22,7 +22,7 @@ GLMeshRange GLFill::fillPath(Path const& path, Paint const& paint,
   const Path* dst;
   Path tmp;
   if (paint.getPathEffect() &&
-      paint.getPathEffect()->filterPath(&tmp, path, false)) {
+      paint.getPathEffect()->filterPath(&tmp, path, false, paint)) {
     dst = &tmp;
   } else {
     dst = &path;
