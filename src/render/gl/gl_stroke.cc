@@ -407,6 +407,8 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
   Point outer;
   Matrix matrix_pre;
   Matrix matrix_cur;
+  Matrix matrix_aa_pre;
+  Matrix matrix_aa_cur;
   Point p1 = Point(prev_fromt_pt_.x, prev_fromt_pt_.y, 0, 1);
   Point p2 = Point(from.x, from.y, 0, 1);
   Point p3 = Point(to.x, to.y, 0, 1);
@@ -420,21 +422,37 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
     matrix_pre =
         glm::translate(glm::vec3{-prev_vertical_line.x * stroke_radius_,
                                  -prev_vertical_line.y * stroke_radius_, 0});
+    matrix_aa_pre = glm::translate(
+        glm::vec3{-prev_vertical_line.x * anti_alias_width_,
+                  -prev_vertical_line.y * anti_alias_width_, 0.f});
     matrix_cur =
         glm::translate(glm::vec3{-vertical_line.x * stroke_radius_,
                                  -vertical_line.y * stroke_radius_, 0});
+    matrix_aa_cur =
+        glm::translate(glm::vec3{-vertical_line.x * anti_alias_width_,
+                                 -vertical_line.y * anti_alias_width_, 0.f});
   } else {
     matrix_pre =
         glm::translate(glm::vec3{prev_vertical_line.x * stroke_radius_,
                                  prev_vertical_line.y * stroke_radius_, 0});
+    matrix_aa_pre = glm::translate(
+        glm::vec3{prev_vertical_line.x * anti_alias_width_,
+                  prev_vertical_line.y * anti_alias_width_, 0.f});
     matrix_cur = glm::translate(glm::vec3{vertical_line.x * stroke_radius_,
                                           vertical_line.y * stroke_radius_, 0});
+    matrix_aa_cur =
+        glm::translate(glm::vec3{vertical_line.x * anti_alias_width_,
+                                 vertical_line.y * anti_alias_width_, 0.f});
   }
 
   p1 = matrix_pre * p1;
   p2 = matrix_pre * p2;
   p3 = matrix_cur * p3;
   p4 = matrix_cur * p4;
+  Point aa_p1 = matrix_aa_pre * p1;
+  Point aa_p2 = matrix_aa_pre * p2;
+  Point aa_p3 = matrix_aa_cur * p3;
+  Point aa_p4 = matrix_aa_cur * p4;
   ret = IntersectLineLine(p1, p2, p3, p4, outer);
   float miter_length =
       glm::length(glm::vec2(from.x - outer.x, from.y - outer.y));
@@ -453,6 +471,30 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
     int32_t center_index = gl_vertex_->AddPoint(
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(p2_index, center_index, p4_index);
+
+    // handle AA Outline
+    if (is_anti_alias_) {
+      Vector aa_dir = (prev_dir_ - (to - from)) * .5f;
+      aa_dir = glm::normalize(aa_dir);
+      Point aa_center_outer =
+          Point{outer.x + aa_dir.x * anti_alias_width_,
+                outer.y + aa_dir.y * anti_alias_width_, 0.f, 1.f};
+
+      int32_t aa_center_outer_index =
+          gl_vertex_->AddPoint(aa_center_outer.x, aa_center_outer.y, 0.f,
+                               GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+      int32_t aa_p2_index = gl_vertex_->AddPoint(
+          aa_p2.x, aa_p2.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+      int32_t aa_p4_index = gl_vertex_->AddPoint(
+          aa_p4.x, aa_p4.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
+
+      gl_vertex_->AddFront(aa_p2_index, p2_index, outer_index);
+      gl_vertex_->AddFront(aa_p2_index, aa_center_outer_index, outer_index);
+
+      gl_vertex_->AddFront(aa_p4_index, p4_index, outer_index);
+      gl_vertex_->AddFront(aa_p4_index, aa_center_outer_index, outer_index);
+    }
   } else {
     // fallback bevel_join
     int32_t p2_index =
