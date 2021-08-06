@@ -19,7 +19,7 @@ GLMeshRange GLStrokeAA::StrokePathAA(Path const& path, GLVertex* gl_vertex) {
   range.aa_outline_start = gl_vertex->AAOutlineCount();
   range.aa_outline_count = 0;
 
-  std::array<Point, 4> pts;
+  std::array<Point, 4> pts{};
   Path::Iter iter{path, false};
   for (;;) {
     Path::Verb verb = iter.next(pts.data());

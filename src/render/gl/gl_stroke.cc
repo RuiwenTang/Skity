@@ -5,8 +5,8 @@
 #include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
-#include "src/render/gl/gl_vertex.hpp"
 #include "src/render/gl/gl_stroke_aa.hpp"
+#include "src/render/gl/gl_vertex.hpp"
 
 namespace skity {
 
@@ -364,9 +364,11 @@ void GLStroke::HandleCap(Point const& point, Vector const& outer_dir) {
     if (is_anti_alias_) {
       GLStrokeAA stroke_aa{1.f};
       Path temp_path;
-      temp_path.moveTo(p_1);
+      temp_path.moveTo(p_1 - outer_dir * 0.5f);
+      temp_path.lineTo(p_1);
       temp_path.conicTo(p_1_3, p_3, FloatRoot2Over2);
       temp_path.conicTo(p_2_3, p_2, FloatRoot2Over2);
+      temp_path.lineTo(p_2 - outer_dir * 0.5f);
       stroke_aa.StrokePathAA(temp_path, gl_vertex_);
     }
   } else {
@@ -588,6 +590,17 @@ bool GLStroke::HandleRoundJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
     gl_vertex_->AddFront(n_p1, n_p2, n_c);
+    if (is_anti_alias_) {
+      Vector curr_dir = glm::normalize(to - from);
+      Point outer_aa = from + outer * ((anti_alias_width_ + stroke_radius_) *
+                                       1.5f * FloatRoot2Over2);
+      GLStrokeAA stroke_aa{anti_alias_width_};
+      Path tmp;
+      // FIXME: workaround to make stroke_aa smooth at move and last line_to
+      tmp.moveTo(before_join - prev_dir_ * 0.5f);
+      tmp.quadTo(outer_aa, after_join + curr_dir * 0.5f);
+      stroke_aa.StrokePathAA(tmp, gl_vertex_);
+    }
   } else {
     return true;
   }
