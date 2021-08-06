@@ -6,7 +6,7 @@ Its **API**  follows the same pattern as [Skia](https://skia.org/) and implement
 
 same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
 <br/>
-<img src="./resources/skia_demo.png" width="600" height="600">
+<img src="./resources/skia_demo.png" width="800" height="800">
 
 ## Simple Demo
 
@@ -15,6 +15,24 @@ same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<
 ## Anti-Alias test
 
 ![aa_test](./resources/aa_test.png)
+
+## Build
+### Requirements
+- CMake
+- [Freetype](https://www.freetype.org/)
+- [GLFW](https://www.glfw.org/): for build test and example
+
+
+```shell
+# fetch sources from github
+git clone --recursive https://github.com/RuiwenTang/Skity.git
+cd Skity
+# Create build directory
+mkdir build
+cd build
+cmake ..
+make
+```
 
 ## Current status:
 
