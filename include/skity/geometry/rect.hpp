@@ -136,6 +136,12 @@ class Rect {
 
   Rect makeSorted() const;
 
+  /**
+   * Sets Rect to the union of itself and r.
+   * @param r expansion Rect
+   */
+  void join(Rect const& r);
+
   static Rect MakeEmpty() { return Rect{0, 0, 0, 0}; }
 
   static Rect MakeHW(float width, float height) {

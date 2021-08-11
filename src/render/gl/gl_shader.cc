@@ -1,5 +1,6 @@
 #include "src/render/gl/gl_shader.hpp"
 
+#include <array>
 #include <iostream>
 #include <shader.hpp>
 #include <string>
@@ -73,8 +74,24 @@ void GLShader::SetUniform(int32_t location, glm::mat4 const& value) {
   GL_CALL(UniformMatrix4fv, location, 1, GL_FALSE, &value[0][0]);
 }
 
+void GLShader::SetUniform(int32_t location, int32_t value) {
+  GL_CALL(Uniform1i, location, value);
+}
+
 void GLShader::SetUniform(int32_t location, float value) {
   GL_CALL(Uniform1f, location, value);
+}
+
+void GLShader::SetUniform(int32_t location, float* value, int32_t count) {
+  GL_CALL(Uniform1fv, location, count, value);
+}
+
+void GLShader::SetUniform(int32_t location, glm::vec2* value, int32_t count) {
+  GL_CALL(Uniform2fv, location, count, (float*)value);
+}
+
+void GLShader::SetUniform(int32_t location, glm::vec4* value, int32_t count) {
+  GL_CALL(Uniform4fv, location, count, (float*)value);
 }
 
 void GLShader::Bind() { GL_CALL(UseProgram, program_); }
@@ -110,6 +127,63 @@ void ColorShader::SetColor(float r, float g, float b, float a) {
   SetUniform(color_location_, glm::vec4{r, g, b, a});
 }
 
+void GLGradientShader::InitLocations() {
+  GLShader::InitLocations();
+  local_matrix_location_ = GL_CALL(GetUniformLocation, program_, "localMatrix");
+  points_location_ = GL_CALL(GetUniformLocation, program_, "points");
+  radius_location_ = GL_CALL(GetUniformLocation, program_, "radius");
+  color_count_location_ = GL_CALL(GetUniformLocation, program_, "colorCount");
+  gradient_type_location_ =
+      GL_CALL(GetUniformLocation, program_, "gradientType");
+  stop_count_location_ = GL_CALL(GetUniformLocation, program_, "stopCount");
+  colors_location_ = GL_CALL(GetUniformLocation, program_, "colors");
+  stops_location_ = GL_CALL(GetUniformLocation, program_, "colorStops");
+}
+
+void GLGradientShader::SetLocalMatrix(Matrix const& matrix) {
+  SetUniform(local_matrix_location_, matrix);
+}
+
+void GLGradientShader::SetPoints(Point const& p1, Point const& p2) {
+  std::array<glm::vec2, 2> pts{};
+  pts[0].x = p1.x;
+  pts[0].y = p1.y;
+  pts[1].x = p2.x;
+  pts[1].y = p2.y;
+
+  SetUniform(points_location_, pts.data(), 2);
+}
+
+void GLGradientShader::SetRadius(Point const& r1, Point const& r2) {
+  std::array<glm::vec2, 2> pts{};
+  pts[0].x = r1.x;
+  pts[0].y = r1.y;
+  pts[1].x = r2.x;
+  pts[1].y = r2.y;
+
+  SetUniform(radius_location_, pts.data(), 2);
+}
+
+void GLGradientShader::SetColorCount(int32_t value) {
+  SetUniform(color_count_location_, value);
+}
+
+void GLGradientShader::SetGradientType(int32_t type) {
+  SetUniform(gradient_type_location_, type);
+}
+
+void GLGradientShader::SetStopCount(int32_t value) {
+  SetUniform(stop_count_location_, value);
+}
+
+void GLGradientShader::SetColors(std::vector<Vec4> const& colors) {
+  SetUniform(colors_location_, (Vec4*)colors.data(), colors.size());
+}
+
+void GLGradientShader::SetStops(std::vector<float> const& stops) {
+  SetUniform(stops_location_, (float*)stops.data(), stops.size());
+}
+
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
   std::unique_ptr<StencilShader> stencil_shader{new StencilShader()};
 
@@ -141,6 +215,22 @@ std::unique_ptr<ColorShader> GLShader::CreateColorShader() {
   color_shader->InitLocations();
 
   return color_shader;
+}
+
+std::unique_ptr<GLGradientShader> GLShader::CreateGradientShader() {
+  std::unique_ptr<GLGradientShader> gradient_shader{new GLGradientShader};
+
+  std::string vs_shader((const char*)vs_gradient_basic_glsl,
+                        vs_gradient_basic_glsl_size);
+  std::string fs_shader((const char*)fs_gradient_basic_glsl,
+                        fs_gradient_basic_glsl_size);
+
+  gradient_shader->program_ =
+      create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  gradient_shader->InitLocations();
+
+  return gradient_shader;
 }
 
 }  // namespace skity

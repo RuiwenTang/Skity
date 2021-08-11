@@ -54,6 +54,21 @@ Rect Rect::makeSorted() const {
                   std::max(left_, right_), std::max(top_, bottom_));
 }
 
+void Rect::join(const Rect& r) {
+  if (r.isEmpty()) {
+    return;
+  }
+
+  if (this->isEmpty()) {
+    *this = r;
+  } else {
+    left_ = std::min(left_, r.left_);
+    top_ = std::min(top_, r.top_);
+    right_ = std::max(right_, r.right_);
+    bottom_ = std::max(bottom_, r.bottom_);
+  }
+}
+
 bool Rect::isFinite() const {
   float accum = 0;
   accum *= left_;

@@ -35,13 +35,13 @@ include_directories(third_party/OpenGL)
 include_directories(include)
 
 
-
 # freetype
 include(FindFreetype)
 
 
 set(Skity_header
         include/skity/effect/path_effect.hpp
+        include/skity/effect/shader.hpp
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
         include/skity/geometry/rrect.hpp
@@ -55,7 +55,10 @@ set(Skity_src
         src/effect/dash_path_effect.hpp
         src/effect/discrete_path_effect.cc
         src/effect/discrete_path_effect.hpp
+        src/effect/gradient_shader.cc
+        src/effect/gradient_shader.hpp
         src/effect/path_effect.cc
+        src/effect/shader.cc
         src/geometry/conic.cc
         src/geometry/conic.hpp
         src/geometry/contour_measure.cc
@@ -111,23 +114,23 @@ if (${FREETYPE_FOUND})
     include_directories(${FREETYPE_INCLUDE_DIRS})
 
     set(Skity_src ${Skity_src}
-        src/render/text/ft_library_wrap.cc
-        src/render/text/ft_library_wrap.hpp
-    )
+            src/render/text/ft_library_wrap.cc
+            src/render/text/ft_library_wrap.hpp
+            )
 
     set(ENABLE_TEXT_RENDER ON CACHE BOOL "")
-endif()
+endif ()
 
 #config file
 configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(skity ${Skity_header} ${Skity_src} )
+add_library(skity ${Skity_header} ${Skity_src})
 
 if (${FREETYPE_FOUND})
     target_link_libraries(skity ${FREETYPE_LIBRARIES})
-endif()
+endif ()
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

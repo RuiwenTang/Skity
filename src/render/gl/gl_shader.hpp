@@ -2,12 +2,14 @@
 #define SKITY_SRC_RENDER_GL_GL_SHADER_HPP
 
 #include <memory>
+#include <skity/effect/shader.hpp>
 #include <skity/geometry/point.hpp>
 
 namespace skity {
 
 class StencilShader;
 class ColorShader;
+class GLGradientShader;
 /**
  * @class Shader wrapper for internal use
  */
@@ -19,7 +21,11 @@ class GLShader {
   void SetUniform(int32_t location, glm::vec3 const& value);
   void SetUniform(int32_t location, glm::vec2 const& value);
   void SetUniform(int32_t location, glm::mat4 const& value);
+  void SetUniform(int32_t location, int32_t value);
   void SetUniform(int32_t location, float value);
+  void SetUniform(int32_t location, float* value, int32_t count);
+  void SetUniform(int32_t location, glm::vec2* value, int32_t count);
+  void SetUniform(int32_t location, glm::vec4* value, int32_t count);
   void SetMVPMatrix(Matrix const& mvp);
   void Bind();
 
@@ -30,6 +36,8 @@ class GLShader {
   static std::unique_ptr<StencilShader> CreateStencilShader();
 
   static std::unique_ptr<ColorShader> CreateColorShader();
+
+  static std::unique_ptr<GLGradientShader> CreateGradientShader();
 
  protected:
   GLShader() = default;
@@ -60,6 +68,33 @@ class ColorShader : public GLShader {
 
  private:
   int32_t color_location_ = -1;
+};
+
+class GLGradientShader : public GLShader {
+ public:
+  GLGradientShader() = default;
+  ~GLGradientShader() override = default;
+
+  void InitLocations() override;
+
+  void SetLocalMatrix(Matrix const& matrix);
+  void SetPoints(Point const& p1, Point const& p2);
+  void SetRadius(Point const& r1, Point const& r2);
+  void SetColorCount(int32_t value);
+  void SetGradientType(int32_t type);
+  void SetStopCount(int32_t value);
+  void SetColors(std::vector<Vec4> const& colors);
+  void SetStops(std::vector<float> const& stops);
+
+ private:
+  int32_t local_matrix_location_ = -1;
+  int32_t points_location_ = -1;
+  int32_t radius_location_ = -1;
+  int32_t color_count_location_ = -1;
+  int32_t gradient_type_location_ = -1;
+  int32_t stop_count_location_ = -1;
+  int32_t colors_location_ = -1;
+  int32_t stops_location_ = -1;
 };
 
 }  // namespace skity

@@ -9,6 +9,7 @@
 namespace skity {
 
 class PathEffect;
+class Shader;
 
 /**
  * @class Paint
@@ -117,6 +118,11 @@ class Paint {
 
   std::shared_ptr<PathEffect> getPathEffect() const { return path_effect_; }
 
+  void setShader(std::shared_ptr<Shader> shader) {
+    shader_ = std::move(shader);
+  }
+  std::shared_ptr<Shader> getShader() const { return shader_; }
+
  private:
   void updateMiterLimit();
 
@@ -130,6 +136,7 @@ class Paint {
   Vector stroke_color_ = {1, 1, 1, 1};
   bool is_anti_alias_ = false;
   std::shared_ptr<PathEffect> path_effect_;
+  std::shared_ptr<Shader> shader_;
 };
 
 }  // namespace skity

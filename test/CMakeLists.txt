@@ -66,6 +66,9 @@ add_library(test_common
   add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
   target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+  add_executable(raw_linear_gradient_test raw_linear_gradient_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
+  target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
   message(${FREETYPE_INCLUDE_DIRS})
   add_executable(freetype_path_test freetype_path_test.cc)
   target_include_directories(freetype_path_test PRIVATE ${FREETYPE_INCLUDE_DIRS})
