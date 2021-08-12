@@ -36,12 +36,20 @@ void GLFillGradientOp::SetGradientType(Shader::GradientType type) {
   this->type_ = type;
 }
 
+void GLFillGradientOp::SetLocalMatrix(Matrix const& matrix) {
+  this->local_matrix_ = matrix;
+}
+
 void GLFillGradientOp::OnBeforeDraw(bool has_clip) {
   GLDrawMeshOpAA::OnBeforeDraw(has_clip);
   // set type
   shader_->SetGradientType(type_);
-  // local matrix
-  shader_->SetLocalMatrix(LocalMatrix());
+  // matrixs
+  Matrix matrix[2] = {
+      local_matrix_,
+      CurrentMatrix(),
+  };
+  shader_->SetMatrixs(matrix);
   // color count
   shader_->SetColorCount(colors_.size());
   // colors

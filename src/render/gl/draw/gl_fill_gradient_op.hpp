@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_GL_DRAW_GL_FILL_GRADIENT_OP_H
 
 #include <array>
+#include <glm/gtc/matrix_transform.hpp>
 #include <skity/effect/shader.hpp>
 #include <skity/geometry/point.hpp>
 #include <vector>
@@ -34,16 +35,18 @@ class GLFillGradientOp : public GLDrawMeshOpAA {
   void SetColors(std::vector<Vec4> const& colors);
   void SetStops(std::vector<float> const& stops);
   void SetGradientType(Shader::GradientType type);
+  void SetLocalMatrix(Matrix const& matrix);
 
  protected:
   void OnBeforeDraw(bool has_clip) override;
 
  private:
-  std::array<Point, 2> points_;
-  std::array<float, 2> radius_;
-  std::vector<Vec4> colors_;
-  std::vector<float> stops_;
+  std::array<Point, 2> points_ = {};
+  std::array<float, 2> radius_ = {};
+  std::vector<Vec4> colors_ = {};
+  std::vector<float> stops_ = {};
   Shader::GradientType type_;
+  Matrix local_matrix_ = glm::identity<glm::mat4>();
   GLGradientShader* shader_;
 };
 

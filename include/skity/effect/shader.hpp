@@ -2,6 +2,7 @@
 #define SKITY_EFFECT_SHADER_HPP
 
 #include <array>
+#include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <vector>
@@ -20,6 +21,9 @@ class Shader {
 
   virtual bool isOpaque() const { return false; }
 
+  void SetLocalMatrix(Matrix const& matrix) { local_matrix_ = matrix; }
+  Matrix GetLocalMatrix() const { return local_matrix_; }
+
   enum GradientType {
     kNone,
     kColor,
@@ -35,6 +39,7 @@ class Shader {
     std::vector<float> color_offsets;
     std::array<Point, 2> point;
     std::array<float, 2> radius;
+    Matrix local_matrix;
   };
 
   virtual GradientType asGradient(GradientInfo* info) const;
@@ -55,6 +60,9 @@ class Shader {
   static std::shared_ptr<Shader> MakeLinear(const Point pts[2],
                                             const Vec4 colors[],
                                             const float pos[], int count);
+
+ private:
+  Matrix local_matrix_ = glm::identity<Matrix>();
 };
 
 }  // namespace skity

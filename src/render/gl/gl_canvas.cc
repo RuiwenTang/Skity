@@ -134,6 +134,35 @@ class GLCanvasRotateOp : public GLCanvasStateOp {
   float degree_;
 };
 
+class GLCanvasRotateWithPointOp : public GLCanvasStateOp {
+ public:
+  GLCanvasRotateWithPointOp(GLCanvasState* state, float degree, float x,
+                            float y)
+      : GLCanvasStateOp(state), degree_(degree), x_(x), y_(y) {}
+  ~GLCanvasRotateWithPointOp() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override {
+    auto current_matrix = state_->CurrentMatrix();
+    auto prev_translate_matrix =
+        glm::translate(glm::identity<glm::mat4>(), glm::vec3(-x_, -y_, 0.f));
+    auto rotate_matrix = glm::rotate(glm::identity<glm::mat4>(),
+                                     glm::radians(degree_), {0.f, 0.f, 1.f});
+    auto post_translate_matrix =
+        glm::translate(glm::identity<glm::mat4>(), glm::vec3(x_, y_, 0.f));
+
+    auto final_matrix = post_translate_matrix * rotate_matrix *
+                        prev_translate_matrix * current_matrix;
+
+    state_->UpdateCurrentMatrix(final_matrix);
+  }
+
+ private:
+  float degree_;
+  float x_;
+  float y_;
+};
+
 std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
                                              uint32_t width, uint32_t height,
                                              void* procss_loader) {
@@ -462,7 +491,7 @@ void GLCanvas::onFlush() {
   GL_CALL(ColorMask, 0, 0, 0, 0);
   for (auto const& op : draw_ops_) {
     Matrix mvp = mvp_ * state_->CurrentMatrix();
-    op->UpdateLocalMatrix(state_->CurrentMatrix());
+    op->UpdateCurrentMatrix(state_->CurrentMatrix());
     op->Draw(mvp, state_->HasClip());
   }
 
@@ -494,7 +523,10 @@ void GLCanvas::onRotate(float degree) {
       std::make_unique<GLCanvasRotateOp>(state_.get(), degree));
 }
 
-void GLCanvas::onRotate(float degree, float px, float py) {}
+void GLCanvas::onRotate(float degree, float px, float py) {
+  draw_ops_.emplace_back(std::make_unique<GLCanvasRotateWithPointOp>(
+      state_.get(), degree, px, py));
+}
 
 void GLCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
   mvp_ = glm::ortho<float>(0, width, height, 0);

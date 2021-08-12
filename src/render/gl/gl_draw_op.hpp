@@ -29,9 +29,9 @@ class GLDrawOp {
 
   void Init();
 
-  void UpdateLocalMatrix(Matrix const& matrix) { local_matrix_ = matrix; }
+  void UpdateCurrentMatrix(Matrix const& matrix) { current_matrix_ = matrix; }
 
-  Matrix const& LocalMatrix() const { return local_matrix_; }
+  Matrix const& CurrentMatrix() const { return current_matrix_; }
 
  protected:
   inline uint32_t front_start() const { return front_start_; }
@@ -51,7 +51,7 @@ class GLDrawOp {
   uint32_t back_start_;
   uint32_t back_count_;
   GLShader* shader_;
-  Matrix local_matrix_;
+  Matrix current_matrix_;
 };
 
 class GLDrawOpBuilder final {

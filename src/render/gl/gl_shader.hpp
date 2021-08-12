@@ -26,6 +26,7 @@ class GLShader {
   void SetUniform(int32_t location, float* value, int32_t count);
   void SetUniform(int32_t location, glm::vec2* value, int32_t count);
   void SetUniform(int32_t location, glm::vec4* value, int32_t count);
+  void SetUniform(int32_t location, glm::mat4* value, int32_t count);
   void SetMVPMatrix(Matrix const& mvp);
   void Bind();
 
@@ -76,8 +77,7 @@ class GLGradientShader : public GLShader {
   ~GLGradientShader() override = default;
 
   void InitLocations() override;
-
-  void SetLocalMatrix(Matrix const& matrix);
+  void SetMatrixs(const Matrix matrix[2]);
   void SetPoints(Point const& p1, Point const& p2);
   void SetRadius(float r1, float r2);
   void SetColorCount(int32_t value);
@@ -87,7 +87,7 @@ class GLGradientShader : public GLShader {
   void SetStops(std::vector<float> const& stops);
 
  private:
-  int32_t local_matrix_location_ = -1;
+  int32_t matrixs_location_ = -1;
   int32_t points_location_ = -1;
   int32_t radius_location_ = -1;
   int32_t color_count_location_ = -1;

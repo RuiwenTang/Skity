@@ -117,9 +117,13 @@ class RawGLRenderTest : public test::TestApp {
         0.3f,
         1.f,
     };
+    std::array<skity::Matrix, 2> matrixs{};
+    matrixs[0] = glm::rotate(glm::identity<glm::mat4>(), glm::radians(45.f),
+                             glm::vec3(0, 0, 1));
+    matrixs[1] = glm::identity<glm::mat4>();
     gradient_shader_->Bind();
     gradient_shader_->SetMVPMatrix(mvp_);
-    gradient_shader_->SetLocalMatrix(glm::identity<glm::mat4>());
+    gradient_shader_->SetMatrixs(matrixs.data());
     gradient_shader_->SetGradientType(Shader::GradientType::kLinear);
     gradient_shader_->SetPoints(Point{10, 10, 0, 1}, Point{300, 300, 0, 1});
     gradient_shader_->SetColorCount(colors.size());

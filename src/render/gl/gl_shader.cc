@@ -94,6 +94,10 @@ void GLShader::SetUniform(int32_t location, glm::vec4* value, int32_t count) {
   GL_CALL(Uniform4fv, location, count, (float*)value);
 }
 
+void GLShader::SetUniform(int32_t location, glm::mat4* value, int32_t count) {
+  GL_CALL(UniformMatrix4fv, location, count, GL_FALSE, (float*)value);
+}
+
 void GLShader::Bind() { GL_CALL(UseProgram, program_); }
 
 void GLShader::UnBind() { GL_CALL(UseProgram, 0); }
@@ -129,7 +133,7 @@ void ColorShader::SetColor(float r, float g, float b, float a) {
 
 void GLGradientShader::InitLocations() {
   GLShader::InitLocations();
-  local_matrix_location_ = GL_CALL(GetUniformLocation, program_, "localMatrix");
+  matrixs_location_ = GL_CALL(GetUniformLocation, program_, "matrixs");
   points_location_ = GL_CALL(GetUniformLocation, program_, "points");
   radius_location_ = GL_CALL(GetUniformLocation, program_, "radius");
   color_count_location_ = GL_CALL(GetUniformLocation, program_, "colorCount");
@@ -140,8 +144,8 @@ void GLGradientShader::InitLocations() {
   stops_location_ = GL_CALL(GetUniformLocation, program_, "colorStops");
 }
 
-void GLGradientShader::SetLocalMatrix(Matrix const& matrix) {
-  SetUniform(local_matrix_location_, matrix);
+void GLGradientShader::SetMatrixs(const Matrix matrix[2]) {
+  SetUniform(matrixs_location_, (Matrix*)matrix, 2);
 }
 
 void GLGradientShader::SetPoints(Point const& p1, Point const& p2) {

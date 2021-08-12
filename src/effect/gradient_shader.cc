@@ -1,6 +1,7 @@
 #include "src/effect/gradient_shader.hpp"
 
 #include <cstring>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace skity {
 
@@ -29,6 +30,8 @@ void GradientShader::CopyInfo(GradientInfo *info) const {
     std::memcpy(info->color_offsets.data(), info_.color_offsets.data(),
                 info_.color_offsets.size() * sizeof(float));
   }
+
+  info->local_matrix = GetLocalMatrix();
 }
 
 LinearGradientShader::LinearGradientShader(const Point *pts, const Vec4 *colors,
@@ -48,6 +51,7 @@ LinearGradientShader::LinearGradientShader(const Point *pts, const Vec4 *colors,
     info->color_offsets.resize(count);
     std::memcpy(info->color_offsets.data(), pos, count * sizeof(float));
   }
+  info->local_matrix = glm::identity<glm::mat4>();
 }
 
 Rect LinearGradientShader::GetFillRect() {

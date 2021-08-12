@@ -1,6 +1,7 @@
 #version 330 core
 
-uniform mat4 localMatrix;
+// [local_matrix, current_matrixf]
+uniform mat4 matrixs[2];
 
 #define MAX_COLORS 32
 #define GRADIENT_TYPE_LINEAR 2
@@ -64,9 +65,9 @@ vec4 lerp_color(float current) {
 }
 
 vec4 calculate_linear_color() {
-  vec4 startPointMaped = localMatrix * vec4(points[0], 0.0, 1.0);
-  vec4 endPointMapped = localMatrix * vec4(points[1], 0.0, 1.0);
-  vec4 currentPoint = localMatrix * vec4(vPos, 0.0, 1.0);
+  vec4 startPointMaped = matrixs[1] * matrixs[0] * vec4(points[0], 0.0, 1.0);
+  vec4 endPointMapped = matrixs[1] * matrixs[0] * vec4(points[1], 0.0, 1.0);
+  vec4 currentPoint = matrixs[1] * vec4(vPos, 0.0, 1.0);
 
   vec2 sc = vec2(currentPoint.x - startPointMaped.x,
                  currentPoint.y - startPointMaped.y);

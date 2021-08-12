@@ -119,7 +119,6 @@ void draw_linear_gradient_example(skity::Canvas* canvas) {
   float positions[] = {0.f, 0.65f, 1.f};
 
   for (int i = 0; i < 4; i++) {
-    canvas->save();
     float blockX = (i % 2) * 100.f;
     float blockY = (i / 2) * 100.f;
 
@@ -128,14 +127,16 @@ void draw_linear_gradient_example(skity::Canvas* canvas) {
         skity::Point{blockX + 50, blockY + 100, 0.f, 1.f},
     };
 
+    skity::Matrix matrix = glm::identity<skity::Matrix>();
     if (i / 2 == 1) {
-      canvas->rotate(45.f, blockX, blockY);
+      matrix = glm::rotate(glm::identity<skity::Matrix>(), glm::radians(45.f),
+                           glm::vec3(0, 0, 1));
     }
     auto lgs = skity::Shader::MakeLinear(pts.data(), colors, positions, 3);
+    lgs->SetLocalMatrix(matrix);
     p.setShader(lgs);
     auto r = skity::Rect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
     canvas->drawRect(r, p);
-    canvas->restore();
   }
 }
 

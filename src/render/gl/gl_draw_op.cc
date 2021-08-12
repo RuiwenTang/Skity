@@ -120,6 +120,7 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateGradientOpAA(
   op->SetStops(info->color_offsets);
   op->SetPoints(info->point[0], info->point[1]);
   op->SetRadius(info->radius[0], info->radius[1]);
+  op->SetLocalMatrix(info->local_matrix);
 
   return op;
 }
