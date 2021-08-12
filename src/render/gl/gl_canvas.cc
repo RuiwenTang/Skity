@@ -297,6 +297,7 @@ void GLCanvas::Init() {
 void GLCanvas::InitShader() {
   stencil_shader_ = GLShader::CreateStencilShader();
   color_shader_ = GLShader::CreateColorShader();
+  gradient_shader_ = GLShader::CreateGradientShader();
 }
 
 void GLCanvas::InitMesh() {
@@ -308,6 +309,7 @@ void GLCanvas::InitMesh() {
 void GLCanvas::InitDrawOpBuilder() {
   draw_op_builder_.UpdateStencilShader(stencil_shader_.get());
   draw_op_builder_.UpdateColorShader(color_shader_.get());
+  draw_op_builder_.UpdateGradientShader(gradient_shader_.get());
   draw_op_builder_.UpdateMesh(mesh_.get());
 }
 
@@ -364,16 +366,44 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
       }
     }
 
+    // TODO: this code needs optimizate
     if (need_antialias) {
       GLStrokeAA strokeAA(1.f);
       GLMeshRange aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
 
-      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
-          fill_color[0], fill_color[1], fill_color[2], fill_color[3],
-          aa_range.aa_outline_start, aa_range.aa_outline_count)));
+      if (paint.getShader()) {
+        Shader::GradientInfo gradient_info{};
+        Shader::GradientType type =
+            paint.getShader()->asGradient(&gradient_info);
+
+        if (type != Shader::kNone) {
+          draw_ops_.emplace_back(std::move(draw_op_builder_.CreateGradientOpAA(
+              &gradient_info, type, aa_range.aa_outline_start,
+              aa_range.aa_outline_count)));
+        } else {
+          // TODO implement Other shader type
+        }
+      } else {
+        draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
+            fill_color[0], fill_color[1], fill_color[2], fill_color[3],
+            aa_range.aa_outline_start, aa_range.aa_outline_count)));
+      }
     } else {
-      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
-          fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
+      if (paint.getShader()) {
+        Shader::GradientInfo gradient_info{};
+        Shader::GradientType type =
+            paint.getShader()->asGradient(&gradient_info);
+
+        if (type != Shader::kNone) {
+          draw_ops_.emplace_back(std::move(
+              draw_op_builder_.CreateGradientOp(&gradient_info, type)));
+        } else {
+          // TODO implement Other shader type
+        }
+      } else {
+        draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
+            fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
+      }
     }
 
     // clear current stencil value
@@ -432,6 +462,7 @@ void GLCanvas::onFlush() {
   GL_CALL(ColorMask, 0, 0, 0, 0);
   for (auto const& op : draw_ops_) {
     Matrix mvp = mvp_ * state_->CurrentMatrix();
+    op->UpdateLocalMatrix(state_->CurrentMatrix());
     op->Draw(mvp, state_->HasClip());
   }
 

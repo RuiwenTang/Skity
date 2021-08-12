@@ -38,6 +38,9 @@ class RawGLRenderTest : public test::TestApp {
     gradient_shader_ = GLShader::CreateGradientShader();
     color_shader_ = GLShader::CreateColorShader();
 
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
     InitMesh();
   }
 
@@ -107,7 +110,7 @@ class RawGLRenderTest : public test::TestApp {
     std::vector<Vec4> colors = {
         Vec4{1, 0, 0, 1},
         Vec4{0, 1, 0, 1},
-        Vec4{0, 0, 1, 1},
+        Vec4{0, 0, 1, 0},
     };
     std::vector<float> stops = {
         0.f,

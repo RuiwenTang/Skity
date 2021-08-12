@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_GL_GL_DRAW_OP_H
 
 #include <memory>
+#include <skity/effect/shader.hpp>
 
 #include "glm/glm.hpp"
 
@@ -10,6 +11,7 @@ namespace skity {
 class GLShader;
 class StencilShader;
 class ColorShader;
+class GLGradientShader;
 class GLMesh;
 
 class GLDrawOp {
@@ -26,6 +28,10 @@ class GLDrawOp {
   void Draw(glm::mat4 const& mvp, bool has_clip = false);
 
   void Init();
+
+  void UpdateLocalMatrix(Matrix const& matrix) { local_matrix_ = matrix; }
+
+  Matrix const& LocalMatrix() const { return local_matrix_; }
 
  protected:
   inline uint32_t front_start() const { return front_start_; }
@@ -45,6 +51,7 @@ class GLDrawOp {
   uint32_t back_start_;
   uint32_t back_count_;
   GLShader* shader_;
+  Matrix local_matrix_;
 };
 
 class GLDrawOpBuilder final {
@@ -54,6 +61,7 @@ class GLDrawOpBuilder final {
 
   void UpdateStencilShader(StencilShader* shader);
   void UpdateColorShader(ColorShader* shader);
+  void UpdateGradientShader(GLGradientShader* shader);
   void UpdateMesh(GLMesh* mesh);
   void UpdateFrontStart(uint32_t value);
 
@@ -71,6 +79,13 @@ class GLDrawOpBuilder final {
   std::unique_ptr<GLDrawOp> CreateColorOpAA(float r, float g, float b, float a,
                                             uint32_t aa_start,
                                             uint32_t aa_count);
+
+  std::unique_ptr<GLDrawOp> CreateGradientOp(Shader::GradientInfo* info,
+                                             Shader::GradientType type);
+  std::unique_ptr<GLDrawOp> CreateGradientOpAA(Shader::GradientInfo* info,
+                                               Shader::GradientType type,
+                                               uint32_t aa_start,
+                                               uint32_t aa_count);
   std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
   std::unique_ptr<GLDrawOp> CreateDebugLineOp();
@@ -78,6 +93,7 @@ class GLDrawOpBuilder final {
  private:
   StencilShader* stencil_shader = nullptr;
   ColorShader* color_shader = nullptr;
+  GLGradientShader* gradient_shader = nullptr;
   GLMesh* gl_mesh = nullptr;
   uint32_t front_start = 0;
   uint32_t front_count = 0;

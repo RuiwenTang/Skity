@@ -154,12 +154,10 @@ void GLGradientShader::SetPoints(Point const& p1, Point const& p2) {
   SetUniform(points_location_, pts.data(), 2);
 }
 
-void GLGradientShader::SetRadius(Point const& r1, Point const& r2) {
-  std::array<glm::vec2, 2> pts{};
-  pts[0].x = r1.x;
-  pts[0].y = r1.y;
-  pts[1].x = r2.x;
-  pts[1].y = r2.y;
+void GLGradientShader::SetRadius(float r1, float r2) {
+  std::array<float, 2> pts{};
+  pts[0] = r1;
+  pts[1] = r2;
 
   SetUniform(radius_location_, pts.data(), 2);
 }

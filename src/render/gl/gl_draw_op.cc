@@ -4,6 +4,7 @@
 #include "src/render/gl/draw/gl_clear_stencil_op.hpp"
 #include "src/render/gl/draw/gl_draw_debug_line_op.hpp"
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
+#include "src/render/gl/draw/gl_fill_gradient_op.hpp"
 #include "src/render/gl/draw/gl_stencil_op.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
@@ -40,6 +41,10 @@ void GLDrawOpBuilder::UpdateStencilShader(StencilShader* shader) {
 
 void GLDrawOpBuilder::UpdateColorShader(ColorShader* shader) {
   color_shader = shader;
+}
+
+void GLDrawOpBuilder::UpdateGradientShader(GLGradientShader* shader) {
+  gradient_shader = shader;
 }
 
 void GLDrawOpBuilder::UpdateMesh(GLMesh* mesh) { gl_mesh = mesh; }
@@ -92,6 +97,29 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateDebugLineOp() {
       front_start, front_count, back_start, back_count, color_shader, gl_mesh);
 
   op->Init();
+
+  return op;
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateGradientOp(
+    Shader::GradientInfo* info, Shader::GradientType type) {
+  return CreateGradientOpAA(info, type, 0, 0);
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateGradientOpAA(
+    Shader::GradientInfo* info, Shader::GradientType type, uint32_t aa_start,
+    uint32_t aa_count) {
+  auto op = std::make_unique<GLFillGradientOp>(
+      front_start, front_count, back_start, back_count, aa_start, aa_count,
+      gradient_shader, gl_mesh);
+
+  op->Init();
+
+  op->SetGradientType(type);
+  op->SetColors(info->colors);
+  op->SetStops(info->color_offsets);
+  op->SetPoints(info->point[0], info->point[1]);
+  op->SetRadius(info->radius[0], info->radius[1]);
 
   return op;
 }

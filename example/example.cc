@@ -3,7 +3,10 @@
 #include <GLFW/glfw3.h>
 
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <skity/effect/path_effect.hpp>
+#include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
@@ -104,6 +107,38 @@ static void draw_dash_start_example(skity::Canvas* canvas) {
   canvas->drawPath(path, paint);
 }
 
+void draw_linear_gradient_example(skity::Canvas* canvas) {
+  skity::Paint p;
+  p.setStyle(skity::Paint::kFill_Style);
+
+  skity::Vec4 colors[] = {
+      skity::Vec4{0.f, 1.f, 1.f, 0.f},
+      skity::Vec4{0.f, 0.f, 1.f, 1.f},
+      skity::Vec4{1.f, 0.f, 0.f, 1.f},
+  };
+  float positions[] = {0.f, 0.65f, 1.f};
+
+  for (int i = 0; i < 4; i++) {
+    canvas->save();
+    float blockX = (i % 2) * 100.f;
+    float blockY = (i / 2) * 100.f;
+
+    std::vector<skity::Point> pts = {
+        skity::Point{blockX, blockY, 0.f, 1.f},
+        skity::Point{blockX + 50, blockY + 100, 0.f, 1.f},
+    };
+
+    if (i / 2 == 1) {
+      canvas->rotate(45.f, blockX, blockY);
+    }
+    auto lgs = skity::Shader::MakeLinear(pts.data(), colors, positions, 3);
+    p.setShader(lgs);
+    auto r = skity::Rect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
+    canvas->drawRect(r, p);
+    canvas->restore();
+  }
+}
+
 void draw_canvas(skity::Canvas* canvas) {
   draw_basic_example(canvas);
 
@@ -115,6 +150,11 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->save();
   canvas->translate(0, 300);
   draw_dash_start_example(canvas);
+  canvas->restore();
+
+  canvas->save();
+  canvas->translate(400, 300);
+  draw_linear_gradient_example(canvas);
   canvas->restore();
 }
 

@@ -92,6 +92,7 @@ class GLCanvas : public Canvas {
  private:
   std::unique_ptr<StencilShader> stencil_shader_ = {};
   std::unique_ptr<ColorShader> color_shader_ = {};
+  std::unique_ptr<GLGradientShader> gradient_shader_ = {};
   std::unique_ptr<GLVertex> vertex_ = {};
   std::unique_ptr<GLMesh> mesh_ = {};
   GLDrawOpBuilder draw_op_builder_ = {};

@@ -8,7 +8,7 @@ uniform mat4 localMatrix;
 #define GRADIENT_TYPE_SWEEP 4
 
 uniform vec2 points[2];
-uniform vec2 radius[2];
+uniform float radius[2];
 uniform int colorCount;
 uniform int gradientType;
 uniform int stopCount;
@@ -95,6 +95,8 @@ vec4 calculate_color() {
 
 void main() {
   vec4 vColor = calculate_color();
+
+  vColor = vec4(vColor.xyz * vColor.w, vColor.w);
 
   if (vAlpha < 1.0) {
     vColor = vColor * vAlpha;

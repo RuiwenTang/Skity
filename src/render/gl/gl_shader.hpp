@@ -79,7 +79,7 @@ class GLGradientShader : public GLShader {
 
   void SetLocalMatrix(Matrix const& matrix);
   void SetPoints(Point const& p1, Point const& p2);
-  void SetRadius(Point const& r1, Point const& r2);
+  void SetRadius(float r1, float r2);
   void SetColorCount(int32_t value);
   void SetGradientType(int32_t type);
   void SetStopCount(int32_t value);
