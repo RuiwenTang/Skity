@@ -23,18 +23,6 @@ static inline Point ToPoint(glm::vec2 const& x) {
   return Point{x.x, x.y, 0, 1};
 }
 
-static inline bool OnSameSide(std::array<Point, 4> const& src, int testIndex,
-                              int lineIndex) {
-  Point origin = src[lineIndex];
-  Vector line = src[lineIndex + 1] - origin;
-  float crosses[2];
-  for (int index = 0; index < 2; index++) {
-    Vector testLine = src[testIndex + index] - origin;
-    crosses[index] = CrossProduct(line, testLine);
-  }
-  return crosses[0] * crosses[1] >= 0;
-}
-
 static inline int CollapsDuplicates(float array[], int count) {
   for (int n = count; n > 1; n--) {
     if (array[0] == array[1]) {
@@ -174,40 +162,6 @@ static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2]) {
   return return_check_zero(static_cast<int>(r - roots));
 }
 
-//  F(t)    = a (1 - t) ^ 2 + 2 b t (1 - t) + c t ^ 2
-//  F'(t)   = 2 (b - a) + 2 (a - 2b + c) t
-//  F''(t)  = 2 (a - 2b + c)
-//
-//  A = 2 (b - a)
-//  B = 2 (a - 2b + c)
-//
-//  Maximum curvature for a quadratic means solving
-//  Fx' Fx'' + Fy' Fy'' = 0
-//
-//  t = - (Ax Bx + Ay By) / (Bx ^ 2 + By ^ 2)
-//
-static inline float FindQuadMaxCurvature(const Point src[3]) {
-  float Ax = src[1].x - src[0].x;
-  float Ay = src[1].y - src[0].y;
-  float Bx = src[0].x - src[1].x - src[1].x + src[2].x;
-  float By = src[0].y - src[1].y - src[1].y + src[2].y;
-
-  float numer = -(Ax * Bx + Ay * By);
-  float denom = Bx * Bx + By * By;
-  if (denom < 0) {
-    numer = -numer;
-    denom = -denom;
-  }
-  if (numer <= 0) {
-    return 0;
-  }
-  if (numer >= denom) {
-    return 1;
-  }
-  float t = numer / denom;
-  return t;
-}
-
 /*  Solve coeff(t) == 0, returning the number of roots that
     lie withing 0 < t < 1.
     coeff[0]t^3 + coeff[1]t^2 + coeff[2]t + coeff[3]
@@ -289,43 +243,6 @@ inline static void formulate_F1DotF2(const float src[], float coeff[4]) {
   coeff[3] = a * b;
 }
 
-/*  Looking for F' dot F'' == 0
-
-    A = b - a
-    B = c - 2b + a
-    C = d - 3c + 3b - a
-
-    F' = 3Ct^2 + 6Bt + 3A
-    F'' = 6Ct + 6B
-
-    F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
-*/
-inline static int FindCubicMaxCurvature(const Point src[4], float tValues[3]) {
-  float coeffX[4], coeffY[4];
-  int i;
-  glm::vec2 axy[] = {{src[0]}, {src[1]}, {src[2]}, {src[3]}};
-  formulate_F1DotF2(std::addressof(axy[0].x), coeffX);
-  formulate_F1DotF2(std::addressof(axy[0].y), coeffY);
-
-  for (i = 0; i < 4; i++) {
-    coeffX[i] += coeffY[i];
-  }
-  int numRoots = solve_cubic_poly(coeffX, tValues);
-  return numRoots;
-}
-
-inline static int FindCubicInflections(const Point src[4], float tValues[]) {
-  float Ax = src[1].x - src[0].x;
-  float Ay = src[1].y - src[0].y;
-  float Bx = src[2].x - 2 * src[1].x + src[0].x;
-  float By = src[2].y - 2 * src[1].y + src[0].y;
-  float Cx = src[3].x + 3 * (src[1].x - src[2].x) - src[0].x;
-  float Cy = src[3].y + 3 * (src[1].y - src[2].y) - src[0].y;
-
-  return FindUnitQuadRoots(Bx * Cy - By * Cx, Ax * Cy - Ay * Cx,
-                           Ax * By - Ay * Bx, tValues);
-}
-
 bool DegenerateVector(Vector const& v);
 
 /**
@@ -338,35 +255,6 @@ bool DegenerateVector(Vector const& v);
  * @return distance squared value
  */
 float pt_to_line(Point const& pt, Point const& lineStart, Point const& lineEnd);
-
-/**
- * Given quad, see if all three points are in a line
- *
- * @param quad[3]
- *
- * @return true if all three points are in a line
- */
-static bool quad_in_line(const Point quad[3]) {
-  float pt_max = -1;
-  int32_t outer1 = 0;
-  int32_t outer2 = 0;
-  for (int index = 0; index < 2; index++) {
-    for (int inner = index + 1; inner < 3; inner++) {
-      Vector test_diff = quad[inner] - quad[index];
-      float test_max = std::max(std::abs(test_diff.x), std::abs(test_diff.y));
-      if (pt_max < test_max) {
-        outer1 = index;
-        outer2 = inner;
-        pt_max = test_max;
-      }
-    }
-  }
-
-  int mid = outer1 ^ outer2 ^ 3;
-  const float kCurvatureSlop = 0.000005f;
-  float lineSlop = pt_max * pt_max * kCurvatureSlop;
-  return pt_to_line(quad[mid], quad[outer1], quad[outer2]) <= lineSlop;
-}
 
 void SubDividedCubic(const Point cubic[4], Point sub_cubic1[4],
                      Point sub_cubic2[4]);
