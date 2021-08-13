@@ -358,6 +358,34 @@ void GLCanvas::UpdateDrawOpBuilder(GLMeshRange const& range) {
   draw_op_builder_.UpdateBackCount(range.back_count);
 }
 
+std::unique_ptr<GLDrawOp> GLCanvas::GenerateColorOp(Paint const& paint,
+                                                    bool fill,
+                                                    GLMeshRange* aa_range) {
+  uint32_t aa_outline_start = 0;
+  uint32_t aa_outline_count = 0;
+  if (aa_range) {
+    aa_outline_start = aa_range->aa_outline_start;
+    aa_outline_count = aa_range->aa_outline_count;
+  }
+
+  if (paint.getShader()) {
+    Shader::GradientInfo gradient_info{};
+    Shader::GradientType type = paint.getShader()->asGradient(&gradient_info);
+
+    if (type != Shader::kNone) {
+      return draw_op_builder_.CreateGradientOpAA(
+          &gradient_info, type, aa_outline_start, aa_outline_count);
+    } else {
+      // TODO implement Other shader type
+      return nullptr;
+    }
+  } else {
+    auto color = fill ? paint.GetFillColor() : paint.GetStrokeColor();
+    return draw_op_builder_.CreateColorOpAA(color.r, color.g, color.b, color.a,
+                                            aa_outline_start, aa_outline_count);
+  }
+}
+
 void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
   bool need_fill = false;
   bool need_stroke = false;
@@ -395,44 +423,14 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
       }
     }
 
-    // TODO: this code needs optimizate
+    GLMeshRange aa_range{};
     if (need_antialias) {
       GLStrokeAA strokeAA(1.f);
-      GLMeshRange aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
-
-      if (paint.getShader()) {
-        Shader::GradientInfo gradient_info{};
-        Shader::GradientType type =
-            paint.getShader()->asGradient(&gradient_info);
-
-        if (type != Shader::kNone) {
-          draw_ops_.emplace_back(std::move(draw_op_builder_.CreateGradientOpAA(
-              &gradient_info, type, aa_range.aa_outline_start,
-              aa_range.aa_outline_count)));
-        } else {
-          // TODO implement Other shader type
-        }
-      } else {
-        draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
-            fill_color[0], fill_color[1], fill_color[2], fill_color[3],
-            aa_range.aa_outline_start, aa_range.aa_outline_count)));
-      }
-    } else {
-      if (paint.getShader()) {
-        Shader::GradientInfo gradient_info{};
-        Shader::GradientType type =
-            paint.getShader()->asGradient(&gradient_info);
-
-        if (type != Shader::kNone) {
-          draw_ops_.emplace_back(std::move(
-              draw_op_builder_.CreateGradientOp(&gradient_info, type)));
-        } else {
-          // TODO implement Other shader type
-        }
-      } else {
-        draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
-            fill_color[0], fill_color[1], fill_color[2], fill_color[3])));
-      }
+      aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
+    }
+    auto op = GenerateColorOp(paint, true, &aa_range);
+    if (op) {
+      draw_ops_.emplace_back(std::move(op));
     }
 
     // clear current stencil value
@@ -454,13 +452,13 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     auto stroke_color = paint.GetStrokeColor();
 
-    if (stroke_range.aa_outline_count > 0) {
-      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOpAA(
-          stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3],
-          stroke_range.aa_outline_start, stroke_range.aa_outline_count)));
-    } else {
-      draw_ops_.emplace_back(std::move(draw_op_builder_.CreateColorOp(
-          stroke_color[0], stroke_color[1], stroke_color[2], stroke_color[3])));
+    GLMeshRange aa_range{};
+    aa_range.aa_outline_start = stroke_range.aa_outline_start;
+    aa_range.aa_outline_count = stroke_range.aa_outline_count;
+
+    auto op = GenerateColorOp(paint, false, &aa_range);
+    if (op) {
+      draw_ops_.emplace_back(std::move(op));
     }
     // clear stencil value
     draw_ops_.emplace_back(std::move(

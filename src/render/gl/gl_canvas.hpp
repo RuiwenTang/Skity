@@ -88,6 +88,8 @@ class GLCanvas : public Canvas {
   void InitMesh();
   void InitDrawOpBuilder();
   void UpdateDrawOpBuilder(GLMeshRange const& range);
+  std::unique_ptr<GLDrawOp> GenerateColorOp(Paint const& paint, bool fill,
+                                            GLMeshRange* aa_range);
 
  private:
   std::unique_ptr<StencilShader> stencil_shader_ = {};
