@@ -54,3 +54,8 @@ make
   - implement a simple discrete path effect
 
 - Image (in progress)
+
+## Reference
+
+- [GPU-accelerated Path Rendering](./resources/gpupathrender.pdf)
+- [Resolution Independent Curve Rendering using Programmable Graphics Hardware](./resources/p1000-loop.pdf)
