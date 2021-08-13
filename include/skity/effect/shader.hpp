@@ -40,6 +40,14 @@ class Shader {
     std::array<Point, 2> point;
     std::array<float, 2> radius;
     Matrix local_matrix;
+    /**
+     * By default gradients will interpolate their colors in unpremul space
+     *  and then premultiply each of the results. By setting this flag to 1, the
+     *  gradients will premultiply their colors first, and then interpolate
+     *  between them.
+     *
+     */
+    int32_t gradientFlags;
   };
 
   virtual GradientType asGradient(GradientInfo* info) const;
@@ -55,11 +63,14 @@ class Shader {
    *                position of each corresponding color in the colors array.
    * @param count   Must be >= 2. The number of colors (and pos if not NULL)
    *                entries.
+   * @param flag    if set to 1, the gradients will premultiply their colors
+   *                first, and then interpolate between them
    * @return        Then gradient shader instance
    */
   static std::shared_ptr<Shader> MakeLinear(const Point pts[2],
                                             const Vec4 colors[],
-                                            const float pos[], int count);
+                                            const float pos[], int count,
+                                            int flag = 0);
 
  private:
   Matrix local_matrix_ = glm::identity<Matrix>();

@@ -128,11 +128,20 @@ void draw_linear_gradient_example(skity::Canvas* canvas) {
     };
 
     skity::Matrix matrix = glm::identity<skity::Matrix>();
-    if (i / 2 == 1) {
-      matrix = glm::rotate(glm::identity<skity::Matrix>(), glm::radians(45.f),
-                           glm::vec3(0, 0, 1));
+    int flag = 0;
+    if (i % 2 == 1) {
+      flag = 1;
     }
-    auto lgs = skity::Shader::MakeLinear(pts.data(), colors, positions, 3);
+    if (i / 2 == 1) {
+      matrix *= glm::translate(glm::identity<glm::mat4>(),
+                               glm::vec3(blockX, blockY, 0));
+      matrix *= glm::rotate(glm::identity<glm::mat4>(), glm::radians(45.f),
+                            glm::vec3(0, 0, 1));
+      matrix *= glm::translate(glm::identity<glm::mat4>(),
+                               glm::vec3(-blockX, -blockY, 0));
+    }
+    auto lgs =
+        skity::Shader::MakeLinear(pts.data(), colors, positions, 3, flag);
     lgs->SetLocalMatrix(matrix);
     p.setShader(lgs);
     auto r = skity::Rect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);

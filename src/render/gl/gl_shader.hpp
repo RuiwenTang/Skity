@@ -85,6 +85,7 @@ class GLGradientShader : public GLShader {
   void SetStopCount(int32_t value);
   void SetColors(std::vector<Vec4> const& colors);
   void SetStops(std::vector<float> const& stops);
+  void SetPremulAlphaFlag(int32_t value);
 
  private:
   int32_t matrixs_location_ = -1;
@@ -95,6 +96,7 @@ class GLGradientShader : public GLShader {
   int32_t stop_count_location_ = -1;
   int32_t colors_location_ = -1;
   int32_t stops_location_ = -1;
+  int32_t premul_alpha_location_ = -1;
 };
 
 }  // namespace skity

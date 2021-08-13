@@ -13,6 +13,7 @@ uniform float radius[2];
 uniform int colorCount;
 uniform int gradientType;
 uniform int stopCount;
+uniform int premulAlpha;
 uniform vec4 colors[MAX_COLORS];
 uniform float colorStops[MAX_COLORS];
 
@@ -59,7 +60,16 @@ vec4 lerp_color(float current) {
     mixValue = value / total;
   }
 
-  vec4 color = mix(colors[startIndex], colors[endIndex], mixValue);
+  vec4 color;
+  if (premulAlpha == 1) {
+    color =
+        mix(vec4(colors[startIndex].xyz * colors[startIndex].w,
+                 colors[startIndex].w),
+            vec4(colors[endIndex].xyz * colors[endIndex].w, colors[endIndex].w),
+            mixValue);
+  } else {
+    color = mix(colors[startIndex], colors[endIndex], mixValue);
+  }
 
   return color;
 }
@@ -97,7 +107,9 @@ vec4 calculate_color() {
 void main() {
   vec4 vColor = calculate_color();
 
-  vColor = vec4(vColor.xyz * vColor.w, vColor.w);
+  if (premulAlpha != 1) {
+    vColor = vec4(vColor.xyz * vColor.w, vColor.w);
+  }
 
   if (vAlpha < 1.0) {
     vColor = vColor * vAlpha;

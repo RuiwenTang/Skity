@@ -36,6 +36,7 @@ class GLFillGradientOp : public GLDrawMeshOpAA {
   void SetStops(std::vector<float> const& stops);
   void SetGradientType(Shader::GradientType type);
   void SetLocalMatrix(Matrix const& matrix);
+  void SetGradientFlag(int32_t flag);
 
  protected:
   void OnBeforeDraw(bool has_clip) override;
@@ -47,6 +48,7 @@ class GLFillGradientOp : public GLDrawMeshOpAA {
   std::vector<float> stops_ = {};
   Shader::GradientType type_;
   Matrix local_matrix_ = glm::identity<glm::mat4>();
+  int32_t gradient_flag_ = 0;
   GLGradientShader* shader_;
 };
 

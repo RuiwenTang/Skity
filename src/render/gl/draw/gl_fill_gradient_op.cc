@@ -40,6 +40,10 @@ void GLFillGradientOp::SetLocalMatrix(Matrix const& matrix) {
   this->local_matrix_ = matrix;
 }
 
+void GLFillGradientOp::SetGradientFlag(int32_t flag) {
+  this->gradient_flag_ = flag;
+}
+
 void GLFillGradientOp::OnBeforeDraw(bool has_clip) {
   GLDrawMeshOpAA::OnBeforeDraw(has_clip);
   // set type
@@ -63,6 +67,8 @@ void GLFillGradientOp::OnBeforeDraw(bool has_clip) {
   shader_->SetPoints(points_[0], points_[1]);
   // radius
   shader_->SetRadius(radius_[0], radius_[1]);
+  // premulAlpha
+  shader_->SetPremulAlphaFlag(gradient_flag_);
 }
 
 }  // namespace skity

@@ -10,13 +10,14 @@ Shader::GradientType Shader::asGradient(GradientInfo *info) const {
 
 std::shared_ptr<Shader> Shader::MakeLinear(const Point pts[2],
                                            const Vec4 colors[],
-                                           const float pos[], int count) {
+                                           const float pos[], int count,
+                                           int flag) {
   // count must be >= 2
   if (count <= 2) {
     return nullptr;
   }
 
-  return std::make_shared<LinearGradientShader>(pts, colors, pos, count);
+  return std::make_shared<LinearGradientShader>(pts, colors, pos, count, flag);
 }
 
 }  // namespace skity

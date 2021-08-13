@@ -30,7 +30,7 @@ class GradientShader : public Shader {
 class LinearGradientShader : public GradientShader {
  public:
   LinearGradientShader(const Point pts[2], const Vec4 colors[],
-                       const float pos[], int32_t count);
+                       const float pos[], int32_t count, int flag);
 
   ~LinearGradientShader() override = default;
 

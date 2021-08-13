@@ -32,10 +32,12 @@ void GradientShader::CopyInfo(GradientInfo *info) const {
   }
 
   info->local_matrix = GetLocalMatrix();
+  info->gradientFlags = info_.gradientFlags;
 }
 
 LinearGradientShader::LinearGradientShader(const Point *pts, const Vec4 *colors,
-                                           const float *pos, int32_t count)
+                                           const float *pos, int32_t count,
+                                           int flag)
     : GradientShader(GradientType::kLinear) {
   GradientInfo *info = GetGradientInfo();
 
@@ -52,6 +54,7 @@ LinearGradientShader::LinearGradientShader(const Point *pts, const Vec4 *colors,
     std::memcpy(info->color_offsets.data(), pos, count * sizeof(float));
   }
   info->local_matrix = glm::identity<glm::mat4>();
+  info->gradientFlags = flag;
 }
 
 Rect LinearGradientShader::GetFillRect() {

@@ -142,6 +142,7 @@ void GLGradientShader::InitLocations() {
   stop_count_location_ = GL_CALL(GetUniformLocation, program_, "stopCount");
   colors_location_ = GL_CALL(GetUniformLocation, program_, "colors");
   stops_location_ = GL_CALL(GetUniformLocation, program_, "colorStops");
+  premul_alpha_location_ = GL_CALL(GetUniformLocation, program_, "premulAlpha");
 }
 
 void GLGradientShader::SetMatrixs(const Matrix matrix[2]) {
@@ -184,6 +185,10 @@ void GLGradientShader::SetColors(std::vector<Vec4> const& colors) {
 
 void GLGradientShader::SetStops(std::vector<float> const& stops) {
   SetUniform(stops_location_, (float*)stops.data(), stops.size());
+}
+
+void GLGradientShader::SetPremulAlphaFlag(int32_t value) {
+  SetUniform(premul_alpha_location_, value);
 }
 
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
