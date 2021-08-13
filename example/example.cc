@@ -36,6 +36,7 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
   return window;
 }
 
+// same as https://fiddle.skia.org/c/@shapes
 static void draw_basic_example(skity::Canvas* canvas) {
   skity::Paint paint;
   paint.setStyle(skity::Paint::kFill_Style);
@@ -61,6 +62,7 @@ static void draw_basic_example(skity::Canvas* canvas) {
   canvas->drawRoundRect(rect, 10, 10, paint);
 }
 
+// same as https://fiddle.skia.org/c/@discrete_path
 static void draw_path_effect_example(skity::Canvas* canvas) {
   const float R = 115.2f, C = 128.f;
   skity::Path path;
@@ -107,6 +109,7 @@ static void draw_dash_start_example(skity::Canvas* canvas) {
   canvas->drawPath(path, paint);
 }
 
+// same as https://fiddle.skia.org/c/844ab7d5e63876f6c889b33662ece8d5
 void draw_linear_gradient_example(skity::Canvas* canvas) {
   skity::Paint p;
   p.setStyle(skity::Paint::kFill_Style);
