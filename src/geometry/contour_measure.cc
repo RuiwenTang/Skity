@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <tuple>
 
 #include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"

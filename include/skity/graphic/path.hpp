@@ -5,6 +5,7 @@
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/geometry/rrect.hpp>
+#include <tuple>
 #include <vector>
 
 namespace skity {

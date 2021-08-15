@@ -397,6 +397,7 @@ static int _pts_in_verb(Path::Verb verb) {
     case Path::Verb::kDone:
       return 0;
   }
+  return 0;
 }
 
 Path& Path::moveTo(float x, float y) {
