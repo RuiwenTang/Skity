@@ -923,7 +923,7 @@ bool Path::isLine(Point* line) const {
     if (verbs_[1] == Verb::kLine) {
       assert(2 == this->countPoints());
       if (line) {
-        const Point * pts = points();
+        const Point* pts = points();
         line[0] = pts[0];
         line[1] = pts[1];
       }

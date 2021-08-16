@@ -153,6 +153,8 @@ Path FTTypeFace::ExtractOutLine() {
     std::cerr << "FT_Outline_Decompose failed" << std::endl;
   }
 
+  path.close();
+
   return path;
 }
 

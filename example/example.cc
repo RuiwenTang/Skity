@@ -166,6 +166,31 @@ void draw_linear_gradient_example(skity::Canvas* canvas) {
   canvas->drawPath(circle, paint);
 }
 
+// same as https://fiddle.skia.org/c/@text_rendering
+void draw_simple_text(skity::Canvas* canvas) {
+  skity::Paint paint;
+
+  paint.setTextSize(64.f);
+  paint.setAntiAlias(true);
+  paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+  paint.setStyle(skity::Paint::kFill_Style);
+
+  canvas->drawSimpleText("Skity", 20.f, 64.f, paint);
+
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.SetStrokeColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
+  paint.setStrokeWidth(3.f);
+  canvas->drawSimpleText("Skity", 20.f, 144.f, paint);
+
+  paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
+  paint.setStyle(skity::Paint::kFill_Style);
+
+  canvas->save();
+  // canvas->scale(1.5f, 1.f);
+  canvas->drawSimpleText("Skity", 20.f, 224.f, paint);
+  canvas->restore();
+}
+
 void draw_canvas(skity::Canvas* canvas) {
   draw_basic_example(canvas);
 
@@ -177,6 +202,11 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->save();
   canvas->translate(0, 300);
   draw_dash_start_example(canvas);
+  canvas->restore();
+
+  canvas->save();
+  canvas->translate(520, 0);
+  draw_simple_text(canvas);
   canvas->restore();
 
   canvas->save();
