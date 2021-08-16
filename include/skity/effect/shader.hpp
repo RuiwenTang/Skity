@@ -72,6 +72,26 @@ class Shader {
                                             const float pos[], int count,
                                             int flag = 0);
 
+  /**
+   * Returns a shader that generates a radial gradient given the center and
+   * radius.
+   *
+   * @param center  The center of the circle for this gradient
+   * @param radius  Must be positive. The radius of the circle for this gradient
+   * @param colors  The array[count] of colors, to be distributed between the
+   *                center and edge of the circle
+   * @param pos     The array[count] of floats, or NULL. For the relative
+   *                position of each corresponding color in the colors array.
+   * @param count   Must be >= 2. The number of colors
+   * @param flag    if set to 1, the gradients will premultiply their colors
+   *                first, and then interpolate between them
+   * @return        The gradient shader instance
+   */
+  static std::shared_ptr<Shader> MakeRadial(Point const& center, float radius,
+                                            const Vec4 colors[],
+                                            const float pos[], int count,
+                                            int flag = 0);
+
  private:
   Matrix local_matrix_ = glm::identity<Matrix>();
 };

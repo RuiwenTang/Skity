@@ -39,6 +39,15 @@ class LinearGradientShader : public GradientShader {
  private:
 };
 
+class RadialGradientShader : public GradientShader {
+ public:
+  RadialGradientShader(Point const& center, float radius, const Vec4 colors[],
+                       const float pos[], int32_t count, int flag);
+  ~RadialGradientShader() override = default;
+
+  Rect GetFillRect() override;
+};
+
 }  // namespace skity
 
 #endif  // SRC_SKITY_EFFECT_SHADER_BASE_HPP

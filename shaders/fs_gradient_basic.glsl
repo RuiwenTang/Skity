@@ -92,7 +92,13 @@ vec4 calculate_linear_color() {
   return lerp_color(mixValue / totalDist);
 }
 
-vec4 calculate_radial_color() { return vec4(1.0, 1.0, 1.0, 1.0); }
+vec4 calculate_radial_color() {
+  vec4 mappedCenter = matrixs[1] * matrixs[0] * vec4(points[0], 0.0, 1.0);
+  vec4 currentPoint = matrixs[1] * vec4(vPos, 0.0, 1.0);
+
+  float mixValue = distance(mappedCenter.xy, currentPoint.xy);
+  return lerp_color(mixValue / radius[0]);
+}
 
 vec4 calculate_color() {
   if (gradientType == GRADIENT_TYPE_LINEAR) {

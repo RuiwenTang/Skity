@@ -68,4 +68,38 @@ Rect LinearGradientShader::GetFillRect() {
   return rect;
 }
 
+RadialGradientShader::RadialGradientShader(Point const &center, float radius,
+                                           const Vec4 colors[],
+                                           const float pos[], int32_t count,
+                                           int flag)
+    : GradientShader(GradientType::kRadial) {
+  GradientInfo *info = GetGradientInfo();
+  // points
+  info->point[0] = center;
+  // radius
+  info->radius[0] = radius;
+  // colors
+  info->color_count = count;
+  info->colors.resize(count);
+  std::memcpy(info->colors.data(), colors, count * sizeof(Vec4));
+  // pos
+  if (pos) {
+    info->color_offsets.resize(count);
+    std::memcpy(info->color_offsets.data(), pos, count * sizeof(float));
+  }
+
+  info->local_matrix = glm::identity<glm::mat4>();
+  info->gradientFlags = flag;
+}
+
+Rect RadialGradientShader::GetFillRect() {
+  auto info = this->GetGradientInfo();
+  float left = info->point[0].x - info->radius[0];
+  float top = info->point[0].y - info->radius[0];
+  float right = left + 2.f * info->radius[0];
+  float bottom = top + 2.f * info->radius[0];
+
+  return Rect::MakeLTRB(left, top, right, bottom);
+}
+
 }  // namespace skity

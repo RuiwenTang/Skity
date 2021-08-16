@@ -150,6 +150,20 @@ void draw_linear_gradient_example(skity::Canvas* canvas) {
     auto r = skity::Rect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);
     canvas->drawRect(r, p);
   }
+
+  skity::Path circle;
+  circle.addCircle(220, 350, 100);
+  skity::Paint paint;
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setAntiAlias(true);
+  skity::Point center{220, 350, 0, 1};
+  skity::Vec4 radialColors[] = {skity::Vec4{1.f, 1.f, 1.f, 1.f},
+                                skity::Vec4{0.f, 0.f, 0.f, 1.f}};
+  float pts[] = {0.f, 1.f};
+  auto rgs = skity::Shader::MakeRadial(center, 150.f, radialColors, nullptr, 2);
+  paint.setShader(rgs);
+
+  canvas->drawPath(circle, paint);
 }
 
 void draw_canvas(skity::Canvas* canvas) {

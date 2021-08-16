@@ -62,6 +62,8 @@ void GLFillGradientOp::OnBeforeDraw(bool has_clip) {
   if (!stops_.empty()) {
     shader_->SetStopCount(stops_.size());
     shader_->SetStops(stops_);
+  } else {
+    shader_->SetStopCount(0);
   }
   // points
   shader_->SetPoints(points_[0], points_[1]);
