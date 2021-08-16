@@ -58,7 +58,7 @@ class GLCanvasState final {
 
 class GLCanvas : public Canvas {
  public:
-  explicit GLCanvas(Matrix const& mvp);
+  explicit GLCanvas(Matrix const& mvp, float width, float height);
   ~GLCanvas() override = default;
 
  protected:
@@ -82,6 +82,9 @@ class GLCanvas : public Canvas {
 
   void onUpdateViewport(uint32_t width, uint32_t height) override;
 
+  uint32_t onGetWidth() const override;
+  uint32_t onGetHeight() const override;
+
  private:
   void Init();
   void InitShader();
@@ -92,6 +95,8 @@ class GLCanvas : public Canvas {
                                             GLMeshRange* aa_range);
 
  private:
+  float width_;
+  float height_;
   std::unique_ptr<StencilShader> stencil_shader_ = {};
   std::unique_ptr<ColorShader> color_shader_ = {};
   std::unique_ptr<GLGradientShader> gradient_shader_ = {};

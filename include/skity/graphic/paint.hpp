@@ -112,6 +112,24 @@ class Paint {
 
   bool isAntiAlias() const;
 
+  /**
+   * @brief Get the paint's text size.
+   *
+   * @return the paint's text size.
+   */
+  float getTextSize() const { return text_size_; }
+  /**
+   * Set the paint's text size. This value must be > 0
+   *
+   * @param textSize the paint's text size.
+   */
+  void setTextSize(float textSize) {
+    if (textSize <= 0.f) {
+      return;
+    }
+    text_size_ = textSize;
+  }
+
   void setPathEffect(std::shared_ptr<PathEffect> pathEffect) {
     path_effect_ = std::move(pathEffect);
   }
@@ -132,6 +150,7 @@ class Paint {
   Style style_ = kFill_Style;
   float stroke_width_ = 1.0f;
   float miter_limit_ = 0.f;
+  float text_size_ = 14.f;
   Vector fill_color_ = {1, 1, 1, 1};
   Vector stroke_color_ = {1, 1, 1, 1};
   bool is_anti_alias_ = false;

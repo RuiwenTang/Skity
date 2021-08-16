@@ -56,11 +56,11 @@ class CanvasAATest : public test::TestApp {
     skity::Paint font_paint;
     font_paint.setStyle(skity::Paint::kFill_Style);
     font_paint.SetFillColor(1.f, 0.f, 0.f, 1.f);
+    font_paint.setTextSize(50.f);
 
     canvas_->drawSimpleText("Hello World no AA", 250, 50, font_paint);
     font_paint.setAntiAlias(true);
     canvas_->drawSimpleText("Hello World with AA", 250, 120, font_paint);
-
 
     skity::Rect rect{400, 400, 600, 500};
 

@@ -169,7 +169,7 @@ std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
   GLInterface::InitGlobalInterface(procss_loader);
   Matrix mvp = glm::ortho<float>(x, x + width, y + height, y);
 
-  return std::make_unique<GLCanvas>(mvp);
+  return std::make_unique<GLCanvas>(mvp, width, height);
 }
 
 GLCanvasState::GLCanvasState(Matrix mvp, GLMesh* mesh, StencilShader* shader,
@@ -309,7 +309,10 @@ bool GLCanvasState::CurrentHasClipPath() {
   return state_stack_.back().has_clip;
 }
 
-GLCanvas::GLCanvas(Matrix const& mvp) : Canvas(), mvp_(mvp) { Init(); }
+GLCanvas::GLCanvas(Matrix const& mvp, float width, float height)
+    : Canvas(), width_(width), height_(height), mvp_(mvp) {
+  Init();
+}
 
 void GLCanvas::Init() {
   InitShader();
@@ -528,6 +531,12 @@ void GLCanvas::onRotate(float degree, float px, float py) {
 
 void GLCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
   mvp_ = glm::ortho<float>(0, width, height, 0);
+  width_ = width;
+  height_ = height;
 }
+
+uint32_t GLCanvas::onGetWidth() const { return width_; }
+
+uint32_t GLCanvas::onGetHeight() const { return height_; }
 
 }  // namespace skity

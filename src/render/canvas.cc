@@ -117,7 +117,8 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
 
   this->translate(x, y);
 
-  auto glyphs = ft_typeface_->LoadGlyph(text);
+  auto glyphs =
+      ft_typeface_->LoadGlyph(text, paint.getTextSize(), width(), height());
   uint32_t index = 0;
   for (; index < glyphs.size(); index++) {
     auto const &info = glyphs[index];
@@ -135,6 +136,10 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
 void Canvas::updateViewport(uint32_t width, uint32_t height) {
   this->onUpdateViewport(width, height);
 }
+
+uint32_t Canvas::width() const { return this->onGetWidth(); }
+
+uint32_t Canvas::height() const { return this->onGetHeight(); }
 
 void Canvas::internalSave() { this->onSave(); }
 

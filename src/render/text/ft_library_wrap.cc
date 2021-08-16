@@ -8,33 +8,49 @@
 
 namespace skity {
 
+struct FTOutlineExtractInfo {
+  Path* path = nullptr;
+  FT_Face ft_face;
+  float current_font_size = 0.f;
+  float screen_width = 0.f;
+  float screen_height = 0.f;
+};
+
+// https://www.freetype.org/freetype2/docs/glyphs/glyphs-2.html#section-2
+static float FTUnitToPixel(float unit, FTOutlineExtractInfo* info) {
+  return (unit * info->current_font_size) / info->ft_face->units_per_EM;
+}
+
 static int HandleMoveTo(const FT_Vector* to, void* user) {
-  Path* path = static_cast<Path*>(user);
-  path->moveTo(to->x / 64.f, to->y / 64.f);
+  auto* info = static_cast<FTOutlineExtractInfo*>(user);
+  info->path->moveTo(FTUnitToPixel(to->x, info), FTUnitToPixel(to->y, info));
 
   return 0;
 }
 
 static int HandleLineTo(const FT_Vector* to, void* user) {
-  Path* path = static_cast<Path*>(user);
-  path->lineTo(to->x / 64.f, to->y / 64.f);
+  auto* info = static_cast<FTOutlineExtractInfo*>(user);
+  info->path->lineTo(FTUnitToPixel(to->x, info), FTUnitToPixel(to->y, info));
 
   return 0;
 }
 
 static int HandleConicTo(const FT_Vector* control, const FT_Vector* to,
                          void* user) {
-  Path* path = static_cast<Path*>(user);
-  path->quadTo(control->x / 64.f, control->y / 64.f, to->x / 64.f,
-               to->y / 64.f);
+  auto* info = static_cast<FTOutlineExtractInfo*>(user);
+  info->path->quadTo(FTUnitToPixel(control->x, info),
+                     FTUnitToPixel(control->y, info),
+                     FTUnitToPixel(to->x, info), FTUnitToPixel(to->y, info));
   return 0;
 }
 
 static int HandleCubicTo(const FT_Vector* control1, const FT_Vector* control2,
                          const FT_Vector* to, void* user) {
-  Path* path = static_cast<Path*>(user);
-  path->cubicTo(control1->x / 64.f, control1->y / 64.f, control2->x / 64.f,
-                control2->y / 64.f, to->x / 64.f, to->y / 64.f);
+  auto* info = static_cast<FTOutlineExtractInfo*>(user);
+  info->path->cubicTo(
+      FTUnitToPixel(control1->x, info), FTUnitToPixel(control1->y, info),
+      FTUnitToPixel(control2->x, info), FTUnitToPixel(control2->y, info),
+      FTUnitToPixel(to->x, info), FTUnitToPixel(to->y, info));
   return 0;
 }
 
@@ -64,7 +80,12 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const char* file_path) {
 
 FTTypeFace::~FTTypeFace() { FT_Done_Face(ft_face_); }
 
-std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text) {
+std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
+                                               float canvasWidth,
+                                               float canvasHeight) {
+  current_font_size_ = fontSize;
+  current_screen_width_ = canvasWidth;
+  current_screen_height_ = canvasHeight;
   std::vector<FTGlyphInfo> infos;
 
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> utf32_conv;
@@ -84,7 +105,8 @@ std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text) {
 
     FilpOutline();
 
-    float advance_x = ft_face_->glyph->advance.x >> 4;
+    float advance_x = ft_face_->glyph->advance.x * current_font_size_ /
+                      ft_face_->units_per_EM;
     Path glyph_path = ExtractOutLine();
 
     infos.emplace_back(FTGlyphInfo{glyph_path, advance_x});
@@ -114,11 +136,18 @@ Path FTTypeFace::ExtractOutLine() {
   callback.conic_to = HandleConicTo;
   callback.cubic_to = HandleCubicTo;
 
-  callback.shift = 2;
+  callback.shift = 0;
   callback.delta = 0;
 
+  FTOutlineExtractInfo outline_info;
+  outline_info.path = &path;
+  outline_info.ft_face = ft_face_;
+  outline_info.current_font_size = current_font_size_;
+  outline_info.screen_width = current_screen_width_;
+  outline_info.screen_height = current_screen_height_;
+
   FT_Error error =
-      FT_Outline_Decompose(&ft_face_->glyph->outline, &callback, &path);
+      FT_Outline_Decompose(&ft_face_->glyph->outline, &callback, &outline_info);
 
   if (error) {
     std::cerr << "FT_Outline_Decompose failed" << std::endl;
