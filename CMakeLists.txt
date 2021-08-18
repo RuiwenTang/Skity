@@ -40,6 +40,9 @@ include(FindFreetype)
 
 
 set(Skity_header
+        include/skity/codec/codec.hpp
+        include/skity/codec/data.hpp
+        include/skity/codec/pixmap.hpp
         include/skity/effect/path_effect.hpp
         include/skity/effect/shader.hpp
         include/skity/geometry/point.hpp
@@ -51,6 +54,9 @@ set(Skity_header
         )
 
 set(Skity_src
+        src/codec/codec.cc
+        src/codec/data.cc
+        src/codec/pixmap.cc
         src/effect/dash_path_effect.cc
         src/effect/dash_path_effect.hpp
         src/effect/discrete_path_effect.cc
@@ -111,6 +117,8 @@ set(Skity_src
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Avenir.ttf")
 
+set(SKITY_DEP_LIBRARIES "")
+
 if (${FREETYPE_FOUND})
     message("Find freetype with version ${FREETYPE_VERSION_STRING}")
     include_directories(${FREETYPE_INCLUDE_DIRS})
@@ -121,6 +129,24 @@ if (${FREETYPE_FOUND})
             )
 
     set(ENABLE_TEXT_RENDER ON CACHE BOOL "")
+    set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${FREETYPE_LIBRARIES})
+endif ()
+
+# libpng
+include(FindPNG)
+
+if (${PNG_FOUND})
+    include_directories(${PNG_INCLUDE_DIRS})
+
+    set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${PNG_LIBRARIES})
+
+    add_definitions(${PNG_DEFINITIONS})
+    add_definitions(-DSKITY_HAS_PNG)
+
+    set(Skity_src ${Skity_src}
+            src/codec/png_codec.hpp
+            src/codec/png_codec.cc
+            )
 endif ()
 
 #config file
@@ -130,9 +156,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(skity ${Skity_header} ${Skity_src})
 
-if (${FREETYPE_FOUND})
-    target_link_libraries(skity ${FREETYPE_LIBRARIES})
-endif ()
+target_link_libraries(skity ${SKITY_DEP_LIBRARIES})
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

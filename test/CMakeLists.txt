@@ -20,58 +20,63 @@ target_link_libraries(path_measure_test gtest skity)
 
 #GLFW
 if (WIN32)
-  set(glfw3_DIR "C:/Program Files (x86)/GLFW")
-  set(GLFW_INCLUDE_DIRS ${glfw3_DIR}/include)
-  
-  find_package(OpenGL REQUIRED)
-  set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
-  include_directories(${GLFW_INCLUDE_DIRS})
-else()
-  find_package(PkgConfig)
-  if (PkgConfig_FOUND)
-    message("Pkg found")
-    pkg_search_module(GLFW REQUIRED glfw3)
+    set(glfw3_DIR "C:/Program Files (x86)/GLFW")
+    set(GLFW_INCLUDE_DIRS ${glfw3_DIR}/include)
 
-    link_directories("/usr/local/lib")
+    find_package(OpenGL REQUIRED)
+    set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
     include_directories(${GLFW_INCLUDE_DIRS})
-  endif()
-endif()
+else ()
+    find_package(PkgConfig)
+    if (PkgConfig_FOUND)
+        message("Pkg found")
+        pkg_search_module(GLFW REQUIRED glfw3)
+
+        link_directories("/usr/local/lib")
+        include_directories(${GLFW_INCLUDE_DIRS})
+    endif ()
+endif ()
 
 add_library(test_common
-  OBJECT
-  common/test_common.cc
-  common/test_common.hpp
-)
-  add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+        OBJECT
+        common/test_common.cc
+        common/test_common.hpp
+        )
+add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(gl_path_stroke_mesh gl_path_stroke_mesh.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(gl_path_stroke_mesh gl_path_stroke_mesh.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(gl_draw_op_test gl_draw_op_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_draw_op_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(gl_draw_op_test gl_draw_op_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(gl_draw_op_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(gl_canvas_test gl_canvas_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(gl_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(gl_canvas_test gl_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(gl_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-  add_executable(raw_linear_gradient_test raw_linear_gradient_test.cc $<TARGET_OBJECTS:test_common>   $<TARGET_OBJECTS:glad>)
-  target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(raw_linear_gradient_test raw_linear_gradient_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 if (${FREETYPE_FOUND})
-  message(${FREETYPE_INCLUDE_DIRS})
-  add_executable(freetype_path_test freetype_path_test.cc)
-  target_include_directories(freetype_path_test PRIVATE ${FREETYPE_INCLUDE_DIRS})
-  target_link_libraries(freetype_path_test ${FREETYPE_LIBRARIES})
-endif()
+    message(${FREETYPE_INCLUDE_DIRS})
+    add_executable(freetype_path_test freetype_path_test.cc)
+    target_include_directories(freetype_path_test PRIVATE ${FREETYPE_INCLUDE_DIRS})
+    target_link_libraries(freetype_path_test ${FREETYPE_LIBRARIES})
+endif ()
+
+if (${PNG_FOUND})
+    add_executable(png_decode_test png_decode_test.cc)
+    target_link_libraries(png_decode_test skity ${PNG_LIBRARIES})
+endif ()

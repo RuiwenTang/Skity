@@ -984,7 +984,10 @@ Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode) {
     conic_weights_.insert(conic_weights_.end(), src.conic_weights_.begin(),
                           src.conic_weights_.end());
     // add points
-    points_.insert(points_.end(), src.points_.begin(), src.points_.end());
+    //    points_.insert(points_.end(), src.points_.begin(), src.points_.end());
+    for (const auto& p : src.points_) {
+      points_.emplace_back(p * matrix);
+    }
 
     return *this;
   }
