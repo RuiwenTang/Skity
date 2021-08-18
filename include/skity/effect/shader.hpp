@@ -9,6 +9,8 @@
 
 namespace skity {
 
+class Pixmap;
+
 /**
  * Shaders specify the source color(s) for what is being drawn.
  * if a paint has no shader, then the paint's color is used. If the paint has a
@@ -51,6 +53,8 @@ class Shader {
   };
 
   virtual GradientType asGradient(GradientInfo* info) const;
+
+  virtual std::shared_ptr<Pixmap> asImage() const;
 
   /**
    * Returns a shader that generates a linear gradient between the two specified

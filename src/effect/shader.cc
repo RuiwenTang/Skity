@@ -8,6 +8,8 @@ Shader::GradientType Shader::asGradient(GradientInfo* info) const {
   return GradientType::kNone;
 }
 
+std::shared_ptr<Pixmap> Shader::asImage() const { return nullptr; }
+
 std::shared_ptr<Shader> Shader::MakeLinear(const Point pts[2],
                                            const Vec4 colors[],
                                            const float pos[], int count,
