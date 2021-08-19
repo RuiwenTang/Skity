@@ -191,6 +191,31 @@ void GLGradientShader::SetPremulAlphaFlag(int32_t value) {
   SetUniform(premul_alpha_location_, value);
 }
 
+void GLTextureShader::InitLocations() {
+  GLShader::InitLocations();
+  matrixs_location_ = GL_CALL(GetUniformLocation, program_, "matrixs");
+  bounds_location_ = GL_CALL(GetUniformLocation, program_, "bounds");
+  texture_location_ = GL_CALL(GetUniformLocation, program_, "ourTexture");
+}
+
+void GLTextureShader::SetTextureChannel(int32_t channel) {
+  SetUniform(texture_location_, channel);
+}
+
+void GLTextureShader::SetMatrixs(const Matrix matrix[2]) {
+  SetUniform(matrixs_location_, (Matrix*)matrix, 2);
+}
+
+void GLTextureShader::SetBounds(Point const& p1, Point const& p2) {
+  std::array<glm::vec2, 2> pts{};
+  pts[0].x = p1.x;
+  pts[0].y = p1.y;
+  pts[1].x = p2.x;
+  pts[1].y = p2.y;
+
+  SetUniform(bounds_location_, pts.data(), 2);
+}
+
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
   std::unique_ptr<StencilShader> stencil_shader{new StencilShader()};
 
@@ -238,6 +263,23 @@ std::unique_ptr<GLGradientShader> GLShader::CreateGradientShader() {
   gradient_shader->InitLocations();
 
   return gradient_shader;
+}
+
+std::unique_ptr<GLTextureShader> GLShader::CreateTextureShader() {
+  std::unique_ptr<GLTextureShader> texture_shader{new GLTextureShader};
+
+  std::string vs_shader((const char*)vs_bitmap_basic_glsl,
+                        vs_bitmap_basic_glsl_size);
+
+  std::string fs_shader((const char*)fs_bitmap_basic_glsl,
+                        fs_bitmap_basic_glsl_size);
+
+  texture_shader->program_ =
+      create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  texture_shader->InitLocations();
+
+  return texture_shader;
 }
 
 }  // namespace skity

@@ -64,6 +64,8 @@ set(Skity_src
         src/effect/gradient_shader.cc
         src/effect/gradient_shader.hpp
         src/effect/path_effect.cc
+        src/effect/pixmap_shader.cc
+        src/effect/pixmap_shader.hpp
         src/effect/shader.cc
         src/geometry/conic.cc
         src/geometry/conic.hpp
@@ -111,11 +113,14 @@ set(Skity_src
         src/render/gl/gl_stroke.hpp
         src/render/gl/gl_stroke_aa.cc
         src/render/gl/gl_stroke_aa.hpp
+        src/render/gl/gl_texture.cc
+        src/render/gl/gl_texture.hpp
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Avenir.ttf")
+set(BUILD_IN_IMAGE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/wall.png")
 
 set(SKITY_DEP_LIBRARIES "")
 

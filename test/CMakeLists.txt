@@ -2,6 +2,7 @@
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/../)
 # glad
 include_directories(../third_party/glad/include)
 add_library(glad OBJECT ../third_party/glad/src/glad.c)
@@ -68,6 +69,9 @@ target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(raw_linear_gradient_test raw_linear_gradient_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
+add_executable(gl_texture_test gl_texture_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(gl_texture_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 if (${FREETYPE_FOUND})
     message(${FREETYPE_INCLUDE_DIRS})

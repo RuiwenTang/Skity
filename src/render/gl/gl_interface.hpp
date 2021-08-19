@@ -84,6 +84,8 @@ struct GLInterface {
   PFNGLUNIFORM4FVPROC fUniform4fv = nullptr;
   PFNGLUNIFORMMATRIX4FVPROC fUniformMatrix4fv = nullptr;
   PFNGLUSEPROGRAMPROC fUseProgram = nullptr;
+  PFNGLTEXPARAMETERIPROC fTexParameteri = nullptr;
+  PFNGLTEXIMAGE2DPROC fTexImage2D = nullptr;
 };
 
 }  // namespace skity
