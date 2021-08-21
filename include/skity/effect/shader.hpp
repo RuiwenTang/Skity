@@ -96,6 +96,14 @@ class Shader {
                                             const float pos[], int count,
                                             int flag = 0);
 
+  /**
+   * Return a shader that fill color with pixel content
+   *
+   * @param pixmap
+   * @return std::shared_ptr<Shader>
+   */
+  static std::shared_ptr<Shader> MakeShader(std::shared_ptr<Pixmap> pixmap);
+
  private:
   Matrix local_matrix_ = glm::identity<Matrix>();
 };

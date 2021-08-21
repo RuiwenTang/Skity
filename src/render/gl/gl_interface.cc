@@ -80,6 +80,8 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(Uniform4fv);
   GET_PROC(UniformMatrix4fv);
   GET_PROC(UseProgram);
+  GET_PROC(TexParameteri);
+  GET_PROC(TexImage2D);
 }
 
 GLInterface* GLInterface::GlobalInterface() { return g_interface; }

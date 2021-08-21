@@ -1,6 +1,7 @@
 #include <skity/effect/shader.hpp>
 
 #include "src/effect/gradient_shader.hpp"
+#include "src/effect/pixmap_shader.hpp"
 
 namespace skity {
 
@@ -36,6 +37,14 @@ std::shared_ptr<Shader> Shader::MakeRadial(Point const& center, float radius,
 
   return std::make_shared<RadialGradientShader>(center, radius, colors, pos,
                                                 count, flag);
+}
+
+std::shared_ptr<Shader> Shader::MakeShader(std::shared_ptr<Pixmap> pixmap) {
+  if (!pixmap) {
+    return nullptr;
+  }
+
+  return std::make_shared<PixmapShader>(pixmap);
 }
 
 }  // namespace skity

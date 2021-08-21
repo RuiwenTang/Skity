@@ -10,6 +10,7 @@ namespace skity {
 class StencilShader;
 class ColorShader;
 class GLGradientShader;
+class GLTextureShader;
 /**
  * @class Shader wrapper for internal use
  */
@@ -39,6 +40,8 @@ class GLShader {
   static std::unique_ptr<ColorShader> CreateColorShader();
 
   static std::unique_ptr<GLGradientShader> CreateGradientShader();
+
+  static std::unique_ptr<GLTextureShader> CreateTextureShader();
 
  protected:
   GLShader() = default;
@@ -97,6 +100,25 @@ class GLGradientShader : public GLShader {
   int32_t colors_location_ = -1;
   int32_t stops_location_ = -1;
   int32_t premul_alpha_location_ = -1;
+};
+
+class GLTextureShader : public GLShader {
+ public:
+  GLTextureShader() = default;
+  ~GLTextureShader() override = default;
+
+  void InitLocations() override;
+
+  void SetTextureChannel(int32_t channel);
+
+  void SetMatrixs(const Matrix matrix[2]);
+
+  void SetBounds(Point const& p1, Point const& p2);
+
+ private:
+  int32_t texture_location_;
+  int32_t matrixs_location_;
+  int32_t bounds_location_;
 };
 
 }  // namespace skity

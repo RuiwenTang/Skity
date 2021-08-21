@@ -1,4 +1,5 @@
 #pragma once
 
 #cmakedefine BUILD_IN_FONT_FILE "@BUILD_IN_FONT_FILE@"
+#cmakedefine BUILD_IN_IMAGE_FILE "@BUILD_IN_IMAGE_FILE@"
 #cmakedefine ENABLE_TEXT_RENDER "@ENABLE_TEXT_RENDER@"
