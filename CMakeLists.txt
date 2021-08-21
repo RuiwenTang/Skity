@@ -95,6 +95,8 @@ set(Skity_src
         src/render/gl/draw/gl_fill_color_op.hpp
         src/render/gl/draw/gl_fill_gradient_op.cc
         src/render/gl/draw/gl_fill_gradient_op.hpp
+        src/render/gl/draw/gl_fill_texture_op.cc
+        src/render/gl/draw/gl_fill_texture_op.hpp
         src/render/gl/draw/gl_stencil_op.cc
         src/render/gl/draw/gl_stencil_op.hpp
         src/render/gl/gl_canvas.cc
