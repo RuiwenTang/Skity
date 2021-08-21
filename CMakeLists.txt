@@ -135,7 +135,9 @@ if (${FREETYPE_FOUND})
 
     set(ENABLE_TEXT_RENDER ON CACHE BOOL "")
     set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${FREETYPE_LIBRARIES})
-endif ()
+else()
+  message(WARNING "Freetype2 not found, text rendering will not enable")
+endif()
 
 # libpng
 include(FindPNG)
@@ -152,9 +154,11 @@ if (${PNG_FOUND})
             src/codec/png_codec.hpp
             src/codec/png_codec.cc
             )
-endif ()
+else()
+  message(WARNING "libpng not found, the png file codec will not enable")
+endif()
 
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS 
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   shaders/fs_bitmap_basic.glsl
   shaders/fs_color_basic.glsl
   shaders/fs_gradient_basic.glsl
