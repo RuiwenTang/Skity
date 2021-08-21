@@ -22,8 +22,8 @@ vec2 calculate_uv() {
   float totalX = mappedBR.x - mappedLT.x;
   float totalY = mappedBR.y - mappedLT.y;
 
-  float vX = vPos.x / totalX;
-  float vY = vPos.y / totalY;
+  float vX = (vPos.x - mappedLT.x) / totalX;
+  float vY = (vPos.y - mappedLT.y) / totalY;
   return vec2(vX, 1.0 - vY);
 }
 
@@ -31,20 +31,19 @@ void main() {
   vec2 uv = calculate_uv();
 
   if (uv.x < 0 || uv.x > 1.0) {
-    // discard;
+    discard;
   }
 
   if (uv.y < 0 || uv.y > 1.0) {
-    // discard;
+    discard;
   }
 
-  // vec4 tColor = texture(ourTexture, uv);
+  vec4 tColor = texture(ourTexture, uv);
 
-  vec4 tColor = vec4(uv, 0.0, 1.0);
 
-  // if (vPos.z < 1.0) {
-  // tColor = tColor * vPos.z;
-  // }
+  if (vPos.z < 1.0) {
+    tColor = tColor * vPos.z;
+  }
 
   FragColor = tColor;
 }

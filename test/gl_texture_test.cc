@@ -14,6 +14,7 @@
 
 #include "common/test_common.hpp"
 #include "skity_config.hpp"
+#include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -72,6 +73,7 @@ class TextureTest : public test::TestApp {
     texture_->Bind();
     glActiveTexture(GL_TEXTURE0);
     texture_shader_->Bind();
+    texture_shader_->SetMVPMatrix(mvp_);
     texture_shader_->SetBounds(skity::Point{200, 200, 0, 1},
                                skity::Point{400, 400, 0, 1});
     texture_shader_->SetMatrixs(matris.data());
@@ -117,8 +119,10 @@ class TextureTest : public test::TestApp {
     }
     path.close();
 
-    skity::GLStroke stroke(paint);
-    mesh_range_ = stroke.strokePath(path, &gl_vertex);
+    // skity::GLStroke stroke(paint);
+    // mesh_range_ = stroke.strokePath(path, &gl_vertex);
+    skity::GLFill fill{};
+    mesh_range_ = fill.fillPath(path, paint, &gl_vertex);
 
     mesh_.Init();
     mesh_.BindMesh();

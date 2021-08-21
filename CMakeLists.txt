@@ -154,6 +154,17 @@ if (${PNG_FOUND})
             )
 endif ()
 
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS 
+  shaders/fs_bitmap_basic.glsl
+  shaders/fs_color_basic.glsl
+  shaders/fs_gradient_basic.glsl
+  shaders/fs_stencil_basic.glsl
+  shaders/vs_bitmap_basic.glsl
+  shaders/vs_color_basic.glsl
+  shaders/vs_gradient_basic.glsl
+  shaders/vs_stencil_basic.glsl
+)
+
 #config file
 configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
