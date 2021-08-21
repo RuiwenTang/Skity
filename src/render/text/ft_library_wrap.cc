@@ -2,6 +2,7 @@
 
 #include <codecvt>
 #include <iostream>
+#include <locale>
 #include <string>
 
 #include FT_OUTLINE_H
