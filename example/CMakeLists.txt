@@ -25,3 +25,6 @@ include_directories(../third_party/glad/include)
 add_executable(example example.cc $<TARGET_OBJECTS:glad>)
 
 target_link_libraries(example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
+add_executable(frame_example frame_example.cc $<TARGET_OBJECTS:glad>)
+target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})

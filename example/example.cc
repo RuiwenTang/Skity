@@ -252,5 +252,8 @@ int main(int argc, const char** argv) {
     glfwPollEvents();
   }
 
+  glfwDestroyWindow(window);
+  glfwTerminate();
+
   return 0;
 }

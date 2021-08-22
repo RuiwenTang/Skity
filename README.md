@@ -46,6 +46,7 @@ make
 - Clip (stencil)
 
 - Font (in progress)
+  - draw simple text, no glyph cache, no text layout
 
 - Line caps and joins (done)
 
@@ -54,6 +55,8 @@ make
   - implement a simple discrete path effect
 
 - Image (in progress)
+  - Cocec interface
+  - png image decode
 
 ## Reference
 
