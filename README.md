@@ -25,6 +25,8 @@ code is [example.cc](./example/example.cc)
 - CMake
 - [Freetype](https://www.freetype.org/)
 - [GLFW](https://www.glfw.org/): for build test and example
+- optional
+  - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
 
 ```shell
 # fetch sources from github
