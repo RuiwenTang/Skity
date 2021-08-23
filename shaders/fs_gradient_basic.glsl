@@ -48,7 +48,7 @@ vec4 lerp_color(float current) {
     }
   }
 
-  if (i == colorCount - 1) {
+  if (i == colorCount - 1 && colorCount > 0) {
     return colors[colorCount - 1];
   }
 

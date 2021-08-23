@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <skity/geometry/point.hpp>
+#include <skity/graphic/color.hpp>
 #include <utility>
 
 namespace skity {
@@ -102,6 +103,13 @@ class Paint {
 
   Vector GetFillColor() const;
 
+  /**
+   * Sets alpha and RGB used when stroking and filling. The color is a 32-bit
+   * value, unpremultiplied, packing 8-bit components for alpha, red, blue, and
+   * green.
+   * @param color   unpremultiplied ARGB
+   */
+  void setColor(Color color);
   /**
    * Requests, but does not require, that edge pixels draw opaque or with
    * partial transparency.

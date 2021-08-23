@@ -338,8 +338,42 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
   for (int32_t i = 0; i < 6; i++) {
     float a0 = (float)i / 6.f * glm::pi<float>() * 2.f - aeps;
     float a1 = (float)(i + 1.f) / 6.f * glm::pi<float>() * 2.f + aeps;
+
+    float p1_x = cx + std::cos(a0) * r0;
+    float p1_y = cy + std::sin(a0) * r0;
+
+    float p3_x = cx + std::cos(a1) * r0;
+    float p3_y = cy + std::sin(a1) * r0;
+
+    skity::Vec2 p1r = glm::normalize(skity::Vec2{p1_x - cx, p1_y - cy});
+    skity::Vec2 p3r = glm::normalize(skity::Vec2{p3_x - cx, p3_y - cy});
+    skity::Vec2 p2r = glm::normalize((p1r + p3r) * 0.5f);
+    p2r = skity::Vec2{cx, cy} +
+          (r0 + r0 * glm::pi<float>() * 0.1f *
+                    std::powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
+              p2r;
+
+    float p4_x = cx + std::cos(a0) * r1;
+    float p4_y = cy + std::sin(a0) * r1;
+
+    float p6_x = cx + std::cos(a1) * r1;
+    float p6_y = cy + std::sin(a1) * r1;
+
+    skity::Vec2 p4r = glm::normalize(skity::Vec2{p4_x - cx, p4_y - cy});
+    skity::Vec2 p6r = glm::normalize(skity::Vec2{p6_x - cx, p6_y - cy});
+    skity::Vec2 p5r = glm::normalize((p6r + p4r) * 0.5f);
+    p5r = skity::Vec2{cx, cy} +
+          (r1 + r1 * glm::pi<float>() * 0.1f *
+                    std::powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
+              p5r;
+
+    skity::Vec2 p1c = skity::Vec2{p1_x - cx, p1_y - cy};
+
     skity::Path path;
-    path.arcTo(cx, cy, r0, r1, a0);
+    path.moveTo(p1_x, p1_y);
+    path.quadTo(p2r.x, p2r.y, p3_x, p3_y);
+    path.lineTo(p6_x, p6_y);
+    path.quadTo(p5r.x, p5r.y, p4_x, p4_y);
     path.close();
 
     ax = cx + std::cosf(a0) * (r0 + r1) * 0.5f;
@@ -350,5 +384,134 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     skity::Paint paint;
     paint.setAntiAlias(true);
     paint.setStyle(skity::Paint::kFill_Style);
+    paint.setColor(skity::Color_BLUE);
+    std::array<skity::Color4f, 2> colors{
+        skity::Color4fFromColor(skity::ColorMakeFromHSLA(
+            a0 / (glm::pi<float>() * 2.f), 1.f, 0.55f, 255)),
+        skity::Color4fFromColor(skity::ColorMakeFromHSLA(
+            a1 / (glm::pi<float>() * 2.f), 1.f, 0.55f, 255)),
+    };
+    std::array<skity::Point, 2> pts{
+        skity::Point{ax, ay, 0.f, 1.f},
+        skity::Point{bx, by, 0.f, 1.f},
+    };
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+    canvas->drawPath(path, paint);
   }
+
+  {
+    skity::Path path;
+    path.addCircle(cx, cy, r0 - 0.5f);
+    path.addCircle(cx, cy, r1 + 0.5f);
+    skity::Paint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(1.f);
+    paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
+    canvas->drawPath(path, paint);
+  }
+
+  // selector
+  canvas->save();
+  canvas->rotate(glm::degrees(hue * glm::pi<float>() * 2.f));
+  canvas->translate(cx, cy);
+
+  // Marker on
+  {
+    skity::Paint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(2.f);
+    paint.setColor(skity::ColorSetARGB(192, 255, 255, 255));
+    skity::Path path;
+    path.addRect(skity::Rect::MakeXYWH(r0 - 1.f, -3.f, r1 - r0 + 2.f, 6.f));
+    canvas->drawPath(path, paint);
+
+    std::array<skity::Color4f, 2> colors{
+        skity::Color4fFromColor(skity::ColorSetARGB(128, 0, 0, 0)),
+        skity::Color4fFromColor(skity::ColorSetARGB(0, 0, 0, 0)),
+    };
+    std::array<skity::Point, 2> pts{
+        skity::Point{r0 - 3, -5, 0.f, 1.f},
+        skity::Point{r1 - r0 + 6.f, 10.f, 0.f, 1.f},
+    };
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+    skity::Path path2;
+    // r0-2-10,-4-10,r1-r0+4+20,8+20
+    path2.addRect(skity::Rect::MakeXYWH(r0 - 2.f - 5.f, -4.f - 5.f,
+                                        r1 - r0 + 4.f + 10.f, 8.f + 10.f));
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(5.f);
+    canvas->drawPath(path2, paint);
+  }
+
+  // Center triangle
+  {
+    r = r0 - 6.f;
+    ax = std::cosf(120.0f / 180.0f * glm::pi<float>()) * r;
+    ay = std::sinf(120.0f / 180.0f * glm::pi<float>()) * r;
+    bx = std::cosf(-120.0f / 180.0f * glm::pi<float>()) * r;
+    by = std::sinf(-120.0f / 180.0f * glm::pi<float>()) * r;
+    skity::Path triangle;
+    triangle.moveTo(r, 0.f);
+    triangle.lineTo(ax, ay);
+    triangle.lineTo(bx, by);
+    triangle.close();
+
+    skity::Paint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(skity::Paint::kFill_Style);
+
+    // r, 0, ax,ay, nvgHSLA(hue,1.0f,0.5f,255), nvgRGBA(255,255,255,255)
+    std::array<skity::Color4f, 2> colors{
+        skity::Color4fFromColor(skity::ColorMakeFromHSLA(hue, 1.0f, 0.5f, 255)),
+        skity::Color4fFromColor(skity::ColorSetARGB(255, 255, 255, 255)),
+    };
+    std::array<skity::Point, 2> pts{
+        skity::Point{r, 0.f, 0.f, 1.f},
+        skity::Point{ax, ay, 0.f, 1.f},
+    };
+
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+    canvas->drawPath(triangle, paint);
+
+    // (r+ax)*0.5f,(0+ay)*0.5f, bx,by, nvgRGBA(0,0,0,0), nvgRGBA(0,0,0,255)
+    colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(0, 0, 0, 0));
+    colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(255, 0, 0, 0));
+    pts[0].x = (r + ax) * 0.5f;
+    pts[0].y = (0 + ay) * 0.5f;
+    pts[1].x = bx;
+    pts[1].y = by;
+
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+
+    canvas->drawPath(triangle, paint);
+
+    // Select circle on triangle
+    ax = std::cosf(120.0f / 180.0f * glm::pi<float>()) * r * 0.3f;
+    ay = std::sinf(120.0f / 180.0f * glm::pi<float>()) * r * 0.4f;
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(2.f);
+    skity::Path circle;
+    circle.addCircle(ax, ay, 5.f);
+    paint.setShader(nullptr);
+    paint.setColor(skity::ColorSetARGB(192, 255, 255, 255));
+    canvas->drawPath(circle, paint);
+
+    colors[0] = {0, 0, 0, 64.f / 255.f};
+    colors[1] = {0.f, 0.f, 0.f, 0.f};
+
+    std::array<float, 2> stops = {7.f / 9.f, 1.f};
+    paint.setShader(skity::Shader::MakeRadial(
+        skity::Point{ax, ay, 0.f, 1.f}, 9.f, colors.data(), stops.data(), 2));
+    skity::Path circle2;
+    circle2.addCircle(ax, ay, 8.f);
+    canvas->drawPath(circle2, paint);
+  }
+
+  canvas->restore();
 }

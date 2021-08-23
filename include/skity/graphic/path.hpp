@@ -335,7 +335,7 @@ class Path {
    *
    * @param rect    Rect to add as a closed contour
    * @param dir     Path::Direction to orient the new contour
-   * @param startinitial corner of Rect to add
+   * @param start   initial corner of Rect to add
    * @return Path&  reference to Path
    */
   Path& addRect(Rect const& rect, Direction dir, uint32_t start);
