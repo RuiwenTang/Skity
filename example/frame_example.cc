@@ -23,6 +23,9 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
 void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
                       float t);
 
+void draw_lines(skity::Canvas* canvas, float x, float y, float w, float h,
+                float t);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -91,6 +94,9 @@ void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
   // draw_paragraph
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
   draw_color_wheel(canvas, width - 300, height - 300, 250.f, 250.f, t);
+
+  // Line joints
+  draw_lines(canvas, 120, height - 50, 600, 50, t);
 }
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
@@ -514,4 +520,54 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
   }
 
   canvas->restore();
+}
+
+void draw_lines(skity::Canvas* canvas, float x, float y, float w, float h,
+                float t) {
+  float pad = 5.0f, s = w / 9.0f - pad * 2;
+  float pts[4 * 2], fx, fy;
+  skity::Paint::Join joins[3] = {skity::Paint::kMiter_Join,
+                                 skity::Paint::kRound_Join,
+                                 skity::Paint::kBevel_Join};
+  skity::Paint::Cap caps[3] = {skity::Paint::kButt_Cap,
+                               skity::Paint::kRound_Cap,
+                               skity::Paint::kSquare_Cap};
+
+  pts[0] = -s * 0.25f + std::cosf(t * 0.3f) * s * 0.5f;
+  pts[1] = std::sinf(t * 0.3f) * s * 0.5f;
+  pts[2] = -s * 0.25f;
+  pts[3] = 0.f;
+  pts[4] = s * 0.25f;
+  pts[5] = 0.f;
+  pts[6] = s * 0.25f + std::cosf(-t * 0.3f) * s * 0.5f;
+  pts[7] = std::sinf(-t * 0.3f) * s * 0.5f;
+
+  for (int32_t i = 0; i < 3; i++) {
+    for (int32_t j = 0; j < 3; j++) {
+      fx = x + s * 0.5f + (i * 3 + j) / 9.f * w + pad;
+      fy = y - s * 0.5f + pad;
+      skity::Paint paint;
+      paint.setStyle(skity::Paint::kStroke_Style);
+      paint.setAntiAlias(true);
+      paint.setStrokeCap(caps[i]);
+      paint.setStrokeJoin(joins[j]);
+      paint.setColor(skity::ColorSetARGB(160, 0, 0, 0));
+      paint.setStrokeWidth(s * 0.3f);
+
+      skity::Path path;
+      path.moveTo(fx + pts[0], fy + pts[1]);
+      path.lineTo(fx + pts[2], fy + pts[3]);
+      path.lineTo(fx + pts[4], fy + pts[5]);
+      path.lineTo(fx + pts[6], fy + pts[7]);
+
+      canvas->drawPath(path, paint);
+
+      paint.setStrokeCap(skity::Paint::kButt_Cap);
+      paint.setStrokeJoin(skity::Paint::kBevel_Join);
+      paint.setStrokeWidth(1.f);
+      paint.setColor(skity::ColorSetARGB(255, 0, 192, 255));
+
+      canvas->drawPath(path, paint);
+    }
+  }
 }

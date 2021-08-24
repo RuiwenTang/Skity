@@ -57,6 +57,17 @@ GLVertex::VertexData GLVertex::GetVertex(uint32_t index) {
   return result;
 }
 
+void GLVertex::UpdateVertexData(VertexData const& data, uint32_t index) {
+  assert(index < vertex_buffer.size());
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_X] = data[GL_VERTEX_X];
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_Y] = data[GL_VERTEX_Y];
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_ALPHA] =
+      data[GL_VERTEX_ALPHA];
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_TYPE] = data[GL_VERTEX_TYPE];
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_U] = data[GL_VERTEX_U];
+  vertex_buffer[index * GL_VERTEX_SIZE + GL_VERTEX_V] = data[GL_VERTEX_V];
+}
+
 void GLVertex::Reset() {
   vertex_buffer.clear();
   front_index.clear();

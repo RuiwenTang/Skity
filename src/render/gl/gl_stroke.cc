@@ -137,6 +137,8 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
   prev_to_pt_ = to;
   prev_fromt_pt_ = from;
   prev_dir_ = curr_dir;
+  prev_from1_index_ = cur_pt1_index;
+  prev_from2_index_ = cur_pt2_index;
 
   if (is_anti_alias_) {
     Point from_pt1_aa = fromt_pt1 + vertical_line * anti_alias_width_;

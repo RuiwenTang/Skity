@@ -67,6 +67,8 @@ class GLStroke {
   Vector prev_dir_ = {};
   Point prev_pt1_ = {};
   Point prev_pt2_ = {};
+  int32_t prev_from1_index_ = -1;
+  int32_t prev_from2_index_ = -1;
   Point first_pt1_;
   Point first_pt2_;
   bool join_last_ = false;

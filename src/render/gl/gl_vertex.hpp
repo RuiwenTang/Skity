@@ -45,6 +45,7 @@ class GLVertex {
   void AddBack(uint32_t v1, uint32_t v2, uint32_t v3);
   void AddAAOutline(uint32_t v1, uint32_t v2, uint32_t v3);
   VertexData GetVertex(uint32_t index);
+  void UpdateVertexData(VertexData const& data, uint32_t index);
 
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }
