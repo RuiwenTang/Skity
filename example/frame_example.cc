@@ -10,6 +10,7 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
+#include <string>
 
 void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
                        float height, float t);
@@ -31,6 +32,12 @@ void draw_widths(skity::Canvas* canvas, float x, float y, float width);
 void draw_caps(skity::Canvas* canvas, float x, float y, float width);
 
 void draw_scissor(skity::Canvas* canvas, float x, float y, float t);
+
+void draw_window(skity::Canvas* canvas, const char* title, float x, float y,
+                 float w, float h);
+
+void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
+                     float w, float h);
 
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
@@ -108,6 +115,12 @@ void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
   draw_caps(canvas, 10, 300, 30);
 
   draw_scissor(canvas, 50, height - 80, t);
+
+  // widgets
+  draw_window(canvas, "Widgets 'n Stuff", 50, 50, 300, 400);
+  x = 60;
+  y = 95;
+  draw_search_box(canvas, "Search", x, y, 280, 25);
 }
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
@@ -445,23 +458,12 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     path.addRect(skity::Rect::MakeXYWH(r0 - 1.f, -3.f, r1 - r0 + 2.f, 6.f));
     canvas->drawPath(path, paint);
 
-    std::array<skity::Color4f, 2> colors{
-        skity::Color4fFromColor(skity::ColorSetARGB(128, 0, 0, 0)),
-        skity::Color4fFromColor(skity::ColorSetARGB(0, 0, 0, 0)),
-    };
-    std::array<skity::Point, 2> pts{
-        skity::Point{r0 - 3, -5, 0.f, 1.f},
-        skity::Point{r1 - r0 + 6.f, 10.f, 0.f, 1.f},
-    };
-    paint.setShader(
-        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
-    skity::Path path2;
-    // r0-2-10,-4-10,r1-r0+4+20,8+20
-    path2.addRect(skity::Rect::MakeXYWH(r0 - 2.f - 5.f, -4.f - 5.f,
-                                        r1 - r0 + 4.f + 10.f, 8.f + 10.f));
     paint.setStyle(skity::Paint::kStroke_Style);
-    paint.setStrokeWidth(5.f);
-    canvas->drawPath(path2, paint);
+    paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
+    paint.setStrokeWidth(1.f);
+    canvas->drawRect(
+        skity::Rect::MakeXYWH(r0 - 2.f, -4.f, r1 - r0 + 2.f + 2.f, 6.f + 2.f),
+        paint);
   }
 
   // Center triangle
@@ -629,7 +631,7 @@ void draw_caps(skity::Canvas* canvas, float x, float y, float width) {
 void draw_scissor(skity::Canvas* canvas, float x, float y, float t) {
   canvas->save();
 
-  t *= 0.001;
+  t = 0;
 
   skity::Paint paint;
   paint.setAntiAlias(true);
@@ -659,4 +661,101 @@ void draw_scissor(skity::Canvas* canvas, float x, float y, float t) {
   canvas->drawRect(skity::Rect::MakeXYWH(-20, -10, 60, 30), paint);
 
   canvas->restore();
+}
+
+void draw_window(skity::Canvas* canvas, const char* title, float x, float y,
+                 float w, float h) {
+  float corner_radius = 3.f;
+
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kFill_Style);
+
+  skity::RRect rrect;
+
+  // window
+  rrect.setRectXY(skity::Rect::MakeXYWH(x - 5, y - 5, w + 10, h + 10),
+                  corner_radius, corner_radius);
+
+  paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
+  canvas->drawRRect(rrect, paint);
+
+  paint.setColor(skity::ColorSetARGB(192, 28, 30, 34));
+  rrect.setRectXY(skity::Rect::MakeXYWH(x, y, w, h), corner_radius,
+                  corner_radius);
+  canvas->drawRRect(rrect, paint);
+
+  // header
+  std::array<skity::Color4f, 2> colors{};
+  colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(8, 255, 255, 255));
+  colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(16, 0, 0, 0));
+  std::array<skity::Point, 2> pts{skity::Point{x, y, 0, 1},
+                                  skity::Point{x, y + 15, 0.f, 1.f}};
+  paint.setShader(
+      skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+  rrect.setRectXY(skity::Rect::MakeXYWH(x + 1, y + 1, w - 2, 30),
+                  corner_radius - 1.f, corner_radius - 1.f);
+  canvas->drawRRect(rrect, paint);
+
+  paint.setShader(nullptr);
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setColor(skity::ColorSetARGB(32, 0, 0, 0));
+  skity::Path header;
+  header.moveTo(x + 0.5f, y + 0.5f + 30.f);
+  header.lineTo(x + 0.5f + w - 1.f, y + 0.5f + 30.f);
+  canvas->drawPath(header, paint);
+
+  paint.setTextSize(16.f);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetARGB(160, 220, 220, 220));
+  canvas->drawSimpleText(title, x + w / 2.f - 80.f, y + 16 + 2, paint);
+}
+
+void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
+                     float w, float h) {
+  float corner_radius = h / 2.f - 1.f;
+
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kFill_Style);
+  // Edit
+  skity::RRect rrect;
+  rrect.setRectXY(skity::Rect::MakeXYWH(x, y, w, h), corner_radius,
+                  corner_radius);
+  {
+    std::array<skity::Color4f, 2> colors;
+    std::array<skity::Point, 2> pts;
+    colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(16, 0, 0, 0));
+    colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(92, 0, 0, 0));
+    pts[0] = skity::Point{x, y, 0, 0};
+    pts[1] = skity::Point{x, y + h, 0, 0};
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+  }
+  canvas->drawRRect(rrect, paint);
+
+  paint.setShader(nullptr);
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setColor(skity::ColorSetARGB(48, 0, 0, 0));
+  rrect.setRectXY(skity::Rect::MakeXYWH(x + 0.5f, y + 0.5f, w - 1.f, h - 1.f),
+                  corner_radius - 0.5f, corner_radius - 0.5f);
+  canvas->drawRRect(rrect, paint);
+
+  std::string search_icon = "\uf002";
+  paint.setTextSize(h * 0.8f);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
+  canvas->drawSimpleText(search_icon.c_str(), x + h * 0.3f, y + h * 0.9f,
+                         paint);
+
+  paint.setTextSize(17.f);
+  paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
+  canvas->drawSimpleText(title, x + h * 1.05f, y + h * 0.5f + 8.f, paint);
+
+  std::string cancle_icon = "\uf2d3";
+  paint.setTextSize(h * 0.8f);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
+  canvas->drawSimpleText(cancle_icon.c_str(), x + w - h * 0.8f, y + h * 0.9f,
+                         paint);
 }
