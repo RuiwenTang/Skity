@@ -26,6 +26,12 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
 void draw_lines(skity::Canvas* canvas, float x, float y, float w, float h,
                 float t);
 
+void draw_widths(skity::Canvas* canvas, float x, float y, float width);
+
+void draw_caps(skity::Canvas* canvas, float x, float y, float width);
+
+void draw_scissor(skity::Canvas* canvas, float x, float y, float t);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -97,6 +103,11 @@ void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
 
   // Line joints
   draw_lines(canvas, 120, height - 50, 600, 50, t);
+  draw_widths(canvas, 10, 50, 30);
+  // Line caps
+  draw_caps(canvas, 10, 300, 30);
+
+  draw_scissor(canvas, 50, height - 80, t);
 }
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
@@ -570,4 +581,82 @@ void draw_lines(skity::Canvas* canvas, float x, float y, float w, float h,
       canvas->drawPath(path, paint);
     }
   }
+}
+
+void draw_widths(skity::Canvas* canvas, float x, float y, float width) {
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setColor(skity::ColorSetARGB(255, 0, 0, 0));
+  paint.setStyle(skity::Paint::kStroke_Style);
+  for (int i = 0; i < 20; i++) {
+    float w = (i + 0.5f) * 0.1f;
+    paint.setStrokeWidth(w);
+    skity::Path path;
+    path.moveTo(x, y);
+    path.lineTo(x + width, y + width * 0.3f);
+    canvas->drawPath(path, paint);
+    y += 10.f;
+  }
+}
+
+void draw_caps(skity::Canvas* canvas, float x, float y, float width) {
+  skity::Paint::Cap caps[3] = {skity::Paint::kButt_Cap,
+                               skity::Paint::kRound_Cap,
+                               skity::Paint::kSquare_Cap};
+
+  float line_width = 8.f;
+
+  skity::Paint paint;
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
+  canvas->drawRect(
+      skity::Rect::MakeXYWH(x - line_width / 2.f, y, width + line_width, 40.f),
+      paint);
+  canvas->drawRect(skity::Rect::MakeXYWH(x, y, width, 40.f), paint);
+
+  paint.setStrokeWidth(line_width);
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setColor(skity::Color_BLACK);
+  for (int32_t i = 0; i < 3; i++) {
+    paint.setStrokeCap(caps[i]);
+    skity::Path line;
+    line.moveTo(x, y + i * 10.f + 5.f);
+    line.lineTo(x + width, y + i * 10.f + 5.f);
+    canvas->drawPath(line, paint);
+  }
+}
+
+void draw_scissor(skity::Canvas* canvas, float x, float y, float t) {
+  canvas->save();
+
+  t *= 0.001;
+
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kFill_Style);
+
+  canvas->rotate(5.f);
+  canvas->translate(x, y);
+  // draw first rect and clip rect for it's area.
+  skity::Path rect;
+  rect.addRect(skity::Rect::MakeXYWH(-20, -20, 60, 40));
+  paint.setColor(skity::ColorSetARGB(255, 255, 0, 0));
+  canvas->drawPath(rect, paint);
+
+  // draw second rectangle with offset and rotation.
+  canvas->rotate(glm::degrees(t));
+  canvas->translate(40, 0);
+
+  paint.setColor(skity::ColorSetARGB(64, 255, 128, 0));
+  canvas->drawRect(skity::Rect::MakeXYWH(-20, -10, 60, 30), paint);
+
+  canvas->translate(-40, 0);
+  canvas->rotate(glm::degrees(-t));
+  canvas->clipPath(rect);
+  canvas->rotate(glm::degrees(t));
+  canvas->translate(40, 0);
+  paint.setColor(skity::ColorSetARGB(255, 255, 128, 0));
+  canvas->drawRect(skity::Rect::MakeXYWH(-20, -10, 60, 30), paint);
+
+  canvas->restore();
 }

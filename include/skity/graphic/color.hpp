@@ -22,7 +22,7 @@ using Color = uint32_t;
  */
 static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r, uint8_t g,
                                            uint8_t b) {
-  return (a << 24) | (r << 15) | (g << 8) | (b << 0);
+  return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
 
 /**
