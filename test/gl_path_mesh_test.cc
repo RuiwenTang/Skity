@@ -51,22 +51,22 @@ class GLPathMeshDemo : public test::TestApp {
 
     glColorMask(1, 1, 1, 1);
     glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     mesh_.BindFrontIndex();
     DrawFront(path_1_range);
     mesh_.BindBackIndex();
     DrawBack(path_1_range);
 
-    glDisable(GL_STENCIL_TEST);
+    // glDisable(GL_STENCIL_TEST);
 
-    glUseProgram(mesh_program_);
-    glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
+    // glUseProgram(mesh_program_);
+    // glUniformMatrix4fv(mesh_program_mvp_location_, 1, GL_FALSE, &mvp_[0][0]);
 
-    mesh_.BindFrontIndex();
-    DrawFront(path_1_range, GL_LINE_LOOP);
-    mesh_.BindBackIndex();
-    DrawBack(path_1_range, GL_LINE_LOOP);
+    // mesh_.BindFrontIndex();
+    // DrawFront(path_1_range, GL_LINE_LOOP);
+    // mesh_.BindBackIndex();
+    // DrawBack(path_1_range, GL_LINE_LOOP);
 
     mesh_.UnBindMesh();
   }
@@ -106,6 +106,8 @@ class GLPathMeshDemo : public test::TestApp {
   void InitGL() {
     glClearColor(0.3f, 0.4f, 0.5f, 1.0f);
     glClearStencil(0x00);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     InitShader();
     InitMesh();
@@ -137,7 +139,7 @@ class GLPathMeshDemo : public test::TestApp {
         if (TexCoord.x == 1.0 && (TexCoord.y * TexCoord.y - TexCoord.z > 0)) {
           discard;
         }
-        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        FragColor = vec4(0.3, 0.0, 0.0, 0.3);
       }
     )";
 

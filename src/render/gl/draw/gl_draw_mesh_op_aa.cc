@@ -29,12 +29,13 @@ void GLDrawMeshOpAA::OnBeforeDraw(bool has_clip) {
   GL_CALL(Enable, GL_STENCIL_TEST);
   GL_CALL(ColorMask, 1, 1, 1, 1);
   if (has_clip) {
-    GL_CALL(StencilMask, 0x1F);
+    GL_CALL(StencilMask, 0xF);
     GL_CALL(StencilFunc, GL_LESS, 0x10, 0x1F);
   } else {
+    GL_CALL(StencilMask, 0x0F);
     GL_CALL(StencilFunc, GL_NOTEQUAL, 0x00, 0x0F);
   }
-  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void GLDrawMeshOpAA::OnAfterDraw(bool has_clip) {
@@ -44,12 +45,15 @@ void GLDrawMeshOpAA::OnAfterDraw(bool has_clip) {
 }
 
 void GLDrawMeshOpAA::OnBeforeDrawAAOutline(bool has_clip) {
+  GL_CALL(Enable, GL_STENCIL_TEST);
   if (has_clip) {
     GL_CALL(StencilMask, 0x1F);
-    GL_CALL(StencilFunc, GL_LEQUAL, 0x10, 0x1F);
+    GL_CALL(StencilFunc, GL_EQUAL, 0x10, 0x1F);
     GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
   } else {
-    GL_CALL(Disable, GL_STENCIL_TEST);
+    GL_CALL(StencilMask, 0x0F);
+    GL_CALL(StencilFunc, GL_EQUAL, 0x00, 0x0F);
+    GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
   }
 }
 

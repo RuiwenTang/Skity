@@ -171,11 +171,11 @@ void GLStroke::HandleLineTo(Point const& from, Point const& to) {
     uint32_t to_pt2_index = gl_vertex_->AddPoint(
         to_pt2.x, to_pt2.y, 1.f, GLVertex::GL_VERTEX_TYPE_NORMAL, 0.f, 0.f);
 
-    gl_vertex_->AddFront(from_pt1_aa_index, from_pt1_index, to_pt1_index);
-    gl_vertex_->AddFront(from_pt1_aa_index, to_pt1_aa_index, to_pt1_index);
+    gl_vertex_->AddAAOutline(from_pt1_aa_index, from_pt1_index, to_pt1_index);
+    gl_vertex_->AddAAOutline(from_pt1_aa_index, to_pt1_aa_index, to_pt1_index);
 
-    gl_vertex_->AddFront(from_pt2_aa_index, from_pt2_index, to_pt2_index);
-    gl_vertex_->AddFront(from_pt2_aa_index, to_pt2_aa_index, to_pt2_index);
+    gl_vertex_->AddAAOutline(from_pt2_aa_index, from_pt2_index, to_pt2_index);
+    gl_vertex_->AddAAOutline(from_pt2_aa_index, to_pt2_aa_index, to_pt2_index);
   }
 }
 

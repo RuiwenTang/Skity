@@ -14,7 +14,7 @@ namespace skity {
 
 class GLCanvasStateOp : public GLDrawOp {
  public:
-  GLCanvasStateOp(GLCanvasState* state)
+  explicit GLCanvasStateOp(GLCanvasState* state)
       : GLDrawOp(0, 0, 0, 0, nullptr), state_(state) {}
 
   ~GLCanvasStateOp() override = default;
@@ -47,7 +47,7 @@ class GLCanvasClipOp : public GLCanvasStateOp {
 
 class GLCanvasSaveOp : public GLCanvasStateOp {
  public:
-  GLCanvasSaveOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
+  explicit GLCanvasSaveOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
   ~GLCanvasSaveOp() override = default;
 
  protected:
@@ -56,7 +56,7 @@ class GLCanvasSaveOp : public GLCanvasStateOp {
 
 class GLCanvasRestoreOp : public GLCanvasStateOp {
  public:
-  GLCanvasRestoreOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
+  explicit GLCanvasRestoreOp(GLCanvasState* state) : GLCanvasStateOp(state) {}
   ~GLCanvasRestoreOp() override = default;
 
  protected:
@@ -212,6 +212,7 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   }
   // FIXME: make sure no color is output
   GL_CALL(ColorMask, 0, 0, 0, 0);
+  GL_CALL(Enable, GL_STENCIL_TEST);
   State const& state = state_stack_[clip_index];
   Matrix final_matrix = mvp_ * state.matrix;
   shader_->Bind();
@@ -229,7 +230,6 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   mesh_->BindBackIndex();
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
   DrawBack(state.clip_path_range);
-
   GL_CALL(StencilMask, 0x1F);
   GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x0F);
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -436,9 +436,6 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
       draw_ops_.emplace_back(std::move(op));
     }
 
-    // clear current stencil value
-    draw_ops_.emplace_back(
-        std::move(draw_op_builder_.CreateStencilOp(0, false)));
 
     if (isDrawDebugLine()) {
       draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
@@ -463,9 +460,6 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     if (op) {
       draw_ops_.emplace_back(std::move(op));
     }
-    // clear stencil value
-    draw_ops_.emplace_back(std::move(
-        draw_op_builder_.CreateStencilOp(paint.getStrokeWidth(), false)));
 
     if (isDrawDebugLine()) {
       draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
