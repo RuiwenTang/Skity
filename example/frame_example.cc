@@ -12,6 +12,8 @@
 #include <skity/render/canvas.hpp>
 #include <string>
 
+#include "perf.hpp"
+
 void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
                        float height, float t);
 
@@ -101,7 +103,14 @@ int main(int argc, const char** argv) {
                                             (void*)glfwGetProcAddress);
 
   glfwSwapInterval(0);
-  double mx, my, t, dt;
+
+  Perf fpsGraph(Perf::GRAPH_RENDER_FPS, "Frame Time");
+  Perf cpuGraph(Perf::GRAPH_RENDER_MS, "CPU Time");
+  Perf gpuGraph(Perf::GRAPH_RENDER_MS, "GPU Time");
+
+  double mx, my, t, dt, prevt = 0, cpuTime = 0;
+  glfwSetTime(0);
+  prevt = glfwGetTime();
 
   while (!glfwWindowShouldClose(window)) {
     glfwGetCursorPos(window, &mx, &my);
@@ -109,10 +118,18 @@ int main(int argc, const char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     t = glfwGetTime();
+    dt = t - prevt;
+    prevt = t;
 
     render_frame_demo(canvas.get(), mx, my, width, height, t);
 
+    fpsGraph.RenderGraph(canvas.get(), 5, 5);
+    cpuGraph.RenderGraph(canvas.get(), 5 + 200 + 5, 5);
     canvas->flush();
+
+    cpuTime = glfwGetTime() - t;
+    fpsGraph.UpdateGraph(dt);
+    cpuGraph.UpdateGraph(cpuTime);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
