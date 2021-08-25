@@ -170,6 +170,7 @@ class Canvas {
 
   // just draw text not a usable interface
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
+  float simpleTextBounds(const char* text, Paint const& paint);
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 

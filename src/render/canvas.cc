@@ -133,6 +133,20 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
 #endif
 }
 
+float Canvas::simpleTextBounds(const char *text, const Paint &paint) {
+#ifdef ENABLE_TEXT_RENDER
+  auto glyphs =
+      ft_typeface_->LoadGlyph(text, paint.getTextSize(), width(), height());
+  float total_width = 0.f;
+  for (auto & glyph : glyphs) {
+    total_width += glyph.advance_x;
+  }
+  return total_width;
+#else
+  return 0.f;
+#endif
+}
+
 void Canvas::updateViewport(uint32_t width, uint32_t height) {
   this->onUpdateViewport(width, height);
 }
