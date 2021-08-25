@@ -5,6 +5,9 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 
 ## Example
 
+Working in progress nanovg demo <br/>
+![nanovg](./resources/nanovg_demo.png)
+
 same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
 code is [example.cc](./example/example.cc)
 <br/>
@@ -48,6 +51,7 @@ make
 - Clip (stencil)
 
 - Font (in progress)
+
   - draw simple text, no glyph cache, no text layout
 
 - Line caps and joins (done)
