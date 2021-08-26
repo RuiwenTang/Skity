@@ -36,6 +36,10 @@ class GLVertex {
     GL_VERTEX_TYPE_RADIUS = 3,
     GL_VERTEX_TYPE_AA = 100,
   };
+
+  GLVertex() = default;
+  ~GLVertex() = default;
+
   using VertexData = std::array<float, GL_VERTEX_SIZE>;
   uint32_t AddPoint(float x, float y, uint32_t type, float u, float v);
   uint32_t AddPoint(float x, float y, float alpha, uint32_t type, float u,

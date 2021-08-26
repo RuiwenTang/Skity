@@ -432,6 +432,7 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
   Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
   if (orientation == Orientation::kLinear) {
     // same direction do nothing
+    return;
   } else if (orientation == Orientation::kClockWise) {
     matrix_pre =
         glm::translate(glm::vec3{-prev_vertical_line.x * stroke_radius_,

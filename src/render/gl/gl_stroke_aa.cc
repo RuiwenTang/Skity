@@ -146,6 +146,11 @@ void GLStrokeAA::HandleCubicTo(Point const& start, Point const& control1,
 void GLStrokeAA::AppendQuadOrSplitRecursively(
     std::array<Point, 3> const& quad) {
   // TODO, this may be slow, need to optimaze
+  if (glm::length(glm::vec2(quad[2].x - quad[0].x, quad[2].y - quad[0].y)) <=
+      4.f) {
+    HandleLineTo(quad[0], quad[2]);
+    return;
+  }
   if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
     std::array<Point, 3> quad_1{};
     std::array<Point, 3> quad_2{};
