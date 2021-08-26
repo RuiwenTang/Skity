@@ -6,6 +6,9 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 ## Example
 
 Working in progress nanovg demo <br/>
+
+> There are some problems with performance need to be optimized
+
 ![nanovg](./resources/nanovg_demo.png)
 
 same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
