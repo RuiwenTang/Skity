@@ -3,13 +3,18 @@
 #include <GLFW/glfw3.h>
 
 #include <cmath>
+#include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <skity/codec/codec.hpp>
+#include <skity/codec/data.hpp>
+#include <skity/codec/pixmap.hpp>
 #include <skity/effect/path_effect.hpp>
 #include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
+#include <string>
 
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
                              const char* title) {
@@ -204,7 +209,23 @@ void draw_simple_text(skity::Canvas* canvas) {
   canvas->restore();
 }
 
-void draw_canvas(skity::Canvas* canvas) {
+void draw_image(skity::Canvas* canvas,
+                std::shared_ptr<skity::Pixmap> const& pixmap) {
+  canvas->save();
+  skity::RRect rrect;
+  rrect.setRectXY(skity::Rect::MakeXYWH(10, 10, 100, 100), 20, 20);
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setShader(skity::Shader::MakeShader(pixmap));
+
+  canvas->drawRRect(rrect, paint);
+
+  canvas->restore();
+}
+
+void draw_canvas(skity::Canvas* canvas,
+                 std::shared_ptr<skity::Pixmap> const& pixmap) {
   draw_basic_example(canvas);
 
   canvas->save();
@@ -226,6 +247,13 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->translate(400, 300);
   draw_linear_gradient_example(canvas);
   canvas->restore();
+
+  if (pixmap) {
+    canvas->save();
+    canvas->translate(300, 600);
+    draw_image(canvas, pixmap);
+    canvas->restore();
+  }
 }
 
 int main(int argc, const char** argv) {
@@ -241,10 +269,31 @@ int main(int argc, const char** argv) {
   auto canvas =
       skity::Canvas::MakeGLCanvas(0, 0, 800, 800, (void*)glfwGetProcAddress);
 
+  std::shared_ptr<skity::Pixmap> pixmap;
+  if (argc >= 2) {
+    std::string path = argv[1];
+    std::ifstream in_stream{path, std::ios::in | std::ios::binary};
+    std::vector<uint8_t> raw_file_data(
+        (std::istreambuf_iterator<char>(in_stream)),
+        std::istreambuf_iterator<char>());
+
+    auto skity_data =
+        skity::Data::MakeWithCopy(raw_file_data.data(), raw_file_data.size());
+
+    if (skity_data) {
+      auto codec = skity::Codec::MakeFromData(skity_data);
+
+      if (codec) {
+        codec->SetData(skity_data);
+        pixmap = codec->Decode();
+      }
+    }
+  }
+
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    draw_canvas(canvas.get());
+    draw_canvas(canvas.get(), pixmap);
 
     canvas->flush();
 

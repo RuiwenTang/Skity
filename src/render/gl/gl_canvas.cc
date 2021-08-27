@@ -324,12 +324,14 @@ void GLCanvas::Init() {
   // Init state
   state_ = std::make_unique<GLCanvasState>(
       mvp_, mesh_.get(), stencil_shader_.get(), color_shader_.get());
+  texture_manager_ = std::make_unique<GLTextureManager>();
 }
 
 void GLCanvas::InitShader() {
   stencil_shader_ = GLShader::CreateStencilShader();
   color_shader_ = GLShader::CreateColorShader();
   gradient_shader_ = GLShader::CreateGradientShader();
+  texture_shader_ = GLShader::CreateTextureShader();
 }
 
 void GLCanvas::InitMesh() {
@@ -342,6 +344,7 @@ void GLCanvas::InitDrawOpBuilder() {
   draw_op_builder_.UpdateStencilShader(stencil_shader_.get());
   draw_op_builder_.UpdateColorShader(color_shader_.get());
   draw_op_builder_.UpdateGradientShader(gradient_shader_.get());
+  draw_op_builder_.UpdateTextureShader(texture_shader_.get());
   draw_op_builder_.UpdateMesh(mesh_.get());
 }
 
@@ -363,6 +366,7 @@ void GLCanvas::UpdateDrawOpBuilder(GLMeshRange const& range) {
 
 std::unique_ptr<GLDrawOp> GLCanvas::GenerateColorOp(Paint const& paint,
                                                     bool fill,
+                                                    skity::Rect const& bounds,
                                                     GLMeshRange* aa_range) {
   uint32_t aa_outline_start = 0;
   uint32_t aa_outline_count = 0;
@@ -374,10 +378,37 @@ std::unique_ptr<GLDrawOp> GLCanvas::GenerateColorOp(Paint const& paint,
   if (paint.getShader()) {
     Shader::GradientInfo gradient_info{};
     Shader::GradientType type = paint.getShader()->asGradient(&gradient_info);
+    auto pixmap = paint.getShader()->asImage();
 
     if (type != Shader::kNone) {
       return draw_op_builder_.CreateGradientOpAA(
           &gradient_info, type, aa_outline_start, aa_outline_count);
+    } else if (pixmap) {
+      const GLTexture* texture =
+          texture_manager_->GenerateTexture(pixmap.get());
+      if (texture == nullptr) {
+        // failed to generate texture
+        return nullptr;
+      }
+      skity::Point p1{};
+      skity::Point p2{};
+      uint32_t pixmap_width = pixmap->Width();
+
+      float width =
+          std::min(bounds.width(), static_cast<float>(pixmap->Width()));
+      float height =
+          std::min(bounds.height(), static_cast<float>(pixmap->Height()));
+
+      float x = bounds.left() + (bounds.width() - width) / 2.f;
+      float y = bounds.top() + (bounds.height() - height) / 2.f;
+
+      p1.x = x;
+      p1.y = y;
+      p2.x = x + width;
+      p2.y = y + height;
+
+      return draw_op_builder_.CreateTextureOpAA(
+          texture, p1, p2, aa_outline_start, aa_outline_count);
     } else {
       // TODO implement Other shader type
       return nullptr;
@@ -393,6 +424,7 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
   bool need_fill = false;
   bool need_stroke = false;
   auto style = paint.getStyle();
+  Rect const& bounds = path.getBounds();
 
   switch (style) {
     case Paint::kFill_Style:
@@ -431,11 +463,11 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
       GLStrokeAA strokeAA(1.f);
       aa_range = strokeAA.StrokePathAA(path, &gl_vertex_);
     }
-    auto op = GenerateColorOp(paint, true, &aa_range);
+
+    auto op = GenerateColorOp(paint, true, bounds, &aa_range);
     if (op) {
       draw_ops_.emplace_back(std::move(op));
     }
-
 
     if (isDrawDebugLine()) {
       draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
@@ -456,7 +488,7 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
     aa_range.aa_outline_start = stroke_range.aa_outline_start;
     aa_range.aa_outline_count = stroke_range.aa_outline_count;
 
-    auto op = GenerateColorOp(paint, false, &aa_range);
+    auto op = GenerateColorOp(paint, false, bounds, &aa_range);
     if (op) {
       draw_ops_.emplace_back(std::move(op));
     }

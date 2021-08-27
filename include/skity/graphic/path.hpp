@@ -416,7 +416,7 @@ class Path {
   inline Direction getFirstDirection() { return first_direction_; }
   inline void setFirstDirection(Direction dir) { this->first_direction_ = dir; }
 
-  Rect getBounds() {
+  Rect getBounds() const {
     computeBounds();
     return bounds_;
   }

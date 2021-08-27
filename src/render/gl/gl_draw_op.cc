@@ -5,6 +5,7 @@
 #include "src/render/gl/draw/gl_draw_debug_line_op.hpp"
 #include "src/render/gl/draw/gl_fill_color_op.hpp"
 #include "src/render/gl/draw/gl_fill_gradient_op.hpp"
+#include "src/render/gl/draw/gl_fill_texture_op.hpp"
 #include "src/render/gl/draw/gl_stencil_op.hpp"
 #include "src/render/gl/gl_shader.hpp"
 
@@ -45,6 +46,10 @@ void GLDrawOpBuilder::UpdateColorShader(ColorShader* shader) {
 
 void GLDrawOpBuilder::UpdateGradientShader(GLGradientShader* shader) {
   gradient_shader = shader;
+}
+
+void GLDrawOpBuilder::UpdateTextureShader(GLTextureShader* shader) {
+  texture_shader = shader;
 }
 
 void GLDrawOpBuilder::UpdateMesh(GLMesh* mesh) { gl_mesh = mesh; }
@@ -122,6 +127,27 @@ std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateGradientOpAA(
   op->SetRadius(info->radius[0], info->radius[1]);
   op->SetLocalMatrix(info->local_matrix);
   op->SetGradientFlag(info->gradientFlags);
+
+  return op;
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateTextureOp(
+    const GLTexture* texture, Point const& p1, Point const& p2) {
+  return CreateTextureOpAA(texture, p1, p2, 0, 0);
+}
+
+std::unique_ptr<GLDrawOp> GLDrawOpBuilder::CreateTextureOpAA(
+    const GLTexture* texture, Point const& p1, Point const& p2,
+    uint32_t aa_start, uint32_t aa_count) {
+  auto op = std::make_unique<GLFillTextureOp>(
+      front_start, front_count, back_start, back_count, aa_start, aa_count,
+      texture_shader, gl_mesh);
+
+  op->Init();
+  op->SetBounds(p1, p2);
+  // currently, not use this matrix
+  op->SetLocalMatrix(glm::identity<Matrix>());
+  op->SetTexture(texture);
 
   return op;
 }

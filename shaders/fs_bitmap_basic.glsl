@@ -22,21 +22,17 @@ vec2 calculate_uv() {
   float totalX = mappedBR.x - mappedLT.x;
   float totalY = mappedBR.y - mappedLT.y;
 
-  float vX = (vPos.x - mappedLT.x) / totalX;
-  float vY = (vPos.y - mappedLT.y) / totalY;
+  float vX = (mappedPos.x- mappedLT.x) / totalX;
+  float vY = (mappedPos.y - mappedLT.y) / totalY;
   return vec2(vX, 1.0 - vY);
 }
 
 void main() {
   vec2 uv = calculate_uv();
 
-  if (uv.x < 0 || uv.x > 1.0) {
-    discard;
-  }
+  uv.x = clamp(uv.x, 0.0, 1.0);
 
-  if (uv.y < 0 || uv.y > 1.0) {
-    discard;
-  }
+  uv.y = clamp(uv.y, 0.0, 1.0);
 
   vec4 tColor = texture(ourTexture, uv);
 

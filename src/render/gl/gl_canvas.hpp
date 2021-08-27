@@ -8,6 +8,7 @@
 #include "src/render/gl/gl_draw_op.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
+#include "src/render/gl/gl_texture.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 namespace skity {
@@ -92,6 +93,7 @@ class GLCanvas : public Canvas {
   void InitDrawOpBuilder();
   void UpdateDrawOpBuilder(GLMeshRange const& range);
   std::unique_ptr<GLDrawOp> GenerateColorOp(Paint const& paint, bool fill,
+                                            skity::Rect const& bounds,
                                             GLMeshRange* aa_range);
 
  private:
@@ -100,6 +102,7 @@ class GLCanvas : public Canvas {
   std::unique_ptr<StencilShader> stencil_shader_ = {};
   std::unique_ptr<ColorShader> color_shader_ = {};
   std::unique_ptr<GLGradientShader> gradient_shader_ = {};
+  std::unique_ptr<GLTextureShader> texture_shader_ = {};
   std::unique_ptr<GLVertex> vertex_ = {};
   std::unique_ptr<GLMesh> mesh_ = {};
   GLDrawOpBuilder draw_op_builder_ = {};
@@ -107,6 +110,7 @@ class GLCanvas : public Canvas {
   GLVertex gl_vertex_ = {};
   Matrix mvp_;
   std::unique_ptr<GLCanvasState> state_;
+  std::unique_ptr<GLTextureManager> texture_manager_;
 };
 }  // namespace skity
 

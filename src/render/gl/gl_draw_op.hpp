@@ -12,7 +12,9 @@ class GLShader;
 class StencilShader;
 class ColorShader;
 class GLGradientShader;
+class GLTextureShader;
 class GLMesh;
+class GLTexture;
 
 class GLDrawOp {
  public:
@@ -22,7 +24,8 @@ class GLDrawOp {
         front_count_(front_count),
         back_start_(back_start),
         back_count_(back_count),
-        shader_(shader) {}
+        shader_(shader),
+        current_matrix_() {}
   virtual ~GLDrawOp() = default;
 
   void Draw(glm::mat4 const& mvp, bool has_clip = false);
@@ -62,6 +65,7 @@ class GLDrawOpBuilder final {
   void UpdateStencilShader(StencilShader* shader);
   void UpdateColorShader(ColorShader* shader);
   void UpdateGradientShader(GLGradientShader* shader);
+  void UpdateTextureShader(GLTextureShader* shader);
   void UpdateMesh(GLMesh* mesh);
   void UpdateFrontStart(uint32_t value);
 
@@ -86,6 +90,13 @@ class GLDrawOpBuilder final {
                                                Shader::GradientType type,
                                                uint32_t aa_start,
                                                uint32_t aa_count);
+  std::unique_ptr<GLDrawOp> CreateTextureOp(const GLTexture* texture,
+                                            Point const& p1, Point const& p2);
+  std::unique_ptr<GLDrawOp> CreateTextureOpAA(const GLTexture* texture,
+                                              Point const& p1, Point const& p2,
+                                              uint32_t aa_start,
+                                              uint32_t aa_count);
+
   std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
   std::unique_ptr<GLDrawOp> CreateDebugLineOp();
@@ -94,6 +105,7 @@ class GLDrawOpBuilder final {
   StencilShader* stencil_shader = nullptr;
   ColorShader* color_shader = nullptr;
   GLGradientShader* gradient_shader = nullptr;
+  GLTextureShader* texture_shader = nullptr;
   GLMesh* gl_mesh = nullptr;
   uint32_t front_start = 0;
   uint32_t front_count = 0;
