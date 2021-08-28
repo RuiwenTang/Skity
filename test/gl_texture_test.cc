@@ -138,14 +138,7 @@ class TextureTest : public test::TestApp {
   void InitTexture() {
     texture_manager_ = std::make_unique<skity::GLTextureManager>();
 
-    std::ifstream in_stream{BUILD_IN_IMAGE_FILE,
-                            std::ios::in | std::ios::binary};
-    std::vector<uint8_t> raw_file_data(
-        (std::istreambuf_iterator<char>(in_stream)),
-        std::istreambuf_iterator<char>());
-
-    auto skity_data =
-        skity::Data::MakeWithCopy(raw_file_data.data(), raw_file_data.size());
+    auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
 
     auto codec = skity::Codec::MakeFromData(skity_data);
     if (!codec) {

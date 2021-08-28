@@ -55,6 +55,15 @@ class Data final {
   static std::shared_ptr<Data> MakeWithCString(const char cstr[]);
 
   /**
+   * Create a new dataref from a pointer allocated by malloc. The Data object
+   * takes ownership of that allocation, and will handling calling free.
+   *
+   * @param path
+   * @return std::shared_ptr<Data>
+   */
+  static std::shared_ptr<Data> MakeFromFileName(const char path[]);
+
+  /**
    * Create a new dataref, taking the ptr as is, and using the
    * releaseproc to free it. The proc may be NULL.
    *

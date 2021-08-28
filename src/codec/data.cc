@@ -1,8 +1,10 @@
 #include <cassert>
 #include <cstring>
+#include <fstream>
 #include <functional>
 #include <mutex>
 #include <skity/codec/data.hpp>
+#include <vector>
 
 namespace skity {
 
@@ -48,7 +50,7 @@ std::shared_ptr<Data> Data::MakeWithCopy(const void* data, size_t length) {
   return PrivateNewWithCopy(data, length);
 }
 
-std::shared_ptr<Data> Data::MakeWithCString(const char* cStr) {
+std::shared_ptr<Data> Data::MakeWithCString(const char cStr[]) {
   size_t size;
   if (nullptr == cStr) {
     cStr = "";
@@ -58,6 +60,15 @@ std::shared_ptr<Data> Data::MakeWithCString(const char* cStr) {
   }
 
   return MakeWithCopy(cStr, size);
+}
+
+std::shared_ptr<Data> Data::MakeFromFileName(const char path[]) {
+  std::ifstream in_stream{path, std::ios::in | std::ios::binary};
+  std::vector<uint8_t> raw_file_data(
+      (std::istreambuf_iterator<char>(in_stream)),
+      std::istreambuf_iterator<char>());
+
+  return MakeWithCopy(raw_file_data.data(), raw_file_data.size());
 }
 
 std::shared_ptr<Data> Data::MakeWithProc(const void* ptr, size_t length,
