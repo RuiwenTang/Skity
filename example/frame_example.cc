@@ -501,15 +501,19 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
   }
 
   {
-    skity::Path path;
-    path.addCircle(cx, cy, r0 - 0.5f);
-    path.addCircle(cx, cy, r1 + 0.5f);
     skity::Paint paint;
     paint.setAntiAlias(true);
     paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeJoin(skity::Paint::kRound_Join);
     paint.setStrokeWidth(1.f);
     paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
-    canvas->drawPath(path, paint);
+    // FIXME: path add two circle got error path move and lineto command, need
+    // fix
+    // skity::Path path; path.addCircle(cx, cy, r0 - 0.5f);
+    // path.addCircle(cx, cy, r1 + 0.5f);
+    // canvas->drawPath(path, paint);
+    canvas->drawCircle(cx, cy, r0 - 0.5f, paint);
+    canvas->drawCircle(cx, cy, r1 + 0.5f, paint);
   }
 
   // selector

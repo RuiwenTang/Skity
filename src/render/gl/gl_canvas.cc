@@ -1,5 +1,6 @@
 #include "src/render/gl/gl_canvas.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -395,9 +396,9 @@ std::unique_ptr<GLDrawOp> GLCanvas::GenerateColorOp(Paint const& paint,
       uint32_t pixmap_width = pixmap->Width();
 
       float width =
-          std::min(bounds.width(), static_cast<float>(pixmap->Width()));
+          std::min<float>(bounds.width(), static_cast<float>(pixmap->Width()));
       float height =
-          std::min(bounds.height(), static_cast<float>(pixmap->Height()));
+          std::min<float>(bounds.height(), static_cast<float>(pixmap->Height()));
 
       float x = bounds.left() + (bounds.width() - width) / 2.f;
       float y = bounds.top() + (bounds.height() - height) / 2.f;
