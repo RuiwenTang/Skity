@@ -30,7 +30,7 @@ std::shared_ptr<Codec> Codec::MakeFromData(const std::shared_ptr<Data>& data) {
   const char* header = reinterpret_cast<const char*>(data->RawData());
 
   for (auto const& codec : codec_list) {
-    if (codec->RecognizeFileType(header, 20)) {
+    if (codec->RecognizeFileType(header, data->Size())) {
       return codec;
     }
   }

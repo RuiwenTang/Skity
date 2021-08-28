@@ -143,8 +143,16 @@ else()
   message(WARNING "Freetype2 not found, text rendering will not enable")
 endif()
 
+if (WIN32)
+# libjpeg for win32
+# Fixme to solve windows can not find libjpeg
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
+endif()
+
 # libpng
 include(FindPNG)
+# libjpeg
+include(FindJPEG)
 
 if (${PNG_FOUND})
     include_directories(${PNG_INCLUDE_DIRS})
@@ -160,6 +168,20 @@ if (${PNG_FOUND})
             )
 else()
   message(WARNING "libpng not found, the png file codec will not enable")
+endif()
+
+if (${JPEG_FOUND})
+  include_directories(${JPEG_INCLUDE_DIRS})
+
+  add_definitions(-DSKITY_HAS_JPEG)
+  set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${JPEG_LIBRARIES})
+
+  set(Skity_src ${Skity_src}
+      src/codec/jpeg_codec.hpp
+      src/codec/jpeg_codec.cc
+  )
+else()
+  message(WARNING "libjpeg not found, the jpg file codec will not enable")
 endif()
 
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
