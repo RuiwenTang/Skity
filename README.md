@@ -66,6 +66,7 @@ make
 - Image (in progress)
   - Cocec interface
   - png image decode
+  - jpg image decode
 
 ## Reference
 
