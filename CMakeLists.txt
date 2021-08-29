@@ -144,15 +144,26 @@ else()
 endif()
 
 if (WIN32)
-# libjpeg for win32
-# Fixme to solve windows can not find libjpeg
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
+  # libjpeg for win32
+  # Fixme to solve windows can not find libjpeg
+  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
 endif()
 
 # libpng
 include(FindPNG)
-# libjpeg
-include(FindJPEG)
+# libjpeg-turbo
+if (WIN32)
+    include(FindJPEG)
+else()
+    find_package(PkgConfig)
+    if (PkgConfig_FOUND)
+        if (APPLE)
+            link_directories("/usr/local/opt/jpeg-turbo/lib")
+            set(ENV{PKG_CONFIG_PATH} "/usr/local/opt/jpeg-turbo/lib/pkgconfig")
+        endif()
+        pkg_search_module(JPEG QUIET libturbojpeg)
+    endif()
+endif()
 
 if (${PNG_FOUND})
     include_directories(${PNG_INCLUDE_DIRS})

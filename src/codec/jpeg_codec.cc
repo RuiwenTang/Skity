@@ -7,7 +7,7 @@
 #include <skity/codec/pixmap.hpp>
 
 struct TJHandlerWrapper {
-  TJHandlerWrapper(tjhandle h) : handle(h) {}
+  explicit TJHandlerWrapper(tjhandle h) : handle(h) {}
 
   ~TJHandlerWrapper() {
     if (this->handle) {
@@ -47,7 +47,7 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
 
   if (!hw.handle) {
     // JPEG init failed
-    return false;
+    return nullptr;
   }
 
   int32_t width;
