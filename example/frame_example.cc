@@ -5,7 +5,11 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#include <example_config.hpp>
 #include <glm/glm.hpp>
+#include <skity/codec/codec.hpp>
+#include <skity/codec/data.hpp>
+#include <skity/codec/pixmap.hpp>
 #include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
@@ -14,8 +18,10 @@
 
 #include "perf.hpp"
 
-void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
-                       float height, float t);
+void render_frame_demo(
+    skity::Canvas* canvas,
+    std::vector<std::shared_ptr<skity::Pixmap>> const& images, float mx,
+    float my, float width, float height, float t);
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
                float mx, float my, float t);
@@ -65,6 +71,12 @@ void draw_edit_box_num(skity::Canvas* canvas, const char* text,
 void draw_slider(skity::Canvas* canvas, float pos, float x, float y, float w,
                  float h);
 
+void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images);
+
+void draw_thumbnails(skity::Canvas* canvas,
+                     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
+                     float x, float y, float w, float h, float t);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -102,6 +114,9 @@ int main(int argc, const char** argv) {
   auto canvas = skity::Canvas::MakeGLCanvas(0, 0, width, height,
                                             (void*)glfwGetProcAddress);
 
+  std::vector<std::shared_ptr<skity::Pixmap>> images{};
+  load_images(images);
+
   glfwSwapInterval(0);
 
   Perf fpsGraph(Perf::GRAPH_RENDER_FPS, "Frame Time");
@@ -121,7 +136,7 @@ int main(int argc, const char** argv) {
     dt = t - prevt;
     prevt = t;
 
-    render_frame_demo(canvas.get(), mx, my, width, height, t);
+    render_frame_demo(canvas.get(), images, mx, my, width, height, t);
 
     fpsGraph.RenderGraph(canvas.get(), 5, 5);
     cpuGraph.RenderGraph(canvas.get(), 5 + 200 + 5, 5);
@@ -141,8 +156,10 @@ int main(int argc, const char** argv) {
   return 0;
 }
 
-void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
-                       float height, float t) {
+void render_frame_demo(
+    skity::Canvas* canvas,
+    std::vector<std::shared_ptr<skity::Pixmap>> const& images, float mx,
+    float my, float width, float height, float t) {
   float x, y, popy;
 
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
@@ -191,6 +208,11 @@ void render_frame_demo(skity::Canvas* canvas, float mx, float my, float width,
               skity::ColorSetARGB(255, 128, 16, 8));
   draw_button(canvas, nullptr, "Cancel", x + 170, y, 110, 28,
               skity::Color_TRANSPARENT);
+
+  // Thumbnails box
+  if (!images.empty()) {
+    draw_thumbnails(canvas, images, 365, popy - 30, 160, 300, t);
+  }
 }
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
@@ -1062,4 +1084,114 @@ void draw_slider(skity::Canvas* canvas, float pos, float x, float y, float w,
   paint.setColor(skity::ColorSetARGB(92, 0, 0, 0));
   paint.setStyle(skity::Paint::kStroke_Style);
   canvas->drawPath(circle, paint);
+}
+
+void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images) {
+  for (int32_t i = 0; i < 12; i++) {
+    char buffer[128];
+    std::sprintf(buffer, "%s/image%d.jpg", EXAMPLE_IMAGE_ROOT, i + 1);
+    auto data = skity::Data::MakeFromFileName(buffer);
+    if (!data) {
+      continue;
+    }
+
+    auto codec = skity::Codec::MakeFromData(data);
+    if (!codec) {
+      continue;
+    }
+
+    codec->SetData(data);
+    auto pixmap = codec->Decode();
+    if (!pixmap) {
+      continue;
+    }
+
+    images.emplace_back(pixmap);
+  }
+}
+
+void draw_thumbnails(skity::Canvas* canvas,
+                     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
+                     float x, float y, float w, float h, float t) {
+  float corner_radius = 3.f;
+  float ix, iy, iw, ih;
+  float thumb = 60.0f;
+  float arry = 30.5f;
+  int imgw, imgh;
+  float stackh = (images.size() / 2.f) * (thumb + 10) + 10;
+
+  float u = (1 + std::cosf(t * 0.5f)) * 0.5f;
+  float u2 = (1 - std::cosf(t * 0.2f)) * 0.5f;
+  float scrollh, dv;
+
+  // Fake shadow
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
+  paint.setStrokeWidth(5.f);
+  skity::Rect rect{x - 2.5f, y - 2.5f, x + w + 2.5f, y + h + 2.5f};
+  canvas->drawRect(rect, paint);
+
+  // window
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetARGB(255, 200, 200, 200));
+  skity::Path path;
+  path.moveTo(x - 10, y + arry);
+  path.lineTo(x + 1.f, y + arry - 11.f);
+  path.lineTo(x + 1.f, y + arry + 11.f);
+  path.close();
+  canvas->drawPath(path, paint);
+  rect.setXYWH(x, y, w, h);
+  canvas->drawRRect(
+      skity::RRect::MakeRectXY(rect, corner_radius, corner_radius), paint);
+
+  canvas->save();
+  canvas->clipRect(rect);
+  canvas->translate(0, -(stackh - h) * u);
+
+  dv = 1.0f / (float)(images.size() - 1);
+
+  for (int32_t i = 0; i < images.size(); i++) {
+    float tx, ty, v, a;
+    tx = x + 10;
+    ty = y + 10;
+    tx += (i % 2) * (thumb + 10);
+    ty += (i / 2) * (thumb + 10);
+    const auto& img = images[i];
+    imgw = img->Width();
+    imgh = img->Height();
+    if (imgw < imgh) {
+      iw = thumb;
+      ih = iw * (float)imgh / (float)imgw;
+      ix = 0;
+      iy = -(ih - thumb) * 0.5f;
+    } else {
+      ih = thumb;
+      iw = ih * (float)imgw / (float)imgh;
+      ix = -(iw - thumb) * 0.5f;
+      iy = 0;
+    }
+
+    v = i * dv;
+    a = glm::clamp((u2 - v) / dv, 0.f, 1.f);
+    if (a < 0) {
+      // draw_spinner
+    }
+
+    skity::Rect image_bounds{};
+    image_bounds.setXYWH(tx, ty, thumb, thumb);
+    paint.setShader(skity::Shader::MakeShader(img));
+    paint.setStyle(skity::Paint::kFill_Style);
+    canvas->drawRRect(skity::RRect::MakeRectXY(image_bounds, 5, 5), paint);
+
+    paint.setShader(nullptr);
+    paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
+    paint.setStrokeWidth(2.f);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    image_bounds.setXYWH(tx - 1.f, ty - 1.f, thumb + 2.f, thumb + 2.f);
+    canvas->drawRRect(skity::RRect::MakeRectXY(image_bounds, 6.f, 6.f), paint);
+  }
+
+  canvas->restore();
 }

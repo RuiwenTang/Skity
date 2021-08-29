@@ -1,0 +1,3 @@
+#pragma once
+
+#cmakedefine EXAMPLE_IMAGE_ROOT "@EXAMPLE_IMAGE_ROOT@"
