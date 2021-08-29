@@ -24,7 +24,7 @@ vec2 calculate_uv() {
 
   float vX = (mappedPos.x- mappedLT.x) / totalX;
   float vY = (mappedPos.y - mappedLT.y) / totalY;
-  return vec2(vX, 1.0 - vY);
+  return vec2(vX, vY);
 }
 
 void main() {

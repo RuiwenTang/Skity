@@ -5,6 +5,9 @@
 #ifdef SKITY_HAS_PNG
 #include "src/codec/png_codec.hpp"
 #endif
+#ifdef SKITY_HAS_JPEG
+#include "src/codec/jpeg_codec.hpp"
+#endif
 
 namespace skity {
 
@@ -16,6 +19,9 @@ void Codec::SetupCodecs() {
 #ifdef SKITY_HAS_PNG
   codec_list.emplace_back(std::make_shared<PNGCodec>());
 #endif
+#ifdef SKITY_HAS_JPEG
+  codec_list.emplace_back(std::make_shared<JPEGCodec>());
+#endif  // SKITY_HAS_JPEG
 }
 
 std::shared_ptr<Codec> Codec::MakeFromData(const std::shared_ptr<Data>& data) {
