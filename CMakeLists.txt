@@ -186,7 +186,12 @@ if (${JPEG_FOUND})
 
   add_definitions(-DSKITY_HAS_JPEG)
   set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${JPEG_LIBRARIES})
+  if (WIN32)
+    # Fixme to solve windows link problem
+    set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} "$ENV{JPEG_PREFIX}/lib/turbojpeg-static.lib")
+  endif()
 
+  message(${JPEG_LIBRARY})
   set(Skity_src ${Skity_src}
       src/codec/jpeg_codec.hpp
       src/codec/jpeg_codec.cc
