@@ -1201,6 +1201,44 @@ void draw_thumbnails(skity::Canvas* canvas,
   }
 
   canvas->restore();
+
+  // Hide fades
+  paint.setAlphaF(1.f);
+  paint.setStyle(skity::Paint::kFill_Style);
+  std::array<skity::Color4f, 2> colors{};
+  std::array<skity::Point, 2> pts{};
+  colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(255, 200, 200, 200));
+  colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(0, 200, 200, 200));
+  pts[0] = {x, y, 0, 1};
+  pts[1] = {x, y + 6, 0, 1};
+
+  paint.setShader(
+      skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+  canvas->drawRect(skity::Rect::MakeXYWH(x + 4, y, w - 8, 6), paint);
+
+  pts[0] = {x, y + h, 0, 1};
+  pts[1] = {x, y + h - 6, 0, 1};
+
+  paint.setShader(
+      skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+
+  canvas->drawRect(skity::Rect::MakeXYWH(x + 4, y + h - 6, w - 8, 6), paint);
+
+  // Scroll bar
+  paint.setShader(nullptr);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setStrokeWidth(1.f);
+  paint.setColor(skity::ColorSetARGB(62, 0, 0, 0));
+  skity::Rect scroll_bar;
+  scroll_bar.setXYWH(x + w - 12 - 0.5f, y + 4 - 0.5f, 8 + 1, h - 8 + 1);
+  canvas->drawRRect(skity::RRect::MakeRectXY(scroll_bar, 3, 3), paint);
+
+  scrollh = (h / stackh) * (h - 8);
+  paint.setColor(skity::ColorSetARGB(255, 220, 220, 220));
+  scroll_bar.setXYWH(x + w - 12 + 1, y + 4 + 1 + (h - 8 - scrollh) * u, 8 - 2,
+                     scrollh - 2);
+
+  canvas->drawRRect(skity::RRect::MakeRectXY(scroll_bar, 2, 2), paint);
 }
 
 void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
