@@ -67,6 +67,19 @@ void Paint::setAntiAlias(bool aa) { is_anti_alias_ = aa; }
 
 bool Paint::isAntiAlias() const { return is_anti_alias_; }
 
+float Paint::getAlphaF() const { return global_alpha_; }
+
+void Paint::setAlphaF(float a) {
+  a = glm::clamp(a, 0.f, 1.f);
+  global_alpha_ = a;
+}
+
+uint8_t Paint::getAlpha() const {
+  return static_cast<uint8_t>(std::round(this->getAlphaF() * 255));
+}
+
+void Paint::setAlpha(uint8_t alpha) { this->setAlphaF(alpha * (1.f / 255)); }
+
 void Paint::updateMiterLimit() {
   // FIXME: hard code miter limit
   miter_limit_ = 4.5f * stroke_width_ / 2.f;

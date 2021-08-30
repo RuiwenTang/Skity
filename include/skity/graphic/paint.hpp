@@ -138,6 +138,21 @@ class Paint {
     text_size_ = textSize;
   }
 
+  /**
+   * Retrieves alpha from the color used when stroking and filling.
+   * @return alpha ranging from zero, fully transparent, to 255, fully opaque
+   */
+  float getAlphaF() const;
+  /**
+   * Replaces alpha, used to fill or stroke this paint. alpha is a value from
+   * 0.0 to 1.0.
+   * @param a alpha component of color
+   */
+  void setAlphaF(float a);
+  // Helper that scales the alpha by 255.
+  uint8_t getAlpha() const;
+  void setAlpha(uint8_t alpha);
+
   void setPathEffect(std::shared_ptr<PathEffect> pathEffect) {
     path_effect_ = std::move(pathEffect);
   }
@@ -159,6 +174,7 @@ class Paint {
   float stroke_width_ = 1.0f;
   float miter_limit_ = 0.f;
   float text_size_ = 14.f;
+  float global_alpha_ = 1.f;
   Vector fill_color_ = {1, 1, 1, 1};
   Vector stroke_color_ = {1, 1, 1, 1};
   bool is_anti_alias_ = false;

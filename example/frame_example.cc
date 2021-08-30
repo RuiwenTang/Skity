@@ -1176,13 +1176,14 @@ void draw_thumbnails(skity::Canvas* canvas,
     }
 
     v = i * dv;
-    a = glm::clamp(std::abs((u2 - v) / dv), 0.f, 1.f);
+    a = glm::clamp((u2 - v) / dv, 0.f, 1.f);
     if (a < 1.0f) {
       // render is not correct
       draw_spinner(canvas, tx + thumb / 2.f, ty + thumb / 2.f, thumb * 0.25f,
                    t);
-      continue;
     }
+
+    paint.setAlphaF(a);
 
     skity::Rect image_bounds{};
     image_bounds.setXYWH(tx, ty, thumb, thumb);
@@ -1190,6 +1191,7 @@ void draw_thumbnails(skity::Canvas* canvas,
     paint.setStyle(skity::Paint::kFill_Style);
     canvas->drawRRect(skity::RRect::MakeRectXY(image_bounds, 5, 5), paint);
 
+    paint.setAlphaF(1.f);
     paint.setShader(nullptr);
     paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
     paint.setStrokeWidth(2.f);

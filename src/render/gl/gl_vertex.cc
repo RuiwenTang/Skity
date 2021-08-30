@@ -10,12 +10,12 @@ uint32_t GLVertex::AddPoint(float x, float y, uint32_t type, float u, float v) {
 uint32_t GLVertex::AddPoint(float x, float y, float alpha, uint32_t type,
                             float u, float v) {
   uint32_t index = vertex_buffer.size() / GL_VERTEX_SIZE;
-  vertex_buffer.emplace_back(x);      // x
-  vertex_buffer.emplace_back(y);      // y
-  vertex_buffer.emplace_back(alpha);  // alpha
-  vertex_buffer.emplace_back(type);   // type
-  vertex_buffer.emplace_back(u);      // u
-  vertex_buffer.emplace_back(v);      // v
+  vertex_buffer.emplace_back(x);                      // x
+  vertex_buffer.emplace_back(y);                      // y
+  vertex_buffer.emplace_back(alpha * global_alpha_);  // alpha
+  vertex_buffer.emplace_back(type);                   // type
+  vertex_buffer.emplace_back(u);                      // u
+  vertex_buffer.emplace_back(v);                      // v
   return index;
 }
 

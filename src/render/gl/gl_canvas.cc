@@ -397,8 +397,8 @@ std::unique_ptr<GLDrawOp> GLCanvas::GenerateColorOp(Paint const& paint,
 
       float width =
           std::min<float>(bounds.width(), static_cast<float>(pixmap->Width()));
-      float height =
-          std::min<float>(bounds.height(), static_cast<float>(pixmap->Height()));
+      float height = std::min<float>(bounds.height(),
+                                     static_cast<float>(pixmap->Height()));
 
       float x = bounds.left() + (bounds.width() - width) / 2.f;
       float y = bounds.top() + (bounds.height() - height) / 2.f;
@@ -426,6 +426,13 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
   bool need_stroke = false;
   auto style = paint.getStyle();
   Rect const& bounds = path.getBounds();
+
+  if (paint.getAlpha() == 0) {
+    // zero alpha no need to do more raster
+    return;
+  }
+
+  gl_vertex_.UpdateGlobalAlpha(paint.getAlphaF());
 
   switch (style) {
     case Paint::kFill_Style:

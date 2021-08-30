@@ -72,6 +72,8 @@ class GLVertex {
     return back_index.size() * sizeof(uint32_t);
   }
 
+  void UpdateGlobalAlpha(float alpha) { global_alpha_ = alpha; }
+
   void Reset();
 
  private:
@@ -79,6 +81,7 @@ class GLVertex {
   std::vector<uint32_t> front_index;
   std::vector<uint32_t> back_index;
   std::vector<uint32_t> aa_index;
+  float global_alpha_ = 1.0f;
 };
 
 }  // namespace skity
