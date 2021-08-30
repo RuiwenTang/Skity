@@ -32,12 +32,13 @@ class CanvasAATest : public test::TestApp {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     skity::Paint paint;
+    paint.setAntiAlias(true);
     paint.setStyle(skity::Paint::kStrokeAndFill_Style);
     paint.setStrokeWidth(8.f);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
     paint.setStrokeJoin(skity::Paint::kRound_Join);
-    paint.SetStrokeColor(1.f, 0.f, 0.f, 1.f);
-    paint.SetFillColor(1.f, 1.f, 0.f, 1.f);
+    paint.SetStrokeColor(0.3f, 0.f, 0.f, 0.3f);
+    paint.SetFillColor(0.3f, 0.3f, 0.f, 0.3f);
 
     skity::Path path;
 
@@ -54,8 +55,9 @@ class CanvasAATest : public test::TestApp {
     canvas_->restore();
 
     skity::Paint font_paint;
+    font_paint.setAntiAlias(true);
     font_paint.setStyle(skity::Paint::kFill_Style);
-    font_paint.SetFillColor(1.f, 0.f, 0.f, 1.f);
+    font_paint.SetFillColor(.3f, 0.f, 0.f, .3f);
     font_paint.setTextSize(50.f);
 
     canvas_->drawSimpleText("Hello World no AA", 250, 50, font_paint);
@@ -65,7 +67,7 @@ class CanvasAATest : public test::TestApp {
     skity::Rect rect{400, 400, 600, 500};
 
     skity::Path mix_path;
-    mix_path.addRect(rect);
+    mix_path.addRRect(skity::RRect::MakeRectXY(rect, 10, 10));
 
     canvas_->drawPath(mix_path, paint);
     canvas_->flush();
