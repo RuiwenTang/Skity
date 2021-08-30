@@ -77,6 +77,8 @@ void draw_thumbnails(skity::Canvas* canvas,
                      std::vector<std::shared_ptr<skity::Pixmap>> const& images,
                      float x, float y, float w, float h, float t);
 
+void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -1120,8 +1122,8 @@ void draw_thumbnails(skity::Canvas* canvas,
   int imgw, imgh;
   float stackh = (images.size() / 2.f) * (thumb + 10) + 10;
 
-  float u = (1 + std::cosf(t * 0.5f)) * 0.5f;
-  float u2 = (1 - std::cosf(t * 0.2f)) * 0.5f;
+  float u = (1.f + std::cosf(t * 0.5f)) * 0.5f;
+  float u2 = (1.f - std::cosf(t * 0.2f)) * 0.5f;
   float scrollh, dv;
 
   // Fake shadow
@@ -1174,9 +1176,12 @@ void draw_thumbnails(skity::Canvas* canvas,
     }
 
     v = i * dv;
-    a = glm::clamp((u2 - v) / dv, 0.f, 1.f);
-    if (a < 0) {
-      // draw_spinner
+    a = glm::clamp(std::abs((u2 - v) / dv), 0.f, 1.f);
+    if (a < 1.0f) {
+      // render is not correct
+      draw_spinner(canvas, tx + thumb / 2.f, ty + thumb / 2.f, thumb * 0.25f,
+                   t);
+      continue;
     }
 
     skity::Rect image_bounds{};
@@ -1194,4 +1199,41 @@ void draw_thumbnails(skity::Canvas* canvas,
   }
 
   canvas->restore();
+}
+
+void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
+  float a0 = 0.f + t * 6;
+  float a1 = glm::pi<float>() + t * 6;
+  float r0 = r;
+  float r1 = r * 0.75f;
+  float ax, ay, bx, by;
+  float cr = (r0 + r1) * 0.5f;
+
+  skity::Path path;
+  path.addCircle(cx, cy, cr);
+
+  skity::Paint paint;
+  paint.setAntiAlias(true);
+  paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setStrokeWidth(2.f);
+  {
+    std::array<skity::Color4f, 2> colors{};
+    std::array<skity::Point, 2> pts{};
+
+    ax = cx + std::cosf(a0) * (r0 + r1) * 0.5f;
+    ay = cy + std::sinf(a0) * (r0 + r1) * 0.5f;
+    bx = cx + std::cosf(a1) * (r0 + r1) * 0.5f;
+    by = cy + std::sinf(a1) * (r0 + r1) * 0.5f;
+
+    colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(0, 0, 0, 0));
+    colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(128, 0, 0, 0));
+
+    pts[0] = {ax, ay, 0, 1};
+    pts[1] = {bx, by, 0, 1};
+
+    paint.setShader(
+        skity::Shader::MakeLinear(pts.data(), colors.data(), nullptr, 2));
+  }
+
+  canvas->drawPath(path, paint);
 }

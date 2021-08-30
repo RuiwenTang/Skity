@@ -97,6 +97,10 @@ class GLDrawOpBuilder final {
                                               uint32_t aa_start,
                                               uint32_t aa_count);
 
+  /**
+   * @deprecated now draw op itself will clear stencil value
+   * @return
+   */
   std::unique_ptr<GLDrawOp> CreateClearStencilOp();
 
   std::unique_ptr<GLDrawOp> CreateDebugLineOp();
