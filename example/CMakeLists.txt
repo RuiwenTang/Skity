@@ -12,6 +12,8 @@ if (WIN32)
   find_package(OpenGL REQUIRED)
   set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
   include_directories(${GLFW_INCLUDE_DIRS})
+  # Fixme to solve visual studio can not find dll lib
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SKITY_DLL_DIR})
 else()
 find_package(PkgConfig)
   if (PkgConfig_FOUND)
