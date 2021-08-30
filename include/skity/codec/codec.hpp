@@ -2,6 +2,7 @@
 #define SKITY_CODEC_CODEC_HPP
 
 #include <memory>
+#include <skity/macros.hpp>
 #include <utility>
 
 namespace skity {
@@ -12,7 +13,7 @@ class Pixmap;
 /**
  * Codec interface
  */
-class Codec {
+class SK_API Codec {
  public:
   Codec() = default;
   virtual ~Codec() = default;

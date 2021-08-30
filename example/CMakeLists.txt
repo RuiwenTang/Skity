@@ -1,5 +1,9 @@
 project(skity_example)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  add_library(glad OBJECT ../third_party/glad/src/glad.c)
+endif()
+
 #GLFW
 if (WIN32)
   set(glfw3_DIR "C:/Program Files (x86)/GLFW")

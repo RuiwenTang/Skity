@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <skity/geometry/point.hpp>
+#include <skity/macros.hpp>
 #include <vector>
 
 namespace skity {
@@ -16,7 +17,7 @@ class Pixmap;
  * if a paint has no shader, then the paint's color is used. If the paint has a
  * shader, then the shader's color(s) are use instead.
  */
-class Shader {
+class SK_API Shader {
  public:
   Shader() = default;
   virtual ~Shader() = default;

@@ -2,10 +2,11 @@
 #define SKITY_INCLUDE_SKITY_GEOMETRY_RECT_HPP
 
 #include <skity/geometry/point.hpp>
+#include <skity/macros.hpp>
 
 namespace skity {
 
-class Rect {
+class SK_API Rect {
  public:
   Rect() : Rect{0, 0, 0, 0} {}
   Rect(float left, float top, float right, float bottom)

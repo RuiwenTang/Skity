@@ -5,6 +5,7 @@
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/graphic/color.hpp>
+#include <skity/macros.hpp>
 #include <utility>
 
 namespace skity {
@@ -16,7 +17,7 @@ class Shader;
  * @class Paint
  * Controls options applied when drawing.
  */
-class Paint {
+class SK_API Paint {
  public:
   Paint();
   ~Paint();

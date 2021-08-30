@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <skity/macros.hpp>
 
 namespace skity {
 
@@ -13,7 +14,7 @@ namespace skity {
  * the life of this instance.
  *
  */
-class Data final {
+class SK_API Data final {
  public:
   ~Data();
   /**

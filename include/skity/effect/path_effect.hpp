@@ -2,6 +2,7 @@
 #define SKITY_EFFECT_PATH_EFFECT_HPP
 
 #include <memory>
+#include <skity/macros.hpp>
 
 namespace skity {
 
@@ -16,7 +17,7 @@ class Paint;
  *
  * 	Dashing is implemented as a subclass of SkPathEffect.
  */
-class PathEffect {
+class SK_API PathEffect {
  public:
   virtual ~PathEffect() = default;
 

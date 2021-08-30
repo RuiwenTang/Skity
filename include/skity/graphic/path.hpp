@@ -5,12 +5,13 @@
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/geometry/rrect.hpp>
+#include <skity/macros.hpp>
 #include <tuple>
 #include <vector>
 
 namespace skity {
 
-class Path {
+class SK_API Path {
  public:
   enum class AddMode {
     // append to destination unaltered

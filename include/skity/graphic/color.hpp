@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <skity/geometry/point.hpp>
+#include <skity/macros.hpp>
 
 namespace skity {
 
@@ -20,8 +21,8 @@ using Color = uint32_t;
  * @param b amount of blue, from no blue (0) to full blue (255)
  * @return  color and alpha, unpremultiplied
  */
-static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r, uint8_t g,
-                                           uint8_t b) {
+SK_API static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r,
+                                                  uint8_t g, uint8_t b) {
   return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
 
@@ -58,7 +59,7 @@ static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r, uint8_t g,
  * @param a
  * @return
  */
-static constexpr inline Color ColorSetA(Color c, uint8_t a) {
+SK_API static constexpr inline Color ColorSetA(Color c, uint8_t a) {
   return (c & 0x00FFFFFF) | (a << 24);
 }
 
@@ -124,7 +125,7 @@ Color ColorMakeFromHSLA(float h, float s, float l, uint8_t a);
 // RGBA color value, holding four floating point components
 using Color4f = Vec4;
 
-Color4f Color4fFromColor(Color color);
+SK_API Color4f Color4fFromColor(Color color);
 
 namespace Colors {
 

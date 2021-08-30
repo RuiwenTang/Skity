@@ -4,10 +4,11 @@
 #include <array>
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
+#include <skity/macros.hpp>
 
 namespace skity {
 
-class RRect {
+class SK_API RRect {
  public:
   RRect() = default;
   RRect(RRect const& rrect) = default;

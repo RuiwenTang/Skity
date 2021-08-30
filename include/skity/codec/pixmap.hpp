@@ -2,6 +2,7 @@
 #define SKITY_CODEC_PIXMAP_HPP
 
 #include <memory>
+#include <skity/macros.hpp>
 
 namespace skity {
 
@@ -11,7 +12,7 @@ class Data;
  * Simple utility class to manage raw pixel data for RGBA pixel format
  *
  */
-class Pixmap final {
+class SK_API Pixmap final {
  public:
   Pixmap() : data_(), pixels_(nullptr), row_bytes_(0), width_(0), height_(0) {}
   Pixmap(std::shared_ptr<Data> data, size_t rowBytes, uint32_t width,

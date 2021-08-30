@@ -4,6 +4,13 @@ project(Skity)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+else()
+    add_definitions(-DSKITY_RELEASE)
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-o2")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-o2")
+endif()
+
 # Creates C resources file from files in given directory
 function(create_resources dir output)
     # Create empty output file
@@ -40,6 +47,7 @@ include(FindFreetype)
 
 
 set(Skity_header
+        include/skity/macros.hpp
         include/skity/codec/codec.hpp
         include/skity/codec/data.hpp
         include/skity/codec/pixmap.hpp
@@ -215,17 +223,18 @@ configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(skity ${Skity_header} ${Skity_src})
+add_library(skity SHARED ${Skity_header} ${Skity_src})
 
 target_link_libraries(skity ${SKITY_DEP_LIBRARIES})
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# test
-add_subdirectory(third_party/gtest)
-include_directories(third_party/gtest/googletest/include)
-
-# Fixme to include private generate header
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_subdirectory(test)
+# test
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_subdirectory(third_party/gtest)
+    include_directories(third_party/gtest/googletest/include)
+
+    # Fixme to include private generate header
+    add_subdirectory(test)
+endif()
 add_subdirectory(example)

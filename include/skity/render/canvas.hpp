@@ -6,6 +6,7 @@
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
+#include <skity/macros.hpp>
 #include <skity_config.hpp>
 
 namespace skity {
@@ -19,7 +20,7 @@ class FTTypeFace;
  * @class Canvas
  * Provide an interface for drawing.
  */
-class Canvas {
+class SK_API Canvas {
  public:
   Canvas();
   virtual ~Canvas();
