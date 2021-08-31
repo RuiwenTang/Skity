@@ -31,7 +31,7 @@ void GLDrawMeshOpAA::OnBeforeDraw(bool has_clip) {
   GL_CALL(Enable, GL_STENCIL_TEST);
   GL_CALL(ColorMask, 1, 1, 1, 1);
   if (has_clip) {
-    GL_CALL(StencilMask, 0xF);
+    GL_CALL(StencilMask, 0x0F);
     GL_CALL(StencilFunc, GL_LESS, 0x10, 0x1F);
   } else {
     GL_CALL(StencilMask, 0x0F);

@@ -84,7 +84,7 @@ class GLCanvasTranslateOp : public GLCanvasStateOp {
     auto translate_matrix =
         glm::translate(glm::identity<glm::mat4>(), {dx_, dy_, 0.f});
 
-    auto final_matrix = translate_matrix * current_matrix;
+    auto final_matrix = current_matrix * translate_matrix;
     state_->UpdateCurrentMatrix(final_matrix);
   }
 
@@ -127,7 +127,7 @@ class GLCanvasRotateOp : public GLCanvasStateOp {
     auto rotate_matrix = glm::rotate(glm::identity<glm::mat4>(),
                                      glm::radians(degree_), {0.f, 0.f, 1.f});
 
-    auto final_matrix = rotate_matrix * current_matrix;
+    auto final_matrix = current_matrix * rotate_matrix;
     state_->UpdateCurrentMatrix(final_matrix);
   }
 
@@ -152,8 +152,8 @@ class GLCanvasRotateWithPointOp : public GLCanvasStateOp {
     auto post_translate_matrix =
         glm::translate(glm::identity<glm::mat4>(), glm::vec3(x_, y_, 0.f));
 
-    auto final_matrix = post_translate_matrix * rotate_matrix *
-                        prev_translate_matrix * current_matrix;
+    auto final_matrix = current_matrix * post_translate_matrix * rotate_matrix *
+                        prev_translate_matrix;
 
     state_->UpdateCurrentMatrix(final_matrix);
   }
@@ -192,6 +192,7 @@ void GLCanvasState::UpdateCurrentClipPathRange(GLMeshRange const& range) {
   assert(!state_stack_.empty());
   state_stack_.back().clip_path_range = range;
   state_stack_.back().has_clip = true;
+  state_stack_.back().clip_matrix = state_stack_.back().matrix;
   clip_stack_.back() = true;
 }
 
@@ -215,7 +216,7 @@ void GLCanvasState::DoClipPath(uint32_t stack_depth) {
   GL_CALL(ColorMask, 0, 0, 0, 0);
   GL_CALL(Enable, GL_STENCIL_TEST);
   State const& state = state_stack_[clip_index];
-  Matrix final_matrix = mvp_ * state.matrix;
+  Matrix final_matrix = mvp_ * state.clip_matrix;
   shader_->Bind();
   shader_->SetMVPMatrix(final_matrix);
   // step 2 stencil path as fill path do
@@ -249,7 +250,7 @@ void GLCanvasState::UnDoClipPath() {
     return;
   }
   auto const& state = state_stack_.back();
-  Matrix final_matrix = mvp_ * state.matrix;
+  Matrix final_matrix = mvp_ * state.clip_matrix;
 
   shader_->Bind();
   shader_->SetMVPMatrix(final_matrix);
@@ -522,6 +523,7 @@ void GLCanvas::onFlush() {
                               gl_vertex_.GetAAIndexDataSize());
 
   GL_CALL(ColorMask, 1, 1, 1, 1);
+  GL_CALL(StencilMask, 0xFF);
   GL_CALL(Clear, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   GL_CALL(ColorMask, 0, 0, 0, 0);
   for (auto const& op : draw_ops_) {

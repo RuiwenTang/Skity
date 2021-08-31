@@ -542,8 +542,8 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
 
   // selector
   canvas->save();
-  canvas->rotate(glm::degrees(hue * glm::pi<float>() * 2.f));
   canvas->translate(cx, cy);
+  canvas->rotate(glm::degrees(hue * glm::pi<float>() * 2.f));
 
   // Marker on
   {
@@ -729,14 +729,12 @@ void draw_caps(skity::Canvas* canvas, float x, float y, float width) {
 void draw_scissor(skity::Canvas* canvas, float x, float y, float t) {
   canvas->save();
 
-  t = 0;
-
   skity::Paint paint;
   paint.setAntiAlias(true);
   paint.setStyle(skity::Paint::kFill_Style);
 
-  canvas->rotate(5.f);
   canvas->translate(x, y);
+  canvas->rotate(5.f);
   // draw first rect and clip rect for it's area.
   skity::Path rect;
   rect.addRect(skity::Rect::MakeXYWH(-20, -20, 60, 40));
@@ -744,17 +742,14 @@ void draw_scissor(skity::Canvas* canvas, float x, float y, float t) {
   canvas->drawPath(rect, paint);
 
   // draw second rectangle with offset and rotation.
-  canvas->rotate(glm::degrees(t));
   canvas->translate(40, 0);
+  canvas->rotate(glm::degrees(t));
 
   paint.setColor(skity::ColorSetARGB(64, 255, 128, 0));
   canvas->drawRect(skity::Rect::MakeXYWH(-20, -10, 60, 30), paint);
 
-  canvas->translate(-40, 0);
-  canvas->rotate(glm::degrees(-t));
-  canvas->clipPath(rect);
+  canvas->clipRect(skity::Rect::MakeXYWH(-20, -10, 60, 30));
   canvas->rotate(glm::degrees(t));
-  canvas->translate(40, 0);
   paint.setColor(skity::ColorSetARGB(255, 255, 128, 0));
   canvas->drawRect(skity::Rect::MakeXYWH(-20, -10, 60, 30), paint);
 

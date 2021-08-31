@@ -45,6 +45,7 @@ void Perf::RenderGraph(skity::Canvas *canvas, float x, float y) {
   w = 200;
   h = 35;
   skity::Paint paint;
+  paint.setAntiAlias(true);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(128, 0, 0, 0));
   skity::Rect rect = skity::Rect::MakeXYWH(x, y, w, h);
@@ -109,8 +110,7 @@ void Perf::RenderGraph(skity::Canvas *canvas, float x, float y) {
     paint.setTextSize(13.f);
     paint.setColor(skity::ColorSetARGB(160, 240, 240, 240));
     sprintf(str, "%.2f ms", avg * 1000.f);
-    canvas->drawSimpleText(str, x + 100.f, y + 3.f + 15.f + 14.f,
-                           paint);
+    canvas->drawSimpleText(str, x + 100.f, y + 3.f + 15.f + 14.f, paint);
   } else if (style_ == GRAPH_RENDER_PERCENT) {
     paint.setTextSize(15.f);
     paint.setColor(skity::ColorSetARGB(255, 240, 240, 240));

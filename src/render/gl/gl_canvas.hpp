@@ -16,6 +16,7 @@ namespace skity {
 class GLCanvasState final {
   struct State {
     Matrix matrix = {};
+    Matrix clip_matrix = {};
     GLMeshRange clip_path_range;
     bool has_clip = false;
   };
