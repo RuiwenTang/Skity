@@ -33,7 +33,8 @@ code is [example.cc](./example/example.cc)
 - [GLFW](https://www.glfw.org/): for build test and example
 - optional
   - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
-
+  - [libjpeg-turbo](https://www.libjpeg-turbo.org/): for jpg file decode
+	- on windows ,need to set `JPEG_PREFIX=path to libjpeg installed directory` environment value 
 ```shell
 # fetch sources from github
 git clone --recursive https://github.com/RuiwenTang/Skity.git
@@ -62,11 +63,12 @@ make
 - PathEffect dash (in progress, fill with aa is not working)
 
   - implement a simple discrete path effect
+  - implement a path measure algorithm and dash path effect
 
 - Image (in progress)
   - Cocec interface
-  - png image decode
-  - jpg image decode
+  - png image decode (need install [libpng](http://www.libpng.org/pub/png/libpng.html))
+  - jpg image decode (need install [libjpeg-turbo](https://www.libjpeg-turbo.org/))
 
 ## Reference
 
