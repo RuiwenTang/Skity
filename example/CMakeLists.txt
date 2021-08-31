@@ -14,6 +14,9 @@ if (WIN32)
   include_directories(${GLFW_INCLUDE_DIRS})
   # Fixme to solve visual studio can not find dll lib
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SKITY_DLL_DIR})
+  # Fix visual studio unicode charset error
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 else()
 find_package(PkgConfig)
   if (PkgConfig_FOUND)
