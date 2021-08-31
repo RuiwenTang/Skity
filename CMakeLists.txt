@@ -138,7 +138,7 @@ set(Skity_src
         src/render/gl/gl_vertex.hpp
         )
 
-set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Inconsolata_Nerd.ttf")
+set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")
 set(BUILD_IN_IMAGE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/wall.png")
 
 set(SKITY_DEP_LIBRARIES "")
