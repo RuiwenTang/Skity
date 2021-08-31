@@ -21,8 +21,8 @@ using Color = uint32_t;
  * @param b amount of blue, from no blue (0) to full blue (255)
  * @return  color and alpha, unpremultiplied
  */
-SK_API static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r,
-                                                  uint8_t g, uint8_t b) {
+SK_API constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r, uint8_t g,
+                                           uint8_t b) {
   return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
 
@@ -59,7 +59,7 @@ SK_API static constexpr inline Color ColorSetARGB(uint8_t a, uint8_t r,
  * @param a
  * @return
  */
-SK_API static constexpr inline Color ColorSetA(Color c, uint8_t a) {
+SK_API constexpr inline Color ColorSetA(Color c, uint8_t a) {
   return (c & 0x00FFFFFF) | (a << 24);
 }
 
@@ -120,7 +120,7 @@ constexpr Color Color_CYAN = ColorSetARGB(0xFF, 0x00, 0xFF, 0xFF);
  */
 constexpr Color Color_MAGENTA = ColorSetARGB(0xFF, 0xFF, 0x00, 0xFF);
 
-Color ColorMakeFromHSLA(float h, float s, float l, uint8_t a);
+SK_API Color ColorMakeFromHSLA(float h, float s, float l, uint8_t a);
 
 // RGBA color value, holding four floating point components
 using Color4f = Vec4;

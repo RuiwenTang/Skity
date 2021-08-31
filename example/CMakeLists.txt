@@ -1,6 +1,6 @@
 project(skity_example)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
+if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
   add_library(glad OBJECT ../third_party/glad/src/glad.c)
 endif()
 

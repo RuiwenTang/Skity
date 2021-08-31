@@ -13,9 +13,10 @@ else()
     add_definitions(-DSKITY_RELEASE)
     if (WIN32)
         add_definitions(-DSKITY_WIN)
+    else()
+        set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-o2")
+        set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-o2")
     endif()
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-o2")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-o2")
 endif()
 
 # Creates C resources file from files in given directory

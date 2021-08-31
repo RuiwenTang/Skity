@@ -8,3 +8,6 @@ cmake-*
 compile_commands.json
 .ccls*
 .ccls-cache/*
+.vs/*
+out/*
+CMakeSettings.json
