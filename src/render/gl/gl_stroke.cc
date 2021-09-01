@@ -489,11 +489,12 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
 
     // handle AA Outline
     if (is_anti_alias_) {
-      Vector aa_dir = (prev_dir_ - (to - from)) * .5f;
+      Vec2 aa_dir = (prev_dir_ + glm::normalize(from - to)) * 0.5f;
       aa_dir = glm::normalize(aa_dir);
+      // this position is not accurate, but can achieve aa effect
       Point aa_center_outer =
-          Point{outer.x + aa_dir.x * anti_alias_width_,
-                outer.y + aa_dir.y * anti_alias_width_, 0.f, 1.f};
+          Point{outer.x + aa_dir.x * anti_alias_width_ * 1.414f,
+                outer.y + aa_dir.y * anti_alias_width_ * 1.414f, 0.f, 1.f};
 
       int32_t aa_center_outer_index =
           gl_vertex_->AddPoint(aa_center_outer.x, aa_center_outer.y, 0.f,
@@ -504,11 +505,11 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
       int32_t aa_p4_index = gl_vertex_->AddPoint(
           aa_p4.x, aa_p4.y, 0.f, GLVertex::GL_VERTEX_TYPE_AA, 0.f, 0.f);
 
-      gl_vertex_->AddFront(aa_p2_index, p2_index, outer_index);
-      gl_vertex_->AddFront(aa_p2_index, aa_center_outer_index, outer_index);
+      gl_vertex_->AddAAOutline(aa_p2_index, p2_index, outer_index);
+      gl_vertex_->AddAAOutline(aa_p2_index, aa_center_outer_index, outer_index);
 
-      gl_vertex_->AddFront(aa_p4_index, p4_index, outer_index);
-      gl_vertex_->AddFront(aa_p4_index, aa_center_outer_index, outer_index);
+      gl_vertex_->AddAAOutline(aa_p4_index, p4_index, outer_index);
+      gl_vertex_->AddAAOutline(aa_p4_index, aa_center_outer_index, outer_index);
     }
   } else {
     // fallback bevel_join
@@ -601,7 +602,9 @@ bool GLStroke::HandleRoundJoin(Point const& from, Point const& to,
       Path tmp;
       // FIXME: workaround to make stroke_aa smooth at move and last line_to
       tmp.moveTo(before_join - prev_dir_ * 0.5f);
-      tmp.quadTo(outer_aa, after_join + curr_dir * 0.5f);
+      tmp.lineTo(before_join);
+      tmp.quadTo(outer_aa, after_join);
+      tmp.lineTo(after_join + curr_dir * 0.5f);
       stroke_aa.StrokePathAA(tmp, gl_vertex_);
     }
   } else {
