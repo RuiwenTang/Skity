@@ -386,6 +386,13 @@ void GLStroke::HandleCap(Point const& point, Vector const& outer_dir) {
 
     gl_vertex_->AddFront(p_1_index, p_1_3_index, p_2_3_index);
     gl_vertex_->AddFront(p_1_index, p_2_3_index, p_2_index);
+    GLStrokeAA stroke_aa{anti_alias_width_};
+    Path tmp;
+    tmp.moveTo(p_1);
+    tmp.lineTo(p_1_3);
+    tmp.lineTo(p_2_3);
+    tmp.lineTo(p_2);
+    stroke_aa.StrokePathAA(tmp, gl_vertex_);
   }
 }
 
@@ -396,6 +403,7 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
   Point prev_join2_pt = prev_to_pt_ - prev_vertical_line * stroke_radius_;
   Orientation orientation = CalculateOrientation(prev_fromt_pt_, from, to);
 
+  GLStrokeAA stroke_aa{anti_alias_width_};
   if (orientation != Orientation::kAntiClockWise) {
     int32_t prev_join_index =
         gl_vertex_->AddPoint(prev_join2_pt.x, prev_join2_pt.y,
@@ -404,6 +412,12 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
     int32_t center_point = gl_vertex_->AddPoint(
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(prev_join_index, prev_pt2_index, center_point);
+    // Fixme handle bevel_join anti-alias
+    Path tmp;
+    auto prev_pt2_data = gl_vertex_->GetVertex(prev_pt2_index);
+    tmp.moveTo(prev_join2_pt);
+    tmp.lineTo(prev_pt2_data[0], prev_pt2_data[1]);
+    stroke_aa.StrokePathAA(tmp, gl_vertex_);
   } else {
     int32_t prev_join_index =
         gl_vertex_->AddPoint(prev_join1_pt.x, prev_join1_pt.y,
@@ -412,6 +426,13 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
 
     gl_vertex_->AddFront(prev_join_index, prev_pt1_index, center_point);
+
+    // Fixme handle bevel_join anti-alias
+    Path tmp;
+    auto prev_pt1_data = gl_vertex_->GetVertex(prev_pt1_index);
+    tmp.moveTo(prev_join1_pt);
+    tmp.lineTo(prev_pt1_data[0], prev_pt1_data[1]);
+    stroke_aa.StrokePathAA(tmp, gl_vertex_);
   }
 }
 
@@ -520,6 +541,11 @@ void GLStroke::HandleMiterJoin(Point const& from, Point const& to,
     int32_t center_index = gl_vertex_->AddPoint(
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(p2_index, center_index, p4_index);
+    Path tmp;
+    tmp.moveTo(p2);
+    tmp.lineTo(p4);
+    GLStrokeAA stroke_aa{anti_alias_width_};
+    stroke_aa.StrokePathAA(tmp, gl_vertex_);
   }
 }
 
