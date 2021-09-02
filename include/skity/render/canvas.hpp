@@ -7,14 +7,9 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/macros.hpp>
-#include <skity_config.hpp>
+#include <skity/text/typeface.hpp>
 
 namespace skity {
-
-#ifdef ENABLE_TEXT_RENDER
-class FTLibrary;
-class FTTypeFace;
-#endif
 
 /**
  * @class Canvas
@@ -205,10 +200,7 @@ class SK_API Canvas {
  private:
   uint32_t save_count_ = 0;
   bool draw_debug_line_ = false;
-#ifdef ENABLE_TEXT_RENDER
-  std::unique_ptr<FTLibrary> ft_library_;
-  std::unique_ptr<FTTypeFace> ft_typeface_;
-#endif
+  std::unique_ptr<Typeface> default_typeface_;
 };
 
 }  // namespace skity

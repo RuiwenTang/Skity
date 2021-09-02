@@ -431,6 +431,13 @@ class SK_API Path {
   const Point* points() const { return points_.data(); }
   const float* conicWeights() const { return conic_weights_.data(); }
 
+  /**
+   * @internal
+   * @param matrix
+   * @return
+   */
+  Path copyWithMatrix(Matrix const& matrix) const;
+
  private:
   void injectMoveToIfNeed();
   void computeBounds() const;

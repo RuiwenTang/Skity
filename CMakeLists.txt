@@ -55,7 +55,6 @@ include(FindFreetype)
 
 
 set(Skity_header
-        include/skity/macros.hpp
         include/skity/codec/codec.hpp
         include/skity/codec/data.hpp
         include/skity/codec/pixmap.hpp
@@ -67,7 +66,9 @@ set(Skity_header
         include/skity/graphic/color.hpp
         include/skity/graphic/paint.hpp
         include/skity/graphic/path.hpp
+        include/skity/macros.hpp
         include/skity/render/canvas.hpp
+        include/skity/text/typeface.hpp
         )
 
 set(Skity_src
@@ -137,6 +138,7 @@ set(Skity_src
         src/render/gl/gl_texture.hpp
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
+        src/text/typeface.cc
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")
@@ -149,8 +151,8 @@ if (${FREETYPE_FOUND})
     include_directories(${FREETYPE_INCLUDE_DIRS})
 
     set(Skity_src ${Skity_src}
-            src/render/text/ft_library_wrap.cc
-            src/render/text/ft_library_wrap.hpp
+            src/text/ft_library_wrap.cc
+            src/text/ft_library_wrap.hpp
             )
 
     set(ENABLE_TEXT_RENDER ON CACHE BOOL "")

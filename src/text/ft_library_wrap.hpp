@@ -5,17 +5,23 @@
 
 #include <memory>
 #include <skity/graphic/path.hpp>
+#include <skity/text/typeface.hpp>
 #include <vector>
 #include FT_FREETYPE_H
 
 namespace skity {
-
+class Data;
 class FTTypeFace;
 
 struct FTGlyphInfo {
+  GlyphID glyph_id;
   Path path;
   float advance_x;
+  float advance_y;
   float width;
+  float height;
+  float bearing_x;
+  float bearing_y;
 };
 
 class FTLibrary final {
@@ -26,6 +32,7 @@ class FTLibrary final {
   ~FTLibrary();
 
   std::unique_ptr<FTTypeFace> LoadTypeface(const char* file_path);
+  std::unique_ptr<FTTypeFace> LoadTypeface(const Data* data);
 
  private:
   FT_Library ft_library_;
@@ -39,6 +46,7 @@ class FTTypeFace final {
 
   std::vector<FTGlyphInfo> LoadGlyph(const char* text, float fontSize,
                                      float canvasWidth, float canvasHeight);
+  FTGlyphInfo LoadGlyph(GlyphID glyph_id, float font_size);
 
  private:
   void FilpOutline();

@@ -1051,6 +1051,26 @@ void Path::setLastPt(float x, float y) {
   }
 }
 
+Path Path::copyWithMatrix(const Matrix& matrix) const {
+  Path ret;
+
+  ret.last_move_to_index_ = last_move_to_index_;
+  ret.convexity_ = convexity_;
+  ret.first_direction_ = first_direction_;
+
+  for (const auto& p : this->points_) {
+    ret.points_.emplace_back(p * matrix);
+  }
+
+  ret.conic_weights_ = conic_weights_;
+  ret.verbs_ = verbs_;
+
+  ret.is_finite_ = is_finite_;
+  ret.bounds_ = bounds_;
+
+  return ret;
+}
+
 void Path::injectMoveToIfNeed() {
   if (last_move_to_index_ < 0) {
     float x, y;

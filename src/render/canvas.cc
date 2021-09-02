@@ -1,17 +1,8 @@
 #include "skity/render/canvas.hpp"
 
-#ifdef ENABLE_TEXT_RENDER
-#include "src/render/text/ft_library_wrap.hpp"
-#endif
-
 namespace skity {
 
-Canvas::Canvas() {
-#ifdef ENABLE_TEXT_RENDER
-  ft_library_ = std::make_unique<FTLibrary>();
-  ft_typeface_ = ft_library_->LoadTypeface(BUILD_IN_FONT_FILE);
-#endif
-}
+Canvas::Canvas() { default_typeface_ = Typeface::MakeDefault(); }
 
 Canvas::~Canvas() = default;
 
@@ -112,13 +103,18 @@ void Canvas::flush() { this->onFlush(); }
 
 void Canvas::drawSimpleText(const char *text, float x, float y,
                             Paint const &paint) {
-#ifdef ENABLE_TEXT_RENDER
+  if (!default_typeface_) {
+    return;
+  }
   this->save();
 
   this->translate(x, y);
 
-  auto glyphs =
-      ft_typeface_->LoadGlyph(text, paint.getTextSize(), width(), height());
+  std::vector<GlyphInfo> glyphs;
+  std::vector<GlyphID> glyph_id;
+  default_typeface_->textToGlyphId(text, glyph_id);
+  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
+
   uint32_t index = 0;
   for (; index < glyphs.size(); index++) {
     auto const &info = glyphs[index];
@@ -130,21 +126,18 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
   }
 
   this->restore();
-#endif
 }
 
 float Canvas::simpleTextBounds(const char *text, const Paint &paint) {
-#ifdef ENABLE_TEXT_RENDER
-  auto glyphs =
-      ft_typeface_->LoadGlyph(text, paint.getTextSize(), width(), height());
+  std::vector<GlyphInfo> glyphs;
+  std::vector<GlyphID> glyph_id;
+  default_typeface_->textToGlyphId(text, glyph_id);
+  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
   float total_width = 0.f;
-  for (auto & glyph : glyphs) {
+  for (auto &glyph : glyphs) {
     total_width += glyph.advance_x;
   }
   return total_width;
-#else
-  return 0.f;
-#endif
 }
 
 void Canvas::updateViewport(uint32_t width, uint32_t height) {

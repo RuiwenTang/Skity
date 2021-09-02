@@ -1,9 +1,9 @@
-#include "src/render/text/ft_library_wrap.hpp"
+#include "src/text/ft_library_wrap.hpp"
 
 #include <codecvt>
 #include <iostream>
 #include <locale>
-#include <string>
+#include <skity/codec/data.hpp>
 
 #include FT_OUTLINE_H
 
@@ -79,6 +79,19 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const char* file_path) {
   return std::make_unique<FTTypeFace>(this, ft_face);
 }
 
+std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const Data* data) {
+  FT_Face ft_face;
+  FT_Error error = FT_New_Memory_Face(
+      ft_library_, (const FT_Byte*)data->RawData(), data->Size(), 0, &ft_face);
+
+  if (error) {
+    std::cerr << "Couldn't load font from memory" << std::endl;
+    return nullptr;
+  }
+
+  return std::make_unique<FTTypeFace>(this, ft_face);
+}
+
 FTTypeFace::~FTTypeFace() { FT_Done_Face(ft_face_); }
 
 std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
@@ -110,10 +123,45 @@ std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
                       ft_face_->units_per_EM;
     Path glyph_path = ExtractOutLine();
 
-    infos.emplace_back(FTGlyphInfo{glyph_path, advance_x});
+    infos.emplace_back(FTGlyphInfo{c, glyph_path, advance_x});
   }
 
   return infos;
+}
+
+FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size) {
+  FTGlyphInfo info;
+  current_font_size_ = font_size;
+
+  info.glyph_id = glyph_id;
+
+  FT_UInt index = FT_Get_Char_Index(ft_face_, glyph_id);
+  FT_Error error =
+      FT_Load_Glyph(ft_face_, index, FT_LOAD_NO_SCALE | FT_LOAD_NO_BITMAP);
+
+  if (error) {
+    std::cerr << "failed to load Glyph " << std::endl;
+    info.glyph_id = 0;
+    return info;
+  }
+
+  FilpOutline();
+  info.advance_x =
+      ft_face_->glyph->advance.x * current_font_size_ / ft_face_->units_per_EM;
+  info.advance_y =
+      ft_face_->glyph->advance.y * current_font_size_ / ft_face_->units_per_EM;
+  info.width = ft_face_->glyph->metrics.width * current_font_size_ /
+               ft_face_->units_per_EM;
+  info.height = ft_face_->glyph->metrics.height * current_font_size_ /
+                ft_face_->units_per_EM;
+  info.bearing_x = ft_face_->glyph->metrics.horiBearingX * current_font_size_ /
+                   ft_face_->units_per_EM;
+  info.bearing_y = ft_face_->glyph->metrics.horiBearingY * current_font_size_ /
+                   ft_face_->units_per_EM;
+
+  info.path = ExtractOutLine();
+
+  return info;
 }
 
 void FTTypeFace::FilpOutline() {
