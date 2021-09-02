@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_GL_GL_VERTEX_HPP
 
 #include <array>
+#include <skity/geometry/point.hpp>
 #include <vector>
 
 namespace skity {
@@ -75,6 +76,8 @@ class GLVertex {
   void UpdateGlobalAlpha(float alpha) { global_alpha_ = alpha; }
 
   void Reset();
+
+  void Append(GLVertex* other, Matrix const& matrix);
 
  private:
   std::vector<float> vertex_buffer;

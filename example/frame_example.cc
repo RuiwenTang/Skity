@@ -801,7 +801,7 @@ void draw_window(skity::Canvas* canvas, const char* title, float x, float y,
   paint.setTextSize(16.f);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(160, 220, 220, 220));
-  canvas->drawSimpleText(title, x + w / 2.f - 80.f, y + 16 + 2, paint);
+  canvas->drawSimpleText2(title, x + w / 2.f - 80.f, y + 16 + 2, paint);
 }
 
 void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
@@ -838,18 +838,18 @@ void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
   paint.setTextSize(h * 0.6f);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
-  canvas->drawSimpleText(search_icon.c_str(), x + h * 0.3f, y + h * 0.8f,
+  canvas->drawSimpleText2(search_icon.c_str(), x + h * 0.3f, y + h * 0.8f,
                          paint);
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
-  canvas->drawSimpleText(title, x + h * 1.05f, y + h * 0.5f + 8.f, paint);
+  canvas->drawSimpleText2(title, x + h * 1.05f, y + h * 0.5f + 8.f, paint);
 
   std::string cancle_icon = "\uf2d3";
   paint.setTextSize(h * 0.6f);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
-  canvas->drawSimpleText(cancle_icon.c_str(), x + w - h * 1.0f, y + h * 0.7f,
+  canvas->drawSimpleText2(cancle_icon.c_str(), x + w - h * 1.0f, y + h * 0.7f,
                          paint);
 }
 
@@ -885,11 +885,11 @@ void draw_drop_down(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(160, 255, 255, 255));
-  canvas->drawSimpleText(text, x + h * 0.3f, y + h * 0.7f, paint);
+  canvas->drawSimpleText2(text, x + h * 0.3f, y + h * 0.7f, paint);
 
   paint.setTextSize(h * 1.1f);
   std::string angle_right = "\uf105";
-  canvas->drawSimpleText(angle_right.c_str(), x + w - h * 0.8f, y + h * 0.9f,
+  canvas->drawSimpleText2(angle_right.c_str(), x + w - h * 0.8f, y + h * 0.9f,
                          paint);
 }
 
@@ -901,7 +901,7 @@ void draw_label(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setColor(skity::ColorSetARGB(128, 255, 255, 255));
   paint.setTextSize(15.f);
 
-  canvas->drawSimpleText(text, x, y + h * 0.9f, paint);
+  canvas->drawSimpleText2(text, x, y + h * 0.9f, paint);
 }
 
 void draw_edit_box_base(skity::Canvas* canvas, float x, float y, float w,
@@ -931,7 +931,7 @@ void draw_edit_box(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setTextSize(17.f);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(64, 255, 255, 255));
-  canvas->drawSimpleText(text, x + h * 0.3f, y + h * 0.7f, paint);
+  canvas->drawSimpleText2(text, x + h * 0.3f, y + h * 0.7f, paint);
 }
 
 void draw_check_box(skity::Canvas* canvas, const char* text, float x, float y,
@@ -941,7 +941,7 @@ void draw_check_box(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setTextSize(15.f);
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(160, 255, 255, 255));
-  canvas->drawSimpleText(text, x + 28.f, y + h * 0.7f, paint);
+  canvas->drawSimpleText2(text, x + 28.f, y + h * 0.7f, paint);
 
   skity::RRect rrect;
   rrect.setRectXY(
@@ -953,7 +953,7 @@ void draw_check_box(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setTextSize(20.f);
   paint.setColor(skity::ColorSetARGB(128, 255, 255, 255));
   std::string icon_check = "\uf00c";
-  canvas->drawSimpleText(icon_check.c_str(), x + 1.f, y + h * 0.8f, paint);
+  canvas->drawSimpleText2(icon_check.c_str(), x + 1.f, y + h * 0.8f, paint);
 }
 
 void draw_button(skity::Canvas* canvas, const char* pre_icon, const char* text,
@@ -995,16 +995,16 @@ void draw_button(skity::Canvas* canvas, const char* pre_icon, const char* text,
   if (pre_icon) {
     paint.setTextSize(h * 0.8f);
     iw = canvas->simpleTextBounds(pre_icon, paint);
-    canvas->drawSimpleText(pre_icon, x + w * 0.5f - tw * 0.5f - iw,
+    canvas->drawSimpleText2(pre_icon, x + w * 0.5f - tw * 0.5f - iw,
                            y + h * 0.75f, paint);
   }
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(160, 0, 0, 0));
-  canvas->drawSimpleText(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
+  canvas->drawSimpleText2(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
                          y + h * 0.7f - 1.f, paint);
   paint.setColor(skity::ColorSetARGB(160, 255, 255, 255));
-  canvas->drawSimpleText(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
+  canvas->drawSimpleText2(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
                          y + h * 0.7f, paint);
 }
 
@@ -1021,13 +1021,13 @@ void draw_edit_box_num(skity::Canvas* canvas, const char* text,
   uw = canvas->simpleTextBounds(units, paint);
 
   paint.setColor(skity::ColorSetARGB(64, 255, 255, 255));
-  canvas->drawSimpleText(units, x + w - h * 0.3f - uw, y + h * 0.6f, paint);
+  canvas->drawSimpleText2(units, x + w - h * 0.3f - uw, y + h * 0.6f, paint);
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(128, 255, 255, 255));
   float tw = canvas->simpleTextBounds(text, paint);
 
-  canvas->drawSimpleText(text, x + w - h * 0.5f - uw - tw, y + h * 0.65f,
+  canvas->drawSimpleText2(text, x + w - h * 0.5f - uw - tw, y + h * 0.65f,
                          paint);
 }
 
@@ -1125,6 +1125,7 @@ void draw_thumbnails(skity::Canvas* canvas,
   skity::Paint paint;
   paint.setAntiAlias(true);
   paint.setStyle(skity::Paint::kStroke_Style);
+  paint.setStrokeJoin(skity::Paint::kMiter_Join);
   paint.setColor(skity::ColorSetARGB(64, 0, 0, 0));
   paint.setStrokeWidth(5.f);
   skity::Rect rect{x - 2.5f, y - 2.5f, x + w + 2.5f, y + h + 2.5f};

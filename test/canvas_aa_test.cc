@@ -46,30 +46,31 @@ class CanvasAATest : public test::TestApp {
     path.cubicTo(256, 64, 10, 192, 250, 450);
     path.close();
 
-    canvas_->drawPath(path, paint);
-
-    canvas_->save();
-    canvas_->translate(100, 0);
-    paint.setAntiAlias(true);
-    canvas_->drawPath(path, paint);
-    canvas_->restore();
+//    canvas_->drawPath(path, paint);
+//
+//    canvas_->save();
+//    canvas_->translate(100, 0);
+//    paint.setAntiAlias(true);
+//    canvas_->drawPath(path, paint);
+//    canvas_->restore();
 
     skity::Paint font_paint;
-    font_paint.setAntiAlias(true);
+//    font_paint.setAntiAlias(true);
     font_paint.setStyle(skity::Paint::kFill_Style);
     font_paint.SetFillColor(.3f, 0.f, 0.f, .3f);
     font_paint.setTextSize(50.f);
 
-    canvas_->drawSimpleText("Hello World no AA", 250, 50, font_paint);
+    canvas_->drawSimpleText2("Hello World no AA", 250, 50, font_paint);
     font_paint.setAntiAlias(true);
+    font_paint.setTextSize(30.f);
     canvas_->drawSimpleText("Hello World with AA", 250, 120, font_paint);
 
-    skity::Rect rect{400, 400, 600, 500};
+//    skity::Rect rect{400, 400, 600, 500};
 
-    skity::Path mix_path;
-    mix_path.addRRect(skity::RRect::MakeRectXY(rect, 10, 10));
+//    skity::Path mix_path;
+//    mix_path.addRRect(skity::RRect::MakeRectXY(rect, 10, 10));
 
-    canvas_->drawPath(mix_path, paint);
+//    canvas_->drawPath(mix_path, paint);
     canvas_->flush();
   }
 

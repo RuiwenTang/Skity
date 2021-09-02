@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 #include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_interface.hpp"
@@ -327,6 +326,7 @@ void GLCanvas::Init() {
   state_ = std::make_unique<GLCanvasState>(
       mvp_, mesh_.get(), stencil_shader_.get(), color_shader_.get());
   texture_manager_ = std::make_unique<GLTextureManager>();
+  glyph_raster_cache_ = std::make_unique<GLGlyphRasterCache>();
 }
 
 void GLCanvas::InitShader() {
@@ -504,6 +504,91 @@ void GLCanvas::onDrawPath(Path const& path, Paint const& paint) {
 
     if (isDrawDebugLine()) {
       draw_ops_.emplace_back(std::move(draw_op_builder_.CreateDebugLineOp()));
+    }
+  }
+}
+
+void GLCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
+                            const Typeface* typeface, const Paint& paint) {
+  gl_vertex_.UpdateGlobalAlpha(paint.getAlphaF());
+  bool need_fill = false;
+  bool need_stroke = false;
+  auto style = paint.getStyle();
+  Rect bounds{0, 0, 0, 0};
+
+  for (const auto info : glyphs) {
+    bounds.join(info.path.getBounds());
+  }
+
+  switch (style) {
+    case Paint::kFill_Style:
+      need_fill = true;
+      break;
+    case Paint::kStroke_Style:
+      need_stroke = true;
+      break;
+    case Paint::kStrokeAndFill_Style:
+      need_fill = need_stroke = true;
+      break;
+  }
+
+  if (need_fill) {
+    GLMeshRange fill_range;
+    fill_range.front_start = gl_vertex_.FrontCount();
+    fill_range.front_count = 0;
+    fill_range.back_start = gl_vertex_.BackCount();
+    fill_range.back_count = 0;
+    fill_range.aa_outline_start = gl_vertex_.AAOutlineCount();
+    fill_range.aa_outline_count = 0;
+
+    glyph_raster_cache_->MergeGlyphCache(&gl_vertex_, glyphs, typeface, paint,
+                                         true);
+
+    fill_range.front_count = gl_vertex_.FrontCount() - fill_range.front_start;
+    fill_range.back_count = gl_vertex_.BackCount() - fill_range.back_start;
+    fill_range.aa_outline_count =
+        gl_vertex_.AAOutlineCount() - fill_range.aa_outline_start;
+
+    UpdateDrawOpBuilder(fill_range);
+    draw_ops_.emplace_back(std::move(draw_op_builder_.CreateStencilOp()));
+
+    GLMeshRange aa_range;
+    aa_range.aa_outline_start = fill_range.aa_outline_start;
+    aa_range.aa_outline_count = fill_range.aa_outline_count;
+    auto op = GenerateColorOp(paint, true, bounds, &aa_range);
+    if (op) {
+      draw_ops_.emplace_back(std::move(op));
+    }
+  }
+
+  if (need_stroke) {
+    GLMeshRange stroke_range;
+    stroke_range.front_start = gl_vertex_.FrontCount();
+    stroke_range.front_count = 0;
+    stroke_range.back_start = gl_vertex_.BackCount();
+    stroke_range.back_count = 0;
+    stroke_range.aa_outline_start = gl_vertex_.AAOutlineCount();
+    stroke_range.aa_outline_count = 0;
+
+    glyph_raster_cache_->MergeGlyphCache(&gl_vertex_, glyphs, typeface, paint,
+                                         false);
+
+    stroke_range.front_count =
+        gl_vertex_.FrontCount() - stroke_range.front_start;
+    stroke_range.back_count = gl_vertex_.BackCount() - stroke_range.back_start;
+    stroke_range.aa_outline_count =
+        gl_vertex_.AAOutlineCount() - stroke_range.aa_outline_start;
+
+    UpdateDrawOpBuilder(stroke_range);
+    draw_ops_.emplace_back(
+        std::move(draw_op_builder_.CreateStencilOp(paint.getStrokeWidth())));
+
+    GLMeshRange aa_range;
+    aa_range.aa_outline_start = stroke_range.aa_outline_start;
+    aa_range.aa_outline_count = stroke_range.aa_outline_count;
+    auto op = GenerateColorOp(paint, false, bounds, &aa_range);
+    if (op) {
+      draw_ops_.emplace_back(std::move(op));
     }
   }
 }

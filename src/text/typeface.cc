@@ -63,6 +63,7 @@ class Typeface::Impl {
     }
     float scale = target_font_size / base_info.font_size;
     GlyphInfo target_info;
+    target_info.id = base_info.id;
     target_info.advance_x = base_info.advance_x * scale;
     target_info.advance_y = base_info.advance_y * scale;
     target_info.ascent = base_info.ascent * scale;

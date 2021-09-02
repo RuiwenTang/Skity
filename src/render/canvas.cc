@@ -128,6 +128,25 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
   this->restore();
 }
 
+void Canvas::drawSimpleText2(const char *text, float x, float y,
+                             const Paint &paint) {
+  if (!default_typeface_) {
+    return;
+  }
+  this->save();
+
+  this->translate(x, y);
+
+  std::vector<GlyphInfo> glyphs;
+  std::vector<GlyphID> glyph_id;
+  default_typeface_->textToGlyphId(text, glyph_id);
+  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
+
+  this->onDrawGlyphs(glyphs, default_typeface_.get(), paint);
+
+  this->restore();
+}
+
 float Canvas::simpleTextBounds(const char *text, const Paint &paint) {
   std::vector<GlyphInfo> glyphs;
   std::vector<GlyphID> glyph_id;

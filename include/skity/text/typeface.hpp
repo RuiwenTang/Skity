@@ -68,8 +68,6 @@ class SK_API Typeface {
   class Impl;
   Typeface() = default;
 
-  void SetImpl(Impl* imp);
-
  private:
   std::unique_ptr<Impl> impl_;
 };

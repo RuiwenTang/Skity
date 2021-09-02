@@ -166,6 +166,7 @@ class SK_API Canvas {
 
   // just draw text not a usable interface
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
+  void drawSimpleText2(const char* text, float x, float y, Paint const& paint);
   float simpleTextBounds(const char* text, Paint const& paint);
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
@@ -180,6 +181,8 @@ class SK_API Canvas {
  protected:
   virtual void onClipPath(Path const& path, ClipOp op) = 0;
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
+  virtual void onDrawGlyphs(std::vector<GlyphInfo> const& glyphs,
+                            const Typeface* typeface, Paint const& paint) = 0;
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
   virtual void onTranslate(float dx, float dy) = 0;

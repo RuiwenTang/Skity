@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "src/render/gl/gl_draw_op.hpp"
+#include "src/render/gl/gl_glyph_raster_cache.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_texture.hpp"
@@ -68,6 +69,9 @@ class GLCanvas : public Canvas {
 
   void onDrawPath(Path const& path, Paint const& paint) override;
 
+  void onDrawGlyphs(std::vector<GlyphInfo> const& glyphs,
+                    const Typeface* typeface, Paint const& paint) override;
+
   void onFlush() override;
 
   void onSave() override;
@@ -112,6 +116,7 @@ class GLCanvas : public Canvas {
   Matrix mvp_;
   std::unique_ptr<GLCanvasState> state_;
   std::unique_ptr<GLTextureManager> texture_manager_;
+  std::unique_ptr<GLGlyphRasterCache> glyph_raster_cache_;
 };
 }  // namespace skity
 
