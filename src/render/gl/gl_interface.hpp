@@ -27,6 +27,7 @@ struct GLInterface {
   PFNGLBLENDEQUATIONPROC fBlendEquation = nullptr;
   PFNGLBLENDFUNCPROC fBlend = nullptr;
   PFNGLBUFFERDATAPROC fBufferData = nullptr;
+  PFNGLBUFFERSUBDATAPROC fBufferSubData = nullptr;
   PFNGLCHECKFRAMEBUFFERSTATUSPROC fCheckFramebufferStatus = nullptr;
   PFNGLCLEARPROC fClear = nullptr;
   PFNGLCLEARCOLORPROC fClearColor = nullptr;

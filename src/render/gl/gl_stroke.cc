@@ -413,11 +413,9 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
         from.x, from.y, GLVertex::GL_VERTEX_TYPE_NORMAL, 0, 0);
     gl_vertex_->AddFront(prev_join_index, prev_pt2_index, center_point);
     // Fixme handle bevel_join anti-alias
-    Path tmp;
-    auto prev_pt2_data = gl_vertex_->GetVertex(prev_pt2_index);
-    tmp.moveTo(prev_join2_pt);
-    tmp.lineTo(prev_pt2_data[0], prev_pt2_data[1]);
-    stroke_aa.StrokePathAA(tmp, gl_vertex_);
+    if (is_anti_alias_) {
+      // TODO
+    }
   } else {
     int32_t prev_join_index =
         gl_vertex_->AddPoint(prev_join1_pt.x, prev_join1_pt.y,
@@ -428,11 +426,9 @@ void GLStroke::HandleBevelJoin(Point const& from, Point const& to,
     gl_vertex_->AddFront(prev_join_index, prev_pt1_index, center_point);
 
     // Fixme handle bevel_join anti-alias
-    Path tmp;
-    auto prev_pt1_data = gl_vertex_->GetVertex(prev_pt1_index);
-    tmp.moveTo(prev_join1_pt);
-    tmp.lineTo(prev_pt1_data[0], prev_pt1_data[1]);
-    stroke_aa.StrokePathAA(tmp, gl_vertex_);
+    if (is_anti_alias_) {
+      // TODO
+    }
   }
 }
 
@@ -699,14 +695,14 @@ void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
 
 void GLStroke::AppendAAQuadRecursively(std::array<Point, 3> const& quad,
                                        bool on) {
-  if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
-    std::array<Point, 3> quad_1{};
-    std::array<Point, 3> quad_2{};
-    SubDividedQuad(quad.data(), quad_1.data(), quad_2.data());
-
-    AppendAAQuadRecursively(quad_1, on);
-    AppendAAQuadRecursively(quad_2, on);
-  } else {
+//  if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
+//    std::array<Point, 3> quad_1{};
+//    std::array<Point, 3> quad_2{};
+//    SubDividedQuad(quad.data(), quad_1.data(), quad_2.data());
+//
+//    AppendAAQuadRecursively(quad_1, on);
+//    AppendAAQuadRecursively(quad_2, on);
+//  } else {
     // TODO handle on off direction
     Point from = quad[0];
     Point to = quad[2];
@@ -738,7 +734,7 @@ void GLStroke::AppendAAQuadRecursively(std::array<Point, 3> const& quad,
 
     gl_vertex_->AddAAOutline(from_2_index, from_index, to_index);
     gl_vertex_->AddAAOutline(from_2_index, to_index, to_2_index);
-  }
+//  }
 }
 
 }  // namespace skity

@@ -34,10 +34,8 @@ GlyphCacheItem *GLGlyphRasterCache::GenerateRasterCache(
     const GlyphInfo &info, const Typeface *typeface, Paint const &paint,
     float target_font_size, bool fill) {
   float scale = target_font_size / info.font_size;
-  Matrix scale_matrix =
-      glm::scale(glm::identity<Matrix>(), Vec3{scale, scale, 1.f});
 
-  Path temp = info.path.copyWithMatrix(scale_matrix);
+  Path temp = info.path.copyWithScale(scale);
 
   GlyphCacheItem *item = FindRasterCache(info.id, typeface, !fill);
 

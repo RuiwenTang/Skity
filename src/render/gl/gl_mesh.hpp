@@ -41,6 +41,7 @@ class GLMesh {
   uint32_t vao_ = 0;
   // [vertex_buffer, front_index, back_index, aa_index]
   std::array<uint32_t, 4> buffers_ = {};
+  std::array<uint64_t, 4> buffer_size_{};
 };
 
 /**

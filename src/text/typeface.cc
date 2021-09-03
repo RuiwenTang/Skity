@@ -72,10 +72,8 @@ class Typeface::Impl {
     target_info.height = base_info.height * scale;
     target_info.font_size = target_font_size;
 
-    Matrix matrix =
-        glm::scale(glm::identity<Matrix>(), Vec3{scale, scale, 1.f});
 
-    target_info.path = base_info.path.copyWithMatrix(matrix);
+    target_info.path = base_info.path.copyWithScale(scale);
     return target_info;
   }
 

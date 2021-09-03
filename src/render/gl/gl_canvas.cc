@@ -611,6 +611,8 @@ void GLCanvas::onFlush() {
   GL_CALL(StencilMask, 0xFF);
   GL_CALL(Clear, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   GL_CALL(ColorMask, 0, 0, 0, 0);
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(EnableVertexAttribArray, 1);
   for (auto const& op : draw_ops_) {
     Matrix mvp = mvp_ * state_->CurrentMatrix();
     op->UpdateCurrentMatrix(state_->CurrentMatrix());

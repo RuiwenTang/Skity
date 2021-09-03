@@ -437,6 +437,7 @@ class SK_API Path {
    * @return
    */
   Path copyWithMatrix(Matrix const& matrix) const;
+  Path copyWithScale(float scale) const;
 
  private:
   void injectMoveToIfNeed();

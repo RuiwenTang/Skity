@@ -38,7 +38,7 @@ class GLVertex {
     GL_VERTEX_TYPE_AA = 100,
   };
 
-  GLVertex() = default;
+  GLVertex();
   ~GLVertex() = default;
 
   using VertexData = std::array<float, GL_VERTEX_SIZE>;

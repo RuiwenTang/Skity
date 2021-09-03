@@ -20,7 +20,7 @@ void GLDrawMeshOp::OnBeforeDraw(bool has_clip) {
 
 void GLDrawMeshOp::OnAfterDraw(bool has_clip) {
   GLDrawOp::OnAfterDraw(has_clip);
-  mesh_->UnBindMesh();
+//  mesh_->UnBindMesh();
 }
 
 void GLDrawMeshOp::OnDraw(bool has_clip) {

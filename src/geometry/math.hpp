@@ -82,7 +82,7 @@ template <class T>
 Orientation CalculateOrientation(T const& p, T const& q, T const& r) {
   int32_t val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
-  if (FloatNearlyZero(val)) {
+  if (FloatNearlyZero(val, 0.001f)) {
     return Orientation::kLinear;
   }
 

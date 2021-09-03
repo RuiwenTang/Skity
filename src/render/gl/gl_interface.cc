@@ -25,6 +25,7 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(BlendEquation);
   GET_PROC(Blend);
   GET_PROC(BufferData);
+  GET_PROC(BufferSubData);
   GET_PROC(CheckFramebufferStatus);
   GET_PROC(Clear);
   GET_PROC(ClearColor);

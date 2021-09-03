@@ -30,7 +30,7 @@ void GLDrawOp::OnBeforeDraw(bool has_clip) {
 
 void GLDrawOp::OnAfterDraw(bool has_clip) {
   if (shader_) {
-    shader_->UnBind();
+//    shader_->UnBind();
   }
 }
 

@@ -1071,6 +1071,31 @@ Path Path::copyWithMatrix(const Matrix& matrix) const {
   return ret;
 }
 
+Path Path::copyWithScale(float scale) const {
+  Path ret;
+
+  ret.last_move_to_index_ = last_move_to_index_;
+  ret.convexity_ = convexity_;
+  ret.first_direction_ = first_direction_;
+  
+  ret.points_.reserve(this->points_.size());
+  for (auto p : this->points_) {
+    p.x *= scale;
+    p.y *= scale;
+    ret.points_.emplace_back(p);
+  }
+
+  ret.conic_weights_.resize(conic_weights_.size());
+  std::memcpy(ret.conic_weights_.data(), conic_weights_.data(), conic_weights_.size() * sizeof(float));
+  ret.verbs_.resize(verbs_.size());
+  std::memcpy(ret.verbs_.data(), verbs_.data(), verbs_.size() * sizeof(Verb));
+
+  ret.is_finite_ = is_finite_;
+  ret.bounds_ = bounds_;
+
+  return ret;
+}
+
 void Path::injectMoveToIfNeed() {
   if (last_move_to_index_ < 0) {
     float x, y;
