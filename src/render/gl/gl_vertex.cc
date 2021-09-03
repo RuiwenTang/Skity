@@ -106,4 +106,34 @@ void GLVertex::Append(GLVertex* other, const Matrix& matrix) {
   }
 }
 
+void GLVertex::Append(GLVertex* other, float scale, float tx, float ty) {
+  uint32_t vertex_base = vertex_buffer.size() / GL_VERTEX_SIZE;
+  uint32_t front_base = vertex_base;
+  uint32_t back_base = vertex_base;
+  uint32_t aa_base = vertex_base;
+
+  const float* base_addr = other->vertex_buffer.data();
+  for (size_t i = 0; i < other->vertex_buffer.size(); i += GL_VERTEX_SIZE) {
+    float x = base_addr[i + GL_VERTEX_X] * scale + tx;
+    float y = base_addr[i + GL_VERTEX_Y] * scale + ty;
+
+    this->vertex_buffer.emplace_back(x);
+    this->vertex_buffer.emplace_back(y);
+    this->vertex_buffer.emplace_back(base_addr[i + GL_VERTEX_ALPHA]);
+    this->vertex_buffer.emplace_back(base_addr[i + GL_VERTEX_TYPE]);
+    this->vertex_buffer.emplace_back(base_addr[i + GL_VERTEX_U]);
+    this->vertex_buffer.emplace_back(base_addr[i + GL_VERTEX_V]);
+  }
+
+  for (auto f : other->front_index) {
+    this->front_index.emplace_back(f + front_base);
+  }
+  for (auto b : other->back_index) {
+    this->back_index.emplace_back(b + back_base);
+  }
+  for (auto a : other->aa_index) {
+    this->aa_index.emplace_back(a + aa_base);
+  }
+}
+
 }  // namespace skity

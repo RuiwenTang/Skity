@@ -61,16 +61,18 @@ GlyphCacheItem *GLGlyphRasterCache::GenerateRasterCache(
 
 void GLGlyphRasterCache::MergeVertex(GLVertex *target, GLVertex *src,
                                      float advance_x, float scale) {
-  Matrix matrix = glm::identity<Matrix>();
+  // Matrix matrix = glm::identity<Matrix>();
 
-  if (scale != 1.f) {
-    matrix = glm::scale(matrix, Vec3{scale, scale, 1.f});
-  }
+  // if (scale != 1.f) {
+  //   matrix = glm::scale(matrix, Vec3{scale, scale, 1.f});
+  // }
 
-  matrix = glm::translate(glm::identity<Matrix>(), Vec3{advance_x, 0.f, 0.f}) *
-           matrix;
+  // matrix = glm::translate(glm::identity<Matrix>(), Vec3{advance_x, 0.f, 0.f})
+  // *
+  //          matrix;
 
-  target->Append(src, matrix);
+  // target->Append(src, matrix);
+  target->Append(src, scale, advance_x, 0.f);
 }
 
 std::unique_ptr<GLVertex> GLGlyphRasterCache::RasterGlyphPath(

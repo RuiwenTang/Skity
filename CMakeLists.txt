@@ -69,6 +69,7 @@ set(Skity_header
         include/skity/macros.hpp
         include/skity/render/canvas.hpp
         include/skity/text/typeface.hpp
+        include/skity/text/utf.hpp
         )
 
 set(Skity_src
@@ -141,6 +142,7 @@ set(Skity_src
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
         src/text/typeface.cc
+        src/text/utf.cc
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")

@@ -116,7 +116,7 @@ class Typeface::Impl {
 
 std::unique_ptr<Typeface> Typeface::MakeDefault() {
 #ifdef ENABLE_TEXT_RENDER
-  auto impl = std::make_unique<Typeface::Impl>();
+  std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
   impl->SetFTLibrary(GlobalFTLibrary());
 
   if (!impl->LoadTypefaceFromFile(BUILD_IN_FONT_FILE)) {
@@ -135,7 +135,7 @@ Typeface::~Typeface() = default;
 
 std::unique_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
 #ifdef ENABLE_TEXT_RENDER
-  auto impl = std::make_unique<Typeface::Impl>();
+  std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
   impl->SetFTLibrary(GlobalFTLibrary());
   if (!impl->LoadTypefaceFromFile(path)) {
     return nullptr;
@@ -152,7 +152,7 @@ std::unique_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
 std::unique_ptr<Typeface> Typeface::MakeFromData(
     const std::shared_ptr<Data>& data) {
 #ifdef ENABLE_TEXT_RENDER
-  auto impl = std::make_unique<Typeface::Impl>();
+  std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
   impl->SetFTLibrary(GlobalFTLibrary());
   if (!impl->LoadFromData(data.get())) {
     return nullptr;

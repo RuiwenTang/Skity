@@ -78,6 +78,7 @@ class GLVertex {
   void Reset();
 
   void Append(GLVertex* other, Matrix const& matrix);
+  void Append(GLVertex* other, float scale, float tx, float ty);
 
  private:
   std::vector<float> vertex_buffer;

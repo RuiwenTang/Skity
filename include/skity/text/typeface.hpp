@@ -1,6 +1,7 @@
 #ifndef SKITY_TEXT_TYPEFACE_HPP
 #define SKITY_TEXT_TYPEFACE_HPP
 
+#include <functional>
 #include <memory>
 #include <skity/graphic/path.hpp>
 #include <skity/macros.hpp>
@@ -69,7 +70,7 @@ class SK_API Typeface {
   Typeface() = default;
 
  private:
-  std::unique_ptr<Impl> impl_;
+  std::unique_ptr<Impl, std::function<void(Impl*)>> impl_;
 };
 
 }  // namespace skity

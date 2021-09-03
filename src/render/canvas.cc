@@ -1,5 +1,7 @@
 #include "skity/render/canvas.hpp"
 
+#include <skity/text/utf.hpp>
+
 namespace skity {
 
 Canvas::Canvas() { default_typeface_ = Typeface::MakeDefault(); }
@@ -133,13 +135,17 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
   if (!default_typeface_) {
     return;
   }
+
+  std::vector<GlyphInfo> glyphs;
+  std::vector<GlyphID> glyph_id;
+  if (!UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id)) {
+    return;
+  }
+
   this->save();
 
   this->translate(x, y);
 
-  std::vector<GlyphInfo> glyphs;
-  std::vector<GlyphID> glyph_id;
-  default_typeface_->textToGlyphId(text, glyph_id);
   default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
 
   this->onDrawGlyphs(glyphs, default_typeface_.get(), paint);
@@ -150,7 +156,9 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
 float Canvas::simpleTextBounds(const char *text, const Paint &paint) {
   std::vector<GlyphInfo> glyphs;
   std::vector<GlyphID> glyph_id;
-  default_typeface_->textToGlyphId(text, glyph_id);
+  if (!UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id)) {
+    return 0.f;
+  }
   default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
   float total_width = 0.f;
   for (auto &glyph : glyphs) {

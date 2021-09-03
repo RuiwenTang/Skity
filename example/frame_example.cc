@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 // should after glad.h
 #include <GLFW/glfw3.h>
 
@@ -839,7 +839,7 @@ void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
   canvas->drawSimpleText2(search_icon.c_str(), x + h * 0.3f, y + h * 0.8f,
-                         paint);
+                          paint);
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
@@ -850,7 +850,7 @@ void draw_search_box(skity::Canvas* canvas, const char* title, float x, float y,
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setColor(skity::ColorSetARGB(32, 255, 255, 255));
   canvas->drawSimpleText2(cancle_icon.c_str(), x + w - h * 1.0f, y + h * 0.7f,
-                         paint);
+                          paint);
 }
 
 void draw_drop_down(skity::Canvas* canvas, const char* text, float x, float y,
@@ -890,7 +890,7 @@ void draw_drop_down(skity::Canvas* canvas, const char* text, float x, float y,
   paint.setTextSize(h * 1.1f);
   std::string angle_right = "\uf105";
   canvas->drawSimpleText2(angle_right.c_str(), x + w - h * 0.8f, y + h * 0.9f,
-                         paint);
+                          paint);
 }
 
 void draw_label(skity::Canvas* canvas, const char* text, float x, float y,
@@ -996,16 +996,16 @@ void draw_button(skity::Canvas* canvas, const char* pre_icon, const char* text,
     paint.setTextSize(h * 0.8f);
     iw = canvas->simpleTextBounds(pre_icon, paint);
     canvas->drawSimpleText2(pre_icon, x + w * 0.5f - tw * 0.5f - iw,
-                           y + h * 0.75f, paint);
+                            y + h * 0.75f, paint);
   }
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(160, 0, 0, 0));
   canvas->drawSimpleText2(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
-                         y + h * 0.7f - 1.f, paint);
+                          y + h * 0.7f - 1.f, paint);
   paint.setColor(skity::ColorSetARGB(160, 255, 255, 255));
   canvas->drawSimpleText2(text, x + w * 0.5f - tw * 0.5f + iw * 0.25f,
-                         y + h * 0.7f, paint);
+                          y + h * 0.7f, paint);
 }
 
 void draw_edit_box_num(skity::Canvas* canvas, const char* text,
@@ -1028,7 +1028,7 @@ void draw_edit_box_num(skity::Canvas* canvas, const char* text,
   float tw = canvas->simpleTextBounds(text, paint);
 
   canvas->drawSimpleText2(text, x + w - h * 0.5f - uw - tw, y + h * 0.65f,
-                         paint);
+                          paint);
 }
 
 void draw_slider(skity::Canvas* canvas, float pos, float x, float y, float w,
