@@ -132,11 +132,15 @@ void GLVertex::Append(GLVertex* other, float scale, float tx, float ty) {
   uint32_t front_base = vertex_base;
   uint32_t back_base = vertex_base;
   uint32_t aa_base = vertex_base;
-  
-  this->vertex_buffer.resize(this->vertex_buffer.size() + other->vertex_buffer.size());
+
+  uint32_t front_offset = this->front_index.size();
+  uint32_t back_offset = this->back_index.size();
+  uint32_t aa_offset = this->aa_index.size();
+  this->vertex_buffer.resize(this->vertex_buffer.size() +
+                             other->vertex_buffer.size());
   this->front_index.resize(this->FrontCount() + other->FrontCount());
-  this->back_index.reserve(this->BackCount() + other->BackCount());
-  this->aa_index.reserve(this->AAOutlineCount() + other->AAOutlineCount());
+  this->back_index.resize(this->BackCount() + other->BackCount());
+  this->aa_index.resize(this->AAOutlineCount() + other->AAOutlineCount());
 
   const float* base_addr = other->vertex_buffer.data();
   float* this_addr = this->vertex_buffer.data();
@@ -146,20 +150,20 @@ void GLVertex::Append(GLVertex* other, float scale, float tx, float ty) {
 
     this_addr[vertex_raw_base + i] = x;
     this_addr[vertex_raw_base + i + 1] = y;
-    this_addr[vertex_raw_base + i + GL_VERTEX_ALPHA] = base_addr[i + GL_VERTEX_ALPHA];
-    this_addr[vertex_raw_base + i + GL_VERTEX_TYPE] = base_addr[i + GL_VERTEX_TYPE];
-    this_addr[vertex_raw_base + i + GL_VERTEX_U] = base_addr[i + GL_VERTEX_U];
-    this_addr[vertex_raw_base + i + GL_VERTEX_V] = base_addr[i + GL_VERTEX_V];
+    std::memcpy((this_addr + vertex_raw_base + i + 2), (base_addr + i + 2),
+                3 * sizeof(float));
   }
-
-  for (auto f : other->front_index) {
-    this->front_index.emplace_back(f + front_base);
+  uint32_t* p = this->front_index.data();
+  for (int32_t i = 0; i < other->front_index.size(); i++) {
+    this->front_index[front_offset + i] = other->front_index[i] + front_base;
   }
-  for (auto b : other->back_index) {
-    this->back_index.emplace_back(b + back_base);
+  p = this->back_index.data();
+  for (int32_t i = 0; i < other->back_index.size(); i++) {
+    this->back_index[back_offset + i] = other->back_index[i] + back_base;
   }
-  for (auto a : other->aa_index) {
-    this->aa_index.emplace_back(a + aa_base);
+  p = this->aa_index.data();
+  for (int32_t i = 0; i < other->aa_index.size(); i++) {
+    this->aa_index[aa_offset + i] = other->aa_index[i] + aa_base;
   }
 }
 
