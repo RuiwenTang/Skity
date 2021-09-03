@@ -107,6 +107,11 @@ class Typeface::Impl {
   std::unordered_map<GlyphID, GlyphInfo> glyph_cache_;
 };
 
+#else
+class Typeface::Impl {
+ public:
+ private:
+};
 #endif
 
 std::unique_ptr<Typeface> Typeface::MakeDefault() {
