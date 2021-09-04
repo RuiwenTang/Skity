@@ -243,6 +243,9 @@ target_link_libraries(skity ${SKITY_DEP_LIBRARIES})
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (WIN32)
+    set(SKITY_DLL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 # test
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_subdirectory(third_party/gtest)
@@ -250,8 +253,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     # Fixme to include private generate header
     add_subdirectory(test)
-endif()
-if (WIN32)
-    set(SKITY_DLL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 add_subdirectory(example)
