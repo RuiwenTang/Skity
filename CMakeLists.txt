@@ -46,6 +46,9 @@ create_resources(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
 
 include_directories(third_party/glm)
 include_directories(third_party/OpenGL)
+# xml
+include_directories(third_party/pugixml/src)
+add_subdirectory(third_party/pugixml)
 
 include_directories(include)
 
@@ -143,6 +146,8 @@ set(Skity_src
         src/render/gl/gl_vertex.hpp
         src/text/typeface.cc
         src/text/utf.cc
+        src/xml/xml_parser.hpp
+        src/xml/xml_parser.cc
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")
@@ -239,7 +244,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(skity SHARED ${Skity_header} ${Skity_src})
 
-target_link_libraries(skity ${SKITY_DEP_LIBRARIES})
+target_link_libraries(skity pugixml ${SKITY_DEP_LIBRARIES})
 
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
