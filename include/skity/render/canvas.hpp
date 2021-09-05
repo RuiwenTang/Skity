@@ -164,8 +164,11 @@ class SK_API Canvas {
 
   void flush();
 
-  // just draw text not a usable interface
+  /**
+   * @deprecated  use drawSimpleText2 if need.
+   */
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
+  // just draw text not a usable interface
   void drawSimpleText2(const char* text, float x, float y, Paint const& paint);
   float simpleTextBounds(const char* text, Paint const& paint);
 

@@ -96,7 +96,7 @@ void Perf::RenderGraph(skity::Canvas *canvas, float x, float y) {
   if (!name_.empty()) {
     paint.setTextSize(12.f);
     paint.setColor(skity::ColorSetARGB(192, 240, 240, 240));
-    canvas->drawSimpleText(name_.c_str(), x + 3, y + 3 + 14.f, paint);
+    canvas->drawSimpleText2(name_.c_str(), x + 3, y + 3 + 14.f, paint);
   }
 
   char str[64];
@@ -105,21 +105,21 @@ void Perf::RenderGraph(skity::Canvas *canvas, float x, float y) {
     paint.setTextSize(15.f);
     paint.setColor(skity::ColorSetARGB(255, 240, 240, 240));
     std::sprintf(str, "%.2f FPS", 1.0f / avg);
-    canvas->drawSimpleText(str, x + 100.f, y + 3.f + 15.f, paint);
+    canvas->drawSimpleText2(str, x + 100.f, y + 3.f + 15.f, paint);
 
     paint.setTextSize(13.f);
     paint.setColor(skity::ColorSetARGB(160, 240, 240, 240));
     sprintf(str, "%.2f ms", avg * 1000.f);
-    canvas->drawSimpleText(str, x + 100.f, y + 3.f + 15.f + 14.f, paint);
+    canvas->drawSimpleText2(str, x + 100.f, y + 3.f + 15.f + 14.f, paint);
   } else if (style_ == GRAPH_RENDER_PERCENT) {
     paint.setTextSize(15.f);
     paint.setColor(skity::ColorSetARGB(255, 240, 240, 240));
     sprintf(str, "%.1f %%", avg * 1.f);
-    canvas->drawSimpleText(str, x + 60.f, y + 3.f + 15.f, paint);
+    canvas->drawSimpleText2(str, x + 60.f, y + 3.f + 15.f, paint);
   } else {
     paint.setTextSize(15.f);
     paint.setColor(skity::ColorSetARGB(255, 240, 240, 240));
     sprintf(str, "%.2f ms", avg * 1000.f);
-    canvas->drawSimpleText(str, x + 100.f, y + 3.f + 15.f, paint);
+    canvas->drawSimpleText2(str, x + 100.f, y + 3.f + 15.f, paint);
   }
 }

@@ -105,6 +105,7 @@ void Canvas::flush() { this->onFlush(); }
 
 void Canvas::drawSimpleText(const char *text, float x, float y,
                             Paint const &paint) {
+#if 0
   if (!default_typeface_) {
     return;
   }
@@ -128,6 +129,7 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
   }
 
   this->restore();
+#endif
 }
 
 void Canvas::drawSimpleText2(const char *text, float x, float y,
