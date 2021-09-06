@@ -41,8 +41,8 @@ class XMLParserError {
 
 class XMLParser {
  public:
-  XMLParser(XMLParserError* error = nullptr);
-  virtual ~XMLParser();
+  explicit XMLParser(XMLParserError* error = nullptr);
+  virtual ~XMLParser() = default;
 
   bool Parse(const char* doc, size_t len);
   bool Parse(std::string const& doc);
