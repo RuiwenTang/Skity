@@ -101,6 +101,8 @@ set(Skity_src
         src/geometry/rect.cc
         src/geometry/rrect.cc
         src/graphic/color.cc
+        src/graphic/color_parser.cc
+        src/graphic/color_parser.hpp
         src/graphic/paint.cc
         src/graphic/path.cc
         src/graphic/path_measure.cc
