@@ -3,10 +3,18 @@
 #define SKITY_SRC_SVG_SVG_NODE_HPP
 
 #include <memory>
+#include <skity/geometry/point.hpp>
 
+#include "src/svg/svg_attribute.hpp"
+#include "src/svg/svg_attribute_parser.hpp"
 #include "src/svg/svg_types.hpp"
 
 namespace skity {
+
+class Paint;
+class Path;
+class SVGLengthContext;
+class SVGRenderContext;
 
 /**
  * @enum SVGTag
@@ -51,14 +59,87 @@ enum class SVGTag {
   kUse,
 };
 
-#define SVG_PRES_ATTR(attr_name, attr_type, attr_inherited) \
- private:                                                   \
-  bool Set##attr_name()
+#define SVG_PRES_ATTR(attr_name, attr_type, attr_inherited)               \
+ private:                                                                 \
+  bool Set##attr_name(SVGAttributeParser::ParseResult<                    \
+                      SVGProperty<attr_type, attr_inherited>>&& pr) {     \
+    if (pr.IsValid()) {                                                   \
+      this->Set##attr_name(std::move(*pr));                               \
+    }                                                                     \
+    return pr.IsValid();                                                  \
+  }                                                                       \
+                                                                          \
+ public:                                                                  \
+  const SVGProperty<attr_type, attr_inherited>& Get##attr_name() const {  \
+    return presentation_attributes_.f##attr_name;                         \
+  }                                                                       \
+  void Set##attr_name(const SVGProperty<attr_type, attr_inherited>& v) {  \
+    auto* dest = &presentation_attributes_.f##attr_name;                  \
+    if (!dest->IsInheritable() || v.IsValue()) {                          \
+      *dest = v;                                                          \
+    } else {                                                              \
+      dest->Set(SVGPropertyState::kInherit);                              \
+    }                                                                     \
+  }                                                                       \
+  void Set##attr_name(const SVGProperty<attr_type, attr_inherited>&& v) { \
+    auto* dest = &presentation_attributes_.f##attr_name;                  \
+    if (!dest->IsInheritable() || v.IsValue()) {                          \
+      *dest = std::move(v);                                               \
+    } else {                                                              \
+      dest->Set(SVGPropertyState::kInherit);                              \
+    }                                                                     \
+  }
 
 class SVGNode {
  public:
+  virtual ~SVGNode() = default;
+
+  SVGTag Tag() const { return tag_; }
+
+  virtual void AppendChild(std::shared_ptr<SVGNode> child) = 0;
+
+  void Render(const SVGRenderContext&) const;
+  bool AsPaint(const SVGRenderContext&, Paint*) const;
+  bool AsPath(const SVGRenderContext&, Path*) const;
+
+  bool SetAttribute(const char* name, const char* value);
+  bool ParseAndSetAttribute(const char* name, const char* value);
+
+  // inherited
+  SVG_PRES_ATTR(Color, SVGColorType, true)
+  SVG_PRES_ATTR(Fill, SVGPaint, true)
+  SVG_PRES_ATTR(Stroke, SVGPaint, true);
+  SVG_PRES_ATTR(StrokeDashArray, SVGDashArray, true)
+  SVG_PRES_ATTR(StrokeDashOffset, SVGLength, true)
+  SVG_PRES_ATTR(StrokeLineCap, SVGLineCap, true)
+  SVG_PRES_ATTR(StrokeLineJoin, SVGLineJoin, true)
+  SVG_PRES_ATTR(StrokeMiterLimit, SVGNumberType, true)
+  SVG_PRES_ATTR(StrokeOpacity, SVGNumberType, true)
+  SVG_PRES_ATTR(StrokeWidth, SVGLength, true)
+
+  // not inherited
+
+ protected:
+  explicit SVGNode(SVGTag tag);
+
+  static Matrix ComputeViewBoxMatrix(Rect const&, Rect const&,
+                                     SVGPreserveAspectRatio);
+
+  virtual bool OnPrepareToRender(SVGRenderContext*) const;
+
+  virtual void OnRender(SVGRenderContext const&) = 0;
+  virtual bool OnAsPaint(SVGRenderContext const&, Paint*) const {
+    return false;
+  }
+  virtual Path OnAsPath(SVGRenderContext const&) const = 0;
+  virtual bool HasChildren() const { return false; }
+
  private:
+  SVGTag tag_;
+  SVGPresentationAttributes presentation_attributes_;
 };
+
+#undef SVG_PRES_ATTR
 
 }  // namespace skity
 

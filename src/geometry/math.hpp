@@ -13,6 +13,7 @@ namespace skity {
 #define FloatInfinity std::numeric_limits<float>::infinity()
 #define NearlyZero (Float1 / (1 << 12))
 #define FloatRoot2Over2 0.707106781f
+#define FloatSqrt2 1.41421356f
 
 #define FixedToFloat(x) ((x)*1.52587890625e-5f)
 

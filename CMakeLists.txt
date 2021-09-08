@@ -154,6 +154,8 @@ set(Skity_src
         src/svg/svg_dom.cc
         src/svg/svg_node.cc
         src/svg/svg_node.hpp
+        src/svg/svg_render_context.cc
+        src/svg/svg_render_context.hpp
         src/svg/svg_root.cc
         src/svg/svg_root.hpp
         src/svg/svg_types.hpp

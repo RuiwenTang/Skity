@@ -64,13 +64,13 @@ class SVGProperty {
 
   T* operator->() const {
     assert(state_ == SVGPropertyState::kValue);
-    assert(!value_.empty());
+    assert(value_.IsValid());
     return value_.get();
   }
 
   T& operator*() const {
     assert(state_ == SVGPropertyState::kValue);
-    assert(!value_.empty());
+    assert(value_.IsValid());
     return *value_;
   }
 
@@ -181,8 +181,16 @@ class SVGLineJoin {
     kInherit,
   };
 
-  SVGLineJoin() : type_(Type::kInherit) {}
-  explicit SVGLineJoin(Type t) : type_(t) {}
+  constexpr SVGLineJoin() : type_(Type::kInherit) {}
+  constexpr explicit SVGLineJoin(Type t) : type_(t) {}
+
+  Type type() const { return type_; }
+
+  bool operator==(const SVGLineJoin& other) const {
+    return type_ == other.type_;
+  }
+
+  bool operator!=(const SVGLineJoin& other) const { return !(*this == other); }
 
  private:
   Type type_;

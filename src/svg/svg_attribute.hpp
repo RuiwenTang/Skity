@@ -63,25 +63,26 @@ enum class SVGAttribute {
 struct SVGPresentationAttributes {
   static SVGPresentationAttributes MakeInitial();
 
-  SVGProperty<SVGPaint, true> fill;
-  SVGProperty<SVGNumberType, true> fill_opacity;
-  // SVGProperty<SVGFillRule, true> fill_rule;
-  // SVGProperty<SVGFillRule, true> clip_rule;
+  SVGProperty<SVGPaint, true> fFill;
+  SVGProperty<SVGNumberType, true> fFillOpacity;
+  // SVGProperty<SVGFillRule, true> fFill_rule;
+  // SVGProperty<SVGFillRule, true> fClip_rule;
 
-  SVGProperty<SVGPaint, true> stroke;
-  SVGProperty<SVGDashArray, true> stroke_dash_array;
-  SVGProperty<SVGLength, true> stroke_dash_offset;
-  SVGProperty<SVGLineCap, true> stroke_line_cap;
-  SVGProperty<SVGLineJoin, true> stroke_line_join;
-  SVGProperty<SVGLength, true> stroke_miter_limit;
-  SVGProperty<SVGNumberType, true> stroke_opacity;
+  SVGProperty<SVGPaint, true> fStroke;
+  SVGProperty<SVGDashArray, true> fStrokeDashArray;
+  SVGProperty<SVGLength, true> fStrokeDashOffset;
+  SVGProperty<SVGLineCap, true> fStrokeLineCap;
+  SVGProperty<SVGLineJoin, true> fStrokeLineJoin;
+  SVGProperty<SVGNumberType, true> fStrokeMiterLimit;
+  SVGProperty<SVGNumberType, true> fStrokeOpacity;
+  SVGProperty<SVGLength, true> fStrokeWidth;
 
-  SVGProperty<SVGVisibility, true> visibility;
+  SVGProperty<SVGVisibility, true> fVisibility;
 
-  SVGProperty<SVGColorType, true> color;
+  SVGProperty<SVGColorType, true> fColor;
 
   // un inherited
-  SVGProperty<SVGNumberType, false> opacity;
+  SVGProperty<SVGNumberType, false> fOpacity;
 };
 
 }  // namespace skity

@@ -602,6 +602,59 @@ bool SVGAttributeParser::ParseList(std::vector<T> *vals) {
   return !vals->empty() && this->ParseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG11/coords.html#PreserveAspectRatioAttribute
+bool SVGAttributeParser::ParsePreserveAspectRatio(
+    SVGPreserveAspectRatio *aspect_ratio) {
+  static struct {
+    const char *name;
+    SVGPreserveAspectRatio::Align align;
+  } gAlignMap[]{
+      {"none", SVGPreserveAspectRatio::kNone},
+      {"xMinYMin", SVGPreserveAspectRatio::kXMinYMin},
+      {"xMidYMin", SVGPreserveAspectRatio::kXMidYMin},
+      {"xMaxYMin", SVGPreserveAspectRatio::kXMaxYMin},
+      {"xMinYMid", SVGPreserveAspectRatio::kXMinYMid},
+      {"xMidYMid", SVGPreserveAspectRatio::kXMidYMid},
+      {"xMidYMax", SVGPreserveAspectRatio::kXMidYMax},
+      {"xMaxYMax", SVGPreserveAspectRatio::kXMaxYMax},
+  };
+
+  static struct {
+    const char *name;
+    SVGPreserveAspectRatio::Scale scale;
+  } gScaleMap[] = {
+      {"meet", SVGPreserveAspectRatio::kMeet},
+      {"slice", SVGPreserveAspectRatio::kSlice},
+  };
+
+  bool parsed_value = false;
+  // ignoring optional 'defer'
+  this->ParseExpectedStringToken("defer");
+  this->ParseWSToken();
+
+  for (auto const &align : gAlignMap) {
+    if (this->ParseExpectedStringToken(align.name)) {
+      aspect_ratio->align = align.align;
+      parsed_value = true;
+      break;
+    }
+  }
+
+  if (!parsed_value) {
+    return false;
+  }
+
+  for (auto const &scale : gScaleMap) {
+    if (this->ParseExpectedStringToken(scale.name)) {
+      parsed_value = true;
+      aspect_ratio->scale = scale.scale;
+      break;
+    }
+  }
+
+  return parsed_value && this->ParseEOSToken();
+}
+
 template <>
 bool SVGAttributeParser::Parse(std::vector<SVGLength> *lengths) {
   return this->ParseList(lengths);

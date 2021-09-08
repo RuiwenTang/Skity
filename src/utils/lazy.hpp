@@ -23,7 +23,7 @@ class Lazy {
 
   Lazy& operator=(const Lazy& that) {
     if (that.IsValid()) {
-      this->set(*that);
+      this->Set(*that);
     } else {
       this->Reset();
     }
