@@ -23,9 +23,9 @@ class SK_API SVGDom {
   void Render(Canvas* canvas);
 
  private:
-  SVGDom(std::unique_ptr<SVGRoot> root);
+  SVGDom(std::shared_ptr<SVGRoot> root);
 
-  std::unique_ptr<SVGRoot> root_;
+  std::shared_ptr<SVGRoot> root_;
 };
 
 }  // namespace skity

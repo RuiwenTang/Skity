@@ -51,6 +51,10 @@ void SVGNode::SetAttribute(SVGAttribute attr, const SVGValue &v) {
   this->OnSetAttribute(attr, v);
 }
 
+bool SVGNode::SetAttribute(const char *name, const char *value) {
+  return this->ParseAndSetAttribute(name, value);
+}
+
 template <typename T>
 void SetInheritedByDefault(Lazy<T> &presentation_attr, const T &value) {
   if (value.type() != T::Type::kInherit) {

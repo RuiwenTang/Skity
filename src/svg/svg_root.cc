@@ -92,5 +92,6 @@ Vec2 SVGRoot::IntrinsicSize(const SVGLengthContext& ctx) const {
   return Vec2{ctx.Resolve(fWidth, SVGLengthContext::LengthType::kHorizontal),
               ctx.Resolve(fHeight, SVGLengthContext::LengthType::kVertical)};
 }
+const char* SVGRoot::TagName() const { return "svg"; }
 
 }  // namespace skity

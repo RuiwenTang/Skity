@@ -160,6 +160,8 @@ set(Skity_src
         src/svg/svg_render_context.hpp
         src/svg/svg_root.cc
         src/svg/svg_root.hpp
+        src/svg/svg_shape.cc
+        src/svg/svg_shape.hpp
         src/svg/svg_transformable_node.cc
         src/svg/svg_transformable_node.hpp
         src/svg/svg_types.hpp

@@ -104,7 +104,8 @@ class SVGNode {
 
   void SetAttribute(SVGAttribute, const SVGValue&);
   bool SetAttribute(const char* name, const char* value);
-  bool ParseAndSetAttribute(const char* name, const char* value);
+  virtual bool ParseAndSetAttribute(const char* name, const char* value);
+  virtual const char* TagName() const = 0;
 
   // inherited
   SVG_PRES_ATTR(Color, SVGColorType, true)

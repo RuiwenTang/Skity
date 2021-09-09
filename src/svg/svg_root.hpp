@@ -31,6 +31,7 @@ class SVGRoot : public SVGContainer {
   SVG_OPTIONAL_ATTR(ViewBox, SVGViewBoxType)
 
   Vec2 IntrinsicSize(const SVGLengthContext&) const;
+  const char* TagName() const override;
 
  protected:
   bool OnPrepareToRender(SVGRenderContext*) const override;
