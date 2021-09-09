@@ -100,15 +100,17 @@ class SVGNode {
 
   void Render(const SVGRenderContext&) const;
   bool AsPaint(const SVGRenderContext&, Paint*) const;
-  bool AsPath(const SVGRenderContext&, Path*) const;
+  Path AsPath(const SVGRenderContext&) const;
 
+  void SetAttribute(SVGAttribute, const SVGValue&);
   bool SetAttribute(const char* name, const char* value);
   bool ParseAndSetAttribute(const char* name, const char* value);
 
   // inherited
   SVG_PRES_ATTR(Color, SVGColorType, true)
   SVG_PRES_ATTR(Fill, SVGPaint, true)
-  SVG_PRES_ATTR(Stroke, SVGPaint, true);
+  SVG_PRES_ATTR(FillOpacity, SVGNumberType, true)
+  SVG_PRES_ATTR(Stroke, SVGPaint, true)
   SVG_PRES_ATTR(StrokeDashArray, SVGDashArray, true)
   SVG_PRES_ATTR(StrokeDashOffset, SVGLength, true)
   SVG_PRES_ATTR(StrokeLineCap, SVGLineCap, true)
@@ -127,12 +129,13 @@ class SVGNode {
 
   virtual bool OnPrepareToRender(SVGRenderContext*) const;
 
-  virtual void OnRender(SVGRenderContext const&) = 0;
+  virtual void OnRender(SVGRenderContext const&) const = 0;
   virtual bool OnAsPaint(SVGRenderContext const&, Paint*) const {
     return false;
   }
   virtual Path OnAsPath(SVGRenderContext const&) const = 0;
   virtual bool HasChildren() const { return false; }
+  virtual void OnSetAttribute(SVGAttribute, const SVGValue&) {}
 
  private:
   SVGTag tag_;
@@ -140,6 +143,47 @@ class SVGNode {
 };
 
 #undef SVG_PRES_ATTR
+
+#define _SVG_ATTR_SETTERS(attr_name, attr_type, attr_default, set_cp, set_mv) \
+ private:                                                                     \
+  bool Set##attr_name(const SVGAttributeParser::ParseResult<attr_type>& pr) { \
+    if (pr.IsValid()) {                                                       \
+      this->Set##attr_name(*pr);                                              \
+    }                                                                         \
+    return pr.IsValid();                                                      \
+  }                                                                           \
+  bool Set##attr_name(SVGAttributeParser::ParseResult<attr_type>&& pr) {      \
+    if (pr.IsValid()) {                                                       \
+      this->Set##attr_name(std::move(*pr));                                   \
+    }                                                                         \
+    return pr.IsValid();                                                      \
+  }                                                                           \
+                                                                              \
+ public:                                                                      \
+  void Set##attr_name(const attr_type& a) { set_cp(a); }                      \
+  void Set##attr_name(attr_type&& a) { set_mv(std::move(a)); }
+
+#define SVG_ATTR(attr_name, attr_type, attr_default)               \
+ private:                                                          \
+  attr_type f##attr_name = attr_default;                           \
+                                                                   \
+ public:                                                           \
+  const attr_type& Get##attr_name() const { return f##attr_name; } \
+  _SVG_ATTR_SETTERS(                                               \
+      attr_name, attr_type, attr_default,                          \
+      [this](const attr_type& a) { this->f##attr_name = a; },      \
+      [this](attr_type&& a) { this->f##attr_name = std::move(a); })
+
+#define SVG_OPTIONAL_ATTR(attr_name, attr_type)                          \
+ private:                                                                \
+  Lazy<attr_type> f##attr_name;                                          \
+                                                                         \
+ public:                                                                 \
+  const Lazy<attr_type>& Get##attr_name() const { return f##attr_name; } \
+  _SVG_ATTR_SETTERS(                                                     \
+      attr_name, attr_type, attr_default,                                \
+      [this](const attr_type& a) { this->f##attr_name.Set(a); },         \
+      [this](attr_type&& a) { this->f##attr_name = std::move(a); })
 
 }  // namespace skity
 

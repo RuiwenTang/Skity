@@ -1,6 +1,7 @@
 
 #include "src/svg/svg_render_context.hpp"
 
+#include <cassert>
 #include <cstring>
 #include <skity/effect/path_effect.hpp>
 #include <skity/render/canvas.hpp>
@@ -216,6 +217,14 @@ void SVGRenderContext::ApplyPresentationAttribute(
   if (has_filter) {
     // TODO apply filter
   }
+}
+
+void SVGRenderContext::SaveOnce() {
+  if (canvas_->getSaveCount() == canvas_save_count_) {
+    canvas_->save();
+  }
+
+  assert(canvas_->getSaveCount() > canvas_save_count_);
 }
 
 Lazy<Paint> SVGRenderContext::FillPaint() const {

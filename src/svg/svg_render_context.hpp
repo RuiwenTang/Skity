@@ -56,6 +56,12 @@ class SVGRenderContext {
 
   SVGLengthContext const& GetLengthContext() const { return length_context_; }
   SVGLengthContext* WritableLengthContext() { return &length_context_; }
+  SVGPresentationContext const& GetPresentationContext() const {
+    return presentation_context_;
+  }
+  SVGPresentationContext* WritablePresentationContext() {
+    return &presentation_context_;
+  }
 
   Canvas* GetCanvas() const { return canvas_; }
 
@@ -66,6 +72,7 @@ class SVGRenderContext {
   void ApplyPresentationAttribute(SVGPresentationAttributes const&,
                                   uint32_t flags);
 
+  void SaveOnce();
   const Path* ClipPath() const { return clip_path_.GetMaybeNull(); }
 
   Lazy<Paint> FillPaint() const;

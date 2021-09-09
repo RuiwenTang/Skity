@@ -85,6 +85,12 @@ class SK_API Canvas {
    */
   void skew(float sx, float sy);
 
+  /**
+   * Replaces Matrix with matrix premultiplied with existing Matrix.
+   * @param matrix matrix to premultiply with existing Matrix
+   */
+  void concat(const Matrix& matrix);
+
   enum class ClipOp {
     kDifference,
     kIntersect,

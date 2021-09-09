@@ -255,6 +255,62 @@ struct SVGPreserveAspectRatio {
   Scale scale = kMeet;
 };
 
+class SVGValue {
+ public:
+  enum class Type {
+    kColor,
+    kFilter,
+    kLength,
+    kNumber,
+    kObjectBoundingBoxUnits,
+    kPreserveAspectRatio,
+    kStopColor,
+    kString,
+    kTransform,
+    kViewBox,
+  };
+
+  Type type() const { return type_; }
+
+  template <typename T>
+  const T* As() const {
+    return type_ == T::TYPE ? static_cast<const T*>(this) : nullptr;
+  }
+
+ protected:
+  explicit SVGValue(Type t) : type_(t) {}
+
+ private:
+  Type type_;
+};
+
+template <typename T, SVGValue::Type ValueType>
+class SVGWrapperValue final : public SVGValue {
+ public:
+  static constexpr Type TYPE = ValueType;
+
+  explicit SVGWrapperValue(const T& v)
+      : SVGValue(ValueType), wrapped_value_(v) {}
+
+  explicit operator const T&() const { return wrapped_value_; }
+  const T* operator->() const { return &wrapped_value_; }
+
+ private:
+  const T& wrapped_value_;
+};
+
+using SVGColorValue = SVGWrapperValue<SVGColorType, SVGValue::Type::kColor>;
+using SVGLengthValue = SVGWrapperValue<SVGLength, SVGValue::Type::kLength>;
+using SVGTransformValue =
+    SVGWrapperValue<SVGTransformType, SVGValue::Type::kTransform>;
+using SVGViewBoxValue =
+    SVGWrapperValue<SVGViewBoxType, SVGValue::Type::kViewBox>;
+using SVGNumberValue = SVGWrapperValue<SVGNumberType, SVGValue::Type::kNumber>;
+using SVGStringValue = SVGWrapperValue<SVGStringType, SVGValue::Type::kString>;
+using SVGPreserveAspectRatioValue =
+    SVGWrapperValue<SVGPreserveAspectRatio,
+                    SVGValue::Type::kPreserveAspectRatio>;
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_SVG_TYPES_HPP
