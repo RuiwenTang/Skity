@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <skity/geometry/point.hpp>
+#include <skity/graphic/path.hpp>
 
 #include "src/svg/svg_attribute.hpp"
 #include "src/svg/svg_attribute_parser.hpp"
@@ -12,7 +13,6 @@
 namespace skity {
 
 class Paint;
-class Path;
 class SVGLengthContext;
 class SVGRenderContext;
 
@@ -183,7 +183,7 @@ class SVGNode {
   _SVG_ATTR_SETTERS(                                                     \
       attr_name, attr_type, attr_default,                                \
       [this](const attr_type& a) { this->f##attr_name.Set(a); },         \
-      [this](attr_type&& a) { this->f##attr_name = std::move(a); })
+      [this](attr_type&& a) { this->f##attr_name.Set(std::move(a)); })
 
 }  // namespace skity
 

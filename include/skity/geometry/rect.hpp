@@ -11,7 +11,14 @@ class SK_API Rect {
   Rect() : Rect{0, 0, 0, 0} {}
   Rect(float left, float top, float right, float bottom)
       : left_{left}, top_{top}, right_{right}, bottom_{bottom} {}
+  Rect(const Rect&) = default;
+  Rect(Rect&&) = default;
+  Rect& operator=(const Rect&) = default;
 
+  bool operator==(const Rect& other) const {
+    return this->left_ == other.left_ && this->top_ == other.top_ &&
+           this->right_ == other.right_ && this->bottom_ == other.bottom_;
+  }
   /**
    * Returns left edge of Rect, if sorted.
    * @return left
