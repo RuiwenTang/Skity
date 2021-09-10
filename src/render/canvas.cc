@@ -47,7 +47,7 @@ void Canvas::rotate(float degrees, float px, float py) {
 
 void Canvas::skew(float sx, float sy) {}
 
-void Canvas::concat(const Matrix &matrix) {}
+void Canvas::concat(const Matrix &matrix) { onConcat(matrix); }
 
 void Canvas::clipRect(const Rect &rect, ClipOp op) {
   Path path;

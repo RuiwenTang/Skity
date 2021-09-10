@@ -198,6 +198,7 @@ class SK_API Canvas {
   virtual void onScale(float sx, float sy) = 0;
   virtual void onRotate(float degree) = 0;
   virtual void onRotate(float degree, float px, float py) = 0;
+  virtual void onConcat(Matrix const& matrix) = 0;
   virtual void onFlush() = 0;
   virtual uint32_t onGetWidth() const = 0;
   virtual uint32_t onGetHeight() const = 0;

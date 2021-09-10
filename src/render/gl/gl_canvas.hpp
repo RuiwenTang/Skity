@@ -86,6 +86,8 @@ class GLCanvas : public Canvas {
 
   void onRotate(float degree, float px, float py) override;
 
+  void onConcat(Matrix const& matrix) override;
+
   void onUpdateViewport(uint32_t width, uint32_t height) override;
 
   uint32_t onGetWidth() const override;

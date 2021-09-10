@@ -163,6 +163,23 @@ class GLCanvasRotateWithPointOp : public GLCanvasStateOp {
   float y_;
 };
 
+class GLCanvasConcatOp : public GLCanvasStateOp {
+ public:
+  GLCanvasConcatOp(GLCanvasState* state, Matrix const& matrix)
+      : GLCanvasStateOp(state), matrix_(matrix) {}
+  ~GLCanvasConcatOp() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override {
+    auto current_matrix = state_->CurrentMatrix();
+    auto final_matrix = current_matrix * matrix_;
+    state_->UpdateCurrentMatrix(final_matrix);
+  }
+
+ private:
+  Matrix matrix_;
+};
+
 std::unique_ptr<Canvas> Canvas::MakeGLCanvas(uint32_t x, uint8_t y,
                                              uint32_t width, uint32_t height,
                                              void* procss_loader) {
@@ -650,6 +667,11 @@ void GLCanvas::onRotate(float degree) {
 void GLCanvas::onRotate(float degree, float px, float py) {
   draw_ops_.emplace_back(std::make_unique<GLCanvasRotateWithPointOp>(
       state_.get(), degree, px, py));
+}
+
+void GLCanvas::onConcat(const Matrix& matrix) {
+  draw_ops_.emplace_back(
+      std::make_unique<GLCanvasConcatOp>(state_.get(), matrix));
 }
 
 void GLCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
