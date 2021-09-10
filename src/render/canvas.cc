@@ -23,7 +23,17 @@ void Canvas::restore() {
 
 int Canvas::getSaveCount() const { return save_count_; }
 
-void Canvas::restoreToCount(int saveCount) {}
+void Canvas::restoreToCount(int saveCount) {
+  if (saveCount >= save_count_) {
+    return;
+  }
+
+  for (int32_t i = save_count_; i >= saveCount; i--) {
+    this->restore();
+  }
+
+  assert(save_count_ == saveCount);
+}
 
 void Canvas::translate(float dx, float dy) { onTranslate(dx, dy); }
 
@@ -36,6 +46,8 @@ void Canvas::rotate(float degrees, float px, float py) {
 }
 
 void Canvas::skew(float sx, float sy) {}
+
+void Canvas::concat(const Matrix &matrix) {}
 
 void Canvas::clipRect(const Rect &rect, ClipOp op) {
   Path path;

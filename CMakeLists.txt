@@ -71,6 +71,7 @@ set(Skity_header
         include/skity/graphic/path.hpp
         include/skity/macros.hpp
         include/skity/render/canvas.hpp
+        include/skity/svg/svg_dom.hpp
         include/skity/text/typeface.hpp
         include/skity/text/utf.hpp
         )
@@ -100,6 +101,8 @@ set(Skity_src
         src/geometry/rect.cc
         src/geometry/rrect.cc
         src/graphic/color.cc
+        src/graphic/color_parser.cc
+        src/graphic/color_parser.hpp
         src/graphic/paint.cc
         src/graphic/path.cc
         src/graphic/path_measure.cc
@@ -144,10 +147,29 @@ set(Skity_src
         src/render/gl/gl_texture.hpp
         src/render/gl/gl_vertex.cc
         src/render/gl/gl_vertex.hpp
+        src/svg/svg_attribute.cc
+        src/svg/svg_attribute.hpp
+        src/svg/svg_attribute_parser.cc
+        src/svg/svg_attribute_parser.hpp
+        src/svg/svg_container.cc
+        src/svg/svg_container.hpp
+        src/svg/svg_dom.cc
+        src/svg/svg_node.cc
+        src/svg/svg_node.hpp
+        src/svg/svg_render_context.cc
+        src/svg/svg_render_context.hpp
+        src/svg/svg_root.cc
+        src/svg/svg_root.hpp
+        src/svg/svg_shape.cc
+        src/svg/svg_shape.hpp
+        src/svg/svg_transformable_node.cc
+        src/svg/svg_transformable_node.hpp
+        src/svg/svg_types.hpp
         src/text/typeface.cc
         src/text/utf.cc
-        src/xml/xml_parser.hpp
+        src/utils/lazy.hpp
         src/xml/xml_parser.cc
+        src/xml/xml_parser.hpp
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")
