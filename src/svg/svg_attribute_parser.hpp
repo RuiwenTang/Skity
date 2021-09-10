@@ -93,6 +93,14 @@ class SVGAttributeParser {
   bool ParseRGBColorToken(Color*);
   bool ParseFuncIRI(void*);
 
+  // Transform helpers
+  bool ParseMatrixToken(Matrix*);
+  bool ParseTranslateToken(Matrix*);
+  bool ParseScaleToken(Matrix*);
+  bool ParseRotateToken(Matrix*);
+  bool ParseSkewXToken(Matrix*);
+  bool ParseSkewYToken(Matrix*);
+
   template <typename Func, typename T>
   bool ParseParenthesized(const char* prefix, Func, T* result);
 

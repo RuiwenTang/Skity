@@ -40,5 +40,15 @@ void SVGTransformableNode::MapToParent(Path* path) const {
 void SVGTransformableNode::MapToParent(Rect*) const {
   // TODO implement
 }
+bool SVGTransformableNode::ParseAndSetAttribute(const char* name,
+                                                const char* value) {
+  auto transform =
+      SVGAttributeParser::Parse<SVGTransformType>("transform", name, value);
+  if (transform.IsValid()) {
+    transform_ = *transform;
+    return true;
+  }
+  return SVGNode::ParseAndSetAttribute(name, value);
+}
 
 }  // namespace skity

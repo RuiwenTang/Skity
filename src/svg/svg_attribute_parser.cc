@@ -2,6 +2,7 @@
 #include "src/svg/svg_attribute_parser.hpp"
 
 #include <cstdlib>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "src/graphic/color_parser.hpp"
 
@@ -351,6 +352,116 @@ bool SVGAttributeParser::Parse(SVGColor *color) {
 
 bool SVGAttributeParser::ParseFuncIRI(void *) { return false; }
 
+bool SVGAttributeParser::ParseMatrixToken(Matrix *matrix) {
+  return this->ParseParenthesized(
+      "matrix",
+      [this](Matrix *m) -> bool {
+        float scalars[6];
+        for (int32_t i = 0; i < 6; i++) {
+          if (!(this->ParseScalarToken(scalars + i) &&
+                (i > 4 || this->ParseSepToken()))) {
+            return false;
+          }
+        }
+
+        /**
+         * matrix(a, b, c, d, e, f)
+         * [ a c e]      [a c 0 e]
+         * [ b d f] =>   [b d 0 f]
+         * [ 0 0 1]      [0 0 1 0]
+         *               [0 0 0 1]
+         */
+
+        float a = scalars[0];
+        float b = scalars[1];
+        float c = scalars[2];
+        float d = scalars[3];
+        float e = scalars[4];
+        float f = scalars[5];
+        m->operator[](0) = {a, c, 0, e};
+        m->operator[](1) = {b, d, 0, f};
+        m->operator[](2) = {0, 0, 1.f, 0};
+        m->operator[](3) = {0, 0, 0, 1.f};
+
+        return true;
+      },
+      matrix);
+}
+
+bool SVGAttributeParser::ParseTranslateToken(Matrix *matrix) {
+  return this->ParseParenthesized(
+      "translate",
+      [this](Matrix *m) -> bool {
+        float tx = 0.f;
+        float ty = 0.f;
+        this->ParseWSToken();
+        if (!this->ParseScalarToken(&tx)) {
+          return false;
+        }
+
+        if (!this->ParseSepToken() || !this->ParseScalarToken(&ty)) {
+          ty = 0.f;
+        }
+        *m = glm::translate(glm::identity<Matrix>(), {tx, ty, 0.f});
+        return true;
+      },
+      matrix);
+}
+
+bool SVGAttributeParser::ParseScaleToken(Matrix *matrix) {
+  return this->ParseParenthesized(
+      "translate",
+      [this](Matrix *m) -> bool {
+        float sx = 0.f;
+        float sy = 0.f;
+        this->ParseWSToken();
+        if (!this->ParseScalarToken(&sx)) {
+          return false;
+        }
+
+        if (!this->ParseSepToken() || !this->ParseScalarToken(&sy)) {
+          sy = sx;
+        }
+        *m = glm::scale(glm::identity<Matrix>(), {sx, sy, 1.f});
+        return true;
+      },
+      matrix);
+}
+
+bool SVGAttributeParser::ParseRotateToken(Matrix *matrix) {
+  return this->ParseParenthesized(
+      "rotate",
+      [this](Matrix *m) -> bool {
+        float angle;
+        if (!this->ParseScalarToken(&angle)) {
+          return false;
+        }
+
+        float cx = 0.f;
+        float cy = 0.f;
+        // optional [<cx> <cy>]
+        if (this->ParseSepToken() && this->ParseScalarToken(&cx)) {
+          if (!(this->ParseSepToken() && this->ParseScalarToken(&cy))) {
+            return false;
+          }
+        }
+
+        *m = glm::rotate(glm::identity<Matrix>(), angle, {0.f, 0.f, 1.f});
+        return true;
+      },
+      matrix);
+}
+
+bool SVGAttributeParser::ParseSkewXToken(Matrix *) {
+  // TODO implement
+  return false;
+}
+
+bool SVGAttributeParser::ParseSkewYToken(Matrix *) {
+  // TODO implement
+  return false;
+}
+
 template <>
 bool SVGAttributeParser::Parse(SVGStringType *result) {
   if (this->ParseEOSToken()) {
@@ -663,6 +774,33 @@ bool SVGAttributeParser::Parse(std::vector<SVGLength> *lengths) {
 template <>
 bool SVGAttributeParser::Parse(std::vector<SVGNumberType> *numbers) {
   return this->ParseList(numbers);
+}
+
+// https://www.w3.org/TR/SVG11/coords.html#TransformAttribute
+template <>
+bool SVGAttributeParser::Parse(SVGTransformType *t) {
+  Matrix matrix = glm::identity<Matrix>();
+  bool parsed = false;
+  while (true) {
+    Matrix m;
+    if (!(this->ParseMatrixToken(&m) || this->ParseTranslateToken(&m) ||
+          this->ParseScaleToken(&m) || this->ParseRotateToken(&m) ||
+          this->ParseSkewXToken(&m) || this->ParseSkewYToken(&m))) {
+      break;
+    }
+
+    matrix = m * matrix;
+    parsed = true;
+    this->ParseCommaWspToken();
+  }
+
+  this->ParseWSToken();
+  if (!parsed || !this->ParseEOSToken()) {
+    return false;
+  }
+
+  *t = SVGTransformType{matrix};
+  return true;
 }
 
 }  // namespace skity

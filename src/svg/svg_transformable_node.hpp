@@ -11,6 +11,8 @@ class SVGTransformableNode : public SVGNode {
 
   void SetTransform(const SVGTransformType& t) { transform_ = t; }
 
+  bool ParseAndSetAttribute(const char *name, const char *value) override;
+
  protected:
   explicit SVGTransformableNode(SVGTag);
 

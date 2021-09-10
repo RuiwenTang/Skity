@@ -28,7 +28,7 @@ void Canvas::restoreToCount(int saveCount) {
     return;
   }
 
-  for (int32_t i = save_count_; i >= saveCount; i--) {
+  for (int32_t i = save_count_; i > saveCount; i--) {
     this->restore();
   }
 

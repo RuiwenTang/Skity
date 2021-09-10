@@ -37,7 +37,7 @@ class SVGCircle : public SVGShape {
   SVG_ATTR(R, SVGLength, SVGLength(0))
 
   bool ParseAndSetAttribute(const char *name, const char *value) override {
-    return SVGNode::ParseAndSetAttribute(name, value) ||
+    return SVGShape::ParseAndSetAttribute(name, value) ||
            this->SetCx(
                SVGAttributeParser::Parse<SVGLength>("cx", name, value)) ||
            this->SetCy(
