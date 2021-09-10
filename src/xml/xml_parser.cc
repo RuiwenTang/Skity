@@ -21,7 +21,7 @@ static bool recursive_visit_node(pugi::xml_node const& node,
   }
 
   // children
-  for (auto child = node.first_child(); child; child = node.next_sibling()) {
+  for (auto child = node.first_child(); child; child = child.next_sibling()) {
     if (!recursive_visit_node(child, parser)) {
       return false;
     }

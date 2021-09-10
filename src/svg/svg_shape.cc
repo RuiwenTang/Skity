@@ -131,11 +131,97 @@ class SVGEllipsis : public SVGShape {
   }
 };
 
+class SVGRect : public SVGShape {
+ public:
+  SVGRect() : SVGShape(SVGTag::kRect) {}
+  ~SVGRect() override = default;
+
+  SVG_ATTR(X, SVGLength, SVGLength(0))
+  SVG_ATTR(Y, SVGLength, SVGLength(0))
+  SVG_ATTR(Width, SVGLength, SVGLength(0))
+  SVG_ATTR(Height, SVGLength, SVGLength(0))
+
+  SVG_OPTIONAL_ATTR(Rx, SVGLength)
+  SVG_OPTIONAL_ATTR(Ry, SVGLength)
+
+  const char *TagName() const override { return "rect"; }
+
+  bool ParseAndSetAttribute(const char *name, const char *value) override {
+    return SVGNode::ParseAndSetAttribute(name, value) ||
+           this->SetX(SVGAttributeParser::Parse<SVGLength>("x", name, value)) ||
+           this->SetY(SVGAttributeParser::Parse<SVGLength>("y", name, value)) ||
+           this->SetWidth(
+               SVGAttributeParser::Parse<SVGLength>("width", name, value)) ||
+           this->SetHeight(
+               SVGAttributeParser::Parse<SVGLength>("height", name, value)) ||
+           this->SetRx(
+               SVGAttributeParser::Parse<SVGLength>("rx", name, value)) ||
+           this->SetRy(SVGAttributeParser::Parse<SVGLength>("ry", name, value));
+  }
+
+ protected:
+  void OnDraw(Canvas *canvas, const SVGLengthContext &ctx, const Paint &paint,
+              uint32_t uint32) const override {
+    canvas->drawRRect(this->Resolve(ctx), paint);
+  }
+
+  Path OnAsPath(const SVGRenderContext &context) const override {
+    Path path;
+    path.addRRect(this->Resolve(context.GetLengthContext()));
+
+    MapToParent(&path);
+
+    return path;
+  }
+
+  RRect Resolve(SVGLengthContext const &lctx) const {
+    auto rect = lctx.ResolveRect(fX, fY, fWidth, fHeight);
+
+    // https://www.w3.org/TR/SVG11/shapes.html#RectElementRXAttribute:
+    //
+    //   - Let rx and ry be length values.
+    //   - If neither ‘rx’ nor ‘ry’ are properly specified, then set both rx and
+    //   ry to 0.
+    //   - Otherwise, if a properly specified value is provided for ‘rx’, but
+    //   not for ‘ry’,
+    //     then set both rx and ry to the value of ‘rx’.
+    //   - Otherwise, if a properly specified value is provided for ‘ry’, but
+    //   not for ‘rx’,
+    //     then set both rx and ry to the value of ‘ry’.
+    //   - Otherwise, both ‘rx’ and ‘ry’ were specified properly. Set rx to the
+    //   value of ‘rx’
+    //     and ry to the value of ‘ry’.
+    //   - If rx is greater than half of ‘width’, then set rx to half of
+    //   ‘width’.
+    //   - If ry is greater than half of ‘height’, then set ry to half of
+    //   ‘height’.
+    //   - The effective values of ‘rx’ and ‘ry’ are rx and ry, respectively.
+    auto radii = [this]() {
+      return fRx.IsValid()   ? fRy.IsValid() ? std::make_tuple(*fRx, *fRy)
+                                             : std::make_tuple(*fRx, *fRx)
+               : fRy.IsValid() ? std::make_tuple(*fRy, *fRy)
+                             : std::make_tuple(SVGLength{0}, SVGLength{0});
+    };
+
+    auto radius = radii();
+    auto rx = std::min(lctx.Resolve(std::get<0>(radius),
+                                    SVGLengthContext::LengthType::kHorizontal),
+                       rect.width() / 2.f);
+    auto ry = std::min(lctx.Resolve(std::get<1>(radius),
+                                    SVGLengthContext::LengthType::kVertical),
+                       rect.height() / 2.f);
+
+    return RRect::MakeRectXY(rect, rx, ry);
+  }
+};
+
 std::shared_ptr<SVGShape> SVGShape::Make(const char *name) {
   if (std::strcmp(name, "circle") == 0) {
     return std::make_shared<SVGCircle>();
   } else if (std::strcmp(name, "ellipse") == 0) {
     return std::make_shared<SVGEllipsis>();
+  } else if (std::strcmp(name, "rect") == 0) {
+    return std::make_shared<SVGRect>();
   }
 
   return nullptr;

@@ -1,6 +1,7 @@
 #include <skity/codec/data.hpp>
 #include <skity/svg/svg_dom.hpp>
 
+#include "src/svg/svg_render_context.hpp"
 #include "src/svg/svg_root.hpp"
 #include "src/svg/svg_shape.hpp"
 #include "src/xml/xml_parser.hpp"
@@ -103,7 +104,18 @@ std::unique_ptr<SVGDom> SVGDom::MakeFromMemory(const char *data, size_t len) {
   return dom;
 }
 
-void SVGDom::Render(Canvas *canvas) {}
+void SVGDom::Render(Canvas *canvas) {
+  if (!root_) {
+    return;
+  }
+  Vec2 container_size = root_->IntrinsicSize(SVGLengthContext{Vec2{0, 0}});
+
+  SVGLengthContext lctx{container_size};
+  SVGPresentationContext pctx;
+  SVGRenderContext context{canvas, lctx, pctx};
+
+  root_->Render(context);
+}
 
 SVGDom::SVGDom(std::shared_ptr<SVGRoot> root) : root_(std::move(root)) {}
 

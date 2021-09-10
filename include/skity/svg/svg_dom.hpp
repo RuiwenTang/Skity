@@ -23,7 +23,7 @@ class SK_API SVGDom {
   void Render(Canvas* canvas);
 
  private:
-  SVGDom(std::shared_ptr<SVGRoot> root);
+  explicit SVGDom(std::shared_ptr<SVGRoot> root);
 
   std::shared_ptr<SVGRoot> root_;
 };
