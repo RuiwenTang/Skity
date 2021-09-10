@@ -94,4 +94,18 @@ Vec2 SVGRoot::IntrinsicSize(const SVGLengthContext& ctx) const {
 }
 const char* SVGRoot::TagName() const { return "svg"; }
 
+bool SVGRoot::ParseAndSetAttribute(const char* name, const char* value) {
+  // unused ignore attribute
+  if (std::strcmp(name, "version") == 0) {
+    return true;
+  } else if (std::strcmp(name, "xmlns") == 0) {
+    return true;
+  }
+  return SVGNode::ParseAndSetAttribute(name, value) ||
+         this->SetWidth(
+             SVGAttributeParser::Parse<SVGLength>("width", name, value)) ||
+         this->SetHeight(
+             SVGAttributeParser::Parse<SVGLength>("height", name, value));
+}
+
 }  // namespace skity

@@ -6,38 +6,34 @@
 
 namespace skity {
 
-struct simple_walker : pugi::xml_tree_walker {
-  XMLParser* parser = nullptr;
-
-  explicit simple_walker(XMLParser* p) : parser(p) {}
-  ~simple_walker() override = default;
-
-  bool for_each(pugi::xml_node& node) override {
-    if (!parser->StartElement(node.name())) {
-      return false;
-    }
-
-    for (auto it = node.attributes_begin(); it != node.attributes_end(); it++) {
-      if (!parser->AddAttribute(it->name(), it->value())) {
-        return false;
-      }
-    }
-    if (!node.text().empty()) {
-      auto xml_text = node.text();
-      auto str = xml_text.as_string();
-      size_t len = std::strlen(str);
-
-      if (!parser->Text(str, len)) {
-        return false;
-      }
-    }
-
-    if (!parser->EndElement(node.name())) {
-      return false;
-    }
-    return true;
+static bool recursive_visit_node(pugi::xml_node const& node,
+                                 XMLParser* parser) {
+  // begin
+  if (!parser->StartElement(node.name())) {
+    return false;
   }
-};
+
+  // attribute
+  for (auto attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+    if (!parser->AddAttribute(attr.name(), attr.value())) {
+      return false;
+    }
+  }
+
+  // children
+  for (auto child = node.first_child(); child; child = node.next_sibling()) {
+    if (!recursive_visit_node(child, parser)) {
+      return false;
+    }
+  }
+
+  // end
+  if (!parser->EndElement(node.name())) {
+    return false;
+  }
+
+  return true;
+}
 
 static const char* const g_error_strings[] = {
     "empty or missing file ",    "unknown element ", "unknown attribute name ",
@@ -84,10 +80,11 @@ bool XMLParser::Parse(const char* doc, size_t len) {
     return false;
   }
 
-  simple_walker walker{this};
-  document.traverse(walker);
+  pugi::xml_node root = document.first_child();
 
-  return error_->code_ == XMLParserError::kNoError;
+  bool ret = recursive_visit_node(root, this);
+
+  return error_->code_ == XMLParserError::kNoError && ret;
 }
 
 bool XMLParser::StartElement(const char* elem) {

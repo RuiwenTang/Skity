@@ -75,6 +75,9 @@ target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_D
 add_executable(gl_texture_test gl_texture_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(gl_texture_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+add_executable(svg_parser_test svg_parser_test.cc)
+target_link_libraries(svg_parser_test skity)
+
 if (${FREETYPE_FOUND})
     message(${FREETYPE_INCLUDE_DIRS})
     add_executable(freetype_path_test freetype_path_test.cc)

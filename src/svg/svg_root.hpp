@@ -33,6 +33,8 @@ class SVGRoot : public SVGContainer {
   Vec2 IntrinsicSize(const SVGLengthContext&) const;
   const char* TagName() const override;
 
+  bool ParseAndSetAttribute(const char *name, const char *value) override;
+
  protected:
   bool OnPrepareToRender(SVGRenderContext*) const override;
   void OnSetAttribute(SVGAttribute, const SVGValue&) override;

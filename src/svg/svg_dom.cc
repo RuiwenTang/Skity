@@ -9,14 +9,18 @@ namespace skity {
 
 class SVGDomParser : public XMLParser {
  public:
-  SVGDomParser(const std::shared_ptr<SVGNode> &root, XMLParserError *err)
-      : XMLParser(err) {
-    nodes_.emplace_back(root);
-  }
+  explicit SVGDomParser(XMLParserError *err) : XMLParser(err) {}
   ~SVGDomParser() override = default;
+
+  std::shared_ptr<SVGRoot> GetRootNode() const { return root_; }
 
  protected:
   bool OnStartElement(const char *elem) override {
+    if (std::strcmp(elem, "svg") == 0) {
+      root_ = SVGRoot::Make(SVGRoot::Type::kRoot);
+      nodes_.emplace_back(root_);
+      return true;
+    }
     // shape
     auto node = SVGShape::Make(elem);
 
@@ -30,7 +34,7 @@ class SVGDomParser : public XMLParser {
   }
 
   bool OnAddAttribute(const char *name, const char *value) override {
-    return XMLParser::OnAddAttribute(name, value);
+    return CurrentNode()->ParseAndSetAttribute(name, value);
   }
   bool OnEndElement(const char *elem) override {
     bool expect = std::strcmp(CurrentNode()->TagName(), elem) == 0;
@@ -40,6 +44,7 @@ class SVGDomParser : public XMLParser {
     return expect;
   }
   bool OnText(const char *text, int32_t len) override {
+    // TODO implement text render
     return XMLParser::OnText(text, len);
   }
 
@@ -54,6 +59,7 @@ class SVGDomParser : public XMLParser {
 
  private:
   std::vector<std::shared_ptr<SVGNode>> nodes_;
+  std::shared_ptr<SVGRoot> root_;
 };
 
 SVGDom::~SVGDom() = default;
@@ -85,17 +91,20 @@ std::unique_ptr<SVGDom> SVGDom::MakeFromMemory(const char *data, size_t len) {
   }
 
   XMLParserError error;
-  std::shared_ptr<SVGRoot> svg_root = SVGRoot::Make(SVGRoot::Type::kRoot);
 
-  SVGDomParser dom_parser{svg_root, &error};
+  SVGDomParser dom_parser{&error};
 
   if (!dom_parser.Parse(data, len)) {
     return nullptr;
   }
 
-  std::unique_ptr<SVGDom> dom{new SVGDom(svg_root)};
+  std::unique_ptr<SVGDom> dom{new SVGDom(dom_parser.GetRootNode())};
 
   return dom;
 }
+
+void SVGDom::Render(Canvas *canvas) {}
+
+SVGDom::SVGDom(std::shared_ptr<SVGRoot> root) : root_(std::move(root)) {}
 
 }  // namespace skity
