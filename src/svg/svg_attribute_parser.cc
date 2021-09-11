@@ -706,7 +706,7 @@ bool SVGAttributeParser::ParseList(std::vector<T> *vals) {
       break;
     }
 
-    vals->template emplace_back(v);
+    vals->emplace_back(v);
     this->ParseCommaWspToken();
   }
 
