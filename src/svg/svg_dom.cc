@@ -1,12 +1,25 @@
 #include <skity/codec/data.hpp>
 #include <skity/svg/svg_dom.hpp>
 
+#include "src/svg/svg_container.hpp"
 #include "src/svg/svg_render_context.hpp"
 #include "src/svg/svg_root.hpp"
 #include "src/svg/svg_shape.hpp"
 #include "src/xml/xml_parser.hpp"
 
 namespace skity {
+
+static bool parse_and_set_view_box(SVGNode *node, SVGAttribute attr,
+                                   const char *value) {
+  SVGViewBoxType view_box;
+  SVGAttributeParser parser{value};
+  if (!parser.ParseViewBox(&view_box)) {
+    return false;
+  }
+
+  node->SetAttribute(attr, SVGViewBoxValue{view_box});
+  return true;
+}
 
 class SVGDomParser : public XMLParser {
  public:
@@ -22,8 +35,17 @@ class SVGDomParser : public XMLParser {
       nodes_.emplace_back(root_);
       return true;
     }
+
+    std::shared_ptr<SVGNode> node = nullptr;
     // shape
-    auto node = SVGShape::Make(elem);
+    if (!node) {
+      node = SVGShape::Make(elem);
+    }
+
+    // g
+    if (!node) {
+      node = SVGG::Make(elem);
+    }
 
     if (!node) {
       return false;
@@ -35,6 +57,14 @@ class SVGDomParser : public XMLParser {
   }
 
   bool OnAddAttribute(const char *name, const char *value) override {
+    // common attribute
+    if (std::strcmp(name, "viewBox") == 0) {
+      if (parse_and_set_view_box(CurrentNode(), SVGAttribute::kViewBox,
+                                 value)) {
+        return true;
+      }
+    }
+
     return CurrentNode()->ParseAndSetAttribute(name, value);
   }
   bool OnEndElement(const char *elem) override {

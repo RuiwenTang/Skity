@@ -9,23 +9,20 @@
 namespace skity {
 
 bool SVGRoot::OnPrepareToRender(SVGRenderContext* ctx) const {
-  auto x = type_ == Type::kInner ? fX : SVGLength(0);
-  auto y = type_ == Type::kInner ? fY : SVGLength(0);
-
   auto viewPortRect =
-      ctx->GetLengthContext().ResolveRect(x, y, fWidth, fHeight);
-
-  auto contentMatrix = glm::translate(glm::identity<Matrix>(),
-                                      {viewPortRect.x(), viewPortRect.y(), 0});
+      ctx->GetLengthContext().ResolveRect(fX, fY, fWidth, fHeight);
+  auto contentMatrix = glm::translate(
+      glm::identity<Matrix>(), {viewPortRect.x(), viewPortRect.y(), 0.f});
   auto viewPort = Vec2{viewPortRect.width(), viewPortRect.height()};
 
   if (fViewBox.IsValid()) {
     const Rect& viewBox = *fViewBox;
+    // An empty viewBox disables rendering.
     if (viewBox.isEmpty()) {
       return false;
     }
 
-    viewPort = Vec2{viewBox.width(), viewBox.height()};
+    // a viewBox overrides the intrinsic viewport
     contentMatrix = contentMatrix * ComputeViewBoxMatrix(viewBox, viewPortRect,
                                                          fPreserveAspectRatio);
   }
@@ -38,6 +35,8 @@ bool SVGRoot::OnPrepareToRender(SVGRenderContext* ctx) const {
   if (viewPort != ctx->GetLengthContext().ViewPort()) {
     ctx->WritableLengthContext()->SetViewPort(viewPort);
   }
+
+
 
   return SVGContainer::OnPrepareToRender(ctx);
 }

@@ -25,6 +25,16 @@ class SVGContainer : public SVGTransformableNode {
   std::vector<std::shared_ptr<SVGNode>> children_;
 };
 
+class SVGG : public SVGContainer {
+ public:
+  SVGG() : SVGContainer(SVGTag::kG) {}
+  ~SVGG() override = default;
+
+  const char* TagName() const override;
+
+  static std::shared_ptr<SVGG> Make(const char*);
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_SVG_SVG_CONTAINER_HPP

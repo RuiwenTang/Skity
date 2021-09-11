@@ -26,4 +26,14 @@ Path SVGContainer::OnAsPath(const SVGRenderContext&) const {
 
 bool SVGContainer::HasChildren() const { return !children_.empty(); }
 
+const char* SVGG::TagName() const { return "g"; }
+
+std::shared_ptr<SVGG> SVGG::Make(const char* name) {
+  if (std::strcmp(name, "g") == 0) {
+    return std::make_shared<SVGG>();
+  }
+
+  return nullptr;
+}
+
 }  // namespace skity

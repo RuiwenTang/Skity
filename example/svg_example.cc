@@ -33,13 +33,14 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
 
 std::unique_ptr<skity::SVGDom> init_simple_svg() {
   static std::string simple_svg = R"(
-<svg version="1.1"
-     width="300" height="200"
+<svg width="200px" height="100px" viewBox="0 0 95 50"
      xmlns="http://www.w3.org/2000/svg">
-
-  <rect width="100%" height="100%" fill="red" />
-  <circle cx="150" cy="100" r="80" fill="green" />
-
+  <g stroke="green" fill="white" stroke-width="5">
+    <circle cx="25" cy="25" r="15" />
+    <circle cx="40" cy="25" r="15" />
+    <circle cx="55" cy="25" r="15" />
+    <circle cx="70" cy="25" r="15" />
+  </g>
 </svg>
 )";
 
