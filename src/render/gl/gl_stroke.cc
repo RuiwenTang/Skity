@@ -695,14 +695,16 @@ void GLStroke::AppendQuadOrSplitRecursively(std::array<Point, 3> const& outer,
 
 void GLStroke::AppendAAQuadRecursively(std::array<Point, 3> const& quad,
                                        bool on) {
-//  if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
-//    std::array<Point, 3> quad_1{};
-//    std::array<Point, 3> quad_2{};
-//    SubDividedQuad(quad.data(), quad_1.data(), quad_2.data());
-//
-//    AppendAAQuadRecursively(quad_1, on);
-//    AppendAAQuadRecursively(quad_2, on);
-//  } else {
+  // FIXME: previouse opt patch make curve stroke not currect, so this need to
+  // change in future
+  if (CalculateOrientation(quad[0], quad[1], quad[2]) != Orientation::kLinear) {
+    std::array<Point, 3> quad_1{};
+    std::array<Point, 3> quad_2{};
+    SubDividedQuad(quad.data(), quad_1.data(), quad_2.data());
+
+    AppendAAQuadRecursively(quad_1, on);
+    AppendAAQuadRecursively(quad_2, on);
+  } else {
     // TODO handle on off direction
     Point from = quad[0];
     Point to = quad[2];
@@ -734,7 +736,7 @@ void GLStroke::AppendAAQuadRecursively(std::array<Point, 3> const& quad,
 
     gl_vertex_->AddAAOutline(from_2_index, from_index, to_index);
     gl_vertex_->AddAAOutline(from_2_index, to_index, to_2_index);
-//  }
+  }
 }
 
 }  // namespace skity
