@@ -35,7 +35,7 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
   static std::string simple_svg = R"(
 <svg width="200px" height="100px" viewBox="0 0 95 50"
      xmlns="http://www.w3.org/2000/svg">
-  <g stroke="green" fill="white" stroke-width="5">
+  <g id="g12" stroke="green" fill="white" stroke-width="5">
     <circle cx="25" cy="25" r="15" />
     <circle cx="40" cy="25" r="15" />
     <circle cx="55" cy="25" r="15" />

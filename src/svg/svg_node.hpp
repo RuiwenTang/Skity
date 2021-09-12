@@ -5,6 +5,7 @@
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/graphic/path.hpp>
+#include <string>
 
 #include "src/svg/svg_attribute.hpp"
 #include "src/svg/svg_attribute_parser.hpp"
@@ -95,6 +96,7 @@ class SVGNode {
   virtual ~SVGNode() = default;
 
   SVGTag Tag() const { return tag_; }
+  const char* ID() const { return id_.c_str(); }
 
   virtual void AppendChild(std::shared_ptr<SVGNode> child) = 0;
 
@@ -140,6 +142,7 @@ class SVGNode {
 
  private:
   SVGTag tag_;
+  std::string id_;
   SVGPresentationAttributes presentation_attributes_;
 };
 

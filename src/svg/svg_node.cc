@@ -70,7 +70,11 @@ bool SVGNode::ParseAndSetAttribute(const char *name, const char *value) {
   this->Set##attrName(SVGAttributeParser::ParseProperty<               \
                       decltype(presentation_attributes_.f##attrName)>( \
       svgName, name, value))
-
+  // FIXME: support id property, this is not very safe
+  if (std::strcmp(name, "id") == 0) {
+    id_ = value;
+    return true;
+  }
   return PARSE_AND_SET("color", Color) || PARSE_AND_SET("fill", Fill) ||
          PARSE_AND_SET("fill-opacity", FillOpacity) ||
          PARSE_AND_SET("stroke", Stroke) ||
