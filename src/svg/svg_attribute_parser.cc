@@ -86,7 +86,7 @@ static const char *find_scalars(const char *str, float value[], int32_t count) {
         break;
       }
       // keep going
-      str = skip_ws(str);
+      str = skip_sep(str);
       if (value) {
         value += 1;
       }
@@ -97,7 +97,7 @@ static const char *find_scalars(const char *str, float value[], int32_t count) {
 
 static int to_hex(char c) {
   if (is_digit(c)) {
-    return c = '0';
+    return c - '0';
   }
 
   c |= 0x20;
@@ -451,6 +451,8 @@ bool SVGAttributeParser::ParseMatrixToken(Matrix *matrix) {
         m->operator[](2) = {0, 0, 1.f, 0};
         m->operator[](3) = {0, 0, 0, 1.f};
 
+        // FIXME: GLM and OpenGL matrix
+        *m = glm::transpose(*m);
         return true;
       },
       matrix);
@@ -893,7 +895,7 @@ bool SVGAttributeParser::Parse(Path *result) {
     }
 
     char ch = cur_pos[0];
-    if (is_digit(ch) || ch == '-' || ch == '+' || ch == ',') {
+    if (is_digit(ch) || ch == '-' || ch == '+' || ch == '.') {
       if (op == '\0' || op == 'z') {
         return false;
       }

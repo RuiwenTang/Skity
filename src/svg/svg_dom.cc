@@ -147,7 +147,8 @@ void SVGDom::Render(Canvas *canvas) {
     return;
   }
   Vec2 container_size = root_->IntrinsicSize(SVGLengthContext{Vec2{0, 0}});
-
+  container_size.x = 900;
+  container_size.y = 900;
   SVGLengthContext lctx{container_size};
   SVGPresentationContext pctx;
   SVGRenderContext context{canvas, lctx, pctx};

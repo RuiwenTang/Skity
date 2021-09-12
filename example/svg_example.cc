@@ -6,6 +6,8 @@
 #include <skity/render/canvas.hpp>
 #include <skity/svg/svg_dom.hpp>
 
+#include "example_config.hpp"
+
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
                              const char* title) {
   glfwInit();
@@ -35,7 +37,7 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
   static std::string simple_svg = R"(
 <svg width="200px" height="100px" viewBox="0 0 95 50"
      xmlns="http://www.w3.org/2000/svg">
-  <g id="g12" stroke="green" fill="white" stroke-width="5">
+  <g id="g12" stroke="green" fill="#F00" stroke-width="5">
     <circle cx="25" cy="25" r="15" />
     <circle cx="40" cy="25" r="15" />
     <circle cx="55" cy="25" r="15" />
@@ -46,15 +48,15 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
 </svg>
 )";
 
-  auto dom = skity::SVGDom::MakeFromString(simple_svg);
-
+  //  auto dom = skity::SVGDom::MakeFromString(simple_svg);
+  auto dom = skity::SVGDom::MakeFromFile(EXAMPLE_IMAGE_ROOT"/tiger.svg");
   return dom;
 }
 
 int main(int argc, const char** argv) {
   GLFWwindow* window = init_glfw_window(800, 800, "SKITY render example");
 
-  glClearColor(1.f, 1.f, 1.f, 1.f);
+  glClearColor(0.3f, 0.4f, 0.5f, 1.f);
   glClearStencil(0x0);
   glStencilMask(0xFF);
   // blend is need for anti-alias
@@ -64,13 +66,13 @@ int main(int argc, const char** argv) {
   auto simple_svg = init_simple_svg();
 
   auto canvas =
-      skity::Canvas::MakeGLCanvas(0, 0, 800, 800, (void*)glfwGetProcAddress);
+      skity::Canvas::MakeGLCanvas(0, 0, 1000, 1000, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     canvas->save();
-    canvas->translate(100, 100);
+    canvas->translate(50, 100);
     simple_svg->Render(canvas.get());
     canvas->restore();
 
