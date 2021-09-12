@@ -6,6 +6,7 @@
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/color.hpp>
+#include <skity/graphic/path.hpp>
 #include <string>
 #include <vector>
 
@@ -263,6 +264,7 @@ class SVGValue {
     kLength,
     kNumber,
     kObjectBoundingBoxUnits,
+    kPath,
     kPreserveAspectRatio,
     kStopColor,
     kString,
@@ -301,6 +303,7 @@ class SVGWrapperValue final : public SVGValue {
 
 using SVGColorValue = SVGWrapperValue<SVGColorType, SVGValue::Type::kColor>;
 using SVGLengthValue = SVGWrapperValue<SVGLength, SVGValue::Type::kLength>;
+using SVGPathValue = SVGWrapperValue<Path, SVGValue::Type::kPath>;
 using SVGTransformValue =
     SVGWrapperValue<SVGTransformType, SVGValue::Type::kTransform>;
 using SVGViewBoxValue =

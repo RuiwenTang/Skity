@@ -40,6 +40,8 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
     <circle cx="40" cy="25" r="15" />
     <circle cx="55" cy="25" r="15" />
     <circle cx="70" cy="25" r="15" />
+ <path d="M 100 100 L 300 100 L 200 300 z"
+        fill="red" stroke="blue" stroke-width="3" />
   </g>
 </svg>
 )";

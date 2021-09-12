@@ -1,12 +1,19 @@
 
 #include "src/svg/svg_attribute_parser.hpp"
 
+#include <array>
 #include <cstdlib>
 #include <glm/gtc/matrix_transform.hpp>
+#include <skity/graphic/path.hpp>
 
 #include "src/graphic/color_parser.hpp"
 
 namespace skity {
+
+template <typename T>
+static constexpr bool to_bool(const T &x) {
+  return 0 != x;
+}
 
 static bool is_between(char c, char min, char max) {
   return (unsigned)(c - min) <= (unsigned)(max - min);
@@ -20,8 +27,22 @@ static bool is_sep(char c) { return is_ws(c) || c == ',' || c == ';'; }
 
 static bool is_digit(char c) { return is_between(c, '0', '9'); }
 
+static bool is_lower(char c) { return is_between(c, 'a', 'z'); }
+
+static char to_upper(char c) { return c - 'a' + 'A'; }
+
 static const char *skip_ws(const char *str) {
   while (is_ws(*str)) {
+    str++;
+  }
+  return str;
+}
+
+static const char *skip_sep(const char *str) {
+  if (!str) {
+    return nullptr;
+  }
+  while (is_sep(*str)) {
     str++;
   }
   return str;
@@ -40,6 +61,38 @@ static const char *find_scalar(const char *str, float *value) {
     *value = v;
   }
   return stop;
+}
+
+static const char *find_scalar(const char *str, float *value, bool is_relative,
+                               float relative) {
+  str = find_scalar(str, value);
+  if (!str) {
+    return nullptr;
+  }
+
+  if (is_relative) {
+    *value += relative;
+  }
+  str = skip_sep(str);
+  return str;
+}
+
+static const char *find_scalars(const char *str, float value[], int32_t count) {
+  assert(count >= 0);
+  if (count > 0) {
+    for (;;) {
+      str = find_scalar(str, value);
+      if (--count == 0 || str == nullptr) {
+        break;
+      }
+      // keep going
+      str = skip_ws(str);
+      if (value) {
+        value += 1;
+      }
+    }
+  }
+  return str;
 }
 
 static int to_hex(char c) {
@@ -135,6 +188,21 @@ static const char *find_color(const char *str, Color *color) {
     return ColorParser::FindNamedColor(str, std::strlen(str), color);
   }
 }
+
+static const char *find_points(const char *str, Vec2 value[], int32_t count,
+                               bool is_relative, Vec2 *relative) {
+  str = find_scalars(str, &value[0].x, count * 2);
+
+  if (is_relative) {
+    for (int32_t index = 0; index < count; index++) {
+      value[index].x += relative->x;
+      value[index].y += relative->y;
+    }
+  }
+
+  return str;
+}
+
 SVGAttributeParser::SVGAttributeParser(const char *string) : cur_pos(string) {}
 
 template <class F>
@@ -800,6 +868,144 @@ bool SVGAttributeParser::Parse(SVGTransformType *t) {
   }
 
   *t = SVGTransformType{matrix};
+  return true;
+}
+
+// https://www.w3.org/TR/SVG11/paths.html#PathData
+template <>
+bool SVGAttributeParser::Parse(Path *result) {
+  Path path;
+  Vec2 first = {0.f, 0.f};
+  Vec2 current = {0.f, 0.f};
+  Vec2 last = {0.f, 0.f};
+  std::array<Vec2, 3> points{};
+  char op = '\0';
+  char previous_op = '\0';
+  bool relative = false;
+  for (;;) {
+    if (!cur_pos) {
+      // Truncated data
+      return false;
+    }
+    ParseWSToken();
+    if (cur_pos[0] == '\0') {
+      break;
+    }
+
+    char ch = cur_pos[0];
+    if (is_digit(ch) || ch == '-' || ch == '+' || ch == ',') {
+      if (op == '\0' || op == 'z') {
+        return false;
+      }
+    } else if (is_sep(ch)) {
+      ParseSepToken();
+    } else {
+      op = ch;
+      relative = false;
+      if (is_lower(op)) {
+        op = to_upper(op);
+        relative = true;
+      }
+      cur_pos++;
+      ParseSepToken();
+    }
+    switch (op) {
+      case 'M':
+        cur_pos = find_points(cur_pos, points.data(), 1, relative, &current);
+        path.moveTo(points[0].x, points[0].y);
+        op = 'L';
+        current = points[0];
+        break;
+      case 'L':
+        cur_pos = find_points(cur_pos, points.data(), 1, relative, &current);
+        path.lineTo(points[0].x, points[0].y);
+        current = points[0];
+        break;
+      case 'H':
+        float x;
+        cur_pos = find_scalar(cur_pos, &x, relative, current.x);
+        path.lineTo(x, current.y);
+        current.x = x;
+        break;
+      case 'V':
+        float y;
+        cur_pos = find_scalar(cur_pos, &y, relative, current.y);
+        path.lineTo(current.x, y);
+        current.y = y;
+        break;
+      case 'C':
+        cur_pos = find_points(cur_pos, points.data(), 3, relative, &current);
+        goto cubic_common;
+        break;
+      case 'S':
+        cur_pos =
+            find_points(cur_pos, points.data() + 1, 2, relative, &current);
+        points[0] = current;
+        if (previous_op == 'C' || previous_op == 'S') {
+          points[0].x -= last.x - current.x;
+          points[0].y -= last.y - current.y;
+        }
+      cubic_common:
+        path.cubicTo(points[0].x, points[0].y, points[1].x, points[1].y,
+                     points[2].x, points[2].y);
+        last = points[1];
+        current = points[2];
+        break;
+      case 'Q':
+        cur_pos = find_points(cur_pos, points.data(), 2, relative, &current);
+        goto quadratic_common;
+      case 'T':
+        cur_pos =
+            find_points(cur_pos, points.data() + 1, 1, relative, &current);
+        points[0] = current;
+        if (previous_op == 'Q' || previous_op == 'T') {
+          points[0].x -= last.x - current.x;
+          points[0].y -= last.y - current.y;
+        }
+      quadratic_common:
+        path.quadTo(points[0].x, points[0].y, points[1].x, points[1].y);
+        last = points[0];
+        current = points[1];
+        break;
+      case 'A':
+        Vec2 radii;
+        float angle, large_arc, sweep;
+        if ((cur_pos = find_points(cur_pos, &radii, 1, false, nullptr)) &&
+            (cur_pos = skip_sep(cur_pos)) &&
+            (cur_pos = find_scalar(cur_pos, &angle, false, 0)) &&
+            (cur_pos = skip_sep(cur_pos)) &&
+            (cur_pos = find_scalar(cur_pos, &large_arc, false, 0)) &&
+            (cur_pos = skip_sep(cur_pos)) &&
+            (cur_pos = find_scalar(cur_pos, &sweep, false, 0)) &&
+            (cur_pos = skip_sep(cur_pos)) &&
+            (cur_pos =
+                 find_points(cur_pos, points.data(), 1, relative, &current))) {
+          path.arcTo(radii.x, radii.y, angle,
+                     static_cast<Path::ArcSize>(to_bool(large_arc)),
+                     static_cast<Path::Direction>(!to_bool(sweep)), points[0].x,
+                     points[0].y);
+        }
+        break;
+      case 'Z':
+        path.close();
+        current = first;
+        break;
+      case '~': {
+        std::array<Vec2, 2> args{};
+        cur_pos = find_points(cur_pos, args.data(), 2, false, nullptr);
+        path.moveTo(args[0].x, args[0].y);
+        path.lineTo(args[1].x, args[1].y);
+      } break;
+      default:
+        return false;
+    }
+    if (previous_op == 0) {
+      first = current;
+    }
+    previous_op = op;
+  }
+
+  result->swap(path);
   return true;
 }
 

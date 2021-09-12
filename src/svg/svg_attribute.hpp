@@ -14,6 +14,7 @@ enum class SVGAttribute {
   kColorInterpolationFilters,
   kCx,  // <circle>, <ellipse>, <radialGradient>: center x position
   kCy,  // <circle>, <ellipse>, <radialGradient>: center y position
+  kD,   // path data
   kFill,
   kFillOpacity,
   kFillRule,

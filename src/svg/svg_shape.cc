@@ -4,6 +4,7 @@
 #include <cstring>
 #include <skity/render/canvas.hpp>
 
+#include "src/svg/svg_path.hpp"
 #include "src/svg/svg_render_context.hpp"
 
 namespace skity {
@@ -197,10 +198,11 @@ class SVGRect : public SVGShape {
     //   ‘height’.
     //   - The effective values of ‘rx’ and ‘ry’ are rx and ry, respectively.
     auto radii = [this]() {
-      return fRx.IsValid()   ? fRy.IsValid() ? std::make_tuple(*fRx, *fRy)
-                                             : std::make_tuple(*fRx, *fRx)
-               : fRy.IsValid() ? std::make_tuple(*fRy, *fRy)
-                             : std::make_tuple(SVGLength{0}, SVGLength{0});
+      return fRx.IsValid()
+                 ? fRy.IsValid() ? std::make_tuple(*fRx, *fRy)
+                                 : std::make_tuple(*fRx, *fRx)
+                 : fRy.IsValid() ? std::make_tuple(*fRy, *fRy)
+                                 : std::make_tuple(SVGLength{0}, SVGLength{0});
     };
 
     auto radius = radii();
@@ -222,6 +224,8 @@ std::shared_ptr<SVGShape> SVGShape::Make(const char *name) {
     return std::make_shared<SVGEllipsis>();
   } else if (std::strcmp(name, "rect") == 0) {
     return std::make_shared<SVGRect>();
+  } else if (std::strcmp(name, "path") == 0) {
+    return std::make_shared<SVGPath>();
   }
 
   return nullptr;

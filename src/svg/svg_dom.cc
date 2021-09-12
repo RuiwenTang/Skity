@@ -65,6 +65,14 @@ class SVGDomParser : public XMLParser {
       }
     }
 
+    if (std::strcmp(name, "d") == 0) {
+      auto path = SVGAttributeParser::Parse<Path>(value);
+      if (path.IsValid()) {
+        CurrentNode()->SetAttribute(SVGAttribute::kD, SVGPathValue{*path});
+        return true;
+      }
+    }
+
     return CurrentNode()->ParseAndSetAttribute(name, value);
   }
   bool OnEndElement(const char *elem) override {
