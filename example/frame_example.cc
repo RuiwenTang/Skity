@@ -14,14 +14,15 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
+#include <skity/svg/svg_dom.hpp>
 #include <string>
 
 #include "perf.hpp"
 
 void render_frame_demo(
     skity::Canvas* canvas,
-    std::vector<std::shared_ptr<skity::Pixmap>> const& images, float mx,
-    float my, float width, float height, float t);
+    std::vector<std::shared_ptr<skity::Pixmap>> const& images,
+    skity::SVGDom* svg, float mx, float my, float width, float height, float t);
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
                float mx, float my, float t);
@@ -79,6 +80,9 @@ void draw_thumbnails(skity::Canvas* canvas,
 
 void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
 
+void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
+                    float w, float h);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -118,6 +122,8 @@ int main(int argc, const char** argv) {
 
   std::vector<std::shared_ptr<skity::Pixmap>> images{};
   load_images(images);
+  // load svg;
+  auto svg_dom = skity::SVGDom::MakeFromFile(EXAMPLE_IMAGE_ROOT "/tiger.svg");
 
   glfwSwapInterval(0);
 
@@ -138,7 +144,8 @@ int main(int argc, const char** argv) {
     dt = t - prevt;
     prevt = t;
 
-    render_frame_demo(canvas.get(), images, mx, my, width, height, t);
+    render_frame_demo(canvas.get(), images, svg_dom.get(), mx, my, width,
+                      height, t);
 
     fpsGraph.RenderGraph(canvas.get(), 5, 5);
     cpuGraph.RenderGraph(canvas.get(), 5 + 200 + 5, 5);
@@ -160,13 +167,15 @@ int main(int argc, const char** argv) {
 
 void render_frame_demo(
     skity::Canvas* canvas,
-    std::vector<std::shared_ptr<skity::Pixmap>> const& images, float mx,
-    float my, float width, float height, float t) {
+    std::vector<std::shared_ptr<skity::Pixmap>> const& images,
+    skity::SVGDom* svg, float mx, float my, float width, float height,
+    float t) {
   float x, y, popy;
 
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
   // draw_paragraph
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
+  draw_tiger_svg(canvas, svg, width / 2.f + 50, 100.f, 200.f, 200.f);
   draw_color_wheel(canvas, width - 300, height - 300, 250.f, 250.f, t);
 
   // Line joints
@@ -1272,4 +1281,17 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
   }
 
   canvas->drawPath(path, paint);
+}
+
+void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
+                    float w, float h) {
+  canvas->save();
+
+  canvas->translate(x, y);
+  float sx = w / 900.f;
+  float sy = h / 900.f;
+  canvas->scale(sx, sy);
+  svg->Render(canvas);
+
+  canvas->restore();
 }

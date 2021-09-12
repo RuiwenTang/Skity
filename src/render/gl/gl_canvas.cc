@@ -104,7 +104,7 @@ class GLCanvasScaleOp : public GLCanvasStateOp {
     auto current_matrix = state_->CurrentMatrix();
     auto scale_matrix = glm::scale(glm::identity<glm::mat4>(), {sx_, sy_, 1.f});
 
-    auto final_matrix = scale_matrix * current_matrix;
+    auto final_matrix = current_matrix * scale_matrix;
     state_->UpdateCurrentMatrix(final_matrix);
   }
 
