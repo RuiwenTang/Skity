@@ -14,7 +14,7 @@ class JPEGCodec : public Codec {
 
   std::shared_ptr<Pixmap> Decode() override;
 
-  std::shared_ptr<Data> Encode() override;
+  std::shared_ptr<Data> Encode(const Pixmap* pixmap) override;
 
   bool RecognizeFileType(const char* header, size_t size) override;
 };

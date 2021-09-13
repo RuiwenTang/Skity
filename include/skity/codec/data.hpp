@@ -29,6 +29,8 @@ class SK_API Data final {
     return reinterpret_cast<const uint8_t*>(ptr_);
   }
 
+  bool WriteToFile(const char* filename) const;
+
   /**
    * Function that, if provided, will be called when the SkData goes out
    *  of scope, allowing for custom allocation/freeing of the data's contents.

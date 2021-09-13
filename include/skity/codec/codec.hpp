@@ -20,7 +20,7 @@ class SK_API Codec {
 
   virtual std::shared_ptr<Pixmap> Decode() = 0;
 
-  virtual std::shared_ptr<Data> Encode() = 0;
+  virtual std::shared_ptr<Data> Encode(const Pixmap* pixmap) = 0;
 
   virtual bool RecognizeFileType(const char* header, size_t size) = 0;
 

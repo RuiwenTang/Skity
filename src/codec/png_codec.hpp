@@ -13,8 +13,8 @@ class PNGCodec : public Codec {
   PNGCodec();
   ~PNGCodec() override;
   std::shared_ptr<Pixmap> Decode() override;
-  std::shared_ptr<Data> Encode() override;
-  bool RecognizeFileType(const char *header, size_t size) override;
+  std::shared_ptr<Data> Encode(const Pixmap* pixmap) override;
+  bool RecognizeFileType(const char* header, size_t size) override;
 
  private:
   png_image image_ = {};

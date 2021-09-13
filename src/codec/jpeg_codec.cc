@@ -82,6 +82,8 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
                                   width, height);
 }
 
-std::shared_ptr<Data> JPEGCodec::Encode() { return nullptr; }
+std::shared_ptr<Data> JPEGCodec::Encode(const Pixmap* pixmap) {
+  return nullptr;
+}
 
 }  // namespace skity

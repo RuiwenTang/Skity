@@ -21,6 +21,21 @@ Data::~Data() {
   }
 }
 
+bool Data::WriteToFile(const char* filename) const {
+  if (!ptr_ || !filename || !size_) {
+    return false;
+  }
+
+  std::ofstream wf(filename, std::ios::out | std::ios::binary);
+  if (!wf) {
+    return false;
+  }
+
+  wf.write((const char*)ptr_, size_);
+
+  return wf.good();
+}
+
 std::shared_ptr<Data> Data::PrivateNewWithCopy(const void* srcOrNull,
                                                size_t length) {
   if (0 == length) {
