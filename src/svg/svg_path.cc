@@ -2,8 +2,6 @@
 
 #include <skity/render/canvas.hpp>
 
-#include "svg_path.hpp"
-
 namespace skity {
 
 SVGPath::SVGPath() : SVGShape(SVGTag::kPath), path_() {}
