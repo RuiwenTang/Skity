@@ -11,6 +11,9 @@ Working in progress nanovg demo <br/>
 
 ![nanovg](./resources/nanovg_demo.png)
 
+Parse and render svg file: [tiger.svg](./example/images/tiger.svg)
+![tiger.svg](./resources/tiger.png)
+
 same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
 code is [example.cc](./example/example.cc)
 <br/>
@@ -69,6 +72,10 @@ make
   - Cocec interface
   - png image decode (need install [libpng](http://www.libpng.org/pub/png/libpng.html))
   - jpg image decode (need install [libjpeg-turbo](https://www.libjpeg-turbo.org/))
+
+- SVG (in progress)
+  - basic svg tag parser
+    - `<svg>` `<g>` `<path>` `<circle>` `<rect>`
 
 ## Reference
 

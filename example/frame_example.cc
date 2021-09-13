@@ -81,7 +81,7 @@ void draw_thumbnails(skity::Canvas* canvas,
 void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
 
 void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
-                    float w, float h);
+                    float w, float h, float t);
 
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
@@ -175,7 +175,8 @@ void render_frame_demo(
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
   // draw_paragraph
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
-  draw_tiger_svg(canvas, svg, width / 2.f + 50, 100.f, 200.f, 200.f);
+  // this make some performance issue
+  // draw_tiger_svg(canvas, svg, width / 2.f + 50, 100.f, 200.f, 200.f, t);
   draw_color_wheel(canvas, width - 300, height - 300, 250.f, 250.f, t);
 
   // Line joints
@@ -1284,10 +1285,11 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
 }
 
 void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
-                    float w, float h) {
+                    float w, float h, float t) {
   canvas->save();
 
   canvas->translate(x, y);
+  canvas->rotate(glm::degrees(t), 100, 100);
   float sx = w / 900.f;
   float sy = h / 900.f;
   canvas->scale(sx, sy);
