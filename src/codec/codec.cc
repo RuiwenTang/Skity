@@ -44,4 +44,16 @@ std::shared_ptr<Codec> Codec::MakeFromData(const std::shared_ptr<Data>& data) {
   return nullptr;
 }
 
+#ifdef SKITY_HAS_PNG
+std::shared_ptr<Codec> Codec::MakePngCodec() {
+  return std::make_shared<PNGCodec>();
+}
+#endif
+
+#ifdef SKITY_HAS_JPEG
+std::shared_ptr<Codec> Codec::MakeJPEGCodec() {
+  return std::make_shared<JPEGCodec>();
+}
+#endif
+
 }  // namespace skity

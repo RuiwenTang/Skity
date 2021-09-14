@@ -28,6 +28,14 @@ class SK_API Codec {
 
   static std::shared_ptr<Codec> MakeFromData(std::shared_ptr<Data> const& data);
 
+#ifdef SKITY_HAS_PNG
+  static std::shared_ptr<Codec> MakePngCodec();
+#endif
+
+#ifdef SKITY_HAS_JPEG
+  static std::shared_ptr<Codec> MakeJPEGCodec();
+#endif
+
  protected:
   std::shared_ptr<Data> data_;
 
