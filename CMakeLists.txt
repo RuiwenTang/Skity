@@ -137,6 +137,8 @@ set(Skity_src
         src/render/gl/gl_interface.hpp
         src/render/gl/gl_mesh.cc
         src/render/gl/gl_mesh.hpp
+        src/render/gl/gl_path_visitor.cc
+        src/render/gl/gl_path_visitor.hpp
         src/render/gl/gl_shader.cc
         src/render/gl/gl_shader.hpp
         src/render/gl/gl_stroke.cc
@@ -156,14 +158,14 @@ set(Skity_src
         src/svg/svg_dom.cc
         src/svg/svg_node.cc
         src/svg/svg_node.hpp
+        src/svg/svg_path.cc
+        src/svg/svg_path.hpp
         src/svg/svg_render_context.cc
         src/svg/svg_render_context.hpp
         src/svg/svg_root.cc
         src/svg/svg_root.hpp
         src/svg/svg_shape.cc
         src/svg/svg_shape.hpp
-        src/svg/svg_path.cc
-        src/svg/svg_path.hpp
         src/svg/svg_transformable_node.cc
         src/svg/svg_transformable_node.hpp
         src/svg/svg_types.hpp
