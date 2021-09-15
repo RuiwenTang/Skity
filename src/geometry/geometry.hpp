@@ -283,6 +283,9 @@ void CubicToQuadratic(const Point cubic[4], Point quad[3]);
 int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
                           Point const& p4, Point& result);
 
+int32_t IntersectLineLine(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
+                          Vec2 const& p4, Vec2& result);
+
 bool PointInTriangle(Point const& p, Point const& p0, Point const& p1,
                      Point const& p2);
 

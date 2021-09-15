@@ -329,6 +329,47 @@ int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
   }
 }
 
+int32_t IntersectLineLine(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
+                          Vec2 const& p4, Vec2& result) {
+  double mua, mub;
+  double denom, numera, numberb;
+
+  denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+  numera = (p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x);
+  numberb = (p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x);
+
+  if (glm::abs(numera) < NearlyZero && glm::abs(numberb) < NearlyZero &&
+      glm::abs(denom) < NearlyZero) {
+    result = (p1 + p2) * 0.5f;
+
+    return 2;  // lines coincide aka 180deg
+  }
+
+  if (glm::abs(denom) < NearlyZero) {
+    result.x = 0;
+    result.y = 0;
+    return 0;  // lines are parallel
+  }
+
+  mua = numera / denom;
+  mub = numberb / denom;
+  result.x = p1.x + mua * (p2.x - p1.x);
+  result.y = p1.y + mua * (p2.y - p1.y);
+
+  bool out1 = mua < 0 || mua > 1;
+  bool out2 = mub < 0 || mub > 1;
+
+  if (out1 & out2) {
+    return 5;  // the intersection lines outside both segments
+  } else if (out1) {
+    return 3;  // the intersection lines outside segment 1
+  } else if (out2) {
+    return 4;  // the intersection lines outside segment2
+  } else {
+    return 1;
+  }
+}
+
 bool PointInTriangle(Point const& p, Point const& p0, Point const& p1,
                      Point const& p2) {
   // https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
