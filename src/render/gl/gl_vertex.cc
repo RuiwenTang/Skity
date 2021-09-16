@@ -167,4 +167,58 @@ void GLVertex::Append(GLVertex* other, float scale, float tx, float ty) {
   }
 }
 
+GLVertex2::Data::Data(float x, float y, float mix, float u, float v)
+    : x(x), y(y), mix(mix), u(u), v(v) {}
+
+uint32_t GLVertex2::AddPoint(float x, float y, float mix, float u, float v) {
+  uint32_t i = vertex_buffer.size();
+  vertex_buffer.emplace_back(x, y, mix, u, v);
+  return i;
+}
+
+void GLVertex2::AddFront(uint32_t a, uint32_t b, uint32_t c) {
+  front_index.emplace_back(a);
+  front_index.emplace_back(b);
+  front_index.emplace_back(c);
+}
+
+void GLVertex2::AddBack(uint32_t a, uint32_t b, uint32_t c) {
+  back_index.emplace_back(a);
+  back_index.emplace_back(b);
+  back_index.emplace_back(c);
+}
+
+void GLVertex2::AddAA(uint32_t a, uint32_t b, uint32_t c) {
+  aa_index.emplace_back(a);
+  aa_index.emplace_back(b);
+  aa_index.emplace_back(c);
+}
+
+std::pair<void*, size_t> GLVertex2::GetVertexDataSize() {
+  return std::make_pair(static_cast<void*>(vertex_buffer.data()),
+                        vertex_buffer.size() * sizeof(GLVertex2::Data));
+}
+
+std::pair<void*, size_t> GLVertex2::GetFrontDataSize() {
+  return std::make_pair(static_cast<void*>(front_index.data()),
+                        front_index.size() * sizeof(uint32_t));
+}
+
+std::pair<void*, size_t> GLVertex2::GetBackDataSize() {
+  return std::make_pair(static_cast<void*>(back_index.data()),
+                        back_index.size() * sizeof(uint32_t));
+}
+
+std::pair<void*, size_t> GLVertex2::GetAADataSize() {
+  return std::make_pair(static_cast<void*>(aa_index.data()),
+                        aa_index.size() * sizeof(uint32_t));
+}
+
+void GLVertex2::Reset() {
+  vertex_buffer.clear();
+  front_index.clear();
+  back_index.clear();
+  aa_index.clear();
+}
+
 }  // namespace skity

@@ -3,6 +3,7 @@
 
 #include <array>
 #include <skity/geometry/point.hpp>
+#include <utility>
 #include <vector>
 
 namespace skity {
@@ -86,6 +87,43 @@ class GLVertex {
   std::vector<uint32_t> back_index;
   std::vector<uint32_t> aa_index;
   float global_alpha_ = 1.0f;
+};
+
+class GLVertex2 {
+  struct Data {
+    float x;
+    float y;
+    float mix;
+    float u;
+    float v;
+
+    Data(float x, float y, float mix, float u, float v);
+  };
+
+ public:
+  GLVertex2() = default;
+  ~GLVertex2() = default;
+
+  uint32_t AddPoint(float x, float y, float mix, float u, float v);
+  void AddFront(uint32_t a, uint32_t b, uint32_t c);
+  void AddBack(uint32_t a, uint32_t b, uint32_t c);
+  void AddAA(uint32_t a, uint32_t b, uint32_t c);
+
+  uint32_t FrontCount() const { return front_index.size(); }
+
+
+  std::pair<void*, size_t> GetVertexDataSize();
+  std::pair<void*, size_t> GetFrontDataSize();
+  std::pair<void*, size_t> GetBackDataSize();
+  std::pair<void*, size_t> GetAADataSize();
+
+  void Reset();
+
+ private:
+  std::vector<Data> vertex_buffer;
+  std::vector<uint32_t> front_index;
+  std::vector<uint32_t> back_index;
+  std::vector<uint32_t> aa_index;
 };
 
 }  // namespace skity

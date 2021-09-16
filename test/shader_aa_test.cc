@@ -7,6 +7,7 @@
 
 #include "common/test_common.hpp"
 #include "src/geometry/geometry.hpp"
+#include "src/render/gl/gl_vertex.hpp"
 
 class ShaderAATest : public test::TestApp {
  public:
@@ -30,7 +31,7 @@ class ShaderAATest : public test::TestApp {
 
     // aPos
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void*)0);
     //    // aNormal1
     //    glEnableVertexAttribArray(1);
@@ -115,9 +116,6 @@ void main() {
 
     glGenBuffers(2, buffers_.data() + 1);
 
-    std::vector<float> vertex_buffer;
-    std::vector<uint32_t> index_buffer;
-
     glm::vec2 p1{100, 100};
     glm::vec2 p2{300, 120};
     glm::vec2 p3{200, 400};
@@ -130,14 +128,11 @@ void main() {
     glm::vec2 v1 = p1 + n * stroke_radius;
     glm::vec2 v2 = p1 - n * stroke_radius;
 
-    // 0
-    vertex_buffer.emplace_back(v1.x);
-    vertex_buffer.emplace_back(v1.y);
-    vertex_buffer.emplace_back(1.f);
     // 1
-    vertex_buffer.emplace_back(v2.x);
-    vertex_buffer.emplace_back(v2.y);
-    vertex_buffer.emplace_back(-1.f);
+    uint32_t p1_index = gl_vertex_.AddPoint(v1.x, v1.y, 1.f, 0.f, 0.f);
+
+    // 2
+    uint32_t p2_index = gl_vertex_.AddPoint(v2.x, v2.y, -1.f, 0.f, 0.f);
 
     glm::vec2 d2 = glm::normalize(p3 - p2);
     glm::vec2 n2 = glm::vec2(-d2.y, d2.x);
@@ -150,54 +145,41 @@ void main() {
     skity::IntersectLineLine(v1, v1 + d, o_p2, o_p2 + d2, vo_p2);
     skity::IntersectLineLine(v2, v2 + d, i_p2, i_p2 + d2, vi_p2);
 
-    // 2
-    vertex_buffer.emplace_back(vo_p2.x);
-    vertex_buffer.emplace_back(vo_p2.y);
-    vertex_buffer.emplace_back(1.f);
     // 3
-    vertex_buffer.emplace_back(vi_p2.x);
-    vertex_buffer.emplace_back(vi_p2.y);
-    vertex_buffer.emplace_back(-1.f);
+    uint32_t p3_index = gl_vertex_.AddPoint(vo_p2.x, vo_p2.y, 1.f, 0.f, 0.f);
+    // 4
+    uint32_t p4_index = gl_vertex_.AddPoint(vi_p2.x, vi_p2.y, -1.f, 0.f, 0.f);
 
     glm::vec2 o_p3 = p3 + n2 * stroke_radius;
     glm::vec2 i_p3 = p3 - n2 * stroke_radius;
 
-    // 4
-    vertex_buffer.emplace_back(o_p3.x);
-    vertex_buffer.emplace_back(o_p3.y);
-    vertex_buffer.emplace_back(1.f);
     // 5
-    vertex_buffer.emplace_back(i_p3.x);
-    vertex_buffer.emplace_back(i_p3.y);
-    vertex_buffer.emplace_back(-1.f);
+    uint32_t p5_index = gl_vertex_.AddPoint(o_p3.x, o_p3.y, 1.f, 0.f, 0.f);
+    // 6
+    uint32_t p6_index = gl_vertex_.AddPoint(i_p3.x, i_p3.y, -1.f, 0.f, 0.f);
 
-    index_buffer.emplace_back(0);
-    index_buffer.emplace_back(1);
-    index_buffer.emplace_back(3);
-    index_buffer.emplace_back(0);
-    index_buffer.emplace_back(2);
-    index_buffer.emplace_back(3);
+    gl_vertex_.AddFront(p1_index, p2_index, p3_index);
+    gl_vertex_.AddFront(p2_index, p4_index, p3_index);
 
-    index_buffer.emplace_back(2);
-    index_buffer.emplace_back(3);
-    index_buffer.emplace_back(5);
-    index_buffer.emplace_back(2);
-    index_buffer.emplace_back(5);
-    index_buffer.emplace_back(4);
+    gl_vertex_.AddFront(p3_index, p4_index, p6_index);
+    gl_vertex_.AddFront(p3_index, p6_index, p5_index);
+
+    auto vertex_data_size = gl_vertex_.GetVertexDataSize();
 
     glBindBuffer(GL_ARRAY_BUFFER, buffers_[1]);
-    glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size() * sizeof(float),
-                 vertex_buffer.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, std::get<1>(vertex_data_size),
+                 std::get<0>(vertex_data_size), GL_STATIC_DRAW);
 
     uint32_t err = glGetError();
     std::cout << "error = " << std::hex << err << std::endl;
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 index_buffer.size() * sizeof(uint32_t), index_buffer.data(),
-                 GL_STATIC_DRAW);
+    auto front_data_size = gl_vertex_.GetFrontDataSize();
 
-    count = index_buffer.size();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, std::get<1>(front_data_size),
+                 std::get<0>(front_data_size), GL_STATIC_DRAW);
+
+    count = gl_vertex_.FrontCount();
   }
 
  private:
@@ -209,6 +191,7 @@ void main() {
   int32_t user_color_location = -1;
   uint32_t count = 0;
   float stroke_width = 20.f;
+  skity::GLVertex2 gl_vertex_{};
 };
 
 int main(int argc, const char** argv) {
