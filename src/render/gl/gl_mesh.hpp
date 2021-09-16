@@ -60,6 +60,22 @@ class GLMeshDraw final {
   uint32_t count_;
 };
 
+/**
+ * [x, y, mix, u, v]
+ */
+class GLMeshDraw2 final {
+ public:
+  GLMeshDraw2(uint32_t mode, uint32_t start, uint32_t count)
+      : mode_(mode), start_(start), count_(count) {}
+
+  void operator()() const;
+
+ private:
+  uint32_t mode_;
+  uint32_t start_;
+  uint32_t count_;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_GL_GL_MESH_HPP

@@ -17,7 +17,7 @@ GLMesh::~GLMesh() {
 
 void GLMesh::UploadVertexBuffer(void* data, uint32_t length) {
   assert(buffers_[0] != 0);
-  
+
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
   if (buffer_size_[0] < length) {
     buffer_size_[0] = length;
@@ -33,7 +33,8 @@ void GLMesh::UploadFrontIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
   if (buffer_size_[1] < length) {
     buffer_size_[1] = length;
-    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr, GL_STATIC_DRAW);
+    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
+            GL_STATIC_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -44,7 +45,8 @@ void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[2]);
   if (buffer_size_[2] < length) {
     buffer_size_[2] = length;
-    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr, GL_STATIC_DRAW);
+    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
+            GL_STATIC_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -55,7 +57,8 @@ void GLMesh::uploadAaOutlineIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
   if (buffer_size_[3] < length) {
     buffer_size_[3] = length;
-    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr, GL_STATIC_DRAW);
+    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
+            GL_STATIC_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -99,12 +102,24 @@ GLMeshDraw::GLMeshDraw(uint32_t mode, uint32_t start, uint32_t count)
     : mode_(mode), start_(start), count_(count) {}
 
 void GLMeshDraw::operator()() {
-//  GL_CALL(EnableVertexAttribArray, 0);
+  //  GL_CALL(EnableVertexAttribArray, 0);
   GL_CALL(VertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
           (void*)0);
 
-//  GL_CALL(EnableVertexAttribArray, 1);
+  //  GL_CALL(EnableVertexAttribArray, 1);
   GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+          (void*)(3 * sizeof(float)));
+
+  GL_CALL(DrawElements, mode_, count_, GL_UNSIGNED_INT,
+          (void*)(start_ * sizeof(GLuint)));
+}
+
+void GLMeshDraw2::operator()() const {
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)0);
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
           (void*)(3 * sizeof(float)));
 
   GL_CALL(DrawElements, mode_, count_, GL_UNSIGNED_INT,

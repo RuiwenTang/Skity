@@ -202,7 +202,7 @@ void main() {
 
  private:
   GLuint program_ = 0;
-  std::array<GLuint, 3> buffers_;
+  std::array<GLuint, 3> buffers_{};
   glm::mat4 mvp_{};
   int32_t mvp_location = -1;
   int32_t stroke_width_location = -1;
