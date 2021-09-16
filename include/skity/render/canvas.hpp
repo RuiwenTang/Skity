@@ -187,6 +187,11 @@ class SK_API Canvas {
                                               uint32_t width, uint32_t height,
                                               void* procss_loader);
 
+  // FIXME when refactor is done, this will be removed
+  static std::unique_ptr<Canvas> MakeGLCanvas2(uint32_t x, uint8_t y,
+                                               uint32_t width, uint32_t height,
+                                               void* process_loader);
+
  protected:
   virtual void onClipPath(Path const& path, ClipOp op) = 0;
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;

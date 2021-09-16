@@ -127,6 +127,8 @@ set(Skity_src
         src/render/gl/draw/gl_stencil_op.hpp
         src/render/gl/gl_canvas.cc
         src/render/gl/gl_canvas.hpp
+        src/render/gl/gl_canvas2.cc
+        src/render/gl/gl_canvas2.hpp
         src/render/gl/gl_draw_op.cc
         src/render/gl/gl_draw_op.hpp
         src/render/gl/gl_fill.cc
