@@ -214,6 +214,14 @@ std::pair<void*, size_t> GLVertex2::GetAADataSize() {
                         aa_index.size() * sizeof(uint32_t));
 }
 
+GLVertex2::Data GLVertex2::GetVertexData(uint32_t index) const {
+  return vertex_buffer[index];
+}
+
+void GLVertex2::UpdateVertexData(uint32_t index, const GLVertex2::Data& data) {
+  vertex_buffer[index] = data;
+}
+
 void GLVertex2::Reset() {
   vertex_buffer.clear();
   front_index.clear();

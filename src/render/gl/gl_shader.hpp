@@ -11,6 +11,7 @@ class StencilShader;
 class ColorShader;
 class GLGradientShader;
 class GLTextureShader;
+class GLUniverseShader;
 /**
  * @class Shader wrapper for internal use
  */
@@ -19,6 +20,7 @@ class GLShader {
   virtual ~GLShader();
   int32_t GetUniformLocation(const char* name);
   void SetUniform(int32_t location, glm::vec4 const& value);
+  void SetUniform4i(int32_t location, glm::ivec4 const& value);
   void SetUniform(int32_t location, glm::vec3 const& value);
   void SetUniform(int32_t location, glm::vec2 const& value);
   void SetUniform(int32_t location, glm::mat4 const& value);
@@ -42,6 +44,8 @@ class GLShader {
   static std::unique_ptr<GLGradientShader> CreateGradientShader();
 
   static std::unique_ptr<GLTextureShader> CreateTextureShader();
+
+  static std::unique_ptr<GLUniverseShader> CreateUniverseShader();
 
  protected:
   GLShader() = default;
@@ -119,6 +123,25 @@ class GLTextureShader : public GLShader {
   int32_t texture_location_;
   int32_t matrixs_location_;
   int32_t bounds_location_;
+};
+
+class GLUniverseShader : public GLShader {
+ public:
+  enum Type {
+    kStencil = 0,
+    kPureColor,
+  };
+  GLUniverseShader() = default;
+  ~GLUniverseShader() override = default;
+
+  void InitLocations() override;
+
+  void SetUserColor(Vec4 const& value);
+  void SetUserData1(glm::ivec4 const& value);
+
+ private:
+  int32_t user_color_location_ = -1;
+  int32_t user_data1_location_ = -1;
 };
 
 }  // namespace skity

@@ -7,22 +7,24 @@
 
 namespace skity {
 
-class GLVertex;
+class GLVertex2;
 class GLMeshRange;
 
 class GLPathVisitor {
  public:
-  explicit GLPathVisitor(Paint const& paint, GLVertex* gl_vertex);
+  explicit GLPathVisitor(Paint const& paint, GLVertex2* gl_vertex);
   virtual ~GLPathVisitor() = default;
 
   GLMeshRange VisitPath(Path const& path, bool force_close);
 
  protected:
-  GLVertex* GetGLVertex() const { return gl_vertex_; }
+  GLVertex2* GetGLVertex() const { return gl_vertex_; }
   bool IsAntiAlias() const { return anti_alias_; }
   Paint::Style GetStyle() const { return style_; }
   Paint::Join GetJoin() const { return join_; }
   Paint::Cap GetCap() const { return cap_; }
+  float GetStrokeWidth() const { return stroke_width_; }
+  float GetMiterLimit() const { return miter_limit_; }
 
   virtual void HandleMoveTo(Point const& pt) = 0;
   virtual void HandleLineTo(Point const& from, Point const& to) = 0;
@@ -39,11 +41,12 @@ class GLPathVisitor {
                              Point const& control2, Point const& end);
 
  private:
-  GLVertex* gl_vertex_;
+  GLVertex2* gl_vertex_;
   bool anti_alias_;
   Paint::Style style_;
   Paint::Join join_;
   Paint::Cap cap_;
+  float stroke_width_;
   float miter_limit_;
 };
 

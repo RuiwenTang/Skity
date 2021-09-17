@@ -1,0 +1,15 @@
+#version 330 core
+
+// [x, y]
+layout(location = 0) in vec2 aPos;
+// dynamic info
+layout(location = 1) in vec3 aPosInfo;
+
+uniform mat4 mvp;
+
+out vec3 vPosInfo;
+
+void main() {
+  vPosInfo = aPosInfo;
+  gl_Position = mvp * vec4(aPos, 0.0, 1.0);
+}

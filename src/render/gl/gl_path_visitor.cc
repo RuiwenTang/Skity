@@ -7,12 +7,13 @@
 
 namespace skity {
 
-GLPathVisitor::GLPathVisitor(Paint const& paint, GLVertex* gl_vertex)
+GLPathVisitor::GLPathVisitor(Paint const& paint, GLVertex2* gl_vertex)
     : gl_vertex_(gl_vertex),
       anti_alias_(paint.isAntiAlias()),
       style_(paint.getStyle()),
       join_(paint.getStrokeJoin()),
       cap_(paint.getStrokeCap()),
+      stroke_width_(paint.getStrokeWidth()),
       miter_limit_(paint.getStrokeMiter()) {}
 
 GLMeshRange GLPathVisitor::VisitPath(const Path& path, bool force_close) {
@@ -22,7 +23,7 @@ GLMeshRange GLPathVisitor::VisitPath(const Path& path, bool force_close) {
   range.front_count = 0;
   range.back_start = GetGLVertex()->BackCount();
   range.back_count = 0;
-  range.aa_outline_start = GetGLVertex()->AAOutlineCount();
+  range.aa_outline_start = GetGLVertex()->AACount();
   range.aa_outline_count = 0;
 
   Path::Iter iter{path, force_close};
@@ -60,8 +61,7 @@ DONE:
 
   range.front_count = gl_vertex_->FrontCount() - range.front_start;
   range.back_count = gl_vertex_->BackCount() - range.back_start;
-  range.aa_outline_count =
-      gl_vertex_->AAOutlineCount() - range.aa_outline_start;
+  range.aa_outline_count = gl_vertex_->AACount() - range.aa_outline_start;
 
   return range;
 }

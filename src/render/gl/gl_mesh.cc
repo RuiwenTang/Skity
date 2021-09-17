@@ -116,11 +116,11 @@ void GLMeshDraw::operator()() {
 
 void GLMeshDraw2::operator()() const {
   GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
           (void*)0);
   GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void*)(3 * sizeof(float)));
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void*)(2 * sizeof(float)));
 
   GL_CALL(DrawElements, mode_, count_, GL_UNSIGNED_INT,
           (void*)(start_ * sizeof(GLuint)));

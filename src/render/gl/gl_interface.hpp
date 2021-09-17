@@ -82,6 +82,7 @@ struct GLInterface {
   PFNGLUNIFORM3FPROC fUniform3f = nullptr;
   PFNGLUNIFORM3FVPROC fUniform3fv = nullptr;
   PFNGLUNIFORM4FPROC fUniform4f = nullptr;
+  PFNGLUNIFORM4IPROC fUniform4i = nullptr;
   PFNGLUNIFORM4FVPROC fUniform4fv = nullptr;
   PFNGLUNIFORMMATRIX4FVPROC fUniformMatrix4fv = nullptr;
   PFNGLUSEPROGRAMPROC fUseProgram = nullptr;

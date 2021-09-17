@@ -90,6 +90,7 @@ class GLVertex {
 };
 
 class GLVertex2 {
+ public:
   struct Data {
     float x;
     float y;
@@ -100,9 +101,20 @@ class GLVertex2 {
     Data(float x, float y, float mix, float u, float v);
   };
 
- public:
   GLVertex2() = default;
   ~GLVertex2() = default;
+
+  enum VertexType {
+    STROKE_AA = 100,
+    // basic type
+    NONE = 0,
+    LINE_EDGE = 1,
+    LINE_CAP = 2,
+    LINE_BEVEL_JOIN = 3,
+    LINE_ROUND_JOIN = 4,
+    QUAD_IN = 5,
+    QUAD_OUT = 6,
+  };
 
   uint32_t AddPoint(float x, float y, float mix, float u, float v);
   void AddFront(uint32_t a, uint32_t b, uint32_t c);
@@ -110,12 +122,17 @@ class GLVertex2 {
   void AddAA(uint32_t a, uint32_t b, uint32_t c);
 
   uint32_t FrontCount() const { return front_index.size(); }
-
+  uint32_t BackCount() const { return back_index.size(); }
+  uint32_t AACount() const { return aa_index.size(); }
 
   std::pair<void*, size_t> GetVertexDataSize();
   std::pair<void*, size_t> GetFrontDataSize();
   std::pair<void*, size_t> GetBackDataSize();
   std::pair<void*, size_t> GetAADataSize();
+
+  GLVertex2::Data GetVertexData(uint32_t index) const;
+
+  void UpdateVertexData(uint32_t index, GLVertex2::Data const& data);
 
   void Reset();
 

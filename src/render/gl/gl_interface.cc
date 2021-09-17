@@ -78,6 +78,7 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(Uniform3f);
   GET_PROC(Uniform3fv);
   GET_PROC(Uniform4f);
+  GET_PROC(Uniform4i);
   GET_PROC(Uniform4fv);
   GET_PROC(UniformMatrix4fv);
   GET_PROC(UseProgram);

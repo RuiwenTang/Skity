@@ -69,6 +69,9 @@ target_link_libraries(gl_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(gl_canvas2_test gl_canvas2_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(gl_canvas2_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+add_executable(test_gl_stroke2 test_gl_stroke2.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(test_gl_stroke2 skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
 add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 

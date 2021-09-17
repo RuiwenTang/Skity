@@ -62,6 +62,10 @@ void GLShader::SetUniform(int32_t location, glm::vec4 const& value) {
   GL_CALL(Uniform4f, location, value[0], value[1], value[2], value[3]);
 }
 
+void GLShader::SetUniform4i(int32_t location, const glm::ivec4& value) {
+  GL_CALL(Uniform4i, location, value[0], value[1], value[2], value[3]);
+}
+
 void GLShader::SetUniform(int32_t location, glm::vec3 const& value) {
   GL_CALL(Uniform3f, location, value[0], value[1], value[2]);
 }
@@ -216,6 +220,20 @@ void GLTextureShader::SetBounds(Point const& p1, Point const& p2) {
   SetUniform(bounds_location_, pts.data(), 2);
 }
 
+void GLUniverseShader::InitLocations() {
+  GLShader::InitLocations();
+  user_color_location_ = GL_CALL(GetUniformLocation, program_, "UserColor");
+  user_data1_location_ = GL_CALL(GetUniformLocation, program_, "UserData1");
+}
+
+void GLUniverseShader::SetUserColor(const Vec4& value) {
+  this->SetUniform(user_color_location_, value);
+}
+
+void GLUniverseShader::SetUserData1(const glm::ivec4& value) {
+  this->SetUniform4i(user_data1_location_, value);
+}
+
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {
   std::unique_ptr<StencilShader> stencil_shader{new StencilShader()};
 
@@ -280,6 +298,22 @@ std::unique_ptr<GLTextureShader> GLShader::CreateTextureShader() {
   texture_shader->InitLocations();
 
   return texture_shader;
+}
+
+std::unique_ptr<GLUniverseShader> GLShader::CreateUniverseShader() {
+  std::unique_ptr<GLUniverseShader> shader{new GLUniverseShader};
+
+  std::string vs_shader((const char*)universe_vertex_glsl,
+                        universe_vertex_glsl_size);
+  std::string fs_shader((const char*)universe_fragment_glsl,
+                        universe_fragment_glsl_size);
+
+  shader->program_ =
+      create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  shader->InitLocations();
+
+  return shader;
 }
 
 }  // namespace skity

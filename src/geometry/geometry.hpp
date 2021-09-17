@@ -23,6 +23,11 @@ static inline Point ToPoint(glm::vec2 const& x) {
   return Point{x.x, x.y, 0, 1};
 }
 
+template <class P1, class P2>
+bool PointEqualPoint(P1 const& p1, P2 const& p2) {
+  return FloatNearlyZero(p1.x - p2.x) && FloatNearlyZero(p1.y - p2.y);
+}
+
 static inline int CollapsDuplicates(float array[], int count) {
   for (int n = count; n > 1; n--) {
     if (array[0] == array[1]) {
