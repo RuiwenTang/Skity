@@ -139,21 +139,21 @@ void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
 
   Vec2 normal = Vec2{-dir.y, dir.x};
 
-  Vec2 out_p = pt + normal * stroke_radius_ * 0.95f;
-  Vec2 in_p = pt - normal * stroke_radius_ * 0.95f;
+  Vec2 out_p = pt + normal * stroke_radius_;
+  Vec2 in_p = pt - normal * stroke_radius_;
 
   Vec2 out_p_cap = out_p - dir * step;
   Vec2 in_p_cap = in_p - dir * step;
 
   auto c =
-      GetGLVertex()->AddPoint(out_p.x, out_p.y, GLVertex2::LINE_CAP, 1.f, 0.f);
+      GetGLVertex()->AddPoint(out_p.x, out_p.y, GLVertex2::LINE_CAP, 1.f, 1.f);
   auto d =
-      GetGLVertex()->AddPoint(in_p.x, in_p.y, GLVertex2::LINE_CAP, 1.f, 0.f);
+      GetGLVertex()->AddPoint(in_p.x, in_p.y, GLVertex2::LINE_CAP, 1.f, -1.f);
 
   auto a = GetGLVertex()->AddPoint(out_p_cap.x, out_p_cap.y,
-                                   GLVertex2::LINE_CAP, 0.f, 0.f);
+                                   GLVertex2::LINE_CAP, 0.f, 1.f);
   auto b = GetGLVertex()->AddPoint(in_p_cap.x, in_p_cap.y, GLVertex2::LINE_CAP,
-                                   0.f, 0.f);
+                                   0.f, -1.f);
 
   GetGLVertex()->AddFront(a, b, d);
   GetGLVertex()->AddFront(a, d, c);

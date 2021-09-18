@@ -34,8 +34,8 @@ vec4 CalculateUserColor() {
 
 
 // line edge aa alpha
-float CalculateLineEdgeAlpha() {
-  float feathe = vPosInfo.y;
+float CalculateLineEdgeAlpha(float y) {
+  float feathe = y;
   if (abs(feathe) < 0.9) {
     return 1.0;
   }
@@ -46,7 +46,8 @@ float CalculateLineEdgeAlpha() {
 }
 // line cap alpha
 float CalculateLineCapAlpha() {
-  return vPosInfo.y;
+  float alpha = vPosInfo.y;
+  return alpha * CalculateLineEdgeAlpha(vPosInfo.z);
 }
 
 // Determin fragment alpha
@@ -54,7 +55,7 @@ float CalculateLineCapAlpha() {
 float CalculateFragmentAlpha() {
 
   if (vPosInfo.x == VERTEX_TYPE_LINE_EDGE) {
-    return CalculateLineEdgeAlpha();
+    return CalculateLineEdgeAlpha(vPosInfo.y);
   }
   if (vPosInfo.x == VERTEX_TYPE_LINE_CAP) {
     return CalculateLineCapAlpha();
