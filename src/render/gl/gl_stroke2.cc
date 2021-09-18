@@ -80,6 +80,12 @@ void GLStroke2::HandleFirstAndEndCap() {
       HandleSquareCapInternal(*first_pt_, *first_dir_);
       HandleSquareCapInternal(*cur_pt_, -curr_dir);
       break;
+    case Paint::kButt_Cap:
+      HandleButtCapInternal(*first_pt_, *first_dir_);
+      HandleButtCapInternal(*cur_pt_, -curr_dir);
+      break;
+    case Paint::kRound_Cap:
+      break;
     default:
       break;
   }
@@ -157,6 +163,43 @@ void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
 
   GetGLVertex()->AddFront(a, b, d);
   GetGLVertex()->AddFront(a, d, c);
+}
+
+void GLStroke2::HandleButtCapInternal(const Vec2& pt, const Vec2& dir) {
+  // Step 1 build Butt rect point
+  Vec2 normal = Vec2{-dir.y, dir.x};
+
+  Vec2 out_p = pt + normal * stroke_radius_;
+  Vec2 in_p = pt - normal * stroke_radius_;
+
+  Vec2 out_p_butt = out_p - dir * stroke_radius_;
+  Vec2 in_p_butt = in_p - dir * stroke_radius_;
+
+  auto a = GetGLVertex()->AddPoint(
+      out_p_butt.x, out_p_butt.y,
+      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f, 0.f);
+
+  auto b = GetGLVertex()->AddPoint(
+      in_p_butt.x, in_p_butt.y,
+      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f, 0.f);
+
+  auto c = GetGLVertex()->AddPoint(
+      out_p.x, out_p.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE,
+      1.f, 0.f);
+
+  auto d = GetGLVertex()->AddPoint(
+      in_p.x, in_p.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE,
+      -1.f, 0.f);
+
+  GetGLVertex()->AddFront(a, b, d);
+  GetGLVertex()->AddFront(a, d, c);
+
+  // Step 2 build aa square if needed
+  if (IsAntiAlias()) {
+    Vec2 fake_pt = pt - dir * stroke_radius_;
+
+    HandleSquareCapInternal(fake_pt, dir);
+  }
 }
 
 }  // namespace skity

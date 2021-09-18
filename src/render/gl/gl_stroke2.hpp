@@ -34,6 +34,8 @@ class GLStroke2 : public GLPathVisitor {
 
   void HandleSquareCapInternal(Vec2 const& pt, Vec2 const& dir);
 
+  void HandleButtCapInternal(Vec2 const& pt, Vec2 const& dir);
+
  private:
   float stroke_radius_;
   Lazy<Vec2> first_pt_{};

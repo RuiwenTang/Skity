@@ -52,7 +52,7 @@ class TestGLStroke2 : public test::TestApp {
     paint.setAntiAlias(true);
     paint.setStrokeWidth(30.f);
     paint.setStrokeJoin(skity::Paint::kMiter_Join);
-    paint.setStrokeCap(skity::Paint::kSquare_Cap);
+    paint.setStrokeCap(skity::Paint::kButt_Cap);
     paint.setColor(skity::Color_WHITE);
 
     skity::Path path;
