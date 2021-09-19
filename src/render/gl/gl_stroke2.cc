@@ -106,7 +106,7 @@ void GLStroke2::HandleLineJoin(const Vec2& from, const Vec2& to) {
   Vec2 prev_join;
   Vec2 curr_join;
 
-  if (orientation == Orientation::kClockWise) {
+  if (orientation == Orientation::kAntiClockWise) {
     prev_join = from - prev_normal * stroke_radius_;
     curr_join = from - current_normal * stroke_radius_;
   } else {
@@ -130,7 +130,38 @@ void GLStroke2::HandleLineJoin(const Vec2& from, const Vec2& to) {
 
 void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
                                         const Vec2& d1, const Vec2& p2,
-                                        const Vec2& d2) {}
+                                        const Vec2& d2) {
+  Vec2 pp1 = p1 - center;
+  Vec2 pp2 = p2 - center;
+
+  Vec2 out_dir = pp1 + pp2;
+
+  float k = 2.f * stroke_radius_ * stroke_radius_ /
+            (out_dir.x * out_dir.x + out_dir.y * out_dir.y);
+
+  Vec2 pe = k * out_dir;
+
+  Vec2 join = center + pe;
+
+  auto c = GetGLVertex()->AddPoint(
+      center.x, center.y,
+      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 0.f, 0.f);
+  auto cp1 = GetGLVertex()->AddPoint(
+      p1.x, p1.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f,
+      0.f);
+  auto cp2 = GetGLVertex()->AddPoint(
+      p2.x, p2.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f,
+      0.f);
+
+  GetGLVertex()->AddFront(c, cp1, cp2);
+
+  // for test
+  auto a = GetGLVertex()->AddPoint(p1.x, p1.y, 0.f, 0.f, 0.f);
+  auto b = GetGLVertex()->AddPoint(p2.x, p2.y, 0.f, 0.f, 0.f);
+  auto e = GetGLVertex()->AddPoint(join.x, join.y, 0.f, 0.f, 0.f);
+
+  GetGLVertex()->AddFront(a, b, e);
+}
 
 void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
                                         const Vec2& p2, const Vec2& out_dir) {}

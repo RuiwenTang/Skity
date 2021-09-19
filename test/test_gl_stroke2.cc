@@ -40,6 +40,7 @@ class TestGLStroke2 : public test::TestApp {
     // blend is need for anti-alias
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_STENCIL_TEST);
 
     shader_ = skity::GLShader::CreateUniverseShader();
   }
@@ -94,7 +95,7 @@ class TestGLStroke2 : public test::TestApp {
     shader_->Bind();
 
     shader_->SetMVPMatrix(mvp_);
-    shader_->SetUserColor(skity::Colors::kWhite);
+    shader_->SetUserColor({1.f, 1.f, 1.f, 1.f});
     shader_->SetUserData1({skity::GLUniverseShader::kPureColor, 0, 0, 0});
     shader_->SetUserData2({30.f, 0.f, 0.f, 0.f});
 
@@ -103,10 +104,19 @@ class TestGLStroke2 : public test::TestApp {
     skity::GLMeshDraw2 draw2{GL_TRIANGLES, range_.front_start,
                              range_.front_count};
 
+    mesh_->BindFrontIndex();
+
+    glColorMask(0, 0, 0, 0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+
     draw2();
 
-    mesh_->BindFrontIndex();
-    glDrawElements(GL_TRIANGLES, range_.front_count, GL_UNSIGNED_INT, 0);
+    glColorMask(1, 1, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilFunc(GL_EQUAL, 0x01, 0x01);
+
+    draw2();
 
     mesh_->UnBindMesh();
 
