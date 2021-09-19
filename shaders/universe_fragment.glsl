@@ -1,6 +1,7 @@
 #version 330 core
 
 // these macros are same as GLVertex2::VertexType
+#define VERTEX_TYPE_STROKE_AA 100.0
 #define VERTEX_TYPE_NONE 0.0
 #define VERTEX_TYPE_LINE_EDGE 1.0
 #define VERTEX_TYPE_LINE_CAP 2.0
@@ -8,14 +9,17 @@
 #define VERTEX_TYPE_LINE_ROUND_JOIN 4.0
 #define VERTEX_TYPE_QUAD_IN 5.0
 #define VERTEX_TYPE_QUAD_OUT 6.0
+#define VERTEX_TYPE_LINE_ROUND 7.0
 
 // these macros are same as GLShader::UniversealShader::Type
 #define USER_FRAGMENT_TYPE_STENCIL 0
 
 uniform vec4 UserColor;
 uniform ivec4 UserData1;
+uniform vec4 UserData2;
 
-
+// [x, y]
+in vec2 vPos;
 // [mix, u, v]
 in vec3 vPosInfo;
 
@@ -31,7 +35,6 @@ vec4 CalculateUserColor() {
   // TODO implement other type color
   return vec4(UserColor.xyz * UserColor.w, UserColor.w);
 }
-
 
 // line edge aa alpha
 float CalculateLineEdgeAlpha(float y) {
@@ -50,17 +53,40 @@ float CalculateLineCapAlpha() {
   return alpha * CalculateLineEdgeAlpha(vPosInfo.z);
 }
 
+float CalculateRoundCapAlpha() {
+  vec2 center = vPosInfo.yz;
+  float strokeRadius = UserData2.x * 0.5;
+  float dist = length(vPos - center);
+
+  return CalculateLineEdgeAlpha(dist / strokeRadius);
+}
+
 // Determin fragment alpha
 // this may generate alpha gradient if needs anti-alias
-float CalculateFragmentAlpha() {
-
-  if (vPosInfo.x == VERTEX_TYPE_LINE_EDGE) {
+float CalculateFragmentAlpha(float posType) {
+  if (posType == VERTEX_TYPE_LINE_EDGE) {
     return CalculateLineEdgeAlpha(vPosInfo.y);
   }
-  if (vPosInfo.x == VERTEX_TYPE_LINE_CAP) {
+  if (posType == VERTEX_TYPE_LINE_CAP) {
     return CalculateLineCapAlpha();
   }
+  if (posType == VERTEX_TYPE_LINE_ROUND) {
+    return CalculateRoundCapAlpha();
+  }
   return 1.0;
+}
+
+bool NeedDiscard(float posType) {
+  if (posType == VERTEX_TYPE_LINE_ROUND) {
+    vec2 center = vPosInfo.yz;
+    float strokeRadius = UserData2.x * 0.5;
+    if (length(vPos - center) > strokeRadius) {
+      discard;
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void main() {
@@ -70,8 +96,24 @@ void main() {
     return;
   }
 
+  bool needAA = false;
+  float posType = vPosInfo.x;
+  if (posType > VERTEX_TYPE_STROKE_AA) {
+    posType -= VERTEX_TYPE_STROKE_AA;
+    needAA = true;
+  } else if (posType != 0.0) {
+    needAA = true;
+  }
+
+  if (NeedDiscard(posType)) {
+    return;
+  }
+
   vec4 finalColor = CalculateUserColor();
-  float finalAlpha = CalculateFragmentAlpha();
+  float finalAlpha = 1.0;
+  if (needAA) {
+    finalAlpha *= CalculateFragmentAlpha(posType);
+  }
 
   FragColor = finalColor * finalAlpha;
 }

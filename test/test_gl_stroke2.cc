@@ -52,7 +52,7 @@ class TestGLStroke2 : public test::TestApp {
     paint.setAntiAlias(true);
     paint.setStrokeWidth(30.f);
     paint.setStrokeJoin(skity::Paint::kMiter_Join);
-    paint.setStrokeCap(skity::Paint::kButt_Cap);
+    paint.setStrokeCap(skity::Paint::kRound_Cap);
     paint.setColor(skity::Color_WHITE);
 
     skity::Path path;
@@ -96,21 +96,14 @@ class TestGLStroke2 : public test::TestApp {
     shader_->SetMVPMatrix(mvp_);
     shader_->SetUserColor(skity::Colors::kWhite);
     shader_->SetUserData1({skity::GLUniverseShader::kPureColor, 0, 0, 0});
+    shader_->SetUserData2({30.f, 0.f, 0.f, 0.f});
 
     mesh_->BindMesh();
 
-    //    skity::GLMeshDraw2 draw2{GL_TRIANGLES, range_.front_start,
-    //                             range_.front_count};
-    //
-    //    draw2();
+    skity::GLMeshDraw2 draw2{GL_TRIANGLES, range_.front_start,
+                             range_.front_count};
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void*)(2 * sizeof(float)));
+    draw2();
 
     mesh_->BindFrontIndex();
     glDrawElements(GL_TRIANGLES, range_.front_count, GL_UNSIGNED_INT, 0);

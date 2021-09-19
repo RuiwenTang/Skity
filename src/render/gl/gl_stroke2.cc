@@ -85,6 +85,8 @@ void GLStroke2::HandleFirstAndEndCap() {
       HandleButtCapInternal(*cur_pt_, -curr_dir);
       break;
     case Paint::kRound_Cap:
+      HandleRoundCapInternal(*first_pt_, *first_dir_);
+      HandleRoundCapInternal(*cur_pt_, -curr_dir);
       break;
     default:
       break;
@@ -200,6 +202,28 @@ void GLStroke2::HandleButtCapInternal(const Vec2& pt, const Vec2& dir) {
 
     HandleSquareCapInternal(fake_pt, dir);
   }
+}
+
+void GLStroke2::HandleRoundCapInternal(Vec2 const& pt, Vec2 const& dir) {
+  int32_t circle_type = GLVertex2::LINE_ROUND;
+  if (IsAntiAlias()) {
+    circle_type += GLVertex2::STROKE_AA;
+  }
+
+  Vec2 normal = {-dir.y, dir.x};
+
+  Vec2 p1 = pt + normal * stroke_radius_;
+  Vec2 p2 = pt - normal * stroke_radius_;
+  Vec2 p3 = p1 - dir * stroke_radius_;
+  Vec2 p4 = p2 - dir * stroke_radius_;
+
+  auto a = GetGLVertex()->AddPoint(p1.x, p1.y, circle_type, pt.x, pt.y);
+  auto b = GetGLVertex()->AddPoint(p2.x, p2.y, circle_type, pt.x, pt.y);
+  auto c = GetGLVertex()->AddPoint(p3.x, p3.y, circle_type, pt.x, pt.y);
+  auto d = GetGLVertex()->AddPoint(p4.x, p4.y, circle_type, pt.x, pt.y);
+
+  GetGLVertex()->AddFront(a, b, c);
+  GetGLVertex()->AddFront(b, d, c);
 }
 
 }  // namespace skity

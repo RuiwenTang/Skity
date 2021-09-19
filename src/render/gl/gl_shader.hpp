@@ -138,10 +138,12 @@ class GLUniverseShader : public GLShader {
 
   void SetUserColor(Vec4 const& value);
   void SetUserData1(glm::ivec4 const& value);
+  void SetUserData2(glm::vec4 const& value);
 
  private:
   int32_t user_color_location_ = -1;
   int32_t user_data1_location_ = -1;
+  int32_t user_data2_location_ = -1;
 };
 
 }  // namespace skity

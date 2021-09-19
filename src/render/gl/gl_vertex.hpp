@@ -114,6 +114,7 @@ class GLVertex2 {
     LINE_ROUND_JOIN = 4,
     QUAD_IN = 5,
     QUAD_OUT = 6,
+    LINE_ROUND = 7,
   };
 
   uint32_t AddPoint(float x, float y, float mix, float u, float v);
