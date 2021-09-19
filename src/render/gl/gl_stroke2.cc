@@ -13,158 +13,78 @@ GLStroke2::GLStroke2(const Paint& paint, GLVertex2* gl_vertex)
 void GLStroke2::HandleMoveTo(const Point& pt) { first_pt_.Set(Vec2{pt}); }
 
 void GLStroke2::HandleLineTo(const Point& from, const Point& to) {
-  auto const& first_pt = *first_pt_;
-  Vec2 current_dir = to - from;
-  current_dir = glm::normalize(current_dir);
-  if (!PointEqualPoint(first_pt, from)) {
-    // Handle line_join
-    HandleLineJoin(Vec2{from}, Vec2{to});
-  } else {
-    // save first dir
-    first_dir_.Set(current_dir);
+  Vec2 from_vec2 = Vec2{from};
+  Vec2 to_vec2 = Vec2{to};
+
+  if (first_pt_.IsValid() && *first_pt_ == from_vec2) {
+    // first line to calculate prev_join_1 and prev_join_2
+    Vec2 dir = glm::normalize(to - from);
+    Vec2 normal = Vec2{-dir.y, dir.x};
+    Vec2 prev_p1 = from_vec2 + normal * stroke_radius_;
+    Vec2 prev_p2 = from_vec2 - normal * stroke_radius_;
+
+    prev_join_1_.Set(prev_p1);
+    prev_join_2_.Set(prev_p2);
   }
 
-  Vec2 normal = Vec2{-current_dir.y, current_dir.x};
+  PathCMD cmd{};
+  cmd.p1 = from_vec2;
+  cmd.p2 = to_vec2;
+  cmd.verb = Path::Verb::kLine;
 
-  Vec2 from_outer = Vec2{from} + normal * stroke_radius_;
-  Vec2 from_inner = Vec2{from} - normal * stroke_radius_;
-  Vec2 to_outer = Vec2{to} + normal * stroke_radius_;
-  Vec2 to_inner = Vec2{to} - normal * stroke_radius_;
+  HandlePrevPathCMD(cmd);
 
-  auto a = GetGLVertex()->AddPoint(
-      from_outer.x, from_outer.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f, 0.f);
-  auto b = GetGLVertex()->AddPoint(
-      from_inner.x, from_inner.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f, 0.f);
-
-  auto c = GetGLVertex()->AddPoint(
-      to_outer.x, to_outer.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f, 0.f);
-
-  auto d = GetGLVertex()->AddPoint(
-      to_inner.x, to_inner.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f, 0.f);
-
-  GetGLVertex()->AddFront(a, b, c);
-  GetGLVertex()->AddFront(b, d, c);
-
-  // end
-  prev_dir_.Set(current_dir);
-  prev_pt_.Set(Vec2{from});
-  cur_pt_.Set(Vec2{to});
+  prev_cmd_.Set(cmd);
 }
 
 void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
-                             const Point& end) {}
+                             const Point& end) {
+  Vec2 from_vec2 = Vec2{from};
+  Vec2 control_vec2 = Vec2{control};
+  Vec2 end_vec2 = Vec2{end};
+
+  PathCMD cmd{};
+
+  cmd.p1 = from_vec2;
+  cmd.p2 = control_vec2;
+  cmd.p3 = end_vec2;
+  cmd.verb = Path::Verb::kQuad;
+
+  HandlePrevPathCMD(cmd);
+  prev_cmd_.Set(cmd);
+}
 
 void GLStroke2::HandleClose() { HandleFirstAndEndCap(); }
 
 void GLStroke2::HandleFinish() { HandleFirstAndEndCap(); }
 
 void GLStroke2::HandleFirstAndEndCap() {
-  if (!cur_pt_.IsValid() || !first_pt_.IsValid()) {
+  if (!first_pt_.IsValid() || !prev_cmd_.IsValid()) {
     return;
   }
 
-  if (*cur_pt_ == *first_pt_) {
-    // TODO handle first and last join
+  HandlePrevPathCMDEnd();
 
-    return;
-  }
-
-  Vec2 curr_dir = glm::normalize(*cur_pt_ - *prev_pt_);
+  Vec2 curr_dir = GetPrevEndDirection();
+  Vec2 cur_pt = GetPrevEndPoint();
 
   switch (GetCap()) {
     case Paint::kSquare_Cap:
       HandleSquareCapInternal(*first_pt_, *first_dir_);
-      HandleSquareCapInternal(*cur_pt_, -curr_dir);
+      HandleSquareCapInternal(cur_pt, -curr_dir);
       break;
     case Paint::kButt_Cap:
       HandleButtCapInternal(*first_pt_, *first_dir_);
-      HandleButtCapInternal(*cur_pt_, -curr_dir);
+      HandleButtCapInternal(cur_pt, -curr_dir);
       break;
     case Paint::kRound_Cap:
       HandleRoundCapInternal(*first_pt_, *first_dir_);
-      HandleRoundCapInternal(*cur_pt_, -curr_dir);
+      HandleRoundCapInternal(cur_pt, -curr_dir);
       break;
     default:
       break;
   }
 }
-
-void GLStroke2::HandleLineJoin(const Vec2& from, const Vec2& to) {
-  auto orientation = CalculateOrientation(*prev_pt_, from, to);
-  if (orientation == Orientation::kLinear) {
-    return;
-  }
-
-  Vec2 prev_normal = Vec2{-(*prev_dir_).y, (*prev_dir_).x};
-  Vec2 current_dir = glm::normalize(to - from);
-  Vec2 current_normal = Vec2{-current_dir.y, current_dir.x};
-
-  Vec2 prev_join;
-  Vec2 curr_join;
-
-  if (orientation == Orientation::kAntiClockWise) {
-    prev_join = from - prev_normal * stroke_radius_;
-    curr_join = from - current_normal * stroke_radius_;
-  } else {
-    prev_join = from + prev_normal * stroke_radius_;
-    curr_join = from + current_normal * stroke_radius_;
-  }
-
-  switch (GetJoin()) {
-    case Paint::kMiter_Join:
-      HandleMiterJoinInternal(from, prev_join, *prev_dir_, curr_join,
-                              -current_dir);
-      break;
-    case Paint::kBevel_Join:
-      HandleBevelJoinInternal(from, prev_join, curr_join,
-                              glm::normalize(*prev_dir_ - current_dir));
-      break;
-    default:
-      break;
-  }
-}
-
-void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
-                                        const Vec2& d1, const Vec2& p2,
-                                        const Vec2& d2) {
-  Vec2 pp1 = p1 - center;
-  Vec2 pp2 = p2 - center;
-
-  Vec2 out_dir = pp1 + pp2;
-
-  float k = 2.f * stroke_radius_ * stroke_radius_ /
-            (out_dir.x * out_dir.x + out_dir.y * out_dir.y);
-
-  Vec2 pe = k * out_dir;
-
-  Vec2 join = center + pe;
-
-  auto c = GetGLVertex()->AddPoint(
-      center.x, center.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 0.f, 0.f);
-  auto cp1 = GetGLVertex()->AddPoint(
-      p1.x, p1.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f,
-      0.f);
-  auto cp2 = GetGLVertex()->AddPoint(
-      p2.x, p2.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f,
-      0.f);
-
-  GetGLVertex()->AddFront(c, cp1, cp2);
-
-  // for test
-  auto a = GetGLVertex()->AddPoint(p1.x, p1.y, 0.f, 0.f, 0.f);
-  auto b = GetGLVertex()->AddPoint(p2.x, p2.y, 0.f, 0.f, 0.f);
-  auto e = GetGLVertex()->AddPoint(join.x, join.y, 0.f, 0.f, 0.f);
-
-  GetGLVertex()->AddFront(a, b, e);
-}
-
-void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
-                                        const Vec2& p2, const Vec2& out_dir) {}
 
 void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
   float step = stroke_radius_ * 0.1f;
@@ -252,6 +172,161 @@ void GLStroke2::HandleRoundCapInternal(Vec2 const& pt, Vec2 const& dir) {
   auto b = GetGLVertex()->AddPoint(p2.x, p2.y, circle_type, pt.x, pt.y);
   auto c = GetGLVertex()->AddPoint(p3.x, p3.y, circle_type, pt.x, pt.y);
   auto d = GetGLVertex()->AddPoint(p4.x, p4.y, circle_type, pt.x, pt.y);
+
+  GetGLVertex()->AddFront(a, b, c);
+  GetGLVertex()->AddFront(b, d, c);
+}
+
+Vec2 GLStroke2::GetPrevStartDirection() {
+  if (!prev_cmd_.IsValid()) {
+    return Vec2{0, 0};
+  }
+
+  if (prev_cmd_->verb == Path::Verb::kLine) {
+    return glm::normalize(prev_cmd_->p2 - prev_cmd_->p1);
+  }
+
+  if (prev_cmd_->verb == Path::Verb::kQuad) {
+    return glm::normalize(prev_cmd_->p2 - prev_cmd_->p1);
+  }
+
+  return Vec2{0, 0};
+}
+
+Vec2 GLStroke2::GetPrevEndDirection() {
+  if (!prev_cmd_.IsValid()) {
+    return Vec2{0, 0};
+  }
+
+  if (prev_cmd_->verb == Path::Verb::kLine) {
+    return glm::normalize(prev_cmd_->p2 - prev_cmd_->p1);
+  }
+
+  if (prev_cmd_->verb == Path::Verb::kQuad) {
+    return glm::normalize(prev_cmd_->p3 - prev_cmd_->p2);
+  }
+
+  return Vec2{0, 0};
+}
+
+Vec2 GLStroke2::GetPrevStartPoint() {
+  if (!prev_cmd_.IsValid()) {
+    return Vec2{0, 0};
+  }
+
+  return prev_cmd_->p1;
+}
+
+Vec2 GLStroke2::GetPrevEndPoint() {
+  if (!prev_cmd_.IsValid()) {
+    return Vec2{0, 0};
+  }
+
+  if (prev_cmd_->verb == Path::Verb::kQuad) {
+    return prev_cmd_->p3;
+  }
+
+  return prev_cmd_->p2;
+}
+
+void GLStroke2::HandlePrevPathCMD(PathCMD const& curr_path_cmd) {
+  if (!prev_cmd_.IsValid()) {
+    // update first_dir
+    first_dir_.Set(glm::normalize(curr_path_cmd.p2 - curr_path_cmd.p1));
+    return;
+  }
+  const auto& cmd = *prev_cmd_;
+
+  if (cmd.verb == Path::Verb::kLine) {
+    HandleLineToInternal(curr_path_cmd);
+  } else if (cmd.verb == Path::Verb::kQuad) {
+  }
+}
+
+void GLStroke2::HandlePrevPathCMDEnd() {
+  if (prev_cmd_->verb == Path::Verb::kLine) {
+    Vec2 p1 = *prev_join_1_;
+    Vec2 p2 = *prev_join_2_;
+
+    Vec2 end = GetPrevEndPoint();
+    Vec2 dir = GetPrevEndDirection();
+    Vec2 normal = Vec2{-dir.y, dir.x};
+
+    GenerateLineSquare(p1, p2, end + normal * stroke_radius_,
+                       end - normal * stroke_radius_);
+  }
+}
+
+std::pair<Vec2, Vec2> GLStroke2::CalculateLineJoinPoints(
+    PathCMD const& curr_path_cmd) {
+  Vec2 center = GetPrevEndPoint();
+  Vec2 prev_dir = GetPrevEndDirection();
+  Vec2 prev_normal = Vec2{-prev_dir.y, prev_dir.x};
+
+  Vec2 curr_dir = glm::normalize(curr_path_cmd.p2 - curr_path_cmd.p1);
+  Vec2 curr_normal = Vec2{-curr_dir.y, curr_dir.x};
+
+  Vec2 p1 = center + prev_normal * stroke_radius_;
+  Vec2 p2 = center + curr_normal * stroke_radius_;
+
+  Vec2 out_dir = (curr_normal + prev_normal) * stroke_radius_;
+
+  float k = 2.f * stroke_radius_ * stroke_radius_ /
+            (out_dir.x * out_dir.x + out_dir.y * out_dir.y);
+
+  Vec2 pe = k * out_dir;
+
+  Vec2 join1 = center + pe;
+  Vec2 join2 = center - pe;
+
+  return std::make_pair(join1, join2);
+}
+
+void GLStroke2::HandleLineToInternal(PathCMD const& curr_path_cmd) {
+  PathCMD const& prev_cmd = *prev_cmd_;
+
+  Orientation orientation =
+      CalculateOrientation(prev_cmd.p1, prev_cmd.p2, curr_path_cmd.p2);
+
+  if (orientation == Orientation::kLinear) {
+    // just add four points and rect these points
+    return;
+  }
+
+  Vec2 prev_dir = GetPrevEndDirection();
+  Vec2 prev_normal = Vec2{-prev_dir.y, prev_dir.x};
+
+  Vec2 prev_to_p1 = prev_cmd.p2 + prev_normal * stroke_radius_;
+  Vec2 prev_to_p2 = prev_cmd.p2 - prev_normal * stroke_radius_;
+
+  auto join_points = CalculateLineJoinPoints(curr_path_cmd);
+  // need to handle line join
+  Paint::Join line_join_type = GetJoin();
+  if (line_join_type == Paint::kMiter_Join &&
+      glm::length(std::get<0>(join_points) - prev_cmd.p2) >= GetMiterLimit()) {
+    line_join_type = Paint::kBevel_Join;
+  }
+
+  if (line_join_type == Paint::kMiter_Join) {
+    Vec2 p1 = *prev_join_1_;
+    Vec2 p2 = *prev_join_2_;
+    Vec2 p3 = std::get<0>(join_points);
+    Vec2 p4 = std::get<1>(join_points);
+
+    GenerateLineSquare(p1, p2, p3, p4);
+    prev_join_1_.Set(p3);
+    prev_join_2_.Set(p4);
+  }
+}
+
+void GLStroke2::GenerateLineSquare(Vec2 const& p1, Vec2 const& p2,
+                                   Vec2 const& p3, Vec2 const& p4) {
+  auto type = IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE;
+
+  auto a = GetGLVertex()->AddPoint(p1.x, p1.y, type, 1.f, 0.f);
+  auto b = GetGLVertex()->AddPoint(p2.x, p2.y, type, -1.f, 0.f);
+  auto c = GetGLVertex()->AddPoint(p3.x, p3.y, type, 1.f, 0.f);
+  auto d = GetGLVertex()->AddPoint(p4.x, p4.y, type, -1.f, 0.f);
 
   GetGLVertex()->AddFront(a, b, c);
   GetGLVertex()->AddFront(b, d, c);
