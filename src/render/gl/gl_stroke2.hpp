@@ -3,7 +3,6 @@
 #define SKITY_SRC_RENDER_GL_GL_STROKE2_HPP
 
 #include <skity/geometry/point.hpp>
-#include <utility>
 
 #include "src/render/gl/gl_path_visitor.hpp"
 #include "src/utils/lazy.hpp"
@@ -11,14 +10,6 @@
 namespace skity {
 
 class GLStroke2 : public GLPathVisitor {
-  struct PathCMD {
-    Path::Verb verb;
-    Vec2 p1;
-    Vec2 p2;
-    Vec2 p3;
-    Vec2 p4;
-  };
-
  public:
   GLStroke2(Paint const& paint, GLVertex2* gl_vertex);
   ~GLStroke2() override = default;
@@ -33,6 +24,13 @@ class GLStroke2 : public GLPathVisitor {
 
  private:
   void HandleFirstAndEndCap();
+  void HandleLineJoin(Vec2 const& from, Vec2 const& to);
+
+  void HandleMiterJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
+
+  void HandleBevelJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& p2, Vec2 const& out_dir);
 
   void HandleSquareCapInternal(Vec2 const& pt, Vec2 const& dir);
 
@@ -40,27 +38,13 @@ class GLStroke2 : public GLPathVisitor {
 
   void HandleRoundCapInternal(Vec2 const& pt, Vec2 const& dir);
 
-  Vec2 GetPrevStartDirection();
-  Vec2 GetPrevEndDirection();
-  Vec2 GetPrevStartPoint();
-  Vec2 GetPrevEndPoint();
-
-  void HandlePrevPathCMD(PathCMD const& curr_path_cmd);
-  void HandlePrevPathCMDEnd();
-  std::pair<Vec2, Vec2> CalculateLineJoinPoints(PathCMD const& curr_path_cmd);
-
-  void HandleLineToInternal(PathCMD const& curr_path_cmd);
-
-  void GenerateLineSquare(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
-                          Vec2 const& p4);
-
  private:
   float stroke_radius_;
   Lazy<Vec2> first_pt_{};
   Lazy<Vec2> first_dir_{};
-  Lazy<Vec2> prev_join_1_{};
-  Lazy<Vec2> prev_join_2_{};
-  Lazy<PathCMD> prev_cmd_{};
+  Lazy<Vec2> prev_dir_{};
+  Lazy<Vec2> prev_pt_{};
+  Lazy<Vec2> cur_pt_{};
 };
 
 }  // namespace skity
