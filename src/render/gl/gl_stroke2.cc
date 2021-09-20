@@ -141,6 +141,12 @@ void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
 
   Vec2 pe = k * out_dir;
 
+  if (glm::length(pe) >= GetMiterLimit()) {
+    // fallback to bevel_join
+    HandleBevelJoinInternal(center, p1, p2, glm::normalize(out_dir));
+    return;
+  }
+
   Vec2 join = center + pe;
 
   auto c = GetGLVertex()->AddPoint(
@@ -162,7 +168,15 @@ void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
 }
 
 void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
-                                        const Vec2& p2, const Vec2& out_dir) {}
+                                        const Vec2& p2, const Vec2& curr_dir) {
+  auto type = IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE;
+
+  auto a = GetGLVertex()->AddPoint(center.x, center.y, type, 0.f, 0.f);
+  auto b = GetGLVertex()->AddPoint(p1.x, p1.y, type, 1.f, 0.f);
+  auto c = GetGLVertex()->AddPoint(p2.x, p2.y, type, 1.f, 0.f);
+
+  GetGLVertex()->AddFront(a, b, c);
+}
 
 void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
   float step = stroke_radius_ * 0.1f;

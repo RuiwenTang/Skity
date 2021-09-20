@@ -52,7 +52,7 @@ class TestGLStroke2 : public test::TestApp {
     skity::Paint paint;
     paint.setAntiAlias(true);
     paint.setStrokeWidth(30.f);
-    paint.setStrokeJoin(skity::Paint::kRound_Join);
+    paint.setStrokeJoin(skity::Paint::kBevel_Join);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
     paint.setColor(skity::Color_WHITE);
 
@@ -62,6 +62,7 @@ class TestGLStroke2 : public test::TestApp {
     path.lineTo(300, 120);
     path.lineTo(130, 300);
     path.lineTo(300, 350);
+    path.lineTo(130, 340);
 
     skity::GLStroke2 gl_stroke{paint, &gl_vertex};
 
