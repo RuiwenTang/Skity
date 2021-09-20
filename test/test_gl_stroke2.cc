@@ -61,6 +61,7 @@ class TestGLStroke2 : public test::TestApp {
     path.moveTo(100, 100);
     path.lineTo(300, 120);
     path.lineTo(130, 300);
+    path.lineTo(300, 350);
 
     skity::GLStroke2 gl_stroke{paint, &gl_vertex};
 
@@ -95,8 +96,8 @@ class TestGLStroke2 : public test::TestApp {
     shader_->Bind();
 
     shader_->SetMVPMatrix(mvp_);
-    shader_->SetUserColor({1.f, 1.f, 1.f, 1.f});
-    shader_->SetUserData1({skity::GLUniverseShader::kPureColor, 0, 0, 0});
+    shader_->SetUserColor({1.f, 1.f, 1.f, .5f});
+    shader_->SetUserData1({skity::GLUniverseShader::kStencil, 0, 0, 0});
     shader_->SetUserData2({30.f, 0.f, 0.f, 0.f});
 
     mesh_->BindMesh();
@@ -114,7 +115,18 @@ class TestGLStroke2 : public test::TestApp {
 
     glColorMask(1, 1, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    glStencilFunc(GL_EQUAL, 0x01, 0x01);
+    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
+
+    // draw aa_outline first
+    shader_->SetUserData1({skity::GLUniverseShader::kAAOutline, 0, 0, 0});
+
+    draw2();
+
+    // draw geometry
+
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
+    shader_->SetUserData1({skity::GLUniverseShader::kPureColor, 0, 0, 0});
 
     draw2();
 

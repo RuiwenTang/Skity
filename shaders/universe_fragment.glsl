@@ -13,6 +13,8 @@
 
 // these macros are same as GLShader::UniversealShader::Type
 #define USER_FRAGMENT_TYPE_STENCIL 0
+#define USER_FRAGMENT_TYPE_AA_OUTLINE 1
+#define USER_FRAGMENT_TYPE_PURE_COLOR 2
 
 uniform vec4 UserColor;
 uniform ivec4 UserData1;
@@ -90,12 +92,6 @@ bool NeedDiscard(float posType) {
 }
 
 void main() {
-  // stencil, no need to calculate color
-  if (UserData1.x == USER_FRAGMENT_TYPE_STENCIL) {
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    return;
-  }
-
   bool needAA = false;
   float posType = vPosInfo.x;
   if (posType > VERTEX_TYPE_STROKE_AA) {
@@ -112,7 +108,15 @@ void main() {
   vec4 finalColor = CalculateUserColor();
   float finalAlpha = 1.0;
   if (needAA) {
-    finalAlpha *= CalculateFragmentAlpha(posType);
+    float aaAlpha = CalculateFragmentAlpha(posType);
+    if (UserData1.x != USER_FRAGMENT_TYPE_AA_OUTLINE) {
+      // stencil need discard aa outline fragment
+      if (aaAlpha < 1.0) {
+        discard;
+      }
+    }
+
+    finalAlpha *= aaAlpha;
   }
 
   FragColor = finalColor * finalAlpha;

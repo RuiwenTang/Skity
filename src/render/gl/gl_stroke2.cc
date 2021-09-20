@@ -150,17 +150,15 @@ void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
       p1.x, p1.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f,
       0.f);
   auto cp2 = GetGLVertex()->AddPoint(
-      p2.x, p2.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f,
+      p2.x, p2.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f,
       0.f);
 
-  GetGLVertex()->AddFront(c, cp1, cp2);
+  auto e = GetGLVertex()->AddPoint(
+      join.x, join.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE,
+      1.f, 0.f);
 
-  // for test
-  auto a = GetGLVertex()->AddPoint(p1.x, p1.y, 0.f, 0.f, 0.f);
-  auto b = GetGLVertex()->AddPoint(p2.x, p2.y, 0.f, 0.f, 0.f);
-  auto e = GetGLVertex()->AddPoint(join.x, join.y, 0.f, 0.f, 0.f);
-
-  GetGLVertex()->AddFront(a, b, e);
+  GetGLVertex()->AddFront(c, cp1, e);
+  GetGLVertex()->AddFront(c, cp2, e);
 }
 
 void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,

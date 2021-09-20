@@ -129,6 +129,7 @@ class GLUniverseShader : public GLShader {
  public:
   enum Type {
     kStencil = 0,
+    kAAOutline,
     kPureColor,
   };
   GLUniverseShader() = default;
