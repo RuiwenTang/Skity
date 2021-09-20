@@ -123,6 +123,10 @@ void GLStroke2::HandleLineJoin(const Vec2& from, const Vec2& to) {
       HandleBevelJoinInternal(from, prev_join, curr_join,
                               glm::normalize(*prev_dir_ - current_dir));
       break;
+    case Paint::kRound_Join:
+      HandleRoundJoinInternal(from, prev_join, *prev_dir_, curr_join,
+                              current_dir);
+      break;
     default:
       break;
   }
@@ -176,6 +180,27 @@ void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
   auto c = GetGLVertex()->AddPoint(p2.x, p2.y, type, 1.f, 0.f);
 
   GetGLVertex()->AddFront(a, b, c);
+}
+
+void GLStroke2::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
+                                        Vec2 const& d1, Vec2 const& p2,
+                                        Vec2 const& d2) {
+  int type = GLVertex2::LINE_ROUND;
+  if (IsAntiAlias()) {
+    type += GLVertex2::STROKE_AA;
+  }
+
+  Vec2 out_point = center + (d1 - d2) * stroke_radius_;
+
+  auto a =
+      GetGLVertex()->AddPoint(center.x, center.y, type, center.x, center.y);
+  auto b = GetGLVertex()->AddPoint(p1.x, p1.y, type, center.x, center.y);
+  auto c = GetGLVertex()->AddPoint(p2.x, p2.y, type, center.x, center.y);
+  auto e = GetGLVertex()->AddPoint(out_point.x, out_point.y, type, center.x,
+                                   center.y);
+
+  GetGLVertex()->AddFront(a, b, e);
+  GetGLVertex()->AddFront(a, e, c);
 }
 
 void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {

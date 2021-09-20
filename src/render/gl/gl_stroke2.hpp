@@ -32,6 +32,9 @@ class GLStroke2 : public GLPathVisitor {
   void HandleBevelJoinInternal(Vec2 const& center, Vec2 const& p1,
                                Vec2 const& p2, Vec2 const& curr_dir);
 
+  void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
+
   void HandleSquareCapInternal(Vec2 const& pt, Vec2 const& dir);
 
   void HandleButtCapInternal(Vec2 const& pt, Vec2 const& dir);
