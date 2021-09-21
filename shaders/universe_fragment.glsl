@@ -35,7 +35,7 @@ out vec4 FragColor;
 //  3. texture color
 vec4 CalculateUserColor() {
   // TODO implement other type color
-  return vec4(UserColor.xyz * UserColor.w, UserColor.w);
+  return vec4(UserColor.rgb * UserColor.a, UserColor.a);
 }
 
 // line edge aa alpha
@@ -51,7 +51,7 @@ float CalculateLineEdgeAlpha(float y) {
 
   float alpha = 1.0 - abs(feathe);
   alpha /= (1.0 - theta);
-  return alpha;
+  return max(alpha, 1.0);
 }
 // line cap alpha
 float CalculateLineCapAlpha() {
@@ -120,7 +120,7 @@ void main() {
       }
     }
 
-    finalAlpha *= aaAlpha;
+    finalAlpha = finalAlpha * aaAlpha;
   }
 
   FragColor = finalColor * finalAlpha;

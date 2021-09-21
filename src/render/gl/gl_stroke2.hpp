@@ -48,6 +48,7 @@ class GLStroke2 : public GLPathVisitor {
   Lazy<Vec2> prev_dir_{};
   Lazy<Vec2> prev_pt_{};
   Lazy<Vec2> cur_pt_{};
+  Lazy<Vec2> cur_dir_{};
 };
 
 }  // namespace skity

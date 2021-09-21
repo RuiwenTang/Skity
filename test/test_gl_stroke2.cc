@@ -62,7 +62,8 @@ class TestGLStroke2 : public test::TestApp {
     path.lineTo(300, 120);
     path.lineTo(130, 300);
     path.lineTo(300, 350);
-    path.lineTo(130, 340);
+    path.lineTo(80, 340);
+    path.close();
 
     skity::GLStroke2 gl_stroke{paint, &gl_vertex};
 

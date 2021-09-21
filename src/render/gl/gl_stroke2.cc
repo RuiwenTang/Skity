@@ -53,6 +53,7 @@ void GLStroke2::HandleLineTo(const Point& from, const Point& to) {
   prev_dir_.Set(current_dir);
   prev_pt_.Set(Vec2{from});
   cur_pt_.Set(Vec2{to});
+  cur_dir_.Set(current_dir);
 }
 
 void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
@@ -69,6 +70,45 @@ void GLStroke2::HandleFirstAndEndCap() {
 
   if (*cur_pt_ == *first_pt_) {
     // TODO handle first and last join
+    Vec2 f_pt = *first_pt_;
+    Vec2 f_dir = *first_dir_;
+    Vec2 f_nor = Vec2{-f_dir.y, f_dir.x};
+    Vec2 cur_pt = *cur_pt_;
+    Vec2 cur_dir = *cur_dir_;
+    Vec2 cur_nor = Vec2{-cur_dir.y, cur_dir.x};
+
+    Orientation orientation =
+        CalculateOrientation(*prev_pt_, cur_pt, cur_pt + f_dir);
+
+    if (orientation == Orientation::kLinear) {
+      // no need handle join
+      return;
+    }
+
+    Vec2 prev_join;
+    Vec2 curr_join;
+
+    if (orientation == Orientation::kAntiClockWise) {
+      prev_join = cur_pt - cur_nor * stroke_radius_;
+      curr_join = cur_pt - f_nor * stroke_radius_;
+    } else {
+      prev_join = cur_pt + cur_nor * stroke_radius_;
+      curr_join = cur_pt + f_nor * stroke_radius_;
+    }
+
+    switch (GetJoin()) {
+      case Paint::kMiter_Join:
+        HandleMiterJoinInternal(f_pt, prev_join, cur_dir, curr_join, f_dir);
+        break;
+      case Paint::kBevel_Join:
+        HandleBevelJoinInternal(f_pt, prev_join, curr_join, Vec2{0, 0});
+        break;
+      case Paint::kRound_Join:
+        HandleRoundJoinInternal(f_pt, prev_join, cur_dir, curr_join, f_dir);
+        break;
+      default:
+        break;
+    }
 
     return;
   }
@@ -155,7 +195,7 @@ void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
 
   auto c = GetGLVertex()->AddPoint(
       center.x, center.y,
-      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 0.f, 0.f);
+      IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f, 0.f);
   auto cp1 = GetGLVertex()->AddPoint(
       p1.x, p1.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, 1.f,
       0.f);
@@ -175,7 +215,7 @@ void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
                                         const Vec2& p2, const Vec2& curr_dir) {
   auto type = IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE;
 
-  auto a = GetGLVertex()->AddPoint(center.x, center.y, type, 0.f, 0.f);
+  auto a = GetGLVertex()->AddPoint(center.x, center.y, type, -1.f, 0.f);
   auto b = GetGLVertex()->AddPoint(p1.x, p1.y, type, 1.f, 0.f);
   auto c = GetGLVertex()->AddPoint(p2.x, p2.y, type, 1.f, 0.f);
 
