@@ -40,7 +40,7 @@ vec4 CalculateUserColor() {
 
 // line edge aa alpha
 float CalculateLineEdgeAlpha(float y) {
-  float feathe = y;
+  float feathe = min(y, 1.0);
   float theta = 0.9;
   if (UserData2.x < 5.0) {
     theta = 0.5;
@@ -51,7 +51,10 @@ float CalculateLineEdgeAlpha(float y) {
 
   float alpha = 1.0 - abs(feathe);
   alpha /= (1.0 - theta);
-  return max(alpha, 1.0);
+  if (alpha >= 1.0) {
+    alpha = 1.0;
+  }
+  return alpha;
 }
 // line cap alpha
 float CalculateLineCapAlpha() {

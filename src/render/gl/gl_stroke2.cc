@@ -61,7 +61,7 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
 
 void GLStroke2::HandleClose() { HandleFirstAndEndCap(); }
 
-void GLStroke2::HandleFinish() { HandleFirstAndEndCap(); }
+void GLStroke2::HandleFinish() {  }
 
 void GLStroke2::HandleFirstAndEndCap() {
   if (!cur_pt_.IsValid() || !first_pt_.IsValid()) {
@@ -125,8 +125,8 @@ void GLStroke2::HandleFirstAndEndCap() {
       HandleButtCapInternal(*cur_pt_, -curr_dir);
       break;
     case Paint::kRound_Cap:
-      HandleRoundCapInternal(*first_pt_, *first_dir_);
-      HandleRoundCapInternal(*cur_pt_, -curr_dir);
+     /* HandleRoundCapInternal(*first_pt_, *first_dir_);
+      HandleRoundCapInternal(*cur_pt_, -curr_dir);*/
       break;
     default:
       break;
