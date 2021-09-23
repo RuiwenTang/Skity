@@ -50,15 +50,19 @@ float QuadDist(float t) {
   if (0.0 <= t && t <= 1.0) {
     vec2 q = EvalQuad(t) - vPos;
     float strokeWidth = UserData2.x;
+    float theta = 0.2;
+    if (strokeWidth < 5.0) {
+      theta = 0.6;
+    }
     strokeWidth = strokeWidth * strokeWidth / 4.0;
 
     float dist = dot(q, q);
     float t = dist / strokeWidth;
-    if (t < 0.8) {
+    if (t < (1 - theta)) {
       return 1.0;
     }
 
-    return (1.0 - t) / 0.2;
+    return (1.0 - t) / theta;
   }
 
   return -1.0;
