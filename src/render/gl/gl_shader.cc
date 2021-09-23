@@ -225,6 +225,7 @@ void GLUniverseShader::InitLocations() {
   user_color_location_ = GL_CALL(GetUniformLocation, program_, "UserColor");
   user_data1_location_ = GL_CALL(GetUniformLocation, program_, "UserData1");
   user_data2_location_ = GL_CALL(GetUniformLocation, program_, "UserData2");
+  user_data3_location_ = GL_CALL(GetUniformLocation, program_, "UserData3");
 }
 
 void GLUniverseShader::SetUserColor(const Vec4& value) {
@@ -237,6 +238,10 @@ void GLUniverseShader::SetUserData1(const glm::ivec4& value) {
 
 void GLUniverseShader::SetUserData2(glm::vec4 const& value) {
   this->SetUniform(user_data2_location_, value);
+}
+
+void GLUniverseShader::SetUserData3(const glm::vec4& value) {
+  this->SetUniform(user_data3_location_, value);
 }
 
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {

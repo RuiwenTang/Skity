@@ -1,6 +1,8 @@
 
 #include "src/render/gl/gl_stroke2.hpp"
 
+#include <tuple>
+
 #include "src/geometry/geometry.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
@@ -57,11 +59,129 @@ void GLStroke2::HandleLineTo(const Point& from, const Point& to) {
 }
 
 void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
-                             const Point& end) {}
+                             const Point& end) {
+  Vec2 from_vec2 = Vec2{from};
+  Vec2 control_vec2 = Vec2{control};
+  Vec2 end_vec2 = Vec2{end};
+
+  Orientation orientation =
+      CalculateOrientation(from_vec2, control_vec2, end_vec2);
+
+  if (orientation == Orientation::kLinear) {
+    // fallback lineTo
+    HandleLineTo(from, end);
+    return;
+  }
+
+  Vec2 first_pt = *first_pt_;
+  Vec2 current_dir = glm::normalize(control_vec2 - from_vec2);
+  Vec2 end_dir = glm::normalize(end_vec2 - control_vec2);
+
+  if (!PointEqualPoint(first_pt, from_vec2)) {
+    // Handle line_join
+    HandleLineJoin(from_vec2, control_vec2);
+  } else {
+    first_dir_.Set(current_dir);
+  }
+
+  Vec2 p1, p2, p3, p4, c;
+
+  Vec2 cur_nor = Vec2{-current_dir.y, current_dir.x};
+  Vec2 end_nor = Vec2{-end_dir.y, end_dir.x};
+
+  p1 = from_vec2 - cur_nor * stroke_radius_;
+  p2 = from_vec2 + cur_nor * stroke_radius_;
+  p3 = end_vec2 - end_nor * stroke_radius_;
+  p4 = end_vec2 + end_nor * stroke_radius_;
+
+  if (orientation == Orientation::kClockWise) {
+    std::swap(p1, p2);
+    std::swap(p3, p4);
+  }
+
+  IntersectLineLine(p1, p1 + current_dir * stroke_radius_, p3,
+                    p3 - end_dir * stroke_radius_, c);
+
+  float type = IsAntiAlias() ? GLVertex2::STROKE_QUAD : GLVertex2::NONE;
+
+  Vec2 C = from_vec2;
+  Vec2 P1 = control_vec2;
+  Vec2 P2 = end_vec2;
+  Vec2 B = Times2(P1 - C);
+  Vec2 A = P2 - Times2(P1) + C;
+
+  Vec2 p1_pq, p2_pq, p3_pq, p4_pq, c_pq;
+
+  float dot_AA = -2.f * glm::dot(A, A);
+  float dot_AB = -3.f * glm::dot(A, B);
+  float offset = -dot_AB / (3.f * dot_AA);
+
+  CalculateQuadPQ(A, B, C, p1, p1_pq);
+  CalculateQuadPQ(A, B, C, p2, p2_pq);
+  CalculateQuadPQ(A, B, C, p3, p3_pq);
+  CalculateQuadPQ(A, B, C, p4, p4_pq);
+  CalculateQuadPQ(A, B, C, c, c_pq);
+
+  auto p1_index = GetGLVertex()->AddPoint(p1.x, p1.y, type, p1_pq.x, p1_pq.y);
+  auto p2_index = GetGLVertex()->AddPoint(p2.x, p2.y, type, p2_pq.x, p2_pq.y);
+  auto p3_index = GetGLVertex()->AddPoint(p3.x, p3.y, type, p3_pq.x, p3_pq.y);
+  auto p4_index = GetGLVertex()->AddPoint(p4.x, p4.y, type, p4_pq.x, p4_pq.y);
+  auto c_index = GetGLVertex()->AddPoint(c.x, c.y, type, c_pq.x, c_pq.y);
+
+  auto quad_start = GetGLVertex()->QuadCount();
+
+  GetGLVertex()->AddQuad(p1_index, c_index, p3_index);
+  GetGLVertex()->AddQuad(p1_index, p2_index, p4_index);
+  GetGLVertex()->AddQuad(p1_index, p4_index, p3_index);
+
+  auto quad_count = GetGLVertex()->QuadCount() - quad_start;
+
+  quad_range_.emplace_back(quad_start, quad_count, A, B, C, offset);
+
+  // save
+  prev_dir_.Set(end_dir);
+  prev_pt_.Set(control_vec2);
+  cur_pt_.Set(end_vec2);
+  cur_dir_.Set(end_dir);
+}
 
 void GLStroke2::HandleClose() { HandleFirstAndEndCap(); }
 
-void GLStroke2::HandleFinish() {  }
+void GLStroke2::HandleFinish(GLMeshRange* range) {
+
+
+  if (quad_range_.empty()) {
+    return;
+  }
+
+  range->quad_front_range.insert(range->quad_front_range.end(),
+                                 quad_range_.begin(), quad_range_.end());
+
+  quad_range_.clear();
+
+  if (*cur_pt_ == *first_pt_) {
+    return;
+  }
+
+  Vec2 curr_dir = glm::normalize(*cur_pt_ - *prev_pt_);
+
+  switch (GetCap()) {
+    case Paint::kSquare_Cap:
+      HandleSquareCapInternal(*first_pt_, *first_dir_);
+      HandleSquareCapInternal(*cur_pt_, -curr_dir);
+      break;
+    case Paint::kButt_Cap:
+      HandleButtCapInternal(*first_pt_, *first_dir_);
+      HandleButtCapInternal(*cur_pt_, -curr_dir);
+      break;
+    case Paint::kRound_Cap:
+      HandleRoundCapInternal(*first_pt_, *first_dir_);
+      HandleRoundCapInternal(*cur_pt_, -curr_dir);
+      break;
+    default:
+      break;
+  }
+}
 
 void GLStroke2::HandleFirstAndEndCap() {
   if (!cur_pt_.IsValid() || !first_pt_.IsValid()) {
@@ -125,8 +245,8 @@ void GLStroke2::HandleFirstAndEndCap() {
       HandleButtCapInternal(*cur_pt_, -curr_dir);
       break;
     case Paint::kRound_Cap:
-     /* HandleRoundCapInternal(*first_pt_, *first_dir_);
-      HandleRoundCapInternal(*cur_pt_, -curr_dir);*/
+      HandleRoundCapInternal(*first_pt_, *first_dir_);
+      HandleRoundCapInternal(*cur_pt_, -curr_dir);
       break;
     default:
       break;

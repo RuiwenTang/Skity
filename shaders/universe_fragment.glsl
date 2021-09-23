@@ -10,15 +10,19 @@
 #define VERTEX_TYPE_QUAD_IN 5.0
 #define VERTEX_TYPE_QUAD_OUT 6.0
 #define VERTEX_TYPE_LINE_ROUND 7.0
+#define VERTEX_TYPE_STROKE_QUAD 8.0
 
 // these macros are same as GLShader::UniversealShader::Type
 #define USER_FRAGMENT_TYPE_STENCIL 0
 #define USER_FRAGMENT_TYPE_AA_OUTLINE 1
 #define USER_FRAGMENT_TYPE_PURE_COLOR 2
 
+#define M_PI 3.1415926535897932384626433832795
+
 uniform vec4 UserColor;
 uniform ivec4 UserData1;
 uniform vec4 UserData2;
+uniform vec4 UserData3;
 
 // [x, y]
 in vec2 vPos;
@@ -27,6 +31,51 @@ in vec3 vPosInfo;
 
 // final fragment color
 out vec4 FragColor;
+
+float cbrt(float x) {
+  return sign(x) * pow(abs(x), 1.0 / 3.0);
+}
+
+vec2 EvalQuad(float t) {
+
+  vec2 a = UserData2.zw;
+  vec2 b = UserData3.xy;
+  vec2 c = UserData3.zw;
+
+  vec2 tt = vec2(t, t);
+  return (a * tt + b) * tt + c;
+}
+
+float QuadDist(float t) {
+  if (0.0 <= t && t <= 1.0) {
+    vec2 q = EvalQuad(t) - vPos;
+    float strokeWidth = UserData2.x;
+    strokeWidth = strokeWidth * strokeWidth / 4.0;
+
+    float dist = dot(q, q);
+    float t = dist / strokeWidth;
+    if (t < 0.8) {
+      return 1.0;
+    }
+
+    return (1.0 - t) / 0.2;
+  }
+
+  return -1.0;
+}
+
+bool QuadCheck(float t) {
+  if (0.0 <= t && t <= 1.0) {
+    vec2 q = EvalQuad(t) - vPos;
+    float strokeWidth = UserData2.x;
+    strokeWidth = strokeWidth * strokeWidth / 4.0;
+    if (dot(q, q) <= strokeWidth) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 // Determin UserInput color
 // this can be:
@@ -51,9 +100,6 @@ float CalculateLineEdgeAlpha(float y) {
 
   float alpha = 1.0 - abs(feathe);
   alpha /= (1.0 - theta);
-  if (alpha >= 1.0) {
-    alpha = 1.0;
-  }
   return alpha;
 }
 // line cap alpha
@@ -70,6 +116,44 @@ float CalculateRoundCapAlpha() {
   return CalculateLineEdgeAlpha(dist / strokeRadius);
 }
 
+float CalculateStrokeQuadAlpha() {
+  float p = vPosInfo.y;
+  float q = vPosInfo.z;
+  float offset = UserData2.y;
+
+  float d = q * q / 4.0 + p * p * p / 27.0;
+  if (d >= 0.0) {
+    float c1 = -q / 2.0;
+    float c2 = sqrt(d);
+
+    float t = QuadDist(cbrt(c1 + c2) + cbrt(c1 - c2) + offset);
+    if (t >= 0) {
+      return t;
+    }
+  } else {
+    float cos_3_theta = 3.0 * q * sqrt(-3.0 / p) / (2.0 * p);
+    float theta = acos(cos_3_theta) / 3.0;
+    float r = 2.0 * sqrt(-p / 3.0);
+
+    float t = QuadDist(r * cos(theta) + offset);
+    if (t >= 0.0) {
+      return t;
+    }
+
+    t = QuadDist(r * cos(theta + 2.0 * M_PI / 3.0) + offset);
+    if (t >= 0.0) {
+      return t;
+    }
+
+    t = QuadDist(r * cos(theta + 4.0 * M_PI / 3.0) + offset);
+    if (t >= 0.0) {
+      return t;
+    }
+  }
+
+  return 1.0;
+}
+
 // Determin fragment alpha
 // this may generate alpha gradient if needs anti-alias
 float CalculateFragmentAlpha(float posType) {
@@ -82,6 +166,9 @@ float CalculateFragmentAlpha(float posType) {
   if (posType == VERTEX_TYPE_LINE_ROUND) {
     return CalculateRoundCapAlpha();
   }
+  if (posType == VERTEX_TYPE_STROKE_QUAD) {
+    return CalculateStrokeQuadAlpha();
+  }
   return 1.0;
 }
 
@@ -92,6 +179,34 @@ bool NeedDiscard(float posType) {
     if (length(vPos - center) > strokeRadius) {
       discard;
       return true;
+    }
+  }
+
+  if (posType == VERTEX_TYPE_STROKE_QUAD) {
+    float p = vPosInfo.y;
+    float q = vPosInfo.z;
+    float offset = UserData2.y;
+
+    float d = q * q / 4.0 + p * p * p / 27.0;
+    if (d >= 0.0) {
+      float c1 = -q / 2.0;
+      float c2 = sqrt(d);
+
+      if (QuadCheck(cbrt(c1 + c2) + cbrt(c1 - c2) + offset)) {
+        discard;
+        return true;
+      }
+    } else {
+      float cos_3_theta = 3.0 * q * sqrt(-3.0 / p) / (2.0 * p);
+      float theta = acos(cos_3_theta) / 3.0;
+      float r = 2.0 * sqrt(-p / 3.0);
+
+      if (QuadCheck(r * cos(theta) + offset) &&
+          QuadCheck(r * cos(theta + 2.0 * M_PI / 3.0) + offset) &&
+          QuadCheck(r * cos(theta + 4.0 * M_PI / 3.0) + offset)) {
+        discard;
+        return true;
+      }
     }
   }
 

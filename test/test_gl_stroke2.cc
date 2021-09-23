@@ -7,6 +7,7 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
+#include "src/geometry/geometry.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -59,11 +60,13 @@ class TestGLStroke2 : public test::TestApp {
     skity::Path path;
 
     path.moveTo(100, 100);
-    path.lineTo(300, 120);
-    path.lineTo(130, 300);
-    path.lineTo(300, 350);
-    path.lineTo(80, 340);
-    path.close();
+    //    path.lineTo(300, 120);
+    //    path.lineTo(130, 300);
+    //    path.lineTo(300, 350);
+    //    path.lineTo(80, 340);
+    //    path.close();
+
+    path.quadTo(300, 100, 200, 200);
 
     skity::GLStroke2 gl_stroke{paint, &gl_vertex};
 
@@ -76,6 +79,7 @@ class TestGLStroke2 : public test::TestApp {
     auto front_data = gl_vertex.GetFrontDataSize();
     auto back_data = gl_vertex.GetBackDataSize();
     auto aa_data = gl_vertex.GetAADataSize();
+    auto quad_data = gl_vertex.GetQuadDataSize();
 
     if (std::get<1>(vertex_data) > 0) {
       mesh_->UploadVertexBuffer(std::get<0>(vertex_data),
@@ -91,6 +95,32 @@ class TestGLStroke2 : public test::TestApp {
     }
 
     if (std::get<1>(aa_data) > 0) {
+    }
+
+    if (std::get<1>(quad_data) > 0) {
+      mesh_->UploadQuadIndex(std::get<0>(quad_data), std::get<1>(quad_data));
+    }
+  }
+
+  void DrawQuadIfNeed() {
+    if (range_.quad_front_range.empty()) {
+      return;
+    }
+
+    mesh_->BindQuadIndex();
+
+    for (const auto& quad : range_.quad_front_range) {
+      //      skity::Vec2 C = quad.start;
+      //      glm::vec2 P1 = quad.control;
+      //      glm::vec2 P2 = quad.end;
+      //      skity::Vec2 B = skity::Times2(P1 - C);
+      //      skity::Vec2 A = P2 - skity::Times2(P1) + C;
+
+      shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
+      shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
+
+      glDrawElements(GL_TRIANGLES, quad.quad_count, GL_UNSIGNED_INT,
+                     (void*)(quad.quad_start * sizeof(GLuint)));
     }
   }
 
@@ -115,6 +145,8 @@ class TestGLStroke2 : public test::TestApp {
 
     draw2();
 
+    DrawQuadIfNeed();
+
     glColorMask(1, 1, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glStencilFunc(GL_EQUAL, 0x00, 0xFF);
@@ -122,7 +154,9 @@ class TestGLStroke2 : public test::TestApp {
     // draw aa_outline first
     shader_->SetUserData1({skity::GLUniverseShader::kAAOutline, 0, 0, 0});
 
+    mesh_->BindFrontIndex();
     draw2();
+    DrawQuadIfNeed();
 
     // draw geometry
 
@@ -130,7 +164,9 @@ class TestGLStroke2 : public test::TestApp {
     glStencilFunc(GL_NOTEQUAL, 0x00, 0xFF);
     shader_->SetUserData1({skity::GLUniverseShader::kPureColor, 0, 0, 0});
 
+    mesh_->BindFrontIndex();
     draw2();
+    DrawQuadIfNeed();
 
     mesh_->UnBindMesh();
 

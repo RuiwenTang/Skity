@@ -31,7 +31,7 @@ class GLPathVisitor {
   virtual void HandleQuadTo(Point const& from, Point const& control,
                             Point const& end) = 0;
   virtual void HandleClose() = 0;
-  virtual void HandleFinish() = 0;
+  virtual void HandleFinish(GLMeshRange* range) = 0;
 
  private:
   void HandleConicToInternal(Point const& start, Point const& control,

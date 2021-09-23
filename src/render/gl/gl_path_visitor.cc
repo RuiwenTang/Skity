@@ -57,7 +57,7 @@ GLMeshRange GLPathVisitor::VisitPath(const Path& path, bool force_close) {
   }
 
 DONE:
-  HandleFinish();
+  HandleFinish(&range);
 
   range.front_count = gl_vertex_->FrontCount() - range.front_start;
   range.back_count = gl_vertex_->BackCount() - range.back_start;

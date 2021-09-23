@@ -14,6 +14,7 @@ namespace skity {
  *    3. index_buffer for front triangle list
  *    4. index_buffer for back triangle list
  *    5. index_buffer for AA triangle list
+ *    6. index_buffer for quad triangle list
  */
 class GLMesh {
  public:
@@ -24,6 +25,7 @@ class GLMesh {
   void UploadFrontIndex(void* data, uint32_t length);
   void UploadBackIndex(void* data, uint32_t length);
   void uploadAaOutlineIndex(void* data, uint32_t length);
+  void UploadQuadIndex(void* data, uint32_t length);
   // generate vao and gl_buffers
   void Init();
 
@@ -34,14 +36,15 @@ class GLMesh {
   void BindBackIndex();
 
   void BindAAOutlineIndex();
+  void BindQuadIndex();
 
   void UnBindMesh();
 
  private:
   uint32_t vao_ = 0;
   // [vertex_buffer, front_index, back_index, aa_index]
-  std::array<uint32_t, 4> buffers_ = {};
-  std::array<uint64_t, 4> buffer_size_{};
+  std::array<uint32_t, 5> buffers_ = {};
+  std::array<uint64_t, 5> buffer_size_{};
 };
 
 /**

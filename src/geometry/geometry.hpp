@@ -275,6 +275,9 @@ void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
 
 void CubicToQuadratic(const Point cubic[4], Point quad[3]);
 
+void CalculateQuadPQ(Vec2 const& A, Vec2 const& B, Vec2 const& C, Vec2 const& P,
+                     Vec2& out);
+
 /**
  * @brief calculate intersect point of two line p1p2, p3p4
  *

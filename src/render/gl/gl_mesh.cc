@@ -64,6 +64,18 @@ void GLMesh::uploadAaOutlineIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void GLMesh::UploadQuadIndex(void* data, uint32_t length) {
+  assert(buffers_[4] != 0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[4]);
+  if (buffer_size_[4] < length) {
+    buffer_size_[4] = length;
+    GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
+            GL_STATIC_DRAW);
+  }
+  GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void GLMesh::Init() {
   assert(vao_ == 0);
   assert(buffers_[0] == 0);
@@ -90,6 +102,10 @@ void GLMesh::BindBackIndex() {
 
 void GLMesh::BindAAOutlineIndex() {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
+}
+
+void GLMesh::BindQuadIndex() {
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[4]);
 }
 
 void GLMesh::UnBindMesh() {

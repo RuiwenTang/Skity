@@ -286,6 +286,17 @@ void CubicToQuadratic(const Point cubic[4], Point quad[3]) {
   quad[2] = cubic[3];
 }
 
+void CalculateQuadPQ(Vec2 const& A, Vec2 const& B, Vec2 const& C, Vec2 const& P,
+                     Vec2& out) {
+  float a = -2.f * glm::dot(A, A);
+  float b = -3.f * glm::dot(A, B);
+  float c = 2.f * glm::dot(P, A) - 2.f * glm::dot(C, A) - glm::dot(B, B);
+  float d = glm::dot(P, B) - glm::dot(C, B);
+
+  out.x = (3.f * a * c - b * b) / (3.f * a * a);
+  out.y = (2.f * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+}
+
 int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
                           Point const& p4, Point& result) {
   double mua, mub;

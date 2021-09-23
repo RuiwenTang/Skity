@@ -5,6 +5,7 @@
 #include <skity/geometry/point.hpp>
 
 #include "src/render/gl/gl_path_visitor.hpp"
+#include "src/render/gl/gl_vertex.hpp"
 #include "src/utils/lazy.hpp"
 
 namespace skity {
@@ -20,7 +21,7 @@ class GLStroke2 : public GLPathVisitor {
   void HandleQuadTo(const Point& from, const Point& control,
                     const Point& end) override;
   void HandleClose() override;
-  void HandleFinish() override;
+  void HandleFinish(GLMeshRange* range) override;
 
  private:
   void HandleFirstAndEndCap();
@@ -49,6 +50,7 @@ class GLStroke2 : public GLPathVisitor {
   Lazy<Vec2> prev_pt_{};
   Lazy<Vec2> cur_pt_{};
   Lazy<Vec2> cur_dir_{};
+  std::vector<GLQuadRange> quad_range_{};
 };
 
 }  // namespace skity

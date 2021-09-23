@@ -194,6 +194,12 @@ void GLVertex2::AddAA(uint32_t a, uint32_t b, uint32_t c) {
   aa_index.emplace_back(c);
 }
 
+void GLVertex2::AddQuad(uint32_t a, uint32_t b, uint32_t c) {
+  quad_index.emplace_back(a);
+  quad_index.emplace_back(b);
+  quad_index.emplace_back(c);
+}
+
 std::pair<void*, size_t> GLVertex2::GetVertexDataSize() {
   return std::make_pair(static_cast<void*>(vertex_buffer.data()),
                         vertex_buffer.size() * sizeof(GLVertex2::Data));
@@ -214,6 +220,11 @@ std::pair<void*, size_t> GLVertex2::GetAADataSize() {
                         aa_index.size() * sizeof(uint32_t));
 }
 
+std::pair<void*, size_t> GLVertex2::GetQuadDataSize() {
+  return std::make_pair(static_cast<void*>(quad_index.data()),
+                        quad_index.size() * sizeof(uint32_t));
+}
+
 GLVertex2::Data GLVertex2::GetVertexData(uint32_t index) const {
   return vertex_buffer[index];
 }
@@ -228,5 +239,15 @@ void GLVertex2::Reset() {
   back_index.clear();
   aa_index.clear();
 }
+
+GLQuadRange::GLQuadRange(uint32_t quadStart, uint32_t quadCount,
+                         const Vec2& start, const Vec2& control,
+                         const Vec2& anEnd, float offset)
+    : quad_start(quadStart),
+      quad_count(quadCount),
+      start(start),
+      control(control),
+      end(anEnd),
+      offset(offset) {}
 
 }  // namespace skity

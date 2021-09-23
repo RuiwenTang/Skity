@@ -8,6 +8,18 @@
 
 namespace skity {
 
+struct GLQuadRange {
+  uint32_t quad_start = 0;
+  uint32_t quad_count = 0;
+  Vec2 start;
+  Vec2 control;
+  Vec2 end;
+  float offset;
+
+  GLQuadRange(uint32_t quadStart, uint32_t quadCount, const Vec2& start,
+              const Vec2& control, const Vec2& anEnd, float offset);
+};
+
 struct GLMeshRange {
   uint32_t front_start = 0;
   uint32_t front_count = 0;
@@ -15,6 +27,7 @@ struct GLMeshRange {
   uint32_t back_count = 0;
   uint32_t aa_outline_start = 0;
   uint32_t aa_outline_count = 0;
+  std::vector<GLQuadRange> quad_front_range = {};
 };
 
 class GLVertex {
@@ -115,21 +128,25 @@ class GLVertex2 {
     QUAD_IN = 5,
     QUAD_OUT = 6,
     LINE_ROUND = 7,
+    STROKE_QUAD = 8,
   };
 
   uint32_t AddPoint(float x, float y, float mix, float u, float v);
   void AddFront(uint32_t a, uint32_t b, uint32_t c);
   void AddBack(uint32_t a, uint32_t b, uint32_t c);
   void AddAA(uint32_t a, uint32_t b, uint32_t c);
+  void AddQuad(uint32_t a, uint32_t b, uint32_t c);
 
   uint32_t FrontCount() const { return front_index.size(); }
   uint32_t BackCount() const { return back_index.size(); }
   uint32_t AACount() const { return aa_index.size(); }
+  uint32_t QuadCount() const { return quad_index.size(); }
 
   std::pair<void*, size_t> GetVertexDataSize();
   std::pair<void*, size_t> GetFrontDataSize();
   std::pair<void*, size_t> GetBackDataSize();
   std::pair<void*, size_t> GetAADataSize();
+  std::pair<void*, size_t> GetQuadDataSize();
 
   GLVertex2::Data GetVertexData(uint32_t index) const;
 
@@ -142,6 +159,7 @@ class GLVertex2 {
   std::vector<uint32_t> front_index;
   std::vector<uint32_t> back_index;
   std::vector<uint32_t> aa_index;
+  std::vector<uint32_t> quad_index;
 };
 
 }  // namespace skity
