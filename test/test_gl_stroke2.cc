@@ -67,6 +67,7 @@ class TestGLStroke2 : public test::TestApp {
     //    path.close();
 
     path.quadTo(300, 100, 200, 200);
+    path.close();
 
     skity::GLStroke2 gl_stroke{paint, &gl_vertex};
 

@@ -91,8 +91,9 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
 
   p1 = from_vec2 - cur_nor * stroke_radius_;
   p2 = from_vec2 + cur_nor * stroke_radius_;
-  p3 = end_vec2 - end_nor * stroke_radius_;
-  p4 = end_vec2 + end_nor * stroke_radius_;
+  // Fixme to fill all quad fragment
+  p3 = end_vec2 - end_nor * stroke_radius_ * 1.1f;
+  p4 = end_vec2 + end_nor * stroke_radius_ * 1.2f;
 
   if (orientation == Orientation::kClockWise) {
     std::swap(p1, p2);
