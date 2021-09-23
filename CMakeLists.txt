@@ -133,6 +133,8 @@ set(Skity_src
         src/render/gl/gl_draw_op.hpp
         src/render/gl/gl_fill.cc
         src/render/gl/gl_fill.hpp
+        src/render/gl/gl_fill2.cc
+        src/render/gl/gl_fill2.hpp
         src/render/gl/gl_glyph_raster_cache.cc
         src/render/gl/gl_glyph_raster_cache.hpp
         src/render/gl/gl_interface.cc
