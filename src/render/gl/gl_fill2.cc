@@ -53,7 +53,48 @@ void GLFill2::HandleLineTo(const Point &from, const Point &to) {
 }
 
 void GLFill2::HandleQuadTo(const Point &from, const Point &control,
-                           const Point &end) {}
+                           const Point &end) {
+  Vec2 from_vec2 = Vec2{from};
+  Vec2 control_vec2 = Vec2{control};
+  Vec2 end_vec2 = Vec2{end};
+
+  if (from_vec2 != first_pt_) {
+    // need to handle outer stencil
+    Orientation orientation =
+        CalculateOrientation(first_pt_, from_vec2, end_vec2);
+
+    if (orientation != Orientation::kLinear) {
+      uint32_t n_start_index =
+          GetGLVertex()->AddPoint(from_vec2.x, from_vec2.y, 0.f, 0.f, 0.f);
+      uint32_t n_end_index =
+          GetGLVertex()->AddPoint(end_vec2.x, end_vec2.y, 0.f, 0.f, 0.f);
+
+      if (orientation == Orientation::kAntiClockWise) {
+        GetGLVertex()->AddFront(first_pt_index_, n_start_index, n_end_index);
+      } else {
+        GetGLVertex()->AddBack(first_pt_index_, n_start_index, n_end_index);
+      }
+    }
+  }
+
+  Orientation quad_orientation =
+      CalculateOrientation(from_vec2, control_vec2, end_vec2);
+
+  uint32_t start_index = GetGLVertex()->AddPoint(
+      from_vec2.x, from_vec2.y, GLVertex2::FILL_QUAD_IN, 0.f, 0.f);
+
+  uint32_t control_index = GetGLVertex()->AddPoint(
+      control_vec2.x, control_vec2.y, GLVertex2::FILL_QUAD_IN, 0.5f, 0.f);
+
+  uint32_t end_index = GetGLVertex()->AddPoint(
+      end_vec2.x, end_vec2.y, GLVertex2::FILL_QUAD_IN, 1.f, 1.f);
+
+  if (quad_orientation == Orientation::kAntiClockWise) {
+    GetGLVertex()->AddFront(start_index, control_index, end_index);
+  } else {
+    GetGLVertex()->AddBack(start_index, control_index, end_index);
+  }
+}
 
 void GLFill2::HandleClose() {
   if (first_pt_index_ < 0 || prev_pt_index_ < 0) {

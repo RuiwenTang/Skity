@@ -125,7 +125,7 @@ class GLVertex2 {
     LINE_CAP = 2,
     LINE_BEVEL_JOIN = 3,
     LINE_ROUND_JOIN = 4,
-    QUAD_IN = 5,
+    FILL_QUAD_IN = 5,
     QUAD_OUT = 6,
     LINE_ROUND = 7,
     STROKE_QUAD = 8,

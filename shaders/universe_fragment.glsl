@@ -7,7 +7,7 @@
 #define VERTEX_TYPE_LINE_CAP 2.0
 #define VERTEX_TYPE_LINE_BEVEL_JOIN 3.0
 #define VERTEX_TYPE_LINE_ROUND_JOIN 4.0
-#define VERTEX_TYPE_QUAD_IN 5.0
+#define VERTEX_TYPE_FILL_QUAD_IN 5.0
 #define VERTEX_TYPE_QUAD_OUT 6.0
 #define VERTEX_TYPE_LINE_ROUND 7.0
 #define VERTEX_TYPE_STROKE_QUAD 8.0
@@ -220,6 +220,13 @@ bool NeedDiscard(float posType) {
         discard;
         return true;
       }
+    }
+  }
+
+  if (posType == VERTEX_TYPE_FILL_QUAD_IN) {
+    if (vPosInfo.y * vPosInfo.y - vPosInfo.z > 0) {
+      discard;
+      return true;
     }
   }
 

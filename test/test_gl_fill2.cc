@@ -58,10 +58,14 @@ class TestGLFill2 : public test::TestApp {
 
     skity::Path path;
 
-    path.moveTo(100, 100);
-    path.lineTo(300, 120);
-    path.lineTo(80, 200);
-    path.lineTo(300, 250);
+//    path.moveTo(100, 100);
+//    path.lineTo(300, 120);
+//    path.lineTo(80, 200);
+//    path.lineTo(300, 250);
+//    path.close();
+
+    path.moveTo(50, 50);
+    path.cubicTo(256, 64, 10, 192, 250, 250);
     path.close();
 
     skity::GLFill2 gl_fill{paint, &gl_vertex};
@@ -106,11 +110,6 @@ class TestGLFill2 : public test::TestApp {
     mesh_->BindQuadIndex();
 
     for (const auto& quad : range_.quad_front_range) {
-      //      skity::Vec2 C = quad.start;
-      //      glm::vec2 P1 = quad.control;
-      //      glm::vec2 P2 = quad.end;
-      //      skity::Vec2 B = skity::Times2(P1 - C);
-      //      skity::Vec2 A = P2 - skity::Times2(P1) + C;
 
       shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
       shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
