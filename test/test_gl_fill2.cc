@@ -6,15 +6,16 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
+#include "src/render/gl/gl_fill2.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
-#include "src/render/gl/gl_stroke2.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
-class TestGLStroke2 : public test::TestApp {
+class TestGLFill2 : public test::TestApp {
  public:
-  TestGLStroke2() : test::TestApp(800, 800) {}
+  TestGLFill2() : test::TestApp(800, 800) {}
+  ~TestGLFill2() override = default;
 
  protected:
   void OnInit() override {
@@ -58,18 +59,14 @@ class TestGLStroke2 : public test::TestApp {
     skity::Path path;
 
     path.moveTo(100, 100);
-    //    path.lineTo(300, 120);
-    //    path.lineTo(130, 300);
-    //    path.lineTo(300, 350);
-    //    path.lineTo(80, 340);
-    //    path.close();
-
-    path.quadTo(300, 100, 200, 200);
+    path.lineTo(300, 120);
+    path.lineTo(80, 200);
+    path.lineTo(300, 250);
     path.close();
 
-    skity::GLStroke2 gl_stroke{paint, &gl_vertex};
+    skity::GLFill2 gl_fill{paint, &gl_vertex};
 
-    range_ = gl_stroke.VisitPath(path, false);
+    range_ = gl_fill.VisitPath(path, false);
 
     mesh_->Init();
     mesh_->BindMesh();
@@ -90,7 +87,7 @@ class TestGLStroke2 : public test::TestApp {
     }
 
     if (std::get<1>(back_data) > 0) {
-      mesh_->UploadBackIndex(std::get<0>(front_data), std::get<1>(back_data));
+      mesh_->UploadBackIndex(std::get<0>(back_data), std::get<1>(back_data));
     }
 
     if (std::get<1>(aa_data) > 0) {
@@ -146,16 +143,18 @@ class TestGLStroke2 : public test::TestApp {
 
     DrawQuadIfNeed();
 
+    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+
+    skity::GLMeshDraw2 draw_back2{GL_TRIANGLES, range_.back_start,
+                             range_.back_count};
+
+    mesh_->BindBackIndex();
+    draw_back2();
+
     glColorMask(1, 1, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glStencilFunc(GL_EQUAL, 0x00, 0xFF);
-
-    // draw aa_outline first
-    shader_->SetUserData1({skity::GLUniverseShader::kAAOutline, 0, 0, 0});
-
-    mesh_->BindFrontIndex();
-    draw2();
-    DrawQuadIfNeed();
 
     // draw geometry
 
@@ -167,6 +166,9 @@ class TestGLStroke2 : public test::TestApp {
     draw2();
     DrawQuadIfNeed();
 
+    mesh_->BindBackIndex();
+    draw_back2();
+
     mesh_->UnBindMesh();
 
     shader_->UnBind();
@@ -175,12 +177,12 @@ class TestGLStroke2 : public test::TestApp {
  private:
   std::unique_ptr<skity::GLUniverseShader> shader_;
   std::unique_ptr<skity::GLMesh> mesh_;
-  glm::mat4 mvp_;
-  skity::GLMeshRange range_;
+  glm::mat4 mvp_{};
+  skity::GLMeshRange range_{};
 };
 
 int main(int argc, const char** argv) {
-  TestGLStroke2 app{};
-  app.Start();
+  TestGLFill2 fill2;
+  fill2.Start();
   return 0;
 }

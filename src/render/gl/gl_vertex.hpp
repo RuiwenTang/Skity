@@ -129,6 +129,7 @@ class GLVertex2 {
     QUAD_OUT = 6,
     LINE_ROUND = 7,
     STROKE_QUAD = 8,
+    FILL_EDGE = 9,
   };
 
   uint32_t AddPoint(float x, float y, float mix, float u, float v);

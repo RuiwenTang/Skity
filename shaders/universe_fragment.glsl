@@ -11,6 +11,7 @@
 #define VERTEX_TYPE_QUAD_OUT 6.0
 #define VERTEX_TYPE_LINE_ROUND 7.0
 #define VERTEX_TYPE_STROKE_QUAD 8.0
+#define VERTEX_TYPE_FILL_EDGE 9.0
 
 // these macros are same as GLShader::UniversealShader::Type
 #define USER_FRAGMENT_TYPE_STENCIL 0
@@ -158,6 +159,10 @@ float CalculateStrokeQuadAlpha() {
   return 1.0;
 }
 
+float CalculateFillEdgeAlpha() {
+  return vPosInfo.y;
+}
+
 // Determin fragment alpha
 // this may generate alpha gradient if needs anti-alias
 float CalculateFragmentAlpha(float posType) {
@@ -172,6 +177,10 @@ float CalculateFragmentAlpha(float posType) {
   }
   if (posType == VERTEX_TYPE_STROKE_QUAD) {
     return CalculateStrokeQuadAlpha();
+  }
+
+  if (posType == VERTEX_TYPE_FILL_EDGE) {
+    return CalculateFillEdgeAlpha();
   }
   return 1.0;
 }

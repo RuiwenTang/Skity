@@ -25,6 +25,10 @@ class GLFill2 : public GLPathVisitor {
   Vec2 first_pt_dir_ = {};
   Vec2 prev_to_dir_ = {};
   int32_t first_pt_index_ = -1;
+  int32_t prev_pt_index_ = -1;
+  int32_t prev_pt_aa_index_ = -1;
+  float anti_alias_width_ = 10.f;
+  bool first_is_line_ = false;
 };
 
 }  // namespace skity
