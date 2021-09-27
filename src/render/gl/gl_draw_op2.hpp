@@ -67,6 +67,20 @@ class GLDrawOpFill : public GLDrawOp2 {
   bool need_aa_;
 };
 
+class GLDrawOpStroke : public GLDrawOp2 {
+ public:
+  GLDrawOpStroke(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range,
+                 float stroke_width, bool need_aa);
+  ~GLDrawOpStroke() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override;
+
+ private:
+  float stroke_width_;
+  bool need_aa_;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_GL_GL_DRAW_OP2_HPP

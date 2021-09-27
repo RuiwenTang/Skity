@@ -6,6 +6,7 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
+#include "src/render/gl/gl_draw_op2.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
@@ -25,7 +26,23 @@ class TestGLStroke2 : public test::TestApp {
   void OnDraw() override {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    DrawMesh();
+    // DrawMesh();
+
+    mesh_->BindMesh();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
+    shader_->Bind();
+    shader_->SetMVPMatrix(mvp_);
+
+    stroke_op_->Draw(false);
+
+    shader_->UnBind();
+    mesh_->UnBindMesh();
   }
 
  private:
@@ -99,6 +116,12 @@ class TestGLStroke2 : public test::TestApp {
     if (std::get<1>(quad_data) > 0) {
       mesh_->UploadQuadIndex(std::get<0>(quad_data), std::get<1>(quad_data));
     }
+
+    stroke_op_ = std::make_unique<skity::GLDrawOpStroke>(
+        shader_.get(), mesh_.get(), range_, paint.getStrokeWidth(), true);
+
+    stroke_op_->SetColorType(skity::GLUniverseShader::kPureColor);
+    stroke_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
   }
 
   void DrawQuadIfNeed() {
@@ -184,6 +207,7 @@ class TestGLStroke2 : public test::TestApp {
   std::unique_ptr<skity::GLMesh> mesh_;
   glm::mat4 mvp_;
   skity::GLMeshRange range_;
+  std::unique_ptr<skity::GLDrawOp2> stroke_op_;
 };
 
 int main(int argc, const char** argv) {

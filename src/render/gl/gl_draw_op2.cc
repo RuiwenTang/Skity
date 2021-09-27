@@ -151,4 +151,56 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
   DrawBack();
 }
 
+GLDrawOpStroke::GLDrawOpStroke(GLUniverseShader* shader, GLMesh* mesh,
+                               GLMeshRange range, float stroke_width,
+                               bool need_aa)
+    : GLDrawOp2(shader, mesh, std::move(range)),
+      stroke_width_(stroke_width),
+      need_aa_(need_aa) {}
+
+void GLDrawOpStroke::OnDraw(bool has_clip) {
+  // step 1 stencil
+  // disable color output
+  GL_CALL(ColorMask, 0, 0, 0, 0);
+  // stencil mask
+  GL_CALL(StencilMask, 0x0F);
+  GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
+  // update shader type
+  Shader()->SetUserData1({GLUniverseShader::kStencil, 0, 0, 0});
+  // front stencil op
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+
+  // stroke only contains front and quad range
+  // setup StrokeWidth
+  Shader()->SetUserData2({stroke_width_, 0.f, 0.f, 0.f});
+  DrawFront();
+  DrawQuadStroke(stroke_width_);
+
+  // enable Color output
+  GL_CALL(ColorMask, 1, 1, 1, 1);
+  if (need_aa_) {
+    GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
+    if (has_clip) {
+      GL_CALL(StencilFunc, GL_EQUAL, 0x10, 0x1F);
+    } else {
+      GL_CALL(StencilFunc, GL_EQUAL, 0x00, 0x0F);
+    }
+    Shader()->SetUserData1({GLUniverseShader::kAAOutline, 0, 0, 0});
+
+    DrawFront();
+    DrawQuadStroke(stroke_width_);
+  }
+
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
+  Shader()->SetUserData1({GetColorType(), 0, 0, 0});
+  if (has_clip) {
+    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x1F);
+  } else {
+    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x00, 0x0F);
+  }
+
+  DrawFront();
+  DrawQuadStroke(stroke_width_);
+}
+
 }  // namespace skity
