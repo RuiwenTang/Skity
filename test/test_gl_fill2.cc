@@ -58,11 +58,11 @@ class TestGLFill2 : public test::TestApp {
 
     skity::Path path;
 
-//    path.moveTo(100, 100);
-//    path.lineTo(300, 120);
-//    path.lineTo(80, 200);
-//    path.lineTo(300, 250);
-//    path.close();
+    //    path.moveTo(100, 100);
+    //    path.lineTo(300, 120);
+    //    path.lineTo(80, 200);
+    //    path.lineTo(300, 250);
+    //    path.close();
 
     path.moveTo(50, 50);
     path.cubicTo(256, 64, 10, 192, 250, 250);
@@ -110,7 +110,6 @@ class TestGLFill2 : public test::TestApp {
     mesh_->BindQuadIndex();
 
     for (const auto& quad : range_.quad_front_range) {
-
       shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
       shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
 
@@ -129,6 +128,13 @@ class TestGLFill2 : public test::TestApp {
 
     mesh_->BindMesh();
 
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
     skity::GLMeshDraw2 draw2{GL_TRIANGLES, range_.front_start,
                              range_.front_count};
 
@@ -146,7 +152,7 @@ class TestGLFill2 : public test::TestApp {
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
 
     skity::GLMeshDraw2 draw_back2{GL_TRIANGLES, range_.back_start,
-                             range_.back_count};
+                                  range_.back_count};
 
     mesh_->BindBackIndex();
     draw_back2();

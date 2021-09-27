@@ -133,6 +133,13 @@ class TestGLStroke2 : public test::TestApp {
 
     mesh_->BindMesh();
 
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void*)(2 * sizeof(float)));
+
     skity::GLMeshDraw2 draw2{GL_TRIANGLES, range_.front_start,
                              range_.front_count};
 
