@@ -1,0 +1,72 @@
+
+#ifndef SKITY_SRC_RENDER_GL_GL_DRAW_OP2_HPP
+#define SKITY_SRC_RENDER_GL_GL_DRAW_OP2_HPP
+
+#include <memory>
+#include <skity/geometry/point.hpp>
+#include <skity/graphic/color.hpp>
+
+#include "src/render/gl/gl_vertex.hpp"
+#include "src/utils/lazy.hpp"
+
+namespace skity {
+
+class GLUniverseShader;
+class GLMesh;
+
+class GLDrawOp2 {
+ public:
+  GLDrawOp2(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range);
+  virtual ~GLDrawOp2();
+
+  void Draw(bool has_clip);
+
+  void SetUserColor(glm::vec4 const& color4f);
+  void SetUserColor(Color color);
+  void SetUserData1(glm::ivec4 const& value);
+  void SetUserData2(glm::vec4 const& value);
+  void SetUserData3(glm::vec4 const& value);
+  void SetAAWidth(float width) { aa_width_ = width; }
+  void SetColorType(int32_t type) { color_type_ = type; }
+
+ protected:
+  virtual void OnDraw(bool has_clip) = 0;
+
+  GLUniverseShader* Shader() const { return shader_; }
+  GLMeshRange const& Range() const { return range_; }
+  float GetAAWidth() const { return aa_width_; }
+  int32_t GetColorType() const { return color_type_; }
+
+  void DrawFront();
+  void DrawBack();
+  void DrawAAOutline();
+  void DrawQuadStroke(float stroke_width);
+
+ private:
+  GLUniverseShader* shader_;
+  GLMesh* mesh_;
+  GLMeshRange range_;
+  float aa_width_ = 1.f;
+  int32_t color_type_ = 0;
+  Lazy<glm::vec4> user_color_ = {};
+  Lazy<glm::ivec4> user_data1_ = {};
+  Lazy<glm::vec4> user_data2_ = {};
+  Lazy<glm::vec4> user_data3_ = {};
+};
+
+class GLDrawOpFill : public GLDrawOp2 {
+ public:
+  GLDrawOpFill(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range,
+               bool need_aa);
+  ~GLDrawOpFill() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override;
+
+ private:
+  bool need_aa_;
+};
+
+}  // namespace skity
+
+#endif  // SKITY_SRC_RENDER_GL_GL_DRAW_OP2_HPP
