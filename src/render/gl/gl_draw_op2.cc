@@ -79,7 +79,7 @@ void GLDrawOp2::DrawAAOutline() {
     return;
   }
 
-  mesh_->BindAAOutlineIndex();
+  mesh_->BindFrontIndex();
   GLMeshDraw2 drawer{GL_TRIANGLES, range_.aa_outline_start,
                      range_.aa_outline_count};
   drawer();
@@ -126,6 +126,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
   // draw aa outline
   if (need_aa_) {
     Shader()->SetUserData1({GLUniverseShader::kAAOutline, 0, 0, 0});
+    Shader()->SetUserData2({GetAAWidth(), 0.f, 0.f, 0.f});
     GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
     if (has_clip) {
       GL_CALL(StencilFunc, GL_EQUAL, 0x10, 0x1F);

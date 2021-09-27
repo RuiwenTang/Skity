@@ -11,6 +11,7 @@
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
+#include "src/render/gl/gl_stroke2.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 class TestGLFill2 : public test::TestApp {
@@ -87,7 +88,21 @@ class TestGLFill2 : public test::TestApp {
 
     skity::GLFill2 gl_fill{paint, &gl_vertex};
 
-    range_ = gl_fill.VisitPath(path, false);
+    range_ = gl_fill.VisitPath(path, true);
+
+    skity::Paint aa_paint{paint};
+    aa_paint.setAntiAlias(true);
+    aa_paint.setStrokeWidth(2.f);
+    aa_paint.setStrokeMiter(2.4f);
+    aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
+    aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
+    skity::GLStroke2 gl_stroke{aa_paint, &gl_vertex};
+
+    auto aa_range = gl_stroke.VisitPath(path, false);
+
+    range_.aa_outline_start = aa_range.front_start;
+    range_.aa_outline_count = aa_range.front_count;
+    range_.quad_front_range = aa_range.quad_front_range;
 
     mesh_->Init();
     mesh_->BindMesh();
@@ -119,7 +134,7 @@ class TestGLFill2 : public test::TestApp {
     }
 
     draw_op_ = std::make_unique<skity::GLDrawOpFill>(shader_.get(), mesh_.get(),
-                                                     range_, false);
+                                                     range_, true);
     draw_op_->SetColorType(skity::GLUniverseShader::kPureColor);
     draw_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
   }
