@@ -42,12 +42,9 @@ in vec3 vPosInfo;
 // final fragment color
 out vec4 FragColor;
 
-float cbrt(float x) {
-  return sign(x) * pow(abs(x), 1.0 / 3.0);
-}
+float cbrt(float x) { return sign(x) * pow(abs(x), 1.0 / 3.0); }
 
 vec2 EvalQuad(float t) {
-
   vec2 a = UserData2.zw;
   vec2 b = UserData3.xy;
   vec2 c = UserData3.zw;
@@ -100,7 +97,7 @@ vec4 CalculateTextureColor() {
   float totalX = BottomRight.x - LeftTop.x;
   float totalY = BottomRight.y - LeftTop.y;
 
-  float vX = (pos.x- LeftTop.x) / totalX;
+  float vX = (pos.x - LeftTop.x) / totalX;
   float vY = (pos.y - LeftTop.y) / totalY;
   vX = clamp(vX, 0.0, 1.0);
   vY = clamp(vY, 0.0, 1.0);
@@ -146,7 +143,12 @@ vec4 LerpGradientColor(float dist) {
 
   vec4 color;
   if (UserData1.y == 1) {
-    color = mix(vec4(GradientColors[StartIndex].xyz * GradientColors[StartIndex].w, GradientColors[StartIndex].w), vec4(GradientColors[EndIndex].xyz * GradientColors[EndIndex].w, GradientColors[EndIndex].w), mixValue);
+    color =
+        mix(vec4(GradientColors[StartIndex].xyz * GradientColors[StartIndex].w,
+                 GradientColors[StartIndex].w),
+            vec4(GradientColors[EndIndex].xyz * GradientColors[EndIndex].w,
+                 GradientColors[EndIndex].w),
+            mixValue);
   } else {
     color = mix(GradientColors[StartIndex], GradientColors[EndIndex], mixValue);
   }
@@ -169,11 +171,16 @@ vec4 CalculateLinearGradientColor() {
   float mixValue = dot(sc, se) / length(se);
   float totalDist = length(se);
 
-  return LerpGradientColor( mixValue / totalDist);
+  return LerpGradientColor(mixValue / totalDist);
 }
 
 vec4 CalculateRadialGradient() {
-  return vec4(1, 1, 1, 1);
+  vec2 Center = UserData4.xy;
+  vec2 CurrentPt = vPos;
+
+  float mixValue = distance(Center, CurrentPt);
+
+  return LerpGradientColor(mixValue / UserData4.z);
 }
 
 // Determin UserInput color
@@ -265,9 +272,7 @@ float CalculateStrokeQuadAlpha() {
   return 1.0;
 }
 
-float CalculateFillEdgeAlpha() {
-  return vPosInfo.y;
-}
+float CalculateFillEdgeAlpha() { return vPosInfo.y; }
 
 // Determin fragment alpha
 // this may generate alpha gradient if needs anti-alias
@@ -321,8 +326,8 @@ bool NeedDiscard(float posType) {
       float r = 2.0 * sqrt(-p / 3.0);
 
       if (QuadCheck(r * cos(theta) + offset) &&
-      QuadCheck(r * cos(theta + 2.0 * M_PI / 3.0) + offset) &&
-      QuadCheck(r * cos(theta + 4.0 * M_PI / 3.0) + offset)) {
+          QuadCheck(r * cos(theta + 2.0 * M_PI / 3.0) + offset) &&
+          QuadCheck(r * cos(theta + 4.0 * M_PI / 3.0) + offset)) {
         discard;
         return true;
       }
