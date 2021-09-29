@@ -254,4 +254,39 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   DrawQuadStroke(stroke_width_);
 }
 
+GLDrawOpClip::GLDrawOpClip(GLUniverseShader* shader, GLMesh* mesh,
+                           GLMeshRange range, bool undo)
+    : GLDrawOp2(shader, mesh, std::move(range)), is_undo_(undo) {}
+
+void GLDrawOpClip::OnDraw(bool has_clip) {
+  // Disable Color Output
+  GL_CALL(ColorMask, 0, 0, 0, 0);
+  if (!IsUndo()) {
+    // Step 1 Stencil Path line Fill Operation
+    GL_CALL(StencilMask, 0x0F);
+    GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
+
+    // front stencil op
+    GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+    DrawFront();
+    // back stencil op
+    GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    DrawBack();
+  }
+
+  // Move stencil to high 8 bits all clear
+  GL_CALL(StencilMask, 0xFF);
+  if (IsUndo()) {
+    GL_CALL(StencilFunc, GL_ALWAYS, 0x00, 0x0F);
+  } else {
+    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x0F);
+  }
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
+
+  DrawFront();
+  DrawBack();
+
+  GL_CALL(StencilMask, 0x0F);
+}
+
 }  // namespace skity

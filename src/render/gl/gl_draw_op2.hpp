@@ -93,6 +93,22 @@ class GLDrawOpStroke : public GLDrawOp2 {
   bool need_aa_;
 };
 
+class GLDrawOpClip : public GLDrawOp2 {
+ public:
+  GLDrawOpClip(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range,
+               bool undo);
+
+  ~GLDrawOpClip() override = default;
+
+ protected:
+  void OnDraw(bool has_clip) override;
+
+  bool IsUndo() const { return is_undo_; }
+
+ private:
+  bool is_undo_;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_GL_GL_DRAW_OP2_HPP
