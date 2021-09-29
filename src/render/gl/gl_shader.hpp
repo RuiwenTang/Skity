@@ -4,6 +4,7 @@
 #include <memory>
 #include <skity/effect/shader.hpp>
 #include <skity/geometry/point.hpp>
+#include <vector>
 
 namespace skity {
 
@@ -146,6 +147,8 @@ class GLUniverseShader : public GLShader {
   void SetUserData3(glm::vec4 const& value);
   void SetUserData4(glm::vec4 const& value);
   void SetUserTexture(int32_t value);
+  void SetGradientColors(std::vector<glm::vec4> const& colors);
+  void SetGradientStops(std::vector<float> const& stops);
 
  private:
   int32_t user_color_location_ = -1;
@@ -154,6 +157,8 @@ class GLUniverseShader : public GLShader {
   int32_t user_data3_location_ = -1;
   int32_t user_data4_location_ = -1;
   int32_t user_texture_location_ = -1;
+  int32_t gradient_colors_location_ = -1;
+  int32_t gradient_stops_location_ = -1;
 };
 
 }  // namespace skity

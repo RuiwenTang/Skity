@@ -74,14 +74,13 @@ class TestGLStroke2 : public test::TestApp {
 
     skity::Path path;
 
-    path.moveTo(100, 100);
     //    path.lineTo(300, 120);
     //    path.lineTo(130, 300);
     //    path.lineTo(300, 350);
     //    path.lineTo(80, 340);
     //    path.close();
 
-//    path.quadTo(300, 100, 200, 200);
+    //    path.quadTo(300, 100, 200, 200);
     path.moveTo(50, 50);
     path.cubicTo(256, 64, 10, 192, 250, 250);
     path.close();
@@ -122,7 +121,14 @@ class TestGLStroke2 : public test::TestApp {
     stroke_op_ = std::make_unique<skity::GLDrawOpStroke>(
         shader_.get(), mesh_.get(), range_, paint.getStrokeWidth(), true);
 
-    stroke_op_->SetColorType(skity::GLUniverseShader::kPureColor);
+    stroke_op_->SetColorType(skity::GLUniverseShader::kGradientLinear);
+    stroke_op_->SetUserData1(
+        {skity::GLUniverseShader::kGradientLinear, 0, 2, 0});
+
+    stroke_op_->SetUserData4({50.f, 50.f, 250.f, 250.f});
+    std::vector<skity::Vec4> colors{skity::Vec4{1.f, 0.f, 0.f, 1.f},
+                                    skity::Vec4{0.f, 1.f, 1.f, 1.f}};
+    stroke_op_->SetGradientColors(colors);
     stroke_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
   }
 

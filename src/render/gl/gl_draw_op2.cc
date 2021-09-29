@@ -47,6 +47,14 @@ void GLDrawOp2::Draw(bool has_clip) {
     shader_->SetUserTexture(0);
   }
 
+  // gradient data
+  if (gradient_colors_.size() >= 2) {
+    shader_->SetGradientColors(gradient_colors_);
+    if (gradient_stops_.size() >= 2) {
+      shader_->SetGradientStops(gradient_stops_);
+    }
+  }
+
   this->OnDraw(has_clip);
 
   if (gl_texture_) {
@@ -74,6 +82,14 @@ void GLDrawOp2::SetUserData4(const glm::vec4& value) { user_data4_.Set(value); }
 
 void GLDrawOp2::SetGLTexture(const GLTexture* texture) {
   gl_texture_ = texture;
+}
+
+void GLDrawOp2::SetGradientColors(const std::vector<glm::vec4>& colors) {
+  gradient_colors_ = colors;
+}
+
+void GLDrawOp2::SetGradientStops(const std::vector<float>& stops) {
+  gradient_stops_ = stops;
 }
 
 void GLDrawOp2::UpdateShaderColorType(int32_t type) {
@@ -201,7 +217,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   GL_CALL(StencilMask, 0x0F);
   GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
   // update shader type
-  UpdateShaderColorType(GLUniverseShader::kStencil);
+  UpdateShaderColorType(GLUniverseShader::kStencil | GetColorType());
   // front stencil op
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
 
@@ -227,7 +243,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   }
 
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
-  Shader()->SetUserData1({GetColorType(), 0, 0, 0});
+  UpdateShaderColorType(GetColorType());
   if (has_clip) {
     GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x1F);
   } else {

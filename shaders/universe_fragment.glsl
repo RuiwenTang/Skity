@@ -22,6 +22,7 @@
 #define USER_FRAGMENT_TYPE_GRADIENT_RADIAL 0x10
 
 #define M_PI 3.1415926535897932384626433832795
+#define MAX_COLORS 32
 
 uniform sampler2D UserTexture;
 uniform vec4 UserColor;
@@ -29,6 +30,8 @@ uniform ivec4 UserData1;
 uniform vec4 UserData2;
 uniform vec4 UserData3;
 uniform vec4 UserData4;
+uniform vec4 GradientColors[MAX_COLORS];
+uniform float GradientStops[MAX_COLORS];
 // TODO Shader Local Matrix
 
 // [x, y]
@@ -105,6 +108,74 @@ vec4 CalculateTextureColor() {
   return texture(UserTexture, vec2(vX, vY)) * UserColor.w;
 }
 
+vec4 LerpGradientColor(float dist) {
+  int ColorCount = UserData1.z;
+  int StopCount = UserData1.w;
+
+  int StartIndex = 0;
+  int EndIndex = 1;
+  float step = 1.0 / (ColorCount - 1);
+  int i = 0;
+  float Start, End;
+  for (int i = 0; i < ColorCount - 1; i++) {
+    if (StopCount > 0) {
+      Start = GradientStops[i];
+      End = GradientStops[i + 1];
+    } else {
+      Start = step * i;
+      End = step * (i + 1);
+    }
+
+    if (dist >= Start && dist <= End) {
+      StartIndex = i;
+      EndIndex = i + 1;
+      break;
+    }
+  }
+
+  if (i == ColorCount - 1 && ColorCount > 0) {
+    return GradientColors[ColorCount - 1];
+  }
+
+  float total = (End - Start);
+  float value = (dist - Start);
+  float mixValue = 0.5;
+  if (total > 0) {
+    mixValue = value / total;
+  }
+
+  vec4 color;
+  if (UserData1.y == 1) {
+    color = mix(vec4(GradientColors[StartIndex].xyz * GradientColors[StartIndex].w, GradientColors[StartIndex].w), vec4(GradientColors[EndIndex].xyz * GradientColors[EndIndex].w, GradientColors[EndIndex].w), mixValue);
+  } else {
+    color = mix(GradientColors[StartIndex], GradientColors[EndIndex], mixValue);
+  }
+
+  return color;
+}
+
+vec4 CalculateLinearGradientColor() {
+  vec2 StartPt = UserData4.xy;
+  vec2 EndPt = UserData4.zw;
+  vec2 CurrentPt = vPos;
+
+  vec2 sc = CurrentPt - StartPt;
+  vec2 se = EndPt - StartPt;
+
+  if (sc.x * se.x + sc.y * se.y < 0) {
+    return LerpGradientColor(0.0);
+  }
+
+  float mixValue = dot(sc, se) / length(se);
+  float totalDist = length(se);
+
+  return LerpGradientColor( mixValue / totalDist);
+}
+
+vec4 CalculateRadialGradient() {
+  return vec4(1, 1, 1, 1);
+}
+
 // Determin UserInput color
 // this can be:
 //  1. pure color
@@ -116,10 +187,15 @@ vec4 CalculateUserColor() {
     // just color
     return vec4(UserColor.rgb * UserColor.a, UserColor.a);
   } else if ((UserData1.x & USER_FRAGMENT_TYPE_TEXTURE) != 0) {
+    // draw texture
     return CalculateTextureColor();
+  } else if ((UserData1.x & USER_FRAGMENT_TYPE_GRADIENT_LINEAR) != 0) {
+    return CalculateLinearGradientColor();
+  } else if ((UserData1.x & USER_FRAGMENT_TYPE_GRADIENT_RADIAL) != 0) {
+    return CalculateRadialGradient();
   }
 
-  return vec4(1, 0, 0, 1);
+  return vec4(0, 0, 0, 1);
 }
 
 // line edge aa alpha

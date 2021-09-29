@@ -228,6 +228,10 @@ void GLUniverseShader::InitLocations() {
   user_data3_location_ = GL_CALL(GetUniformLocation, program_, "UserData3");
   user_data4_location_ = GL_CALL(GetUniformLocation, program_, "UserData4");
   user_texture_location_ = GL_CALL(GetUniformLocation, program_, "UserTexture");
+  gradient_colors_location_ =
+      GL_CALL(GetUniformLocation, program_, "GradientColors");
+  gradient_stops_location_ =
+      GL_CALL(GetUniformLocation, program_, "GradientStops");
 }
 
 void GLUniverseShader::SetUserColor(const Vec4& value) {
@@ -252,6 +256,15 @@ void GLUniverseShader::SetUserData4(const glm::vec4& value) {
 
 void GLUniverseShader::SetUserTexture(int32_t value) {
   this->SetUniform(user_texture_location_, value);
+}
+
+void GLUniverseShader::SetGradientColors(const std::vector<glm::vec4>& colors) {
+  SetUniform(gradient_colors_location_, (glm::vec4*)colors.data(),
+             colors.size());
+}
+
+void GLUniverseShader::SetGradientStops(const std::vector<float>& stops) {
+  SetUniform(gradient_stops_location_, (float*)stops.data(), stops.size());
 }
 
 std::unique_ptr<StencilShader> GLShader::CreateStencilShader() {

@@ -5,6 +5,7 @@
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/graphic/color.hpp>
+#include <vector>
 
 #include "src/render/gl/gl_vertex.hpp"
 #include "src/utils/lazy.hpp"
@@ -31,6 +32,8 @@ class GLDrawOp2 {
   void SetGLTexture(const GLTexture* texture);
   void SetAAWidth(float width) { aa_width_ = width; }
   void SetColorType(int32_t type) { color_type_ = type; }
+  void SetGradientColors(std::vector<glm::vec4> const& colors);
+  void SetGradientStops(std::vector<float> const& stops);
 
  protected:
   virtual void OnDraw(bool has_clip) = 0;
@@ -59,6 +62,8 @@ class GLDrawOp2 {
   Lazy<glm::vec4> user_data3_ = {};
   Lazy<glm::vec4> user_data4_ = {};
   const GLTexture* gl_texture_ = nullptr;
+  std::vector<glm::vec4> gradient_colors_ = {};
+  std::vector<float> gradient_stops_ = {};
 };
 
 class GLDrawOpFill : public GLDrawOp2 {
