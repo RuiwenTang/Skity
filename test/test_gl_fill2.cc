@@ -3,15 +3,20 @@
 //
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <skity/codec/codec.hpp>
+#include <skity/codec/data.hpp>
+#include <skity/codec/pixmap.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
+#include "skity_config.hpp"
 #include "src/render/gl/gl_draw_op2.hpp"
 #include "src/render/gl/gl_fill2.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke2.hpp"
+#include "src/render/gl/gl_texture.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 class TestGLFill2 : public test::TestApp {
@@ -23,8 +28,10 @@ class TestGLFill2 : public test::TestApp {
   void OnInit() override {
     mvp_ = glm::ortho<float>(0, 800, 800, 0, -100, 100);
     InitGL();
+    InitTexture();
     InitMesh();
   }
+
   void OnDraw() override {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -136,8 +143,28 @@ class TestGLFill2 : public test::TestApp {
     draw_op_ = std::make_unique<skity::GLDrawOpFill>(shader_.get(), mesh_.get(),
                                                      range_, true);
     draw_op_->SetAAWidth(2.f);
-    draw_op_->SetColorType(skity::GLUniverseShader::kPureColor);
+    draw_op_->SetColorType(skity::GLUniverseShader::kTexture);
     draw_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
+    draw_op_->SetGLTexture(texture_);
+    draw_op_->SetUserData4({50, 50, 250, 250});
+  }
+
+  void InitTexture() {
+    texture_manager_ = std::make_unique<skity::GLTextureManager>();
+
+    auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
+
+    auto codec = skity::Codec::MakeFromData(skity_data);
+    if (!codec) {
+      exit(-1);
+    }
+    codec->SetData(skity_data);
+    auto pixmap = codec->Decode();
+    if (!pixmap) {
+      exit(-1);
+    }
+
+    texture_ = texture_manager_->GenerateTexture(pixmap.get());
   }
 
   void DrawQuadIfNeed() {
@@ -223,6 +250,8 @@ class TestGLFill2 : public test::TestApp {
   glm::mat4 mvp_{};
   skity::GLMeshRange range_{};
   std::unique_ptr<skity::GLDrawOp2> draw_op_;
+  std::unique_ptr<skity::GLTextureManager> texture_manager_;
+  const skity::GLTexture* texture_ = nullptr;
 };
 
 int main(int argc, const char** argv) {

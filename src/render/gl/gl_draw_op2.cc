@@ -6,6 +6,7 @@
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
+#include "src/render/gl/gl_texture.hpp"
 
 namespace skity {
 
@@ -35,7 +36,22 @@ void GLDrawOp2::Draw(bool has_clip) {
     shader_->SetUserData3(*user_data3_);
   }
 
+  // user data 4
+  if (user_data4_.IsValid()) {
+    shader_->SetUserData4(*user_data4_);
+  }
+
+  if (gl_texture_) {
+    gl_texture_->Bind();
+    GL_CALL(ActiveTexture, GL_TEXTURE0);
+    shader_->SetUserTexture(0);
+  }
+
   this->OnDraw(has_clip);
+
+  if (gl_texture_) {
+    gl_texture_->UnBind();
+  }
 }
 
 void GLDrawOp2::SetUserColor(Color color) {
@@ -53,6 +69,12 @@ void GLDrawOp2::SetUserData1(const glm::ivec4& value) {
 void GLDrawOp2::SetUserData2(const glm::vec4& value) { user_data2_.Set(value); }
 
 void GLDrawOp2::SetUserData3(const glm::vec4& value) { user_data3_.Set(value); }
+
+void GLDrawOp2::SetUserData4(const glm::vec4& value) { user_data4_.Set(value); }
+
+void GLDrawOp2::SetGLTexture(const GLTexture* texture) {
+  gl_texture_ = texture;
+}
 
 void GLDrawOp2::UpdateShaderColorType(int32_t type) {
   glm::ivec4 value = {};

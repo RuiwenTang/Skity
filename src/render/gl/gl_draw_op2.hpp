@@ -13,6 +13,7 @@ namespace skity {
 
 class GLUniverseShader;
 class GLMesh;
+class GLTexture;
 
 class GLDrawOp2 {
  public:
@@ -26,6 +27,8 @@ class GLDrawOp2 {
   void SetUserData1(glm::ivec4 const& value);
   void SetUserData2(glm::vec4 const& value);
   void SetUserData3(glm::vec4 const& value);
+  void SetUserData4(glm::vec4 const& value);
+  void SetGLTexture(const GLTexture* texture);
   void SetAAWidth(float width) { aa_width_ = width; }
   void SetColorType(int32_t type) { color_type_ = type; }
 
@@ -54,6 +57,8 @@ class GLDrawOp2 {
   Lazy<glm::ivec4> user_data1_ = {};
   Lazy<glm::vec4> user_data2_ = {};
   Lazy<glm::vec4> user_data3_ = {};
+  Lazy<glm::vec4> user_data4_ = {};
+  const GLTexture* gl_texture_ = nullptr;
 };
 
 class GLDrawOpFill : public GLDrawOp2 {

@@ -18,14 +18,18 @@
 #define USER_FRAGMENT_TYPE_AA_OUTLINE 1
 #define USER_FRAGMENT_TYPE_PURE_COLOR 0x02
 #define USER_FRAGMENT_TYPE_TEXTURE 0x04
-#define USER_FRAGMENT_TYPE_GRADIENT 0x08
+#define USER_FRAGMENT_TYPE_GRADIENT_LINEAR 0x08
+#define USER_FRAGMENT_TYPE_GRADIENT_RADIAL 0x10
 
 #define M_PI 3.1415926535897932384626433832795
 
+uniform sampler2D UserTexture;
 uniform vec4 UserColor;
 uniform ivec4 UserData1;
 uniform vec4 UserData2;
 uniform vec4 UserData3;
+uniform vec4 UserData4;
+// TODO Shader Local Matrix
 
 // [x, y]
 in vec2 vPos;
@@ -84,6 +88,23 @@ bool QuadCheck(float t) {
   return true;
 }
 
+vec4 CalculateTextureColor() {
+  // calculate UV first
+  vec2 LeftTop = UserData4.xy;
+  vec2 BottomRight = UserData4.zw;
+  vec2 pos = vPos;
+
+  float totalX = BottomRight.x - LeftTop.x;
+  float totalY = BottomRight.y - LeftTop.y;
+
+  float vX = (pos.x- LeftTop.x) / totalX;
+  float vY = (pos.y - LeftTop.y) / totalY;
+  vX = clamp(vX, 0.0, 1.0);
+  vY = clamp(vY, 0.0, 1.0);
+
+  return texture(UserTexture, vec2(vX, vY)) * UserColor.w;
+}
+
 // Determin UserInput color
 // this can be:
 //  1. pure color
@@ -91,7 +112,14 @@ bool QuadCheck(float t) {
 //  3. texture color
 vec4 CalculateUserColor() {
   // TODO implement other type color
-  return vec4(UserColor.rgb * UserColor.a, UserColor.a);
+  if ((UserData1.x & USER_FRAGMENT_TYPE_PURE_COLOR) != 0) {
+    // just color
+    return vec4(UserColor.rgb * UserColor.a, UserColor.a);
+  } else if ((UserData1.x & USER_FRAGMENT_TYPE_TEXTURE) != 0) {
+    return CalculateTextureColor();
+  }
+
+  return vec4(1, 0, 0, 1);
 }
 
 // line edge aa alpha
@@ -217,8 +245,8 @@ bool NeedDiscard(float posType) {
       float r = 2.0 * sqrt(-p / 3.0);
 
       if (QuadCheck(r * cos(theta) + offset) &&
-          QuadCheck(r * cos(theta + 2.0 * M_PI / 3.0) + offset) &&
-          QuadCheck(r * cos(theta + 4.0 * M_PI / 3.0) + offset)) {
+      QuadCheck(r * cos(theta + 2.0 * M_PI / 3.0) + offset) &&
+      QuadCheck(r * cos(theta + 4.0 * M_PI / 3.0) + offset)) {
         discard;
         return true;
       }

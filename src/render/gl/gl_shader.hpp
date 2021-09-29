@@ -132,7 +132,8 @@ class GLUniverseShader : public GLShader {
     kAAOutline = 0x01,
     kPureColor = 0x02,
     kTexture = 0x04,
-    kGradient = 0x08,
+    kGradientLinear = 0x08,
+    kGradientRadial = 0x10,
   };
   GLUniverseShader() = default;
   ~GLUniverseShader() override = default;
@@ -143,12 +144,16 @@ class GLUniverseShader : public GLShader {
   void SetUserData1(glm::ivec4 const& value);
   void SetUserData2(glm::vec4 const& value);
   void SetUserData3(glm::vec4 const& value);
+  void SetUserData4(glm::vec4 const& value);
+  void SetUserTexture(int32_t value);
 
  private:
   int32_t user_color_location_ = -1;
   int32_t user_data1_location_ = -1;
   int32_t user_data2_location_ = -1;
   int32_t user_data3_location_ = -1;
+  int32_t user_data4_location_ = -1;
+  int32_t user_texture_location_ = -1;
 };
 
 }  // namespace skity
