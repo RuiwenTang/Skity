@@ -135,6 +135,7 @@ class TestGLFill2 : public test::TestApp {
 
     draw_op_ = std::make_unique<skity::GLDrawOpFill>(shader_.get(), mesh_.get(),
                                                      range_, true);
+    draw_op_->SetAAWidth(2.f);
     draw_op_->SetColorType(skity::GLUniverseShader::kPureColor);
     draw_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
   }

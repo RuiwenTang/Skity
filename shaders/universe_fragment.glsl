@@ -16,7 +16,9 @@
 // these macros are same as GLShader::UniversealShader::Type
 #define USER_FRAGMENT_TYPE_STENCIL 0
 #define USER_FRAGMENT_TYPE_AA_OUTLINE 1
-#define USER_FRAGMENT_TYPE_PURE_COLOR 2
+#define USER_FRAGMENT_TYPE_PURE_COLOR 0x02
+#define USER_FRAGMENT_TYPE_TEXTURE 0x04
+#define USER_FRAGMENT_TYPE_GRADIENT 0x08
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -251,7 +253,7 @@ void main() {
   float finalAlpha = 1.0;
   if (needAA) {
     float aaAlpha = CalculateFragmentAlpha(posType);
-    if (UserData1.x != USER_FRAGMENT_TYPE_AA_OUTLINE) {
+    if ((UserData1.x & USER_FRAGMENT_TYPE_AA_OUTLINE) == 0) {
       // stencil need discard aa outline fragment
       if (aaAlpha < 1.0) {
         discard;

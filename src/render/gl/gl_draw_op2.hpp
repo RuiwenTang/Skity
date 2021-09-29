@@ -32,6 +32,8 @@ class GLDrawOp2 {
  protected:
   virtual void OnDraw(bool has_clip) = 0;
 
+  void UpdateShaderColorType(int32_t type);
+
   GLUniverseShader* Shader() const { return shader_; }
   GLMeshRange const& Range() const { return range_; }
   float GetAAWidth() const { return aa_width_; }

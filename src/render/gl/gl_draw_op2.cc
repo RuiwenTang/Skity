@@ -54,6 +54,18 @@ void GLDrawOp2::SetUserData2(const glm::vec4& value) { user_data2_.Set(value); }
 
 void GLDrawOp2::SetUserData3(const glm::vec4& value) { user_data3_.Set(value); }
 
+void GLDrawOp2::UpdateShaderColorType(int32_t type) {
+  glm::ivec4 value = {};
+
+  if (user_data1_.IsValid()) {
+    value = *user_data1_;
+  }
+
+  value.x = type;
+
+  Shader()->SetUserData1(value);
+}
+
 void GLDrawOp2::DrawFront() {
   if (range_.front_count == 0) {
     return;
@@ -112,7 +124,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
   GL_CALL(StencilMask, 0x0F);
   GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
   // update shader type
-  Shader()->SetUserData1({GLUniverseShader::kStencil, 0, 0, 0});
+  UpdateShaderColorType(GLUniverseShader::kStencil);
   // front stencil op
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
   DrawFront();
@@ -125,7 +137,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
 
   // draw aa outline
   if (need_aa_) {
-    Shader()->SetUserData1({GLUniverseShader::kAAOutline, 0, 0, 0});
+    UpdateShaderColorType(GetColorType() | GLUniverseShader::kAAOutline);
     Shader()->SetUserData2({GetAAWidth(), 0.f, 0.f, 0.f});
     GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_KEEP);
     if (has_clip) {
@@ -138,7 +150,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
   }
 
   // Fill normal color
-  Shader()->SetUserData1({GetColorType(), 0, 0, 0});
+  UpdateShaderColorType(GetColorType());
   // change stencil op
   // we need to replace stencil to make sure no fragment overlap
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -167,7 +179,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   GL_CALL(StencilMask, 0x0F);
   GL_CALL(StencilFunc, GL_ALWAYS, 0x01, 0x0F);
   // update shader type
-  Shader()->SetUserData1({GLUniverseShader::kStencil, 0, 0, 0});
+  UpdateShaderColorType(GLUniverseShader::kStencil);
   // front stencil op
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
 
@@ -186,7 +198,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
     } else {
       GL_CALL(StencilFunc, GL_EQUAL, 0x00, 0x0F);
     }
-    Shader()->SetUserData1({GLUniverseShader::kAAOutline, 0, 0, 0});
+    UpdateShaderColorType(GetColorType() | GLUniverseShader::kAAOutline);
 
     DrawFront();
     DrawQuadStroke(stroke_width_);
