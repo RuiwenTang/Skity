@@ -30,10 +30,10 @@ class GLCanvas2Test : public test::TestApp {
 
     skity::Paint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kSquare_Cap);
-    paint.setStrokeJoin(skity::Paint::kMiter_Join);
+    paint.setStrokeJoin(skity::Paint::kRound_Join);
     paint.setColor(skity::Color_WHITE);
 
     skity::Path path1;

@@ -119,8 +119,6 @@ void GLCanvas2::onFlush() {
   mesh_->BindMesh();
   this->SetupGLVertexAttrib();
 
-  auto err = GL_CALL(GetError);
-
   shader_->Bind();
 
   shader_->SetMVPMatrix(mvp_);
@@ -208,7 +206,19 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint) {
   gl_draw_ops_.emplace_back(std::move(op));
 }
 
-void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint) {}
+void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint) {
+  GLStroke2 gl_stroke{paint, vertex_.get()};
+
+  auto range = gl_stroke.VisitPath(*path, false);
+
+  auto op = std::make_unique<GLDrawOpStroke>(shader_.get(), mesh_.get(), range,
+                                             paint.getStrokeWidth(),
+                                             paint.isAntiAlias());
+
+  SetupColorType(op.get(), paint, false);
+
+  gl_draw_ops_.emplace_back(std::move(op));
+}
 
 void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint, bool fill) {
   // TODO support shader and texture
