@@ -14,6 +14,7 @@ class GLVertex2;
 
 class GLCanvas2State;
 class GLDrawOp2;
+class GLUniverseShader;
 
 class GLCanvas2 : public Canvas {
  public:
@@ -38,9 +39,19 @@ class GLCanvas2 : public Canvas {
   void onUpdateViewport(uint32_t width, uint32_t height) override;
 
  private:
+  void UploadVertex();
+  void SetupGLVertexAttrib();
+  void DoFillPath(const Path* path, Paint const& paint);
+  void DoStrokePath(const Path* path, Paint const& paint);
+  void SetupColorType(GLDrawOp2* op, Paint const& paint, bool fill);
+
+ private:
   Matrix mvp_;
   int32_t width_;
   int32_t height_;
+  std::unique_ptr<GLUniverseShader> shader_;
+  std::unique_ptr<GLMesh> mesh_;
+  std::unique_ptr<GLVertex2> vertex_;
   std::vector<std::unique_ptr<GLDrawOp2>> gl_draw_ops_ = {};
   std::unique_ptr<GLCanvas2State> state_;
 };

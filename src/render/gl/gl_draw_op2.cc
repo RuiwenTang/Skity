@@ -15,7 +15,7 @@ GLDrawOp2::GLDrawOp2(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range)
 
 GLDrawOp2::~GLDrawOp2() = default;
 
-void GLDrawOp2::Draw(bool has_clip) {
+void GLDrawOp2::Draw() {
   // user color
   if (user_color_.IsValid()) {
     shader_->SetUserColor(*user_color_);
@@ -55,7 +55,7 @@ void GLDrawOp2::Draw(bool has_clip) {
     }
   }
 
-  this->OnDraw(has_clip);
+  this->OnDraw(HasClip());
 
   if (gl_texture_) {
     gl_texture_->UnBind();

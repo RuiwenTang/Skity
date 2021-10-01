@@ -39,7 +39,7 @@ class TestGLStroke2 : public test::TestApp {
     shader_->Bind();
     shader_->SetMVPMatrix(mvp_);
 
-    stroke_op_->Draw(false);
+    stroke_op_->Draw();
 
     shader_->UnBind();
     mesh_->UnBindMesh();

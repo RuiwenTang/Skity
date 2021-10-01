@@ -48,7 +48,7 @@ class TestGLFill2 : public test::TestApp {
     shader_->Bind();
     shader_->SetMVPMatrix(mvp_);
 
-    draw_op_->Draw(false);
+    draw_op_->Draw();
 
     shader_->UnBind();
     mesh_->UnBindMesh();

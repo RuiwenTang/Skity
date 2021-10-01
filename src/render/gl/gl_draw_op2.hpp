@@ -21,7 +21,7 @@ class GLDrawOp2 {
   GLDrawOp2(GLUniverseShader* shader, GLMesh* mesh, GLMeshRange range);
   virtual ~GLDrawOp2();
 
-  void Draw(bool has_clip);
+  void Draw();
 
   void SetUserColor(glm::vec4 const& color4f);
   void SetUserColor(Color color);
@@ -34,6 +34,8 @@ class GLDrawOp2 {
   void SetColorType(int32_t type) { color_type_ = type; }
   void SetGradientColors(std::vector<glm::vec4> const& colors);
   void SetGradientStops(std::vector<float> const& stops);
+  void SetHasClip(bool has_clip) { has_clip_ = has_clip; }
+  bool HasClip() const { return has_clip_; }
 
  protected:
   virtual void OnDraw(bool has_clip) = 0;
@@ -56,6 +58,7 @@ class GLDrawOp2 {
   GLMeshRange range_;
   float aa_width_ = 1.f;
   int32_t color_type_ = 0;
+  bool has_clip_ = false;
   Lazy<glm::vec4> user_color_ = {};
   Lazy<glm::ivec4> user_data1_ = {};
   Lazy<glm::vec4> user_data2_ = {};

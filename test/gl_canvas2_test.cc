@@ -24,10 +24,13 @@ class GLCanvas2Test : public test::TestApp {
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
   void OnDraw() override {
+    glStencilMask(0xFF);
+    glColorMask(1, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     skity::Paint paint;
-    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStyle(skity::Paint::kFill_Style);
     paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kSquare_Cap);
     paint.setStrokeJoin(skity::Paint::kMiter_Join);
@@ -38,6 +41,7 @@ class GLCanvas2Test : public test::TestApp {
     path1.moveTo(100, 100);
     path1.lineTo(300, 120);
     path1.lineTo(400, 300);
+    path1.close();
 
     canvas_->drawPath(path1, paint);
 

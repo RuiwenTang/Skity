@@ -149,8 +149,6 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
 void GLStroke2::HandleClose() { HandleFirstAndEndCap(); }
 
 void GLStroke2::HandleFinish(GLMeshRange* range) {
-
-
   if (quad_range_.empty()) {
     return;
   }
