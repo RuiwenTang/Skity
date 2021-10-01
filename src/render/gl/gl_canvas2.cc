@@ -38,6 +38,8 @@ class GLCanvas2State final {
 
   void ClearMatrixDirty() { matrix_dirty_ = false; }
 
+  bool HasClip() { return !clip_info_stack_.empty(); }
+
   Matrix CurrentMatrix() { return matrix_stack_.back(); }
 
   void UpdateCurrentMatrix(Matrix const &matrix) {
@@ -48,10 +50,11 @@ class GLCanvas2State final {
   void SaveClipRange(GLMeshRange const &range) {
     size_t depth = matrix_stack_.size();
 
-    if (clip_stack_.count(depth) != 0) {
-      clip_stack_[depth] = range;
-    } else {
+    if (clip_info_stack_.empty() || clip_info_stack_.back() != depth) {
       clip_stack_.insert(std::make_pair(depth, range));
+      clip_info_stack_.emplace_back(depth);
+    } else {
+      clip_stack_[depth] = range;
     }
   }
 
@@ -77,6 +80,7 @@ class GLCanvas2State final {
  private:
   std::vector<Matrix> matrix_stack_;
   std::unordered_map<size_t, GLMeshRange> clip_stack_;
+  std::vector<size_t> clip_info_stack_;
   bool matrix_dirty_ = true;
 };
 
@@ -126,10 +130,35 @@ void GLCanvas2::onTranslate(float dx, float dy) {
   state_->UpdateCurrentMatrix(current * transform);
 }
 
-void GLCanvas2::onScale(float sx, float sy) {}
-void GLCanvas2::onRotate(float degree) {}
-void GLCanvas2::onRotate(float degree, float px, float py) {}
-void GLCanvas2::onConcat(const Matrix &matrix) {}
+void GLCanvas2::onScale(float sx, float sy) {
+  Matrix current = state_->CurrentMatrix();
+  Matrix scale = glm::scale(glm::identity<Matrix>(), {sx, sy, 1.f});
+
+  state_->UpdateCurrentMatrix(current * scale);
+}
+
+void GLCanvas2::onRotate(float degree) {
+  Matrix current = state_->CurrentMatrix();
+  Matrix rotate = glm::rotate(glm::identity<Matrix>(), glm::radians(degree),
+                              {0.f, 0.f, 1.f});
+  state_->UpdateCurrentMatrix(current * rotate);
+}
+
+void GLCanvas2::onRotate(float degree, float px, float py) {
+  Matrix current = state_->CurrentMatrix();
+  Matrix pre = glm::translate(glm::identity<Matrix>(), {-px, -py, 0.f});
+  Matrix rotate = glm::rotate(glm::identity<Matrix>(), glm::radians(degree),
+                              {0.f, 0.f, 1.f});
+  Matrix post = glm::translate(glm::identity<Matrix>(), {px, py, 0.f});
+
+  state_->UpdateCurrentMatrix(current * post * rotate * pre);
+}
+
+void GLCanvas2::onConcat(const Matrix &matrix) {
+  Matrix current = state_->CurrentMatrix();
+
+  state_->UpdateCurrentMatrix(current * matrix);
+}
 
 void GLCanvas2::onFlush() {
   mesh_->BindMesh();
