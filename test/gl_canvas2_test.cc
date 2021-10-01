@@ -30,11 +30,9 @@ class GLCanvas2Test : public test::TestApp {
 
     skity::Paint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(10.f);
     paint.setStrokeCap(skity::Paint::kSquare_Cap);
     paint.setStrokeJoin(skity::Paint::kRound_Join);
-    paint.setColor(skity::Color_WHITE);
 
     skity::Path path1;
 
@@ -42,6 +40,18 @@ class GLCanvas2Test : public test::TestApp {
     path1.lineTo(300, 120);
     path1.lineTo(400, 300);
     path1.close();
+
+    canvas_->save();
+
+    canvas_->translate(100, 0);
+    paint.setColor(skity::Color_DKGRAY);
+    paint.setStyle(skity::Paint::kFill_Style);
+    canvas_->drawPath(path1, paint);
+
+    canvas_->restore();
+
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setColor(skity::Color_WHITE);
 
     canvas_->drawPath(path1, paint);
 

@@ -28,7 +28,11 @@ class GLCanvas2State final {
   GLCanvas2State() { this->InitStack(); }
   ~GLCanvas2State() = default;
 
-  void Save() {}
+  void Save() {
+    Matrix current = matrix_stack_.back();
+
+    matrix_stack_.emplace_back(current);
+  }
 
   bool IsMatrixDirty() const { return matrix_dirty_; }
 
@@ -57,9 +61,12 @@ class GLCanvas2State final {
       return;
     }
 
+    Matrix prev = matrix_stack_.back();
     matrix_stack_.pop_back();
 
     this->HandleClipStack(current_deepth, ops);
+
+    matrix_dirty_ = prev != matrix_stack_.back();
   }
 
  private:
@@ -107,9 +114,18 @@ void GLCanvas2::onDrawPath(const Path &path, const Paint &paint) {
 
 void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
                              const Typeface *typeface, const Paint &paint) {}
-void GLCanvas2::onSave() {}
-void GLCanvas2::onRestore() {}
-void GLCanvas2::onTranslate(float dx, float dy) {}
+
+void GLCanvas2::onSave() { state_->Save(); }
+
+void GLCanvas2::onRestore() { state_->Restore(&gl_draw_ops_); }
+
+void GLCanvas2::onTranslate(float dx, float dy) {
+  Matrix current = state_->CurrentMatrix();
+  Matrix transform = glm::translate(glm::identity<Matrix>(), {dx, dy, 0.f});
+
+  state_->UpdateCurrentMatrix(current * transform);
+}
+
 void GLCanvas2::onScale(float sx, float sy) {}
 void GLCanvas2::onRotate(float degree) {}
 void GLCanvas2::onRotate(float degree, float px, float py) {}
