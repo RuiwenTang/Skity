@@ -29,6 +29,8 @@ class GLDrawOp2 {
   void SetUserData2(glm::vec4 const& value);
   void SetUserData3(glm::vec4 const& value);
   void SetUserData4(glm::vec4 const& value);
+  void SetUserTransform(glm::mat4 const& value);
+  void SetUserShaderMatrix(glm::mat4 const& value);
   void SetGLTexture(const GLTexture* texture);
   void SetAAWidth(float width) { aa_width_ = width; }
   void SetColorType(int32_t type) { color_type_ = type; }
@@ -64,6 +66,8 @@ class GLDrawOp2 {
   Lazy<glm::vec4> user_data2_ = {};
   Lazy<glm::vec4> user_data3_ = {};
   Lazy<glm::vec4> user_data4_ = {};
+  Lazy<glm::mat4> user_transform_ = {};
+  Lazy<glm::mat4> user_shader_matrix_ = {};
   const GLTexture* gl_texture_ = nullptr;
   std::vector<glm::vec4> gradient_colors_ = {};
   std::vector<float> gradient_stops_ = {};

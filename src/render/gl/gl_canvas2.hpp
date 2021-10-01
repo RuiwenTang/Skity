@@ -44,6 +44,7 @@ class GLCanvas2 : public Canvas {
   void DoFillPath(const Path* path, Paint const& paint);
   void DoStrokePath(const Path* path, Paint const& paint);
   void SetupColorType(GLDrawOp2* op, Paint const& paint, bool fill);
+  void SetupUserTransform(GLDrawOp2* op);
 
  private:
   Matrix mvp_;

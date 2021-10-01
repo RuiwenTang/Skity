@@ -41,6 +41,16 @@ void GLDrawOp2::Draw() {
     shader_->SetUserData4(*user_data4_);
   }
 
+  // user transform
+  if (user_transform_.IsValid()) {
+    shader_->SetUserTransform(*user_transform_);
+  }
+
+  // Shader matrix
+  if (user_shader_matrix_.IsValid()) {
+    shader_->SetUserShaderMatrix(*user_shader_matrix_);
+  }
+
   if (gl_texture_) {
     gl_texture_->Bind();
     GL_CALL(ActiveTexture, GL_TEXTURE0);
@@ -79,6 +89,14 @@ void GLDrawOp2::SetUserData2(const glm::vec4& value) { user_data2_.Set(value); }
 void GLDrawOp2::SetUserData3(const glm::vec4& value) { user_data3_.Set(value); }
 
 void GLDrawOp2::SetUserData4(const glm::vec4& value) { user_data4_.Set(value); }
+
+void GLDrawOp2::SetUserTransform(glm::mat4 const& value) {
+  user_transform_.Set(value);
+}
+
+void GLDrawOp2::SetUserShaderMatrix(glm::mat4 const& value) {
+  user_shader_matrix_.Set(value);
+}
 
 void GLDrawOp2::SetGLTexture(const GLTexture* texture) {
   gl_texture_ = texture;

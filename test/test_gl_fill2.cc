@@ -142,6 +142,10 @@ class TestGLFill2 : public test::TestApp {
 
     draw_op_ = std::make_unique<skity::GLDrawOpFill>(shader_.get(), mesh_.get(),
                                                      range_, true);
+
+    skity::Matrix matrix = glm::identity<glm::mat4>();
+    draw_op_->SetUserTransform(matrix);
+    draw_op_->SetUserShaderMatrix(matrix);
     draw_op_->SetAAWidth(2.f);
     draw_op_->SetColorType(skity::GLUniverseShader::kTexture);
     draw_op_->SetUserColor({1.f, 1.f, 1.f, .5f});

@@ -32,7 +32,8 @@ uniform vec4 UserData3;
 uniform vec4 UserData4;
 uniform vec4 GradientColors[MAX_COLORS];
 uniform float GradientStops[MAX_COLORS];
-// TODO Shader Local Matrix
+uniform mat4 UserTransform;
+uniform mat4 UserShaderMatrix;
 
 // [x, y]
 in vec2 vPos;
@@ -90,9 +91,11 @@ bool QuadCheck(float t) {
 
 vec4 CalculateTextureColor() {
   // calculate UV first
-  vec2 LeftTop = UserData4.xy;
-  vec2 BottomRight = UserData4.zw;
-  vec2 pos = vPos;
+  vec4 LeftTop =
+      UserShaderMatrix * UserTransform * vec4(UserData4.xy, 0.0, 1.0);
+  vec4 BottomRight =
+      UserShaderMatrix * UserTransform * vec4(UserData4.zw, 0.0, 1.0);
+  vec4 pos = UserTransform * vec4(vPos, 0.0, 1.0);
 
   float totalX = BottomRight.x - LeftTop.x;
   float totalY = BottomRight.y - LeftTop.y;
@@ -157,12 +160,13 @@ vec4 LerpGradientColor(float dist) {
 }
 
 vec4 CalculateLinearGradientColor() {
-  vec2 StartPt = UserData4.xy;
-  vec2 EndPt = UserData4.zw;
-  vec2 CurrentPt = vPos;
+  vec4 StartPt =
+      UserShaderMatrix * UserTransform * vec4(UserData4.xy, 0.0, 1.0);
+  vec4 EndPt = UserShaderMatrix * UserTransform * vec4(UserData4.zw, 0.0, 1.0);
+  vec4 CurrentPt = UserTransform * vec4(vPos, 0.0, 1.0);
 
-  vec2 sc = CurrentPt - StartPt;
-  vec2 se = EndPt - StartPt;
+  vec2 sc = CurrentPt.xy - StartPt.xy;
+  vec2 se = EndPt.xy - StartPt.xy;
 
   if (sc.x * se.x + sc.y * se.y < 0) {
     return LerpGradientColor(0.0);
@@ -175,10 +179,10 @@ vec4 CalculateLinearGradientColor() {
 }
 
 vec4 CalculateRadialGradient() {
-  vec2 Center = UserData4.xy;
-  vec2 CurrentPt = vPos;
+  vec4 Center = UserShaderMatrix * UserTransform * vec4(UserData4.xy, 0.0, 1.0);
+  vec4 CurrentPt = UserTransform * vec4(vPos, 0.0, 1.0);
 
-  float mixValue = distance(Center, CurrentPt);
+  float mixValue = distance(Center.xy, CurrentPt.xy);
 
   return LerpGradientColor(mixValue / UserData4.z);
 }

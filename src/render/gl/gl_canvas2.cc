@@ -30,10 +30,15 @@ class GLCanvas2State final {
 
   void Save() {}
 
+  bool IsMatrixDirty() const { return matrix_dirty_; }
+
+  void ClearMatrixDirty() { matrix_dirty_ = false; }
+
   Matrix CurrentMatrix() { return matrix_stack_.back(); }
 
   void UpdateCurrentMatrix(Matrix const &matrix) {
     matrix_stack_.back() = matrix;
+    matrix_dirty_ = true;
   }
 
   void SaveClipRange(GLMeshRange const &range) {
@@ -65,6 +70,7 @@ class GLCanvas2State final {
  private:
   std::vector<Matrix> matrix_stack_;
   std::unordered_map<size_t, GLMeshRange> clip_stack_;
+  bool matrix_dirty_ = true;
 };
 
 GLCanvas2::~GLCanvas2() = default;
@@ -202,6 +208,7 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint) {
   }
 
   SetupColorType(op.get(), paint, true);
+  SetupUserTransform(op.get());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }
@@ -216,6 +223,7 @@ void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint) {
                                              paint.isAntiAlias());
 
   SetupColorType(op.get(), paint, false);
+  SetupUserTransform(op.get());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }
@@ -225,6 +233,12 @@ void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint, bool fill) {
   op->SetColorType(GLUniverseShader::kPureColor);
   op->SetUserData1({GLUniverseShader::kPureColor, 0, 0, 0});
   op->SetUserColor(fill ? paint.GetFillColor() : paint.GetStrokeColor());
+}
+
+void GLCanvas2::SetupUserTransform(GLDrawOp2 *op) {
+  if (state_->IsMatrixDirty()) {
+    op->SetUserTransform(state_->CurrentMatrix());
+  }
 }
 
 }  // namespace skity

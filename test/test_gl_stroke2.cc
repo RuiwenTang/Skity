@@ -121,6 +121,9 @@ class TestGLStroke2 : public test::TestApp {
     stroke_op_ = std::make_unique<skity::GLDrawOpStroke>(
         shader_.get(), mesh_.get(), range_, paint.getStrokeWidth(), true);
 
+    skity::Matrix matrix = glm::identity<glm::mat4>();
+    stroke_op_->SetUserTransform(matrix);
+    stroke_op_->SetUserShaderMatrix(matrix);
     stroke_op_->SetColorType(skity::GLUniverseShader::kGradientLinear);
     stroke_op_->SetUserData1(
         {skity::GLUniverseShader::kGradientLinear, 0, 2, 0});

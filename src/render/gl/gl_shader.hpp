@@ -149,6 +149,8 @@ class GLUniverseShader : public GLShader {
   void SetUserTexture(int32_t value);
   void SetGradientColors(std::vector<glm::vec4> const& colors);
   void SetGradientStops(std::vector<float> const& stops);
+  void SetUserTransform(Matrix const& matrix);
+  void SetUserShaderMatrix(Matrix const& matrix);
 
  private:
   int32_t user_color_location_ = -1;
@@ -159,6 +161,8 @@ class GLUniverseShader : public GLShader {
   int32_t user_texture_location_ = -1;
   int32_t gradient_colors_location_ = -1;
   int32_t gradient_stops_location_ = -1;
+  int32_t user_transform_location_ = -1;
+  int32_t user_shader_matrix_location_ = -1;
 };
 
 }  // namespace skity
