@@ -5,16 +5,20 @@
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/render/canvas.hpp>
+#include <vector>
 
 namespace skity {
 
 class GLMesh;
 class GLVertex2;
 
+class GLCanvas2State;
+class GLDrawOp2;
+
 class GLCanvas2 : public Canvas {
  public:
   GLCanvas2(Matrix const& mvp, int32_t width, int32_t height);
-  ~GLCanvas2() override = default;
+  ~GLCanvas2() override;
 
  protected:
   void onClipPath(const Path& path, ClipOp op) override;
@@ -37,6 +41,8 @@ class GLCanvas2 : public Canvas {
   Matrix mvp_;
   int32_t width_;
   int32_t height_;
+  std::vector<std::unique_ptr<GLDrawOp2>> gl_draw_ops_ = {};
+  std::unique_ptr<GLCanvas2State> state_;
 };
 
 }  // namespace skity
