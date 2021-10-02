@@ -65,7 +65,7 @@ class GLCanvas2Test : public test::TestApp {
 
       std::vector<skity::Point> pts = {
           skity::Point{100, 100, 0.f, 1.f},
-          skity::Point{420, 320, 0.f, 1.f},
+          skity::Point{400, 300, 0.f, 1.f},
       };
 
       auto lgs = skity::Shader::MakeLinear(pts.data(), colors, positions, 3, 0);

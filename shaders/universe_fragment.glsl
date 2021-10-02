@@ -109,6 +109,9 @@ vec4 CalculateTextureColor() {
 }
 
 vec4 LerpGradientColor(float dist) {
+  if (dist >= 1.0) {
+    dist = 1.0;
+  }
   int ColorCount = UserData1.z;
   int StopCount = UserData1.w;
 
