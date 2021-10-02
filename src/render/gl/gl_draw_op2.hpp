@@ -39,6 +39,8 @@ class GLDrawOp2 {
   void SetHasClip(bool has_clip) { has_clip_ = has_clip; }
   bool HasClip() const { return has_clip_; }
 
+  int32_t GetColorType() const { return color_type_; }
+
  protected:
   virtual void OnDraw(bool has_clip) = 0;
 
@@ -47,7 +49,6 @@ class GLDrawOp2 {
   GLUniverseShader* Shader() const { return shader_; }
   GLMeshRange const& Range() const { return range_; }
   float GetAAWidth() const { return aa_width_; }
-  int32_t GetColorType() const { return color_type_; }
 
   void DrawFront();
   void DrawBack();

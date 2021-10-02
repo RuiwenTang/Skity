@@ -1,4 +1,5 @@
 
+#include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
@@ -52,6 +53,25 @@ class GLCanvas2Test : public test::TestApp {
 
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setColor(skity::Color_WHITE);
+
+    {
+      skity::Vec4 colors[] = {
+          skity::Vec4{0.f, 1.f, 1.f, 0.f},
+          skity::Vec4{0.f, 0.f, 1.f, 1.f},
+          skity::Vec4{1.f, 0.f, 0.f, 1.f},
+      };
+
+      float positions[] = {0.f, 0.65f, 1.f};
+
+      std::vector<skity::Point> pts = {
+          skity::Point{100, 100, 0.f, 1.f},
+          skity::Point{420, 320, 0.f, 1.f},
+      };
+
+      auto lgs = skity::Shader::MakeLinear(pts.data(), colors, positions, 3, 0);
+
+      paint.setShader(lgs);
+    }
 
     canvas_->drawPath(path1, paint);
 

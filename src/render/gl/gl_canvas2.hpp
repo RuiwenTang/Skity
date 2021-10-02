@@ -15,6 +15,7 @@ class GLVertex2;
 class GLCanvas2State;
 class GLDrawOp2;
 class GLUniverseShader;
+class GLTextureManager;
 
 class GLCanvas2 : public Canvas {
  public:
@@ -41,9 +42,10 @@ class GLCanvas2 : public Canvas {
  private:
   void UploadVertex();
   void SetupGLVertexAttrib();
-  void DoFillPath(const Path* path, Paint const& paint);
-  void DoStrokePath(const Path* path, Paint const& paint);
-  void SetupColorType(GLDrawOp2* op, Paint const& paint, bool fill);
+  void DoFillPath(const Path* path, Paint const& paint, Rect const& bounds);
+  void DoStrokePath(const Path* path, Paint const& paint, Rect const& bounds);
+  void SetupColorType(GLDrawOp2* op, Paint const& paint, Rect const& bounds,
+                      bool fill);
   void SetupUserTransform(GLDrawOp2* op);
 
  private:
@@ -53,6 +55,7 @@ class GLCanvas2 : public Canvas {
   std::unique_ptr<GLUniverseShader> shader_;
   std::unique_ptr<GLMesh> mesh_;
   std::unique_ptr<GLVertex2> vertex_;
+  std::unique_ptr<GLTextureManager> texture_manager_;
   std::vector<std::unique_ptr<GLDrawOp2>> gl_draw_ops_ = {};
   std::unique_ptr<GLCanvas2State> state_;
 };

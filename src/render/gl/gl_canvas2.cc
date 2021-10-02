@@ -2,6 +2,7 @@
 #include "src/render/gl/gl_canvas2.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <skity/codec/pixmap.hpp>
 #include <unordered_map>
 
 #include "src/render/gl/gl_draw_op2.hpp"
@@ -10,6 +11,7 @@
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
 #include "src/render/gl/gl_stroke2.hpp"
+#include "src/render/gl/gl_texture.hpp"
 #include "src/render/gl/gl_vertex.hpp"
 
 namespace skity {
@@ -94,6 +96,7 @@ GLCanvas2::GLCanvas2(const Matrix &mvp, int32_t width, int32_t height)
       shader_(GLShader::CreateUniverseShader()),
       mesh_(std::make_unique<GLMesh>()),
       vertex_(std::make_unique<GLVertex2>()),
+      texture_manager_(std::make_unique<GLTextureManager>()),
       state_(std::make_unique<GLCanvas2State>()) {
   // Init mesh
   mesh_->Init();
@@ -105,14 +108,16 @@ void GLCanvas2::onDrawPath(const Path &path, const Paint &paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
 
+  Rect bounds = path.getBounds();
+
   // step1 fill
   if (need_fill) {
-    DoFillPath(&path, paint);
+    DoFillPath(&path, paint, bounds);
   }
 
   // step2 stroke
   if (need_stroke) {
-    DoStrokePath(&path, paint);
+    DoStrokePath(&path, paint, bounds);
   }
 }
 
@@ -224,7 +229,8 @@ void GLCanvas2::SetupGLVertexAttrib() {
           (void *)(2 * sizeof(float)));
 }
 
-void GLCanvas2::DoFillPath(const Path *path, Paint const &paint) {
+void GLCanvas2::DoFillPath(const Path *path, Paint const &paint,
+                           Rect const &bounds) {
   GLFill2 gl_fill{paint, vertex_.get()};
   auto range = gl_fill.VisitPath(*path, true);
 
@@ -252,13 +258,14 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint) {
     op->SetAAWidth(2.f);
   }
 
-  SetupColorType(op.get(), paint, true);
+  SetupColorType(op.get(), paint, bounds, true);
   SetupUserTransform(op.get());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }
 
-void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint) {
+void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint,
+                             Rect const &bounds) {
   GLStroke2 gl_stroke{paint, vertex_.get()};
 
   auto range = gl_stroke.VisitPath(*path, false);
@@ -267,17 +274,80 @@ void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint) {
                                              paint.getStrokeWidth(),
                                              paint.isAntiAlias());
 
-  SetupColorType(op.get(), paint, false);
+  SetupColorType(op.get(), paint, bounds, false);
   SetupUserTransform(op.get());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }
 
-void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint, bool fill) {
-  // TODO support shader and texture
-  op->SetColorType(GLUniverseShader::kPureColor);
-  op->SetUserData1({GLUniverseShader::kPureColor, 0, 0, 0});
-  op->SetUserColor(fill ? paint.GetFillColor() : paint.GetStrokeColor());
+void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint,
+                               Rect const &bounds, bool fill) {
+  if (paint.getShader()) {
+    Shader::GradientInfo gradient_info{};
+    Shader::GradientType type = paint.getShader()->asGradient(&gradient_info);
+    auto pixmap = paint.getShader()->asImage();
+
+    if (type != Shader::kNone) {
+      // gradient color shader
+      if (type == Shader::kLinear) {
+        // linear gradient
+        op->SetColorType(GLUniverseShader::kGradientLinear);
+        // UserData4 in linear-gradient [p1.x, p1.y, p2.x, p2.y]
+        op->SetUserData4({gradient_info.point[0].x, gradient_info.point[0].y,
+                          gradient_info.point[1].x, gradient_info.point[1].y});
+      } else if (type == Shader::kRadial) {
+        // radial gradient
+        op->SetUserColor(GLUniverseShader::kGradientRadial);
+        // UserData4 in radial-gradient [center.x, center.y, radialX, radialY]
+        op->SetUserData4({gradient_info.point[0].x, gradient_info.point[0].y,
+                          gradient_info.radius[0], gradient_info.radius[1]});
+      }
+
+      // UserData1 [color_type, alpha_flag, color_count, stop_count]
+      op->SetUserData1({op->GetColorType(), gradient_info.gradientFlags,
+                        gradient_info.colors.size(),
+                        gradient_info.color_offsets.size()});
+      op->SetUserShaderMatrix(gradient_info.local_matrix);
+
+    } else if (pixmap) {
+      // bitmap shader
+      op->SetColorType(GLUniverseShader::kTexture);
+      // UserData1 in bitmap shader
+      op->SetUserData1({GLUniverseShader::kTexture, 0, 0, 0});
+      // Setup GLTexture
+      auto texture = texture_manager_->GenerateTexture(pixmap.get());
+      op->SetGLTexture(texture);
+      // UserData4 in bitmap shader [p1.x, p1.y, p2.x, p2.y];
+      Vec2 p1{};
+      Vec2 p2{};
+      uint32_t pixmap_width = pixmap->Width();
+      float width =
+          std::min<float>(bounds.width(), static_cast<float>(pixmap->Width()));
+      float height = std::min<float>(bounds.height(),
+                                     static_cast<float>(pixmap->Height()));
+
+      float x = bounds.left() + (bounds.width() - width) / 2.f;
+      float y = bounds.top() + (bounds.height() - height) / 2.f;
+
+      p1.x = x;
+      p1.y = y;
+      p2.x = x + width;
+      p2.y = y + height;
+
+      op->SetUserData4({p1, p2});
+    }
+    op->SetGradientColors(gradient_info.colors);
+    op->SetGradientStops(gradient_info.color_offsets);
+
+    // TODO support other shader color
+    op->SetUserColor({1.f, 1.f, 1.f, paint.getAlphaF()});
+  } else {
+    op->SetColorType(GLUniverseShader::kPureColor);
+    op->SetUserData1({GLUniverseShader::kPureColor, 0, 0, 0});
+    Color4f color = fill ? paint.GetFillColor() : paint.GetStrokeColor();
+    color.a *= paint.getAlphaF();
+    op->SetUserColor(fill ? paint.GetFillColor() : paint.GetStrokeColor());
+  }
 }
 
 void GLCanvas2::SetupUserTransform(GLDrawOp2 *op) {
