@@ -103,6 +103,14 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
   IntersectLineLine(p1, p1 + current_dir * stroke_radius_, p3,
                     p3 - end_dir * stroke_radius_, c);
 
+  // FIXME to solve small quad generate large triangle mesh
+  if (glm::length(c - p1) >= stroke_radius_ * 100.f ||
+      glm::length(c - p3) >= stroke_radius_ * 100.f) {
+    // fallback line to
+    HandleLineTo(from, end);
+    return;
+  }
+
   float type = IsAntiAlias() ? GLVertex2::STROKE_QUAD : GLVertex2::NONE;
 
   Vec2 C = from_vec2;

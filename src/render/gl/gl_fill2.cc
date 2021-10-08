@@ -94,6 +94,8 @@ void GLFill2::HandleQuadTo(const Point &from, const Point &control,
   } else {
     GetGLVertex()->AddBack(start_index, control_index, end_index);
   }
+
+  prev_pt_index_ = -1;
 }
 
 void GLFill2::HandleClose() {

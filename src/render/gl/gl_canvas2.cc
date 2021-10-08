@@ -71,7 +71,7 @@ class GLCanvas2State final {
 
     this->HandleClipStack(current_deepth, ops);
 
-    matrix_dirty_ = prev != matrix_stack_.back();
+    matrix_dirty_ = (prev != matrix_stack_.back()) || matrix_dirty_;
   }
 
  private:
@@ -353,6 +353,7 @@ void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint,
 void GLCanvas2::SetupUserTransform(GLDrawOp2 *op) {
   if (state_->IsMatrixDirty()) {
     op->SetUserTransform(state_->CurrentMatrix());
+    state_->ClearMatrixDirty();
   }
 }
 
