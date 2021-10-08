@@ -59,6 +59,7 @@ int main(int argc, const char** argv) {
   glClearColor(0.3f, 0.4f, 0.5f, 1.f);
   glClearStencil(0x0);
   glStencilMask(0xFF);
+  glEnable(GL_STENCIL_TEST);
   // blend is need for anti-alias
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -66,7 +67,7 @@ int main(int argc, const char** argv) {
   auto simple_svg = init_simple_svg();
 
   auto canvas =
-      skity::Canvas::MakeGLCanvas(0, 0, 1000, 1000, (void*)glfwGetProcAddress);
+      skity::Canvas::MakeGLCanvas2(0, 0, 1000, 1000, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
