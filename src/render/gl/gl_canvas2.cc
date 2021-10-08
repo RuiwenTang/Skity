@@ -122,7 +122,50 @@ void GLCanvas2::onDrawPath(const Path &path, const Paint &paint) {
 }
 
 void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
-                             const Typeface *typeface, const Paint &paint) {}
+                             const Typeface *typeface, const Paint &paint) {
+  Rect bounds{0, 0, 0, 0};
+  bool need_fill = paint.getStyle() != Paint::kStroke_Style;
+  bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+  bool need_aa = paint.isAntiAlias();
+
+  if (need_fill) {
+    std::vector<GLMeshRange> fill_ranges;
+
+    float advance_x = 0.f;
+    for (const auto &glyph : glyphs) {
+      float scale = paint.getTextSize() / glyph.font_size;
+
+      Matrix sm = glm::scale(glm::identity<Matrix>(), {scale, scale, 1.f});
+      Matrix tm =
+          glm::translate(glm::identity<Matrix>(), {advance_x, 0.f, 0.f});
+
+      Path temp = glyph.path.copyWithMatrix(tm * sm);
+
+      GLFill2 gl_fill{paint, vertex_.get()};
+      auto range = gl_fill.VisitPath(temp, true);
+
+      if (need_aa) {
+        Paint aa_paint{paint};
+
+        aa_paint.setAntiAlias(true);
+        aa_paint.setStrokeWidth(2.f);
+        aa_paint.setStrokeMiter(2.4f);
+        aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
+        aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
+        GLStroke2 gl_stroke{aa_paint, vertex_.get()};
+
+        auto aa_range = gl_stroke.VisitPath(temp, true);
+
+        range.aa_outline_start = aa_range.front_start;
+        range.aa_outline_count = aa_range.front_count;
+        range.quad_front_range = aa_range.quad_front_range;
+      }
+      fill_ranges.emplace_back(range);
+      bounds.join(temp.getBounds());
+      advance_x += glyph.advance_x * scale;
+    }
+  }
+}
 
 void GLCanvas2::onSave() { state_->Save(); }
 

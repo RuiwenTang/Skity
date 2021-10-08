@@ -1059,7 +1059,7 @@ Path Path::copyWithMatrix(const Matrix& matrix) const {
   ret.first_direction_ = first_direction_;
 
   for (const auto& p : this->points_) {
-    ret.points_.emplace_back(p * matrix);
+    ret.points_.emplace_back(matrix * p);
   }
 
   ret.conic_weights_ = conic_weights_;
