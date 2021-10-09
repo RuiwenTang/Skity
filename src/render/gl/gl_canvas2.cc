@@ -130,6 +130,11 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
 
   if (need_fill) {
     std::vector<GLMeshRange> fill_ranges;
+    GLMeshRange fill_range{};
+
+    fill_range.front_start = vertex_->FrontCount();
+    fill_range.back_start = vertex_->BackCount();
+    fill_range.aa_outline_start = vertex_->AACount();
 
     float advance_x = 0.f;
     for (const auto &glyph : glyphs) {
@@ -161,10 +166,32 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
         range.aa_outline_count = aa_range.aa_outline_count;
         range.quad_front_range = aa_range.quad_front_range;
       }
-      fill_ranges.emplace_back(range);
+
+      fill_range.front_count += range.front_count;
+      fill_range.back_count += range.back_count;
+      fill_range.aa_outline_count += range.aa_outline_count;
+
+      if (!range.quad_front_range.empty()) {
+        fill_range.quad_front_range.insert(fill_range.quad_front_range.end(),
+                                           range.quad_front_range.begin(),
+                                           range.quad_front_range.end());
+      }
+
       bounds.join(temp.getBounds());
       advance_x += glyph.advance_x * scale;
     }
+
+    auto op = std::make_unique<GLDrawOpFill>(shader_.get(), mesh_.get(),
+                                             fill_range, paint.isAntiAlias());
+
+    if (paint.isAntiAlias()) {
+      op->SetAAWidth(2.f);
+    }
+
+    SetupColorType(op.get(), paint, bounds, true);
+    SetupUserTransform(op.get());
+
+    gl_draw_ops_.emplace_back(std::move(op));
   }
 }
 

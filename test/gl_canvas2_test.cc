@@ -23,6 +23,9 @@ class GLCanvas2Test : public test::TestApp {
     // Blend is need for anti-alias
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_STENCIL_TEST);
+    glClearStencil(0x00);
+    glStencilMask(0xFF);
   }
   void OnDraw() override {
     glStencilMask(0xFF);
@@ -74,6 +77,11 @@ class GLCanvas2Test : public test::TestApp {
     }
 
     canvas_->drawPath(path1, paint);
+
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setTextSize(40.f);
+
+    canvas_->drawSimpleText2("Hello World", 50.f, 300.f, paint);
 
     canvas_->flush();
   }

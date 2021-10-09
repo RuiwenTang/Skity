@@ -30,6 +30,8 @@ void GLFill2::HandleLineTo(const Point &from, const Point &to) {
 
   if (orientation == Orientation::kLinear) {
     // no need to generate triangle
+    // make next line update prev_pt_index
+    prev_pt_index_ = -1;
     return;
   }
 
