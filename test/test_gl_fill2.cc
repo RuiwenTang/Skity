@@ -104,11 +104,12 @@ class TestGLFill2 : public test::TestApp {
     aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
     aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
     skity::GLStroke2 gl_stroke{aa_paint, &gl_vertex};
+    gl_stroke.SetIsForAA(true);
 
     auto aa_range = gl_stroke.VisitPath(path, false);
 
-    range_.aa_outline_start = aa_range.front_start;
-    range_.aa_outline_count = aa_range.front_count;
+    range_.aa_outline_start = aa_range.aa_outline_start;
+    range_.aa_outline_count = aa_range.aa_outline_count;
     range_.quad_front_range = aa_range.quad_front_range;
 
     mesh_->Init();
@@ -134,6 +135,7 @@ class TestGLFill2 : public test::TestApp {
     }
 
     if (std::get<1>(aa_data) > 0) {
+      mesh_->UploadAAOutlineIndex(std::get<0>(aa_data), std::get<1>(aa_data));
     }
 
     if (std::get<1>(quad_data) > 0) {

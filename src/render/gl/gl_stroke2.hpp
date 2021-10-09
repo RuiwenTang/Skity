@@ -15,6 +15,8 @@ class GLStroke2 : public GLPathVisitor {
   GLStroke2(Paint const& paint, GLVertex2* gl_vertex);
   ~GLStroke2() override = default;
 
+  void SetIsForAA(bool for_aa) { is_for_aa_ = for_aa; }
+
  protected:
   void HandleMoveTo(const Point& pt) override;
   void HandleLineTo(const Point& from, const Point& to) override;
@@ -42,6 +44,8 @@ class GLStroke2 : public GLPathVisitor {
 
   void HandleRoundCapInternal(Vec2 const& pt, Vec2 const& dir);
 
+  void AddFrontTriangle(uint32_t a, uint32_t b, uint32_t c);
+
  private:
   float stroke_radius_;
   Lazy<Vec2> first_pt_{};
@@ -51,6 +55,7 @@ class GLStroke2 : public GLPathVisitor {
   Lazy<Vec2> cur_pt_{};
   Lazy<Vec2> cur_dir_{};
   std::vector<GLQuadRange> quad_range_{};
+  bool is_for_aa_ = false;
 };
 
 }  // namespace skity

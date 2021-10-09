@@ -48,8 +48,8 @@ void GLStroke2::HandleLineTo(const Point& from, const Point& to) {
       to_inner.x, to_inner.y,
       IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE, -1.f, 0.f);
 
-  GetGLVertex()->AddFront(a, b, c);
-  GetGLVertex()->AddFront(b, d, c);
+  AddFrontTriangle(a, b, c);
+  AddFrontTriangle(b, d, c);
 
   // end
   prev_dir_.Set(current_dir);
@@ -334,8 +334,8 @@ void GLStroke2::HandleMiterJoinInternal(const Vec2& center, const Vec2& p1,
       join.x, join.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE,
       1.f, 0.f);
 
-  GetGLVertex()->AddFront(c, cp1, e);
-  GetGLVertex()->AddFront(c, cp2, e);
+  AddFrontTriangle(c, cp1, e);
+  AddFrontTriangle(c, cp2, e);
 }
 
 void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
@@ -346,7 +346,7 @@ void GLStroke2::HandleBevelJoinInternal(const Vec2& center, const Vec2& p1,
   auto b = GetGLVertex()->AddPoint(p1.x, p1.y, type, 1.f, 0.f);
   auto c = GetGLVertex()->AddPoint(p2.x, p2.y, type, 1.f, 0.f);
 
-  GetGLVertex()->AddFront(a, b, c);
+  AddFrontTriangle(a, b, c);
 }
 
 void GLStroke2::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
@@ -366,8 +366,8 @@ void GLStroke2::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
   auto e = GetGLVertex()->AddPoint(out_point.x, out_point.y, type, center.x,
                                    center.y);
 
-  GetGLVertex()->AddFront(a, b, e);
-  GetGLVertex()->AddFront(a, e, c);
+  AddFrontTriangle(a, b, e);
+  AddFrontTriangle(a, e, c);
 }
 
 void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
@@ -398,8 +398,8 @@ void GLStroke2::HandleSquareCapInternal(const Vec2& pt, const Vec2& dir) {
   auto b = GetGLVertex()->AddPoint(in_p_cap.x, in_p_cap.y, GLVertex2::LINE_CAP,
                                    0.f, -1.f);
 
-  GetGLVertex()->AddFront(a, b, d);
-  GetGLVertex()->AddFront(a, d, c);
+  AddFrontTriangle(a, b, d);
+  AddFrontTriangle(a, d, c);
 }
 
 void GLStroke2::HandleButtCapInternal(const Vec2& pt, const Vec2& dir) {
@@ -428,8 +428,8 @@ void GLStroke2::HandleButtCapInternal(const Vec2& pt, const Vec2& dir) {
       in_p.x, in_p.y, IsAntiAlias() ? GLVertex2::LINE_EDGE : GLVertex2::NONE,
       -1.f, 0.f);
 
-  GetGLVertex()->AddFront(a, b, d);
-  GetGLVertex()->AddFront(a, d, c);
+  AddFrontTriangle(a, b, d);
+  AddFrontTriangle(a, d, c);
 
   // Step 2 build aa square if needed
   if (IsAntiAlias()) {
@@ -457,8 +457,16 @@ void GLStroke2::HandleRoundCapInternal(Vec2 const& pt, Vec2 const& dir) {
   auto c = GetGLVertex()->AddPoint(p3.x, p3.y, circle_type, pt.x, pt.y);
   auto d = GetGLVertex()->AddPoint(p4.x, p4.y, circle_type, pt.x, pt.y);
 
-  GetGLVertex()->AddFront(a, b, c);
-  GetGLVertex()->AddFront(b, d, c);
+  AddFrontTriangle(a, b, c);
+  AddFrontTriangle(b, d, c);
+}
+
+void GLStroke2::AddFrontTriangle(uint32_t a, uint32_t b, uint32_t c) {
+  if (is_for_aa_) {
+    GetGLVertex()->AddAA(a, b, c);
+  } else {
+    GetGLVertex()->AddFront(a, b, c);
+  }
 }
 
 }  // namespace skity

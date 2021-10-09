@@ -147,7 +147,7 @@ void GLDrawOp2::DrawAAOutline() {
     return;
   }
 
-  mesh_->BindFrontIndex();
+  mesh_->BindAAOutlineIndex();
   GLMeshDraw2 drawer{GL_TRIANGLES, range_.aa_outline_start,
                      range_.aa_outline_count};
   drawer();

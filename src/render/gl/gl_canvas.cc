@@ -533,7 +533,7 @@ void GLCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
   auto style = paint.getStyle();
   Rect bounds{0, 0, 0, 0};
 
-  for (const auto info : glyphs) {
+  for (const auto& info : glyphs) {
     bounds.join(info.path.getBounds());
   }
 
@@ -621,7 +621,7 @@ void GLCanvas::onFlush() {
   mesh_->UploadBackIndex(gl_vertex_.GetBackIndexData(),
                          gl_vertex_.GetBackIndexDataSize());
 
-  mesh_->uploadAaOutlineIndex(gl_vertex_.GetAAIndexData(),
+  mesh_->UploadAAOutlineIndex(gl_vertex_.GetAAIndexData(),
                               gl_vertex_.GetAAIndexDataSize());
 
   GL_CALL(ColorMask, 1, 1, 1, 1);

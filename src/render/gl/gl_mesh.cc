@@ -52,7 +52,7 @@ void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLMesh::uploadAaOutlineIndex(void* data, uint32_t length) {
+void GLMesh::UploadAAOutlineIndex(void* data, uint32_t length) {
   assert(buffers_[3] != 0);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[3]);
   if (buffer_size_[3] < length) {

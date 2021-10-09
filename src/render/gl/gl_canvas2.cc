@@ -153,11 +153,12 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
         aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
         aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
         GLStroke2 gl_stroke{aa_paint, vertex_.get()};
+        gl_stroke.SetIsForAA(true);
 
         auto aa_range = gl_stroke.VisitPath(temp, true);
 
-        range.aa_outline_start = aa_range.front_start;
-        range.aa_outline_count = aa_range.front_count;
+        range.aa_outline_start = aa_range.aa_outline_start;
+        range.aa_outline_count = aa_range.aa_outline_count;
         range.quad_front_range = aa_range.quad_front_range;
       }
       fill_ranges.emplace_back(range);
@@ -243,6 +244,7 @@ void GLCanvas2::UploadVertex() {
   auto vertex_data = vertex_->GetVertexDataSize();
   auto front_data = vertex_->GetFrontDataSize();
   auto back_data = vertex_->GetBackDataSize();
+  auto aa_data = vertex_->GetAADataSize();
   auto quad_data = vertex_->GetQuadDataSize();
 
   if (std::get<1>(vertex_data) > 0) {
@@ -256,6 +258,10 @@ void GLCanvas2::UploadVertex() {
 
   if (std::get<1>(back_data) > 0) {
     mesh_->UploadBackIndex(std::get<0>(back_data), std::get<1>(back_data));
+  }
+
+  if (std::get<1>(aa_data) > 0) {
+    mesh_->UploadAAOutlineIndex(std::get<0>(aa_data), std::get<1>(aa_data));
   }
 
   if (std::get<1>(quad_data) > 0) {
@@ -286,11 +292,12 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint,
     aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
     aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
     GLStroke2 gl_stroke{aa_paint, vertex_.get()};
+    gl_stroke.SetIsForAA(true);
 
     auto aa_range = gl_stroke.VisitPath(*path, true);
 
-    range.aa_outline_start = aa_range.front_start;
-    range.aa_outline_count = aa_range.front_count;
+    range.aa_outline_start = aa_range.aa_outline_start;
+    range.aa_outline_count = aa_range.aa_outline_count;
     range.quad_front_range = aa_range.quad_front_range;
   }
 
