@@ -3,6 +3,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/codec/pixmap.hpp>
+#include <skity/effect/path_effect.hpp>
 #include <unordered_map>
 
 #include "src/render/gl/gl_draw_op2.hpp"
@@ -112,12 +113,20 @@ void GLCanvas2::onDrawPath(const Path &path, const Paint &paint) {
 
   // step1 fill
   if (need_fill) {
-    DoFillPath(&path, paint, bounds);
+    Path *temp = const_cast<Path *>(&path);
+    if (paint.getPathEffect()) {
+      paint.getPathEffect()->filterPath(temp, path, false, paint);
+    }
+    DoFillPath(temp, paint, bounds);
   }
 
   // step2 stroke
   if (need_stroke) {
-    DoStrokePath(&path, paint, bounds);
+    Path *temp = const_cast<Path *>(&path);
+    if (paint.getPathEffect()) {
+      paint.getPathEffect()->filterPath(temp, path, true, paint);
+    }
+    DoStrokePath(temp, paint, bounds);
   }
 }
 
@@ -129,7 +138,6 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
   bool need_aa = paint.isAntiAlias();
 
   if (need_fill) {
-    std::vector<GLMeshRange> fill_ranges;
     GLMeshRange fill_range{};
 
     fill_range.front_start = vertex_->FrontCount();
@@ -189,6 +197,46 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
     }
 
     SetupColorType(op.get(), paint, bounds, true);
+    SetupUserTransform(op.get());
+
+    gl_draw_ops_.emplace_back(std::move(op));
+  }
+
+  if (need_stroke) {
+    GLMeshRange stroke_range{};
+
+    stroke_range.front_start = vertex_->FrontCount();
+
+    float advance_x = 0.f;
+
+    for (const auto &glyph : glyphs) {
+      float scale = paint.getTextSize() / glyph.font_size;
+
+      Matrix sm = glm::scale(glm::identity<Matrix>(), {scale, scale, 1.f});
+      Matrix tm =
+          glm::translate(glm::identity<Matrix>(), {advance_x, 0.f, 0.f});
+
+      Path temp = glyph.path.copyWithMatrix(tm * sm);
+
+      GLStroke2 gl_stroke{paint, vertex_.get()};
+      auto range = gl_stroke.VisitPath(temp, true);
+
+      stroke_range.front_count += range.front_count;
+
+      if (!range.quad_front_range.empty()) {
+        stroke_range.quad_front_range.insert(
+            stroke_range.quad_front_range.end(), range.quad_front_range.begin(),
+            range.quad_front_range.end());
+      }
+      bounds.join(temp.getBounds());
+      advance_x += glyph.advance_x * scale;
+    }
+
+    auto op = std::make_unique<GLDrawOpStroke>(
+        shader_.get(), mesh_.get(), stroke_range, paint.getStrokeWidth(),
+        paint.isAntiAlias());
+
+    SetupColorType(op.get(), paint, bounds, false);
     SetupUserTransform(op.get());
 
     gl_draw_ops_.emplace_back(std::move(op));

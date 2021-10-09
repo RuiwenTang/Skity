@@ -264,9 +264,10 @@ int main(int argc, const char** argv) {
   // blend is need for anti-alias
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_STENCIL_TEST);
 
   auto canvas =
-      skity::Canvas::MakeGLCanvas(0, 0, 800, 800, (void*)glfwGetProcAddress);
+      skity::Canvas::MakeGLCanvas2(0, 0, 800, 800, (void*)glfwGetProcAddress);
 
   std::shared_ptr<skity::Pixmap> pixmap;
   if (argc >= 2) {
