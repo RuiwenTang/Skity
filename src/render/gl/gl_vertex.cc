@@ -238,6 +238,7 @@ void GLVertex2::Reset() {
   front_index.clear();
   back_index.clear();
   aa_index.clear();
+  quad_index.clear();
 }
 
 GLQuadRange::GLQuadRange(uint32_t quadStart, uint32_t quadCount,
