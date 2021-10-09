@@ -374,7 +374,7 @@ void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint,
                           gradient_info.point[1].x, gradient_info.point[1].y});
       } else if (type == Shader::kRadial) {
         // radial gradient
-        op->SetUserColor(GLUniverseShader::kGradientRadial);
+        op->SetColorType(GLUniverseShader::kGradientRadial);
         // UserData4 in radial-gradient [center.x, center.y, radialX, radialY]
         op->SetUserData4({gradient_info.point[0].x, gradient_info.point[0].y,
                           gradient_info.radius[0], gradient_info.radius[1]});
