@@ -120,7 +120,7 @@ vec4 LerpGradientColor(float dist) {
   float step = 1.0 / (ColorCount - 1);
   int i = 0;
   float Start, End;
-  for (int i = 0; i < ColorCount - 1; i++) {
+  for (i = 0; i < ColorCount - 1; i++) {
     if (StopCount > 0) {
       Start = GradientStops[i];
       End = GradientStops[i + 1];
@@ -159,7 +159,7 @@ vec4 LerpGradientColor(float dist) {
     color = mix(GradientColors[StartIndex], GradientColors[EndIndex], mixValue);
   }
 
-  return color;
+  return vec4(color.xyz * color.w, color.w);
 }
 
 vec4 CalculateLinearGradientColor() {

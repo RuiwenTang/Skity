@@ -471,7 +471,7 @@ void GLCanvas2::SetupColorType(GLDrawOp2 *op, Paint const &paint,
     op->SetUserData1({GLUniverseShader::kPureColor, 0, 0, 0});
     Color4f color = fill ? paint.GetFillColor() : paint.GetStrokeColor();
     color.a *= paint.getAlphaF();
-    op->SetUserColor(fill ? paint.GetFillColor() : paint.GetStrokeColor());
+    op->SetUserColor(color);
   }
 }
 
