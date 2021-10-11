@@ -291,8 +291,7 @@ void GLCanvas2::onFlush() {
   this->UploadVertex();
 
   // FIXME: make sure VertexBuffer is bind
-  mesh_->BindMesh();
-  this->SetupGLVertexAttrib();
+  mesh_->BindNormalMesh();
 
   shader_->Bind();
 
@@ -342,15 +341,6 @@ void GLCanvas2::UploadVertex() {
   if (std::get<1>(quad_data) > 0) {
     mesh_->UploadQuadIndex(std::get<0>(quad_data), std::get<1>(quad_data));
   }
-}
-
-void GLCanvas2::SetupGLVertexAttrib() {
-  GL_CALL(EnableVertexAttribArray, 0);
-  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void *)0);
-  GL_CALL(EnableVertexAttribArray, 1);
-  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-          (void *)(2 * sizeof(float)));
 }
 
 void GLCanvas2::DoFillPath(const Path *path, Paint const &paint,

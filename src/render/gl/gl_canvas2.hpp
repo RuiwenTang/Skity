@@ -41,7 +41,6 @@ class GLCanvas2 : public Canvas {
 
  private:
   void UploadVertex();
-  void SetupGLVertexAttrib();
   void DoFillPath(const Path* path, Paint const& paint, Rect const& bounds);
   void DoStrokePath(const Path* path, Paint const& paint, Rect const& bounds);
   void SetupColorType(GLDrawOp2* op, Paint const& paint, Rect const& bounds,

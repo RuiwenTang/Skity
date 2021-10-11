@@ -114,6 +114,21 @@ class GLVertex2 {
     Data(float x, float y, float mix, float u, float v);
   };
 
+  struct QuadData {
+    float x;
+    float y;
+    float mix;
+    float u;
+    float v;
+    float offset;
+    float p1x;
+    float p1y;
+    float p2x;
+    float p2y;
+    float p3x;
+    float p3y;
+  };
+
   GLVertex2() = default;
   ~GLVertex2() = default;
 
@@ -157,6 +172,7 @@ class GLVertex2 {
 
  private:
   std::vector<Data> vertex_buffer;
+  std::vector<QuadData> quad_buffer;
   std::vector<uint32_t> front_index;
   std::vector<uint32_t> back_index;
   std::vector<uint32_t> aa_index;

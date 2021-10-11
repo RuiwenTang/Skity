@@ -92,6 +92,21 @@ void GLMesh::BindMesh() {
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
 }
 
+void GLMesh::BindNormalMesh() {
+  GL_CALL(BindVertexArray, vao_);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
+
+  GL_CALL(EnableVertexAttribArray, 0);
+  GL_CALL(VertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void *)0);
+  GL_CALL(EnableVertexAttribArray, 1);
+  GL_CALL(VertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+          (void *)(2 * sizeof(float)));
+
+  GL_CALL(DisableVertexAttribArray, 2);
+  GL_CALL(DisableVertexAttribArray, 3);
+}
+
 void GLMesh::BindFrontIndex() {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
 }

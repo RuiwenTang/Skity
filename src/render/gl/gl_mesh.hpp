@@ -30,6 +30,7 @@ class GLMesh {
   void Init();
 
   void BindMesh();
+  void BindNormalMesh();
 
   void BindFrontIndex();
 

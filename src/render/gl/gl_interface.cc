@@ -45,8 +45,9 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(DepthMask);
   GET_PROC(Disable);
   GET_PROC(EnableVertexAttribArray);
-  GET_PROC(VertexAttribPointer);
   GET_PROC(DisableVertexAttribArray);
+  GET_PROC(VertexAttribPointer);
+  GET_PROC(DisableVertexArrayAttrib);
   GET_PROC(DrawArrays);
   GET_PROC(DrawArraysIndirect);
   GET_PROC(DrawArraysInstanced);

@@ -47,8 +47,9 @@ struct GLInterface {
   PFNGLDEPTHMASKPROC fDepthMask = nullptr;
   PFNGLDISABLEPROC fDisable = nullptr;
   PFNGLENABLEVERTEXATTRIBARRAYPROC fEnableVertexAttribArray = nullptr;
+  PFNGLDISABLEVERTEXATTRIBARRAYPROC fDisableVertexAttribArray = nullptr;
   PFNGLVERTEXATTRIBPOINTERPROC fVertexAttribPointer = nullptr;
-  PFNGLDISABLEVERTEXARRAYATTRIBEXTPROC fDisableVertexAttribArray = nullptr;
+  PFNGLDISABLEVERTEXARRAYATTRIBEXTPROC fDisableVertexArrayAttrib = nullptr;
   PFNGLDRAWARRAYSPROC fDrawArrays = nullptr;
   PFNGLDRAWARRAYSINDIRECTPROC fDrawArraysIndirect = nullptr;
   PFNGLDRAWARRAYSINSTANCEDPROC fDrawArraysInstanced = nullptr;
