@@ -170,7 +170,7 @@ void GLDrawOp2::DrawQuadStroke() {
 
 GLDrawOpFill::GLDrawOpFill(GLUniverseShader* shader, GLMesh* mesh,
                            GLMeshRange range, bool need_aa)
-    : GLDrawOp2(shader, mesh, std::move(range)), need_aa_(need_aa) {}
+    : GLDrawOp2(shader, mesh, range), need_aa_(need_aa) {}
 
 void GLDrawOpFill::OnDraw(bool has_clip) {
   // step 1 stencil
@@ -211,7 +211,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
   // we need to replace stencil to make sure no fragment overlap
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
   if (has_clip) {
-    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x1F);
+    GL_CALL(StencilFunc, GL_LESS, 0x10, 0x1F);
   } else {
     GL_CALL(StencilFunc, GL_NOTEQUAL, 0x00, 0x0F);
   }
@@ -223,7 +223,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
 GLDrawOpStroke::GLDrawOpStroke(GLUniverseShader* shader, GLMesh* mesh,
                                GLMeshRange range, float stroke_width,
                                bool need_aa)
-    : GLDrawOp2(shader, mesh, std::move(range)),
+    : GLDrawOp2(shader, mesh, range),
       stroke_width_(stroke_width),
       need_aa_(need_aa) {}
 
@@ -263,7 +263,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
   UpdateShaderColorType(GetColorType());
   if (has_clip) {
-    GL_CALL(StencilFunc, GL_NOTEQUAL, 0x10, 0x1F);
+    GL_CALL(StencilFunc, GL_LESS, 0x10, 0x1F);
   } else {
     GL_CALL(StencilFunc, GL_NOTEQUAL, 0x00, 0x0F);
   }
@@ -274,7 +274,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
 
 GLDrawOpClip::GLDrawOpClip(GLUniverseShader* shader, GLMesh* mesh,
                            GLMeshRange range, bool undo)
-    : GLDrawOp2(shader, mesh, std::move(range)), is_undo_(undo) {}
+    : GLDrawOp2(shader, mesh, range), is_undo_(undo) {}
 
 void GLDrawOpClip::OnDraw(bool has_clip) {
   // Disable Color Output

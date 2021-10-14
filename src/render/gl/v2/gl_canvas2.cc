@@ -54,14 +54,16 @@ class GLCanvas2State final {
     size_t depth = matrix_stack_.size();
 
     if (clip_info_stack_.empty() || clip_info_stack_.back() != depth) {
-      clip_stack_.insert(std::make_pair(depth, range));
+      clip_stack_.insert(
+          std::make_pair(depth, std::make_pair(range, CurrentMatrix())));
       clip_info_stack_.emplace_back(depth);
     } else {
-      clip_stack_[depth] = range;
+      clip_stack_[depth] = std::make_pair(range, CurrentMatrix());
     }
   }
 
-  void Restore(std::vector<std::unique_ptr<GLDrawOp2>> *ops) {
+  void Restore(std::vector<std::unique_ptr<GLDrawOp2>> *ops,
+               GLUniverseShader *shader, GLMesh *mesh) {
     size_t current_deepth = matrix_stack_.size();
     if (current_deepth == 1) {
       return;
@@ -70,19 +72,47 @@ class GLCanvas2State final {
     Matrix prev = matrix_stack_.back();
     matrix_stack_.pop_back();
 
-    this->HandleClipStack(current_deepth, ops);
+    this->HandleClipStack(current_deepth, ops, shader, mesh);
 
     matrix_dirty_ = (prev != matrix_stack_.back()) || matrix_dirty_;
   }
 
  private:
   void InitStack() { matrix_stack_.emplace_back(glm::identity<Matrix>()); }
-  void HandleClipStack(size_t prev_deepth,
-                       std::vector<std::unique_ptr<GLDrawOp2>> *ops) {}
+  void HandleClipStack(size_t prev_depth,
+                       std::vector<std::unique_ptr<GLDrawOp2>> *ops,
+                       GLUniverseShader *shader, GLMesh *mesh) {
+    if (clip_info_stack_.empty()) {
+      return;
+    }
+
+    if (clip_info_stack_.back() != prev_depth) {
+      return;
+    }
+
+    clip_info_stack_.pop_back();
+
+    assert(clip_stack_.count(prev_depth) == 1);
+    auto clip_it = clip_stack_.find(prev_depth);
+    auto clip_info = clip_it->second;
+    clip_stack_.erase(clip_it);
+
+    auto undo_op = std::make_unique<GLDrawOpClip>(shader, mesh,
+                                                  std::get<0>(clip_info), true);
+
+    undo_op->SetColorType(GLUniverseShader::kStencil);
+    undo_op->SetUserTransform(std::get<1>(clip_info));
+
+    ops->emplace_back(std::move(undo_op));
+
+    if (clip_info_stack_.empty()) {
+      return;
+    }
+  }
 
  private:
   std::vector<Matrix> matrix_stack_;
-  std::unordered_map<size_t, GLMeshRange> clip_stack_;
+  std::unordered_map<size_t, std::pair<GLMeshRange, Matrix>> clip_stack_;
   std::vector<size_t> clip_info_stack_;
   bool matrix_dirty_ = true;
 };
@@ -103,7 +133,26 @@ GLCanvas2::GLCanvas2(const Matrix &mvp, int32_t width, int32_t height)
   mesh_->Init();
 }
 
-void GLCanvas2::onClipPath(const Path &path, Canvas::ClipOp op) {}
+void GLCanvas2::onClipPath(const Path &path, Canvas::ClipOp op) {
+  Paint paint;
+
+  GLFill2 gl_fill{paint, vertex_.get()};
+
+  auto clip_range = gl_fill.VisitPath(path, true);
+  if (clip_range.front_count == 0 && clip_range.back_count == 0) {
+    return;
+  }
+
+  auto clip_op = std::make_unique<GLDrawOpClip>(shader_.get(), mesh_.get(),
+                                                clip_range, false);
+
+  clip_op->SetColorType(GLUniverseShader::kStencil);
+  SetupUserTransform(clip_op.get());
+
+  gl_draw_ops_.emplace_back(std::move(clip_op));
+
+  state_->SaveClipRange(clip_range);
+}
 
 void GLCanvas2::onDrawPath(const Path &path, const Paint &paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
@@ -135,7 +184,7 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
   Rect bounds{0, 0, 0, 0};
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
-  bool need_aa = paint.isAntiAlias();
+  bool need_aa = paint.isAntiAlias() && paint.getTextSize() >= 30.f;
 
   if (need_fill) {
     GLMeshRange fill_range{};
@@ -239,7 +288,9 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
 
 void GLCanvas2::onSave() { state_->Save(); }
 
-void GLCanvas2::onRestore() { state_->Restore(&gl_draw_ops_); }
+void GLCanvas2::onRestore() {
+  state_->Restore(&gl_draw_ops_, shader_.get(), mesh_.get());
+}
 
 void GLCanvas2::onTranslate(float dx, float dy) {
   Matrix current = state_->CurrentMatrix();
@@ -375,6 +426,7 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint,
 
   SetupColorType(op.get(), paint, bounds, true);
   SetupUserTransform(op.get());
+  op->SetHasClip(state_->HasClip());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }
@@ -391,6 +443,7 @@ void GLCanvas2::DoStrokePath(const Path *path, Paint const &paint,
 
   SetupColorType(op.get(), paint, bounds, false);
   SetupUserTransform(op.get());
+  op->SetHasClip(state_->HasClip());
 
   gl_draw_ops_.emplace_back(std::move(op));
 }

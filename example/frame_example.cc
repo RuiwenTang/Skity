@@ -140,7 +140,7 @@ int main(int argc, const char** argv) {
 
   while (!glfwWindowShouldClose(window)) {
     glfwGetCursorPos(window, &mx, &my);
-
+    glStencilMask(0xFF);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     t = glfwGetTime();
