@@ -184,7 +184,13 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
   Rect bounds{0, 0, 0, 0};
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
-  bool need_aa = paint.isAntiAlias() && paint.getTextSize() >= 30.f;
+  bool need_aa = paint.isAntiAlias();
+
+  float aa_width = paint.getTextSize() * 0.05f;
+
+  if (aa_width <= 0.5f) {
+    need_aa = false;
+  }
 
   if (need_fill) {
     GLMeshRange fill_range{};
@@ -211,8 +217,8 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
         Paint aa_paint{paint};
 
         aa_paint.setAntiAlias(true);
-        aa_paint.setStrokeWidth(2.f);
-        aa_paint.setStrokeMiter(2.4f);
+        aa_paint.setStrokeWidth(aa_width);
+        aa_paint.setStrokeMiter(aa_width * 4.f);
         aa_paint.setStrokeCap(skity::Paint::kButt_Cap);
         aa_paint.setStrokeJoin(skity::Paint::kMiter_Join);
         GLStroke2 gl_stroke{aa_paint, vertex_.get()};
