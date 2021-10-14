@@ -10,13 +10,13 @@
 #include <vector>
 
 #include "common/test_common.hpp"
-#include "src/render/gl/gl_draw_op.hpp"
-#include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
-#include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+#include "src/render/gl/v1/gl_draw_op.hpp"
+#include "src/render/gl/v1/gl_fill.hpp"
+#include "src/render/gl/v1/gl_stroke.hpp"
 
 class GLDrawOpDemo : public test::TestApp {
  public:

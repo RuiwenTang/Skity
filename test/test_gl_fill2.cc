@@ -10,14 +10,14 @@
 #include <skity/graphic/path.hpp>
 
 #include "skity_config.hpp"
-#include "src/render/gl/gl_draw_op2.hpp"
-#include "src/render/gl/gl_fill2.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
-#include "src/render/gl/gl_stroke2.hpp"
 #include "src/render/gl/gl_texture.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+#include "src/render/gl/v2/gl_draw_op2.hpp"
+#include "src/render/gl/v2/gl_fill2.hpp"
+#include "src/render/gl/v2/gl_stroke2.hpp"
 
 class TestGLFill2 : public test::TestApp {
  public:

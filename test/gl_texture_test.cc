@@ -14,13 +14,13 @@
 
 #include "common/test_common.hpp"
 #include "skity_config.hpp"
-#include "src/render/gl/gl_fill.hpp"
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
-#include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_texture.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+#include "src/render/gl/v1/gl_fill.hpp"
+#include "src/render/gl/v1/gl_stroke.hpp"
 
 class TextureTest : public test::TestApp {
  public:

@@ -13,8 +13,8 @@
 #include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
 #include "src/render/gl/gl_shader.hpp"
-#include "src/render/gl/gl_stroke.hpp"
 #include "src/render/gl/gl_vertex.hpp"
+#include "src/render/gl/v1/gl_stroke.hpp"
 
 using namespace skity;
 
