@@ -143,6 +143,7 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
     fill_range.front_start = vertex_->FrontCount();
     fill_range.back_start = vertex_->BackCount();
     fill_range.aa_outline_start = vertex_->AACount();
+    fill_range.quad_start = vertex_->QuadCount();
 
     float advance_x = 0.f;
     for (const auto &glyph : glyphs) {
@@ -172,18 +173,14 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
 
         range.aa_outline_start = aa_range.aa_outline_start;
         range.aa_outline_count = aa_range.aa_outline_count;
-        range.quad_front_range = aa_range.quad_front_range;
+        range.quad_start = aa_range.quad_start;
+        range.quad_count = aa_range.quad_count;
       }
 
       fill_range.front_count += range.front_count;
       fill_range.back_count += range.back_count;
       fill_range.aa_outline_count += range.aa_outline_count;
-
-      if (!range.quad_front_range.empty()) {
-        fill_range.quad_front_range.insert(fill_range.quad_front_range.end(),
-                                           range.quad_front_range.begin(),
-                                           range.quad_front_range.end());
-      }
+      fill_range.quad_count += range.quad_count;
 
       bounds.join(temp.getBounds());
       advance_x += glyph.advance_x * scale;
@@ -206,6 +203,7 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
     GLMeshRange stroke_range{};
 
     stroke_range.front_start = vertex_->FrontCount();
+    stroke_range.quad_start = vertex_->QuadCount();
 
     float advance_x = 0.f;
 
@@ -222,12 +220,8 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
       auto range = gl_stroke.VisitPath(temp, true);
 
       stroke_range.front_count += range.front_count;
+      stroke_range.quad_count += range.quad_count;
 
-      if (!range.quad_front_range.empty()) {
-        stroke_range.quad_front_range.insert(
-            stroke_range.quad_front_range.end(), range.quad_front_range.begin(),
-            range.quad_front_range.end());
-      }
       bounds.join(temp.getBounds());
       advance_x += glyph.advance_x * scale;
     }
@@ -291,7 +285,7 @@ void GLCanvas2::onFlush() {
   this->UploadVertex();
 
   // FIXME: make sure VertexBuffer is bind
-  mesh_->BindNormalMesh();
+  mesh_->BindNormalBuffer();
 
   shader_->Bind();
 
@@ -316,6 +310,7 @@ void GLCanvas2::onUpdateViewport(uint32_t width, uint32_t height) {}
 
 void GLCanvas2::UploadVertex() {
   auto vertex_data = vertex_->GetVertexDataSize();
+  auto quad_buffer = vertex_->GetQuadBufferDataSize();
   auto front_data = vertex_->GetFrontDataSize();
   auto back_data = vertex_->GetBackDataSize();
   auto aa_data = vertex_->GetAADataSize();
@@ -324,6 +319,10 @@ void GLCanvas2::UploadVertex() {
   if (std::get<1>(vertex_data) > 0) {
     mesh_->UploadVertexBuffer(std::get<0>(vertex_data),
                               std::get<1>(vertex_data));
+  }
+
+  if (std::get<1>(quad_buffer) > 0) {
+    mesh_->UploadQuadBuffer(std::get<0>(quad_buffer), std::get<1>(quad_buffer));
   }
 
   if (std::get<1>(front_data) > 0) {
@@ -363,7 +362,8 @@ void GLCanvas2::DoFillPath(const Path *path, Paint const &paint,
 
     range.aa_outline_start = aa_range.aa_outline_start;
     range.aa_outline_count = aa_range.aa_outline_count;
-    range.quad_front_range = aa_range.quad_front_range;
+    range.quad_start = aa_range.quad_start;
+    range.quad_count = aa_range.quad_count;
   }
 
   auto op = std::make_unique<GLDrawOpFill>(shader_.get(), mesh_.get(), range,

@@ -153,19 +153,19 @@ void GLDrawOp2::DrawAAOutline() {
   drawer();
 }
 
-void GLDrawOp2::DrawQuadStroke(float stroke_width) {
-  if (range_.quad_front_range.empty()) {
+void GLDrawOp2::DrawQuadStroke() {
+  if (range_.quad_count == 0) {
     return;
   }
 
+  // Bind quad vertex buffer
+  mesh_->BindQuadBuffer();
   mesh_->BindQuadIndex();
-  for (const auto& quad : range_.quad_front_range) {
-    shader_->SetUserData2(Vec4{stroke_width, quad.offset, quad.start});
-    shader_->SetUserData3(Vec4{quad.control, quad.end});
+  GLMeshDraw2 drawer{GL_TRIANGLES, range_.quad_start, range_.quad_count};
+  drawer();
 
-    GLMeshDraw2 drawer{GL_TRIANGLES, quad.quad_start, quad.quad_count};
-    drawer();
-  }
+  // bind back normal vertex
+  mesh_->BindNormalBuffer();
 }
 
 GLDrawOpFill::GLDrawOpFill(GLUniverseShader* shader, GLMesh* mesh,
@@ -202,7 +202,7 @@ void GLDrawOpFill::OnDraw(bool has_clip) {
       GL_CALL(StencilFunc, GL_EQUAL, 0x00, 0x0F);
     }
     DrawAAOutline();
-    DrawQuadStroke(GetAAWidth());
+    DrawQuadStroke();
   }
 
   // Fill normal color
@@ -243,7 +243,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   // setup StrokeWidth
   Shader()->SetUserData2({stroke_width_, 0.f, 0.f, 0.f});
   DrawFront();
-  DrawQuadStroke(stroke_width_);
+  DrawQuadStroke();
 
   // enable Color output
   GL_CALL(ColorMask, 1, 1, 1, 1);
@@ -257,7 +257,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
     UpdateShaderColorType(GetColorType() | GLUniverseShader::kAAOutline);
 
     DrawFront();
-    DrawQuadStroke(stroke_width_);
+    DrawQuadStroke();
   }
 
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -269,7 +269,7 @@ void GLDrawOpStroke::OnDraw(bool has_clip) {
   }
 
   DrawFront();
-  DrawQuadStroke(stroke_width_);
+  DrawQuadStroke();
 }
 
 GLDrawOpClip::GLDrawOpClip(GLUniverseShader* shader, GLMesh* mesh,

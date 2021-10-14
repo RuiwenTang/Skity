@@ -170,9 +170,24 @@ void GLVertex::Append(GLVertex* other, float scale, float tx, float ty) {
 GLVertex2::Data::Data(float x, float y, float mix, float u, float v)
     : x(x), y(y), mix(mix), u(u), v(v) {}
 
+void GLVertex2::QuadData::SetPointInfo(float v1, float v2, float v3, float v4,
+                                       float v5) {
+  this->x = v1;
+  this->y = v2;
+  this->mix = v3;
+  this->u = v4;
+  this->v = v5;
+}
+
 uint32_t GLVertex2::AddPoint(float x, float y, float mix, float u, float v) {
   uint32_t i = vertex_buffer.size();
   vertex_buffer.emplace_back(x, y, mix, u, v);
+  return i;
+}
+
+uint32_t GLVertex2::AddQuadData(const QuadData& data) {
+  uint32_t i = quad_buffer.size();
+  quad_buffer.emplace_back(data);
   return i;
 }
 
@@ -205,6 +220,11 @@ std::pair<void*, size_t> GLVertex2::GetVertexDataSize() {
                         vertex_buffer.size() * sizeof(GLVertex2::Data));
 }
 
+std::pair<void*, size_t> GLVertex2::GetQuadBufferDataSize() {
+  return std::make_pair(static_cast<void*>(quad_buffer.data()),
+                        quad_buffer.size() * sizeof(GLVertex2::QuadData));
+}
+
 std::pair<void*, size_t> GLVertex2::GetFrontDataSize() {
   return std::make_pair(static_cast<void*>(front_index.data()),
                         front_index.size() * sizeof(uint32_t));
@@ -235,20 +255,11 @@ void GLVertex2::UpdateVertexData(uint32_t index, const GLVertex2::Data& data) {
 
 void GLVertex2::Reset() {
   vertex_buffer.clear();
+  quad_buffer.clear();
   front_index.clear();
   back_index.clear();
   aa_index.clear();
   quad_index.clear();
 }
-
-GLQuadRange::GLQuadRange(uint32_t quadStart, uint32_t quadCount,
-                         const Vec2& start, const Vec2& control,
-                         const Vec2& anEnd, float offset)
-    : quad_start(quadStart),
-      quad_count(quadCount),
-      start(start),
-      control(control),
-      end(anEnd),
-      offset(offset) {}
 
 }  // namespace skity

@@ -93,6 +93,7 @@ class TestGLStroke2 : public test::TestApp {
     mesh_->BindMesh();
 
     auto vertex_data = gl_vertex.GetVertexDataSize();
+    auto quad_buffer = gl_vertex.GetQuadBufferDataSize();
     auto front_data = gl_vertex.GetFrontDataSize();
     auto back_data = gl_vertex.GetBackDataSize();
     auto aa_data = gl_vertex.GetAADataSize();
@@ -101,6 +102,10 @@ class TestGLStroke2 : public test::TestApp {
     if (std::get<1>(vertex_data) > 0) {
       mesh_->UploadVertexBuffer(std::get<0>(vertex_data),
                                 std::get<1>(vertex_data));
+    }
+
+    if (std::get<1>(quad_buffer) > 0) {
+      mesh_->UploadQuadBuffer(std::get<0>(quad_buffer), std::get<1>(quad_buffer));
     }
 
     if (std::get<1>(front_data) > 0) {
@@ -135,27 +140,7 @@ class TestGLStroke2 : public test::TestApp {
     stroke_op_->SetUserColor({1.f, 1.f, 1.f, .5f});
   }
 
-  void DrawQuadIfNeed() {
-    if (range_.quad_front_range.empty()) {
-      return;
-    }
-
-    mesh_->BindQuadIndex();
-
-    for (const auto& quad : range_.quad_front_range) {
-      //      skity::Vec2 C = quad.start;
-      //      glm::vec2 P1 = quad.control;
-      //      glm::vec2 P2 = quad.end;
-      //      skity::Vec2 B = skity::Times2(P1 - C);
-      //      skity::Vec2 A = P2 - skity::Times2(P1) + C;
-
-      shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
-      shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
-
-      glDrawElements(GL_TRIANGLES, quad.quad_count, GL_UNSIGNED_INT,
-                     (void*)(quad.quad_start * sizeof(GLuint)));
-    }
-  }
+  void DrawQuadIfNeed() {}
 
   void DrawMesh() {
     shader_->Bind();

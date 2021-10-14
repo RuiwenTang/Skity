@@ -131,21 +131,31 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
   CalculateQuadPQ(A, B, C, p4, p4_pq);
   CalculateQuadPQ(A, B, C, c, c_pq);
 
-  auto p1_index = GetGLVertex()->AddPoint(p1.x, p1.y, type, p1_pq.x, p1_pq.y);
-  auto p2_index = GetGLVertex()->AddPoint(p2.x, p2.y, type, p2_pq.x, p2_pq.y);
-  auto p3_index = GetGLVertex()->AddPoint(p3.x, p3.y, type, p3_pq.x, p3_pq.y);
-  auto p4_index = GetGLVertex()->AddPoint(p4.x, p4.y, type, p4_pq.x, p4_pq.y);
-  auto c_index = GetGLVertex()->AddPoint(c.x, c.y, type, c_pq.x, c_pq.y);
+  GLVertex2::QuadData quad_data{};
 
-  auto quad_start = GetGLVertex()->QuadCount();
+  uint32_t qds = sizeof (GLVertex2::QuadData);
+  quad_data.offset = offset;
+  quad_data.p1x = A.x;
+  quad_data.p1y = A.y;
+  quad_data.p2x = B.x;
+  quad_data.p2y = B.y;
+  quad_data.p3x = C.x;
+  quad_data.p3y = C.y;
+
+  quad_data.SetPointInfo(p1.x, p1.y, type, p1_pq.x, p1_pq.y);
+  auto p1_index = GetGLVertex()->AddQuadData(quad_data);
+  quad_data.SetPointInfo(p2.x, p2.y, type, p2_pq.x, p2_pq.y);
+  auto p2_index = GetGLVertex()->AddQuadData(quad_data);
+  quad_data.SetPointInfo(p3.x, p3.y, type, p3_pq.x, p3_pq.y);
+  auto p3_index = GetGLVertex()->AddQuadData(quad_data);
+  quad_data.SetPointInfo(p4.x, p4.y, type, p4_pq.x, p4_pq.y);
+  auto p4_index = GetGLVertex()->AddQuadData(quad_data);
+  quad_data.SetPointInfo(c.x, c.y, type, c_pq.x, c_pq.y);
+  auto c_index = GetGLVertex()->AddQuadData(quad_data);
 
   GetGLVertex()->AddQuad(p1_index, c_index, p3_index);
   GetGLVertex()->AddQuad(p1_index, p2_index, p4_index);
   GetGLVertex()->AddQuad(p1_index, p4_index, p3_index);
-
-  auto quad_count = GetGLVertex()->QuadCount() - quad_start;
-
-  quad_range_.emplace_back(quad_start, quad_count, A, B, C, offset);
 
   // save
   prev_dir_.Set(end_dir);
@@ -157,15 +167,9 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
 void GLStroke2::HandleClose() { HandleFirstAndEndCap(); }
 
 void GLStroke2::HandleFinish(GLMeshRange* range) {
-  if (quad_range_.empty()) {
+  if (!cur_pt_.IsValid()) {
     return;
   }
-
-  range->quad_front_range.insert(range->quad_front_range.end(),
-                                 quad_range_.begin(), quad_range_.end());
-
-  quad_range_.clear();
-
   if (*cur_pt_ == *first_pt_) {
     return;
   }

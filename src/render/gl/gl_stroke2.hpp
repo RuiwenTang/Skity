@@ -54,7 +54,6 @@ class GLStroke2 : public GLPathVisitor {
   Lazy<Vec2> prev_pt_{};
   Lazy<Vec2> cur_pt_{};
   Lazy<Vec2> cur_dir_{};
-  std::vector<GLQuadRange> quad_range_{};
   bool is_for_aa_ = false;
 };
 

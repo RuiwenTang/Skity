@@ -25,6 +25,8 @@ GLMeshRange GLPathVisitor::VisitPath(const Path& path, bool force_close) {
   range.back_count = 0;
   range.aa_outline_start = GetGLVertex()->AACount();
   range.aa_outline_count = 0;
+  range.quad_start = GetGLVertex()->QuadCount();
+  range.quad_count = 0;
 
   Path::Iter iter{path, force_close};
   std::array<Point, 4> pts{};
@@ -62,6 +64,7 @@ DONE:
   range.front_count = gl_vertex_->FrontCount() - range.front_start;
   range.back_count = gl_vertex_->BackCount() - range.back_start;
   range.aa_outline_count = gl_vertex_->AACount() - range.aa_outline_start;
+  range.quad_count = gl_vertex_->QuadCount() - range.quad_start;
 
   return range;
 }

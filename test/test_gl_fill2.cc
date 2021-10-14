@@ -110,12 +110,14 @@ class TestGLFill2 : public test::TestApp {
 
     range_.aa_outline_start = aa_range.aa_outline_start;
     range_.aa_outline_count = aa_range.aa_outline_count;
-    range_.quad_front_range = aa_range.quad_front_range;
+    range_.quad_start = aa_range.quad_start;
+    range_.quad_count = aa_range.quad_count;
 
     mesh_->Init();
     mesh_->BindMesh();
 
     auto vertex_data = gl_vertex.GetVertexDataSize();
+    auto quad_buffer = gl_vertex.GetQuadBufferDataSize();
     auto front_data = gl_vertex.GetFrontDataSize();
     auto back_data = gl_vertex.GetBackDataSize();
     auto aa_data = gl_vertex.GetAADataSize();
@@ -124,6 +126,10 @@ class TestGLFill2 : public test::TestApp {
     if (std::get<1>(vertex_data) > 0) {
       mesh_->UploadVertexBuffer(std::get<0>(vertex_data),
                                 std::get<1>(vertex_data));
+    }
+
+    if (std::get<1>(quad_buffer) > 0) {
+      mesh_->UploadQuadBuffer(std::get<0>(quad_buffer), std::get<1>(quad_buffer));
     }
 
     if (std::get<1>(front_data) > 0) {
@@ -174,19 +180,19 @@ class TestGLFill2 : public test::TestApp {
   }
 
   void DrawQuadIfNeed() {
-    if (range_.quad_front_range.empty()) {
-      return;
-    }
-
-    mesh_->BindQuadIndex();
-
-    for (const auto& quad : range_.quad_front_range) {
-      shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
-      shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
-
-      glDrawElements(GL_TRIANGLES, quad.quad_count, GL_UNSIGNED_INT,
-                     (void*)(quad.quad_start * sizeof(GLuint)));
-    }
+//    if (range_.quad_front_range.empty()) {
+//      return;
+//    }
+//
+//    mesh_->BindQuadIndex();
+//
+//    for (const auto& quad : range_.quad_front_range) {
+//      shader_->SetUserData2(skity::Vec4{30.f, quad.offset, quad.start});
+//      shader_->SetUserData3(skity::Vec4{quad.control, quad.end});
+//
+//      glDrawElements(GL_TRIANGLES, quad.quad_count, GL_UNSIGNED_INT,
+//                     (void*)(quad.quad_start * sizeof(GLuint)));
+//    }
   }
 
   void DrawMesh() {

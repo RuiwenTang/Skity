@@ -53,7 +53,7 @@ class GLDrawOp2 {
   void DrawFront();
   void DrawBack();
   void DrawAAOutline();
-  void DrawQuadStroke(float stroke_width);
+  void DrawQuadStroke();
 
  private:
   GLUniverseShader* shader_;

@@ -39,6 +39,10 @@ uniform mat4 UserShaderMatrix;
 in vec2 vPos;
 // [mix, u, v]
 in vec3 vPosInfo;
+// [offset, p1.x, p1.y]
+in vec3 vQuadInfo1;
+// [p2.x, p2.y, p3.x, p3.y]
+in vec4 vQuadInfo2;
 
 // final fragment color
 out vec4 FragColor;
@@ -46,9 +50,9 @@ out vec4 FragColor;
 float cbrt(float x) { return sign(x) * pow(abs(x), 1.0 / 3.0); }
 
 vec2 EvalQuad(float t) {
-  vec2 a = UserData2.zw;
-  vec2 b = UserData3.xy;
-  vec2 c = UserData3.zw;
+  vec2 a = vQuadInfo1.yz;
+  vec2 b = vQuadInfo2.xy;
+  vec2 c = vQuadInfo2.zw;
 
   vec2 tt = vec2(t, t);
   return (a * tt + b) * tt + c;
@@ -244,7 +248,7 @@ float CalculateRoundCapAlpha() {
 float CalculateStrokeQuadAlpha() {
   float p = vPosInfo.y;
   float q = vPosInfo.z;
-  float offset = UserData2.y;
+  float offset = vQuadInfo1.x;
 
   float d = q * q / 4.0 + p * p * p / 27.0;
   if (d >= 0.0) {
@@ -316,7 +320,7 @@ bool NeedDiscard(float posType) {
   if (posType == VERTEX_TYPE_STROKE_QUAD) {
     float p = vPosInfo.y;
     float q = vPosInfo.z;
-    float offset = UserData2.y;
+    float offset = vQuadInfo1.x;
 
     float d = q * q / 4.0 + p * p * p / 27.0;
     if (d >= 0.0) {
