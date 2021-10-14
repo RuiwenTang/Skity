@@ -104,8 +104,8 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
                     p3 - end_dir * stroke_radius_, c);
 
   // FIXME to solve small quad generate large triangle mesh
-  if (glm::length(c - p1) >= stroke_radius_ * 100.f ||
-      glm::length(c - p3) >= stroke_radius_ * 100.f) {
+  if ((glm::length(c - p1) >= stroke_radius_ * 100.f ||
+      glm::length(c - p3) >= stroke_radius_ * 100.f) && stroke_radius_ > 1.f) {
     // fallback line to
     HandleLineTo(from, end);
     return;

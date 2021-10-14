@@ -3,6 +3,7 @@
 //
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
@@ -58,6 +59,12 @@ class TestGLStroke2 : public test::TestApp {
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_STENCIL_TEST);
 
+    GLint num = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &num);
+    for (GLint i = 0; i < num; i++) {
+      std::cout << glGetStringi(GL_EXTENSIONS, i) << std::endl;
+    }
+
     shader_ = skity::GLShader::CreateUniverseShader();
   }
   void InitMesh() {
@@ -105,7 +112,8 @@ class TestGLStroke2 : public test::TestApp {
     }
 
     if (std::get<1>(quad_buffer) > 0) {
-      mesh_->UploadQuadBuffer(std::get<0>(quad_buffer), std::get<1>(quad_buffer));
+      mesh_->UploadQuadBuffer(std::get<0>(quad_buffer),
+                              std::get<1>(quad_buffer));
     }
 
     if (std::get<1>(front_data) > 0) {
