@@ -184,7 +184,7 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
   Rect bounds{0, 0, 0, 0};
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
-  bool need_aa = paint.isAntiAlias();
+  bool need_aa = paint.isAntiAlias() && paint.getTextSize() >= 14.f;
 
   float aa_width = paint.getTextSize() * 0.05f;
 
