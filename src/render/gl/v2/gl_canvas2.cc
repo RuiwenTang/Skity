@@ -244,8 +244,8 @@ void GLCanvas2::onDrawGlyphs(const std::vector<GlyphInfo> &glyphs,
     auto op = std::make_unique<GLDrawOpFill>(shader_.get(), mesh_.get(),
                                              fill_range, paint.isAntiAlias());
 
-    if (paint.isAntiAlias()) {
-      op->SetAAWidth(2.f);
+    if (need_aa) {
+      op->SetAAWidth(aa_width);
     }
 
     SetupColorType(op.get(), paint, bounds, true);

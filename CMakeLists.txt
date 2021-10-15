@@ -280,6 +280,9 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   shaders/vs_stencil_basic.glsl
 )
 
+# source group for XCode and Visual Studio
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Skity_header} ${Skity_src})
+
 #config file
 configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
