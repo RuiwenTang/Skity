@@ -19,6 +19,15 @@ else()
     endif()
 endif()
 
+# Vulkan option
+option(VULKAN_BACKEND "option for vulkan backend" ON)
+
+# Vulan libraries
+if (VULKAN_BACKEND)
+    find_package(Vulkan REQUIRED)
+    include_directories(${Vulkan_INCLUDE_DIRS})
+endif()
+
 # Creates C resources file from files in given directory
 function(create_resources dir output)
     # Create empty output file
@@ -197,6 +206,10 @@ set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd F
 set(BUILD_IN_IMAGE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/wall.png")
 
 set(SKITY_DEP_LIBRARIES "")
+
+if (VULKAN_BACKEND)
+    set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${Vulkan_LIBRARIES})
+endif()
 
 if (${FREETYPE_FOUND})
     message("Find freetype with version ${FREETYPE_VERSION_STRING}")
