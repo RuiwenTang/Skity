@@ -1,3 +1,4 @@
+#define VULKAN_HPP_NO_EXCEPTIONS
 #include <vulkan/vulkan.hpp>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -59,7 +60,7 @@ int main(int argc, const char** argv) {
 
   auto vk_physical_devices = vk_instance->enumeratePhysicalDevices();
 
-  for (const auto& vk_pd : vk_physical_devices) {
+  for (const auto& vk_pd : vk_physical_devices.value) {
     std::cout << "device : " << vk_pd.getProperties().deviceName << std::endl;
   }
 
