@@ -19,6 +19,8 @@ class PlatformGLFW : public Platform {
   void SwapBuffers(void* window) override {}
   WindowSize GetWindowSize(void* window) override;
 
+  std::vector<const char*> GetRequiredInstanceExtensions() override;
+
  private:
 };
 

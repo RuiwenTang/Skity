@@ -31,6 +31,7 @@ class VkApp {
  private:
   void CreateVkInstance();
   void PickPhysicalDevice();
+  void CreateSurface();
 
  private:
   int32_t width_ = 0;
@@ -40,6 +41,7 @@ class VkApp {
   std::unique_ptr<Platform> platform_;
   vk::DispatchLoaderStatic vk_dispatch_;
   vk::UniqueInstance vk_instance_;
+  vk::UniqueSurfaceKHR vk_surface_;
   vk::UniqueDebugUtilsMessengerEXT vk_debug_messenger_;
   vk::PhysicalDevice vk_physical_device_;
 };

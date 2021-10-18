@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include <chrono>
+#include <vulkan/vulkan.hpp>
 
 namespace example {
 
@@ -69,6 +70,9 @@ Platform::WindowSize PlatformGLFW::GetWindowSize(void* window) {
   glfwGetFramebufferSize(glfwWindow, &size[0], &size[1]);
 
   return size;
+}
+std::vector<const char*> PlatformGLFW::GetRequiredInstanceExtensions() {
+  return std::vector<const char*>{VK_KHR_SURFACE_EXTENSION_NAME};
 }
 
 }  // namespace example

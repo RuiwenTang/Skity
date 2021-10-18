@@ -67,6 +67,7 @@ if (VULKAN_BACKEND)
                 utils/platform/osx/platform_darwin.mm
                 )
         set(VK_APP_LIBS ${VK_APP_LIBS} "-framework QuartzCore -framework Cocoa")
+        add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
     endif()
 
     add_library(vk_app OBJECT

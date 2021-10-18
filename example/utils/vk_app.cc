@@ -99,6 +99,8 @@ void VkApp::Run() {
   }
   // create vulkan instance
   CreateVkInstance();
+  // create vulkan surface
+  CreateSurface();
   // pick vulkan device
   PickPhysicalDevice();
 
@@ -134,8 +136,8 @@ void VkApp::CreateVkInstance() {
     find_validation_layer = true;
   }
 
-  std::vector<const char*> instance_extension_names{
-      VK_KHR_SURFACE_EXTENSION_NAME};
+  std::vector<const char*> instance_extension_names =
+      platform_->GetRequiredInstanceExtensions();
 
   if (find_validation_layer) {
     instance_extension_names.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -189,9 +191,26 @@ void VkApp::CreateVkInstance() {
   }
 }
 
+void VkApp::CreateSurface() {
+  auto raw_surface = platform_->CreateSurface(vk_instance_.get(), window_);
+
+  if (raw_surface == nullptr) {
+    std::cerr << "Failed to creat Vulkan surface" << std::endl;
+    exit(-1);
+  }
+
+  vk::ObjectDestroy<vk::Instance, vk::DispatchLoaderStatic> _deleter(
+      vk_instance_.get(), nullptr, vk_dispatch_);
+
+  vk_surface_ = vk::UniqueSurfaceKHR(
+      vk::SurfaceKHR(static_cast<VkSurfaceKHR>(raw_surface)), _deleter);
+}
+
 void VkApp::PickPhysicalDevice() {}
 
 }  // namespace example
+
+// ----------------------------------------------------------------------------
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,

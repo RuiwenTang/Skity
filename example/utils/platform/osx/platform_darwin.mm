@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #import <QuartzCore/CAMetalLayer.h>
+#include <vulkan/vulkan.hpp>
 
 namespace example {
 
@@ -29,6 +30,26 @@ class PlatformDarwin : public PlatformGLFW {
 
   void* GetWindowSurface(void* window) override {
     return getCAMetaLayer(glfwGetCocoaWindow(reinterpret_cast<GLFWwindow*>(window)));
+  }
+
+  std::vector<const char*> GetRequiredInstanceExtensions() override {
+    auto extensions = PlatformGLFW::GetRequiredInstanceExtensions();
+    extensions.emplace_back("VK_EXT_metal_surface");
+    return extensions;
+  }
+
+  void* CreateSurface(void* instance, void* window) override {
+    VkMetalSurfaceCreateInfoEXT create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
+    create_info.pLayer = static_cast<const CAMetalLayer*>(GetWindowSurface(window));
+
+    VkSurfaceKHR _surface = nullptr;
+    if (vkCreateMetalSurfaceEXT(static_cast<VkInstance>(instance), &create_info, nullptr,
+                                &_surface) != VK_SUCCESS) {
+      return nullptr;
+    }
+
+    return _surface;
   }
 };
 
