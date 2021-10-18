@@ -32,6 +32,7 @@ class VkApp {
   void CreateVkInstance();
   void PickPhysicalDevice();
   void CreateSurface();
+  void CreateLogicalDevice();
 
  private:
   int32_t width_ = 0;
@@ -44,6 +45,9 @@ class VkApp {
   vk::UniqueSurfaceKHR vk_surface_;
   vk::UniqueDebugUtilsMessengerEXT vk_debug_messenger_;
   vk::PhysicalDevice vk_physical_device_;
+  int32_t vk_graphic_queue_index_ = -1;
+  int32_t vk_present_queue_index_ = -1;
+  vk::UniqueDevice vk_device_;
 };
 }  // namespace example
 

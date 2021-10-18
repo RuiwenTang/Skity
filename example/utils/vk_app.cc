@@ -103,6 +103,8 @@ void VkApp::Run() {
   CreateSurface();
   // pick vulkan device
   PickPhysicalDevice();
+  // create logical vulkan device
+  CreateLogicalDevice();
 
   this->OnCreate();
 
@@ -206,7 +208,107 @@ void VkApp::CreateSurface() {
       vk::SurfaceKHR(static_cast<VkSurfaceKHR>(raw_surface)), _deleter);
 }
 
-void VkApp::PickPhysicalDevice() {}
+void VkApp::PickPhysicalDevice() {
+  auto physical_devices = vk_instance_->enumeratePhysicalDevices(vk_dispatch_);
+
+  int32_t graphic_queue_family_index = -1;
+  int32_t present_queue_family_index = -1;
+
+  for (const auto& vk_pd : physical_devices.value) {
+    auto property = vk_pd.getProperties(vk_dispatch_);
+    std::cout << "GPU : " << property.deviceName << std::endl;
+
+    const auto& queue_family_properties =
+        vk_pd.getQueueFamilyProperties(vk_dispatch_);
+
+    graphic_queue_family_index = std::distance(
+        queue_family_properties.begin(),
+        std::find_if(queue_family_properties.begin(),
+                     queue_family_properties.end(),
+                     [](vk::QueueFamilyProperties props) {
+                       return props.queueFlags & vk::QueueFlagBits::eGraphics;
+                     }));
+
+    if (graphic_queue_family_index < queue_family_properties.size()) {
+      vk_physical_device_ = vk_pd;
+      break;
+    }
+  }
+
+  if (!vk_physical_device_) {
+    std::cerr << "Can not find GPU support graphics" << std::endl;
+    exit(-1);
+  }
+
+  auto graphic_queue_support_present = vk_physical_device_.getSurfaceSupportKHR(
+      graphic_queue_family_index, vk_surface_.get(), vk_dispatch_);
+
+  if (graphic_queue_support_present.result == vk::Result::eSuccess) {
+    present_queue_family_index = graphic_queue_family_index;
+  } else {
+    size_t prop_count =
+        vk_physical_device_.getQueueFamilyProperties(vk_dispatch_).size();
+    for (size_t i = 0; i < prop_count; i++) {
+      if (vk_physical_device_
+              .getSurfaceSupportKHR(i, vk_surface_.get(), vk_dispatch_)
+              .result == vk::Result::eSuccess) {
+        present_queue_family_index = i;
+        break;
+      }
+    }
+  }
+
+  if (present_queue_family_index == -1) {
+    std::cerr << "Failed to find a present queue on GPU" << std::endl;
+    exit(-1);
+  }
+
+  vk_graphic_queue_index_ = graphic_queue_family_index;
+  vk_present_queue_index_ = present_queue_family_index;
+}
+
+void VkApp::CreateLogicalDevice() {
+  std::vector<const char*> required_device_layer{};
+  std::vector<const char*> required_device_extension{
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+  // Fix VUID-VkDeviceCreateInfo-pProperties-04451
+  {
+    auto properties = vk_physical_device_.enumerateDeviceExtensionProperties(
+        std::string(""), vk_dispatch_);
+
+    if (properties.result == vk::Result::eSuccess) {
+      auto it =
+          std::find_if(properties.value.begin(), properties.value.end(),
+                       [](vk::ExtensionProperties const& prop) {
+                         return std::strcmp(prop.extensionName,
+                                            "VK_KHR_portability_subset") == 0;
+                       });
+      if (it != properties.value.end()) {
+        required_device_extension.emplace_back("VK_KHR_portability_subset");
+      }
+    }
+  }
+
+  float queue_priority = 0.f;
+  vk::DeviceQueueCreateInfo device_queue_create_info{
+      vk::DeviceQueueCreateFlags{},
+      static_cast<uint32_t>(vk_graphic_queue_index_), 1, &queue_priority};
+
+  vk::DeviceCreateInfo create_info{
+      vk::DeviceCreateFlags{}, device_queue_create_info, required_device_layer,
+      required_device_extension};
+
+  auto create_ret = vk_physical_device_.createDeviceUnique(create_info, nullptr,
+                                                           vk_dispatch_);
+
+  if (create_ret.result != vk::Result::eSuccess) {
+    std::cerr << "Failed to create logical device" << std::endl;
+    exit(-1);
+  }
+
+  vk_device_ = std::move(create_ret.value);
+}
 
 }  // namespace example
 
