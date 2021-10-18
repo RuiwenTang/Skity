@@ -1,6 +1,10 @@
 #include "utils/vk_app.hpp"
 
+#include <algorithm>
+#include <array>
+#include <glm/glm.hpp>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 #include "utils/vk_platform.hpp"
@@ -105,6 +109,8 @@ void VkApp::Run() {
   PickPhysicalDevice();
   // create logical vulkan device
   CreateLogicalDevice();
+  // create swap chain
+  CreateSwapChain();
 
   this->OnCreate();
 
@@ -308,6 +314,112 @@ void VkApp::CreateLogicalDevice() {
   }
 
   vk_device_ = std::move(create_ret.value);
+}
+
+void VkApp::CreateSwapChain() {
+  auto formats =
+      vk_physical_device_.getSurfaceFormatsKHR(vk_surface_.get(), vk_dispatch_);
+
+  if (formats.result != vk::Result::eSuccess) {
+    std::cerr << "Can not get surface formats" << std::endl;
+    exit(-1);
+  }
+
+  auto window_size = platform_->GetWindowSize(window_);
+  vk::Format format = (formats.value.front().format == vk::Format::eUndefined)
+                          ? vk::Format::eB8G8R8A8Unorm
+                          : formats.value.front().format;
+
+  auto surface_capabilities = vk_physical_device_.getSurfaceCapabilitiesKHR(
+      vk_surface_.get(), vk_dispatch_);
+
+  // surface size
+  VkExtent2D swap_chain_extent;
+  if (surface_capabilities.value.currentExtent.width ==
+      std::numeric_limits<uint32_t>::max()) {
+    swap_chain_extent.width =
+        glm::clamp(static_cast<uint32_t>(window_size[0]),
+                   surface_capabilities.value.minImageExtent.width,
+                   surface_capabilities.value.maxImageExtent.width);
+
+    swap_chain_extent.height =
+        glm::clamp(static_cast<uint32_t>(window_size[1]),
+                   surface_capabilities.value.minImageExtent.height,
+                   surface_capabilities.value.maxImageExtent.height);
+  } else {
+    swap_chain_extent = surface_capabilities.value.currentExtent;
+  }
+
+  // present mode
+  vk::PresentModeKHR swap_chain_present_mode = vk::PresentModeKHR::eFifo;
+
+  vk::SurfaceTransformFlagBitsKHR present_transform =
+      (surface_capabilities.value.supportedTransforms &
+       vk::SurfaceTransformFlagBitsKHR::eIdentity)
+          ? vk::SurfaceTransformFlagBitsKHR::eIdentity
+          : surface_capabilities.value.currentTransform;
+
+  vk::CompositeAlphaFlagBitsKHR composite_alpha;
+  if (surface_capabilities.value.supportedCompositeAlpha &
+      vk::CompositeAlphaFlagBitsKHR::ePreMultiplied) {
+    composite_alpha = vk::CompositeAlphaFlagBitsKHR::ePreMultiplied;
+  } else if (surface_capabilities.value.supportedCompositeAlpha &
+             vk::CompositeAlphaFlagBitsKHR::ePostMultiplied) {
+    composite_alpha = vk::CompositeAlphaFlagBitsKHR::ePostMultiplied;
+  } else if (surface_capabilities.value.supportedCompositeAlpha &
+             vk::CompositeAlphaFlagBitsKHR::eInherit) {
+    composite_alpha = vk::CompositeAlphaFlagBitsKHR::eInherit;
+  } else {
+    composite_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  }
+
+  vk::SwapchainCreateInfoKHR swap_chain_create_info{
+      vk::SwapchainCreateFlagsKHR{},
+      vk_surface_.get(),
+      surface_capabilities.value.minImageCount,
+      format,
+      vk::ColorSpaceKHR::eSrgbNonlinear,
+      swap_chain_extent,
+      1,
+      vk::ImageUsageFlagBits::eColorAttachment |
+          vk::ImageUsageFlagBits::eTransferSrc,
+      vk::SharingMode::eExclusive,
+      {},
+      present_transform,
+      composite_alpha,
+      swap_chain_present_mode,
+      true,
+      nullptr};
+
+  std::array<uint32_t, 2> queue_family_indices = {
+      static_cast<uint32_t>(vk_graphic_queue_index_),
+      static_cast<uint32_t>(vk_present_queue_index_)};
+
+  if (queue_family_indices[0] != queue_family_indices[1]) {
+    // if the graphic queue and present queue is different, need to make swap
+    // chain can transfer images or sharing images
+    swap_chain_create_info.imageSharingMode = vk::SharingMode::eConcurrent;
+    swap_chain_create_info.queueFamilyIndexCount = 2;
+    swap_chain_create_info.pQueueFamilyIndices = queue_family_indices.data();
+  } else {
+    swap_chain_create_info.queueFamilyIndexCount = 1;
+    swap_chain_create_info.pQueueFamilyIndices = queue_family_indices.data();
+  }
+
+  auto swap_chain_ret = vk_device_->createSwapchainKHRUnique(
+      swap_chain_create_info, nullptr, vk_dispatch_);
+
+  if (swap_chain_ret.result != vk::Result::eSuccess) {
+    exit(-1);
+  }
+
+  vk_swap_chain_ = std::move(swap_chain_ret.value);
+
+  vk_graphic_queue_ =
+      vk_device_->getQueue(vk_graphic_queue_index_, 0, vk_dispatch_);
+
+  vk_present_queue_ =
+      vk_device_->getQueue(vk_present_queue_index_, 0, vk_dispatch_);
 }
 
 }  // namespace example

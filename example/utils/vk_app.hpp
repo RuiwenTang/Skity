@@ -33,6 +33,7 @@ class VkApp {
   void PickPhysicalDevice();
   void CreateSurface();
   void CreateLogicalDevice();
+  void CreateSwapChain();
 
  private:
   int32_t width_ = 0;
@@ -48,6 +49,9 @@ class VkApp {
   int32_t vk_graphic_queue_index_ = -1;
   int32_t vk_present_queue_index_ = -1;
   vk::UniqueDevice vk_device_;
+  vk::UniqueSwapchainKHR vk_swap_chain_;
+  vk::Queue vk_graphic_queue_;
+  vk::Queue vk_present_queue_;
 };
 }  // namespace example
 
