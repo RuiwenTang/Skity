@@ -56,11 +56,16 @@ if (VULKAN_BACKEND)
         utils/platform/platform_glfw.cc
     )
 
+    set(VK_APP_LIBS "")
     if (WIN32)
         set(VK_APP_SRC ${VK_APP_SRC}
             utils/platform/win/platform_win.cc
         )
     elseif(APPLE)
+        set(VK_APP_SRC ${VK_APP_SRC}
+                utils/platform/osx/platform_darwin.mm
+                )
+        set(VK_APP_LIBS ${VK_APP_LIBS} "-framework QuartzCore -framework Cocoa")
     endif()
 
     add_library(vk_app OBJECT
@@ -71,5 +76,5 @@ if (VULKAN_BACKEND)
         vulkan_hello_world.cc
         $<TARGET_OBJECTS:vk_app>
         )
-    target_link_libraries(vulkan_hello_world skity vk_app ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+    target_link_libraries(vulkan_hello_world skity vk_app ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${VK_APP_LIBS})
 endif()
