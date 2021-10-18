@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vulkan/vulkan.hpp>
 
 namespace example {
 
@@ -28,11 +29,19 @@ class VkApp {
   virtual void OnDestroy() {}
 
  private:
+  void CreateVkInstance();
+  void PickPhysicalDevice();
+
+ private:
   int32_t width_ = 0;
   int32_t height_ = 0;
   std::string window_name_;
   void* window_ = nullptr;
   std::unique_ptr<Platform> platform_;
+  vk::DispatchLoaderStatic vk_dispatch_;
+  vk::UniqueInstance vk_instance_;
+  vk::UniqueDebugUtilsMessengerEXT vk_debug_messenger_;
+  vk::PhysicalDevice vk_physical_device_;
 };
 }  // namespace example
 

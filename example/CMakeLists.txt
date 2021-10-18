@@ -48,6 +48,7 @@ target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 if (VULKAN_BACKEND)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+    add_definitions(-DVULKAN_HPP_NO_EXCEPTIONS)
     set(VK_APP_SRC
         utils/vk_app.hpp
         utils/vk_app.cc
