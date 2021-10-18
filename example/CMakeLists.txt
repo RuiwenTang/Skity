@@ -47,11 +47,24 @@ add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad>)
 target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 if (VULKAN_BACKEND)
-
-    add_library(vk_app OBJECT
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+    set(VK_APP_SRC
         utils/vk_app.hpp
         utils/vk_app.cc
         utils/vk_platform.hpp
+        utils/platform/platform_glfw.hpp
+        utils/platform/platform_glfw.cc
+    )
+
+    if (WIN32)
+        set(VK_APP_SRC ${VK_APP_SRC}
+            utils/platform/win/platform_win.cc
+        )
+    elseif(APPLE)
+    endif()
+
+    add_library(vk_app OBJECT
+        ${VK_APP_SRC}
     )
 
     add_executable(vulkan_hello_world 
