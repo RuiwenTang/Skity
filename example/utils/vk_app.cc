@@ -587,6 +587,15 @@ void VkApp::BeginForDraw() {
       vk_swap_chain_frame_buffer_[current_buffer.value].get(),
       vk::Rect2D{vk::Offset2D{0, 0}, vk_frame_extent_}, clear_values};
 
+  vk_command_buffer_->setViewport(
+      0,
+      vk::Viewport{0.f, 0.f, static_cast<float>(vk_frame_extent_.width),
+                   static_cast<float>(vk_frame_extent_.height), 0.f, 1.f},
+      vk_dispatch_);
+
+  vk_command_buffer_->setScissor(
+      0, vk::Rect2D{vk::Offset2D{0, 0}, vk_frame_extent_}, vk_dispatch_);
+
   vk_command_buffer_->beginRenderPass(
       &render_pass_begin_info, vk::SubpassContents::eInline, vk_dispatch_);
 }
