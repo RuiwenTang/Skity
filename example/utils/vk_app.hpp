@@ -38,6 +38,7 @@ class VkApp {
   void CreateSwapChainImageView();
   void CreateCommandPoolAndBuffer();
   void CreateRenderPass();
+  void CreateFramebuffer();
 
  private:
   int32_t width_ = 0;
@@ -61,6 +62,7 @@ class VkApp {
   vk::UniqueCommandPool vk_command_pool_;
   vk::UniqueCommandBuffer vk_command_buffer_;
   vk::UniqueRenderPass vk_render_pass_;
+  std::vector<vk::UniqueFramebuffer> vk_swap_chain_frame_buffer_;
 };
 }  // namespace example
 

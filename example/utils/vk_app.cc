@@ -115,6 +115,7 @@ void VkApp::Run() {
   // command buffer
   CreateCommandPoolAndBuffer();
   CreateRenderPass();
+  CreateFramebuffer();
 
   this->OnCreate();
 
@@ -431,7 +432,7 @@ void VkApp::CreateSwapChain() {
 void VkApp::CreateSwapChainImageView() {
   auto images =
       vk_device_->getSwapchainImagesKHR(vk_swap_chain_.get(), vk_dispatch_);
-  vk_swap_chain_image_view_.resize(images.value.size());
+  vk_swap_chain_image_view_.reserve(images.value.size());
 
   vk::ComponentMapping component_mapping{
       vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
@@ -514,6 +515,22 @@ void VkApp::CreateRenderPass() {
 
   if (create_ret.result != vk::Result::eSuccess) {
     exit(-1);
+  }
+}
+
+void VkApp::CreateFramebuffer() {
+  vk_swap_chain_frame_buffer_.reserve(vk_swap_chain_image_view_.size());
+  std::array<vk::ImageView, 1> attachments;
+  for (const auto& image_view : vk_swap_chain_image_view_) {
+    attachments[0] = image_view.get();
+
+    auto create_ret = vk_device_->createFramebufferUnique(
+        vk::FramebufferCreateInfo{}, nullptr, vk_dispatch_);
+    if (create_ret.result != vk::Result::eSuccess) {
+      exit(-1);
+    }
+
+    vk_swap_chain_frame_buffer_.emplace_back(std::move(create_ret.value));
   }
 }
 
