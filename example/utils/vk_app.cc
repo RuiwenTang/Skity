@@ -130,7 +130,12 @@ void VkApp::Run() {
 }
 
 void VkApp::Update(float elapsed_time) {
+  this->BeginForDraw();
+
   this->OnUpdate(elapsed_time);
+
+  this->EndForDraw();
+
   platform_->SwapBuffers(window_);
 }
 
@@ -356,6 +361,8 @@ void VkApp::CreateSwapChain() {
     swap_chain_extent = surface_capabilities.value.currentExtent;
   }
 
+  vk_frame_extent_ = swap_chain_extent;
+
   // present mode
   vk::PresentModeKHR swap_chain_present_mode = vk::PresentModeKHR::eFifo;
 
@@ -485,16 +492,12 @@ void VkApp::CreateCommandPoolAndBuffer() {
 
 void VkApp::CreateRenderPass() {
   std::vector<vk::AttachmentDescription> color_attachment_descriptions;
-  color_attachment_descriptions.emplace_back(
-      vk::AttachmentDescription{{},
-                                vk_color_attachment_format_,
-                                vk::SampleCountFlagBits::e1,
-                                vk::AttachmentLoadOp::eClear,
-                                vk::AttachmentStoreOp::eStore,
-                                vk::AttachmentLoadOp::eDontCare,
-                                vk::AttachmentStoreOp::eDontCare,
-                                vk::ImageLayout::eUndefined,
-                                vk::ImageLayout::ePresentSrcKHR});
+  color_attachment_descriptions.emplace_back(vk::AttachmentDescription{
+      vk::AttachmentDescriptionFlags{}, vk_color_attachment_format_,
+      vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear,
+      vk::AttachmentStoreOp::eStore, vk::AttachmentLoadOp::eDontCare,
+      vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined,
+      vk::ImageLayout::ePresentSrcKHR});
 
   vk::AttachmentReference color_attachment_ref{
       0, vk::ImageLayout::eColorAttachmentOptimal};
@@ -511,12 +514,14 @@ void VkApp::CreateRenderPass() {
   vk::RenderPassCreateInfo render_pass_create_info{
       {}, color_attachment_descriptions, sub_pass_desc, sub_pass_dependencies};
 
-  auto create_ret = vk_device_->createRenderPass(render_pass_create_info,
-                                                 nullptr, vk_dispatch_);
+  auto create_ret = vk_device_->createRenderPassUnique(render_pass_create_info,
+                                                       nullptr, vk_dispatch_);
 
   if (create_ret.result != vk::Result::eSuccess) {
     exit(-1);
   }
+
+  vk_render_pass_ = std::move(create_ret.value);
 }
 
 void VkApp::CreateFramebuffer() {
@@ -526,7 +531,13 @@ void VkApp::CreateFramebuffer() {
     attachments[0] = image_view.get();
 
     auto create_ret = vk_device_->createFramebufferUnique(
-        vk::FramebufferCreateInfo{}, nullptr, vk_dispatch_);
+        vk::FramebufferCreateInfo{{},
+                                  vk_render_pass_.get(),
+                                  attachments,
+                                  vk_frame_extent_.width,
+                                  vk_frame_extent_.height,
+                                  1},
+        nullptr, vk_dispatch_);
     if (create_ret.result != vk::Result::eSuccess) {
       exit(-1);
     }
@@ -547,6 +558,73 @@ void VkApp::CreateSyncObject() {
 
   assert(fence_ret.result == vk::Result::eSuccess);
   vk_draw_fence_ = std::move(fence_ret.value);
+}
+
+void VkApp::BeginForDraw() {
+  vk_device_->resetFences(1, std::addressof(vk_draw_fence_.get()),
+                          vk_dispatch_);
+
+  auto current_buffer = vk_device_->acquireNextImageKHR(
+      vk_swap_chain_.get(), UINT64_MAX, vk_image_acquired_semaphore_.get(),
+      nullptr, vk_dispatch_);
+
+  assert(current_buffer.result == vk::Result::eSuccess);
+  assert(current_buffer.value < vk_swap_chain_frame_buffer_.size());
+  vk_current_frame_index_ = current_buffer.value;
+
+  std::array<vk::ClearValue, 1> clear_values;
+  clear_values[0].color =
+      vk::ClearColorValue(std::array<float, 4>{0.3f, 0.4f, 0.5f, 1.0f});
+  clear_values[0].depthStencil = vk::ClearDepthStencilValue{1.f, 0};
+
+  vk_command_buffer_->begin(
+      vk::CommandBufferBeginInfo{
+          vk::CommandBufferUsageFlagBits::eOneTimeSubmit},
+      vk_dispatch_);
+
+  vk::RenderPassBeginInfo render_pass_begin_info{
+      vk_render_pass_.get(),
+      vk_swap_chain_frame_buffer_[current_buffer.value].get(),
+      vk::Rect2D{vk::Offset2D{0, 0}, vk_frame_extent_}, clear_values};
+
+  vk_command_buffer_->beginRenderPass(
+      &render_pass_begin_info, vk::SubpassContents::eInline, vk_dispatch_);
+}
+
+void VkApp::EndForDraw() {
+  vk_command_buffer_->endRenderPass(vk_dispatch_);
+  vk_command_buffer_->end(vk_dispatch_);
+
+  vk::PipelineStageFlags wait_destination_stage_mask{
+      vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+  vk::SubmitInfo submit_info{vk_image_acquired_semaphore_.get(),
+                             wait_destination_stage_mask,
+                             vk_command_buffer_.get()};
+
+  vk_graphic_queue_.submit(submit_info, vk_draw_fence_.get(), vk_dispatch_);
+
+  while (vk::Result::eTimeout ==
+         vk_device_->waitForFences(vk_draw_fence_.get(), VK_TRUE, UINT64_MAX)) {
+  }
+
+  auto result = vk_present_queue_.presentKHR(
+      vk::PresentInfoKHR{{}, vk_swap_chain_.get(), vk_current_frame_index_},
+      vk_dispatch_);
+
+  switch (result) {
+    case vk::Result::eSuccess:
+      break;
+    case vk::Result::eSuboptimalKHR:
+      std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !"
+                << std::endl;
+      break;
+    default:
+      assert(false);
+      break;
+  }
+
+  vk_device_->waitIdle(vk_dispatch_);
 }
 
 }  // namespace example

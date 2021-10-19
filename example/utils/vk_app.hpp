@@ -41,6 +41,9 @@ class VkApp {
   void CreateFramebuffer();
   void CreateSyncObject();
 
+  void BeginForDraw();
+  void EndForDraw();
+
  private:
   int32_t width_ = 0;
   int32_t height_ = 0;
@@ -56,6 +59,7 @@ class VkApp {
   int32_t vk_present_queue_index_ = -1;
   vk::UniqueDevice vk_device_;
   vk::UniqueSwapchainKHR vk_swap_chain_;
+  vk::Extent2D vk_frame_extent_;
   vk::Queue vk_graphic_queue_;
   vk::Queue vk_present_queue_;
   vk::Format vk_color_attachment_format_ = vk::Format::eUndefined;
@@ -64,6 +68,7 @@ class VkApp {
   vk::UniqueCommandBuffer vk_command_buffer_;
   vk::UniqueRenderPass vk_render_pass_;
   std::vector<vk::UniqueFramebuffer> vk_swap_chain_frame_buffer_;
+  uint32_t vk_current_frame_index_ = 0;
   vk::UniqueSemaphore vk_image_acquired_semaphore_;
   vk::UniqueFence vk_draw_fence_;
 };
