@@ -111,6 +111,7 @@ void VkApp::Run() {
   CreateLogicalDevice();
   // create swap chain
   CreateSwapChain();
+  CreateSwapChainImageView();
 
   this->OnCreate();
 
@@ -420,6 +421,33 @@ void VkApp::CreateSwapChain() {
 
   vk_present_queue_ =
       vk_device_->getQueue(vk_present_queue_index_, 0, vk_dispatch_);
+
+  vk_color_attachment_format_ = format;
+}
+
+void VkApp::CreateSwapChainImageView() {
+  auto images =
+      vk_device_->getSwapchainImagesKHR(vk_swap_chain_.get(), vk_dispatch_);
+  vk_swap_chain_image_view_.resize(images.value.size());
+
+  vk::ComponentMapping component_mapping{
+      vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
+      vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
+
+  vk::ImageSubresourceRange sub_resource_range{vk::ImageAspectFlagBits::eColor,
+                                               0, 1, 0, 1};
+
+  for (auto image : images.value) {
+    vk::ImageViewCreateInfo image_view_create_info{{},
+                                                   image,
+                                                   vk::ImageViewType::e2D,
+                                                   vk_color_attachment_format_,
+                                                   component_mapping,
+                                                   sub_resource_range};
+
+    vk_swap_chain_image_view_.emplace_back(vk_device_->createImageViewUnique(
+        image_view_create_info, nullptr, vk_dispatch_));
+  }
 }
 
 }  // namespace example

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <vulkan/vulkan.hpp>
 
 namespace example {
@@ -34,6 +35,7 @@ class VkApp {
   void CreateSurface();
   void CreateLogicalDevice();
   void CreateSwapChain();
+  void CreateSwapChainImageView();
 
  private:
   int32_t width_ = 0;
@@ -52,6 +54,8 @@ class VkApp {
   vk::UniqueSwapchainKHR vk_swap_chain_;
   vk::Queue vk_graphic_queue_;
   vk::Queue vk_present_queue_;
+  vk::Format vk_color_attachment_format_ = vk::Format::eUndefined;
+  std::vector<vk::UniqueImageView> vk_swap_chain_image_view_;
 };
 }  // namespace example
 
