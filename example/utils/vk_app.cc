@@ -114,6 +114,7 @@ void VkApp::Run() {
   CreateSwapChainImageView();
   // command buffer
   CreateCommandPoolAndBuffer();
+  CreateRenderPass();
 
   this->OnCreate();
 
@@ -478,6 +479,42 @@ void VkApp::CreateCommandPoolAndBuffer() {
   }
 
   vk_command_buffer_ = std::move(buffer_allocate_ret.value.front());
+}
+
+void VkApp::CreateRenderPass() {
+  std::vector<vk::AttachmentDescription> color_attachment_descriptions;
+  color_attachment_descriptions.emplace_back(
+      vk::AttachmentDescription{{},
+                                vk_color_attachment_format_,
+                                vk::SampleCountFlagBits::e1,
+                                vk::AttachmentLoadOp::eClear,
+                                vk::AttachmentStoreOp::eStore,
+                                vk::AttachmentLoadOp::eDontCare,
+                                vk::AttachmentStoreOp::eDontCare,
+                                vk::ImageLayout::eUndefined,
+                                vk::ImageLayout::ePresentSrcKHR});
+
+  vk::AttachmentReference color_attachment_ref{
+      0, vk::ImageLayout::eColorAttachmentOptimal};
+
+  vk::SubpassDescription sub_pass_desc{
+      {},
+      vk::PipelineBindPoint::eGraphics,
+      {} /* input attachment */,
+      color_attachment_ref,
+  };
+
+  std::vector<vk::SubpassDependency> sub_pass_dependencies{};
+
+  vk::RenderPassCreateInfo render_pass_create_info{
+      {}, color_attachment_descriptions, sub_pass_desc, sub_pass_dependencies};
+
+  auto create_ret = vk_device_->createRenderPass(render_pass_create_info,
+                                                 nullptr, vk_dispatch_);
+
+  if (create_ret.result != vk::Result::eSuccess) {
+    exit(-1);
+  }
 }
 
 }  // namespace example
