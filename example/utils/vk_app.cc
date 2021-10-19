@@ -112,6 +112,8 @@ void VkApp::Run() {
   // create swap chain
   CreateSwapChain();
   CreateSwapChainImageView();
+  // command buffer
+  CreateCommandPoolAndBuffer();
 
   this->OnCreate();
 
@@ -448,6 +450,34 @@ void VkApp::CreateSwapChainImageView() {
     vk_swap_chain_image_view_.emplace_back(vk_device_->createImageViewUnique(
         image_view_create_info, nullptr, vk_dispatch_));
   }
+}
+
+void VkApp::CreateCommandPoolAndBuffer() {
+  vk::CommandPoolCreateInfo pool_create_info{
+      vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+      static_cast<uint32_t>(vk_graphic_queue_index_)};
+
+  auto pool_create_ret = vk_device_->createCommandPoolUnique(
+      pool_create_info, nullptr, vk_dispatch_);
+
+  if (pool_create_ret.result != vk::Result::eSuccess) {
+    std::cerr << "Failed to create Vulkan Command Pool" << std::endl;
+    exit(-1);
+  }
+
+  vk_command_pool_ = std::move(pool_create_ret.value);
+
+  vk::CommandBufferAllocateInfo buffer_allocate_info{
+      vk_command_pool_.get(), vk::CommandBufferLevel::ePrimary, 1};
+
+  auto buffer_allocate_ret = vk_device_->allocateCommandBuffersUnique(
+      buffer_allocate_info, vk_dispatch_);
+
+  if (buffer_allocate_ret.result != vk::Result::eSuccess) {
+    exit(-1);
+  }
+
+  vk_command_buffer_ = std::move(buffer_allocate_ret.value.front());
 }
 
 }  // namespace example

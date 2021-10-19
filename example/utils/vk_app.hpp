@@ -36,6 +36,7 @@ class VkApp {
   void CreateLogicalDevice();
   void CreateSwapChain();
   void CreateSwapChainImageView();
+  void CreateCommandPoolAndBuffer();
 
  private:
   int32_t width_ = 0;
@@ -56,6 +57,8 @@ class VkApp {
   vk::Queue vk_present_queue_;
   vk::Format vk_color_attachment_format_ = vk::Format::eUndefined;
   std::vector<vk::UniqueImageView> vk_swap_chain_image_view_;
+  vk::UniqueCommandPool vk_command_pool_;
+  vk::UniqueCommandBuffer vk_command_buffer_;
 };
 }  // namespace example
 
