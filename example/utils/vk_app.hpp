@@ -39,6 +39,7 @@ class VkApp {
   void CreateCommandPoolAndBuffer();
   void CreateRenderPass();
   void CreateFramebuffer();
+  void CreateSyncObject();
 
  private:
   int32_t width_ = 0;
@@ -63,6 +64,8 @@ class VkApp {
   vk::UniqueCommandBuffer vk_command_buffer_;
   vk::UniqueRenderPass vk_render_pass_;
   std::vector<vk::UniqueFramebuffer> vk_swap_chain_frame_buffer_;
+  vk::UniqueSemaphore vk_image_acquired_semaphore_;
+  vk::UniqueFence vk_draw_fence_;
 };
 }  // namespace example
 

@@ -116,6 +116,7 @@ void VkApp::Run() {
   CreateCommandPoolAndBuffer();
   CreateRenderPass();
   CreateFramebuffer();
+  CreateSyncObject();
 
   this->OnCreate();
 
@@ -532,6 +533,20 @@ void VkApp::CreateFramebuffer() {
 
     vk_swap_chain_frame_buffer_.emplace_back(std::move(create_ret.value));
   }
+}
+
+void VkApp::CreateSyncObject() {
+  auto semaphore_ret = vk_device_->createSemaphoreUnique(
+      vk::SemaphoreCreateInfo{}, nullptr, vk_dispatch_);
+
+  assert(semaphore_ret.result == vk::Result::eSuccess);
+  vk_image_acquired_semaphore_ = std::move(semaphore_ret.value);
+
+  auto fence_ret = vk_device_->createFenceUnique(vk::FenceCreateInfo{}, nullptr,
+                                                 vk_dispatch_);
+
+  assert(fence_ret.result == vk::Result::eSuccess);
+  vk_draw_fence_ = std::move(fence_ret.value);
 }
 
 }  // namespace example
