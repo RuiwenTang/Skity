@@ -578,8 +578,7 @@ void VkApp::BeginForDraw() {
 
   std::array<vk::ClearValue, 1> clear_values;
   clear_values[0].color =
-      vk::ClearColorValue(std::array<float, 4>{0.3f, 0.4f, 0.5f, 0.1f});
-  clear_values[0].depthStencil = vk::ClearDepthStencilValue{1.f, 0};
+      vk::ClearColorValue(std::array<float, 4>{0.3f, 0.4f, 0.5f, 1.f});
 
   vk_command_buffer_->begin(
       vk::CommandBufferBeginInfo{
