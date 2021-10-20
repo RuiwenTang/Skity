@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <limits>
+#include <shader.hpp>
 #include <vector>
 
 #include "utils/vk_platform.hpp"
@@ -117,6 +118,7 @@ void VkApp::Run() {
   CreateRenderPass();
   CreateFramebuffer();
   CreateSyncObject();
+  CreatePipeline();
 
   this->OnCreate();
 
@@ -502,14 +504,20 @@ void VkApp::CreateRenderPass() {
   vk::AttachmentReference color_attachment_ref{
       0, vk::ImageLayout::eColorAttachmentOptimal};
 
-  vk::SubpassDescription sub_pass_desc{
-      {},
-      vk::PipelineBindPoint::eGraphics,
-      {} /* input attachment */,
-      color_attachment_ref,
-  };
+  vk::SubpassDescription sub_pass_desc{};
+  sub_pass_desc.colorAttachmentCount = 1;
+  sub_pass_desc.pColorAttachments = &color_attachment_ref;
 
   std::vector<vk::SubpassDependency> sub_pass_dependencies{};
+
+  vk::SubpassDependency dep1;
+  dep1.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dep1.dstSubpass = 0;
+  dep1.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+  dep1.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+  dep1.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+  sub_pass_dependencies.emplace_back(dep1);
 
   vk::RenderPassCreateInfo render_pass_create_info{
       {}, color_attachment_descriptions, sub_pass_desc, sub_pass_dependencies};
@@ -598,6 +606,11 @@ void VkApp::BeginForDraw() {
 
   vk_command_buffer_->beginRenderPass(
       &render_pass_begin_info, vk::SubpassContents::eInline, vk_dispatch_);
+
+  vk_command_buffer_->bindPipeline(vk::PipelineBindPoint::eGraphics,
+                                   vk_pipeline_.get(), vk_dispatch_);
+
+  vk_command_buffer_->draw(3, 1, 0, 0);
 }
 
 void VkApp::EndForDraw() {
@@ -634,6 +647,146 @@ void VkApp::EndForDraw() {
   }
 
   vk_device_->waitIdle(vk_dispatch_);
+}
+
+void VkApp::CreatePipeline() {
+  auto vert_shader_module_ret = vk_device_->createShaderModuleUnique(
+      vk::ShaderModuleCreateInfo{{},
+                                 vk_demo_shader_vert_spv_size,
+                                 (const uint32_t*)vk_demo_shader_vert_spv},
+      nullptr, vk_dispatch_);
+  assert(vert_shader_module_ret.result == vk::Result::eSuccess);
+
+  auto frag_shader_module_ret = vk_device_->createShaderModuleUnique(
+      vk::ShaderModuleCreateInfo{{},
+                                 vk_demo_shader_frag_spv_size,
+                                 (const uint32_t*)vk_demo_shader_frag_spv},
+      nullptr, vk_dispatch_);
+  assert(frag_shader_module_ret.result == vk::Result::eSuccess);
+
+  std::vector<vk::PipelineShaderStageCreateInfo>
+      pipeline_shader_stage_create_info;
+
+  pipeline_shader_stage_create_info.emplace_back(
+      vk::PipelineShaderStageCreateInfo{{},
+                                        vk::ShaderStageFlagBits::eVertex,
+                                        vert_shader_module_ret.value.get(),
+                                        "main"});
+
+  pipeline_shader_stage_create_info.emplace_back(
+      vk::PipelineShaderStageCreateInfo{{},
+                                        vk::ShaderStageFlagBits::eFragment,
+                                        frag_shader_module_ret.value.get(),
+                                        "main"});
+
+  vk::VertexInputBindingDescription vertex_binding_desc{};
+  vk::PipelineInputAssemblyStateCreateInfo
+      pipeline_input_assembly_state_create_info{
+          {}, vk::PrimitiveTopology::eTriangleList, VK_FALSE};
+
+  vk::PipelineVertexInputStateCreateInfo
+      pipeline_vertex_input_state_create_info{};
+
+  vk::Viewport view_port{
+      0.f, 0.f, (float)vk_frame_extent_.width, (float)vk_frame_extent_.height,
+      0.f, 1.f};
+
+  vk::Rect2D scissor{vk::Offset2D{0, 0}, vk_frame_extent_};
+
+  vk::PipelineViewportStateCreateInfo pipeline_viewport_state_create_info{
+      {}, 1, &view_port, 1, &scissor};
+
+  vk::PipelineRasterizationStateCreateInfo
+      pipeline_rasterization_state_create_info{{},
+                                               VK_FALSE,
+                                               VK_FALSE,
+                                               vk::PolygonMode::eFill,
+                                               vk::CullModeFlagBits::eBack,
+                                               vk::FrontFace::eClockwise,
+                                               VK_FALSE,
+                                               0.f,
+                                               0.f,
+                                               0.f,
+                                               1.f};
+
+  vk::PipelineMultisampleStateCreateInfo pipeline_multisample_state_create_info{
+      {}, vk::SampleCountFlagBits::e1};
+
+  vk::StencilOpState stencil_op_state{
+      vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::StencilOp::eKeep,
+      vk::CompareOp::eAlways};
+
+  vk::PipelineDepthStencilStateCreateInfo
+      pipeline_depth_stencil_state_create_info{
+          vk::PipelineDepthStencilStateCreateFlags{},
+          false,
+          false,
+          vk::CompareOp::eLess,
+          false,
+          false,
+          stencil_op_state,
+          stencil_op_state,
+          0.f,
+          1.f};
+
+  vk::ColorComponentFlags color_component_flags = {
+      vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+      vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA};
+
+  vk::PipelineColorBlendAttachmentState pipeline_color_blend_attachment_state{
+      true,
+      vk::BlendFactor::eSrcAlpha,
+      vk::BlendFactor::eOneMinusSrcAlpha,
+      vk::BlendOp::eAdd,
+      vk::BlendFactor::eSrcAlpha,
+      vk::BlendFactor::eOneMinusSrcAlpha,
+      vk::BlendOp::eAdd,
+      color_component_flags};
+
+  vk::PipelineColorBlendStateCreateInfo pipeline_color_blend_state_create_info{
+      vk::PipelineColorBlendStateCreateFlags{},
+      false,
+      vk::LogicOp::eCopy,
+      pipeline_color_blend_attachment_state,
+      {1.f, 1.f, 1.f, 1.f}};
+
+  std::array<vk::DynamicState, 2> dynamic_state = {vk::DynamicState::eViewport,
+                                                   vk::DynamicState::eScissor};
+
+  vk::PipelineDynamicStateCreateInfo pipeline_dynamic_state_create_info{
+      vk::PipelineDynamicStateCreateFlags{}, dynamic_state};
+
+  vk::PipelineLayoutCreateInfo pipeline_layout_create_info{
+
+  };
+
+  auto pipeline_layout_ret = vk_device_->createPipelineLayoutUnique(
+      pipeline_layout_create_info, nullptr, vk_dispatch_);
+
+  assert(pipeline_layout_ret.result == vk::Result::eSuccess);
+  vk_pipeline_layout_ = std::move(pipeline_layout_ret.value);
+
+  vk::GraphicsPipelineCreateInfo pipeline_create_info{
+      vk::PipelineCreateFlags{},
+      pipeline_shader_stage_create_info,
+      &pipeline_vertex_input_state_create_info,
+      &pipeline_input_assembly_state_create_info,
+      nullptr,
+      &pipeline_viewport_state_create_info,
+      &pipeline_rasterization_state_create_info,
+      &pipeline_multisample_state_create_info,
+      &pipeline_depth_stencil_state_create_info,
+      &pipeline_color_blend_state_create_info,
+      &pipeline_dynamic_state_create_info,
+      vk_pipeline_layout_.get(),
+      vk_render_pass_.get()};
+
+  auto result = vk_device_->createGraphicsPipelineUnique(
+      nullptr, pipeline_create_info, nullptr, vk_dispatch_);
+
+  assert(result.result == vk::Result::eSuccess);
+
+  vk_pipeline_ = std::move(result.value);
 }
 
 }  // namespace example

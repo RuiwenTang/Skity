@@ -40,6 +40,7 @@ class VkApp {
   void CreateRenderPass();
   void CreateFramebuffer();
   void CreateSyncObject();
+  void CreatePipeline();
 
   void BeginForDraw();
   void EndForDraw();
@@ -71,6 +72,8 @@ class VkApp {
   uint32_t vk_current_frame_index_ = 0;
   vk::UniqueSemaphore vk_image_acquired_semaphore_;
   vk::UniqueFence vk_draw_fence_;
+  vk::UniquePipelineLayout vk_pipeline_layout_;
+  vk::UniquePipeline vk_pipeline_;
 };
 }  // namespace example
 
