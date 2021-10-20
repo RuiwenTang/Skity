@@ -113,10 +113,10 @@ void VkApp::Run() {
   // create swap chain
   CreateSwapChain();
   CreateSwapChainImageView();
-  // command buffer
-  CreateCommandPoolAndBuffer();
   CreateRenderPass();
   CreateFramebuffer();
+  // command buffer
+  CreateCommandPoolAndBuffer();
   CreateSyncObject();
   CreatePipeline();
 
@@ -339,9 +339,10 @@ void VkApp::CreateSwapChain() {
   }
 
   auto window_size = platform_->GetWindowSize(window_);
-  vk::Format format = (formats.value.front().format == vk::Format::eUndefined)
-                          ? vk::Format::eB8G8R8A8Unorm
-                          : formats.value.front().format;
+  vk::SurfaceFormatKHR format =
+      (formats.value.front().format == vk::Format::eUndefined)
+          ? vk::Format::eB8G8R8A8Unorm
+          : formats.value.front();
 
   auto surface_capabilities = vk_physical_device_.getSurfaceCapabilitiesKHR(
       vk_surface_.get(), vk_dispatch_);
@@ -392,8 +393,8 @@ void VkApp::CreateSwapChain() {
       vk::SwapchainCreateFlagsKHR{},
       vk_surface_.get(),
       surface_capabilities.value.minImageCount,
-      format,
-      vk::ColorSpaceKHR::eSrgbNonlinear,
+      format.format,
+      format.colorSpace,
       swap_chain_extent,
       1,
       vk::ImageUsageFlagBits::eColorAttachment |
@@ -436,7 +437,7 @@ void VkApp::CreateSwapChain() {
   vk_present_queue_ =
       vk_device_->getQueue(vk_present_queue_index_, 0, vk_dispatch_);
 
-  vk_color_attachment_format_ = format;
+  vk_color_attachment_format_ = format.format;
 }
 
 void VkApp::CreateSwapChainImageView() {
@@ -459,8 +460,11 @@ void VkApp::CreateSwapChainImageView() {
                                                    component_mapping,
                                                    sub_resource_range};
 
-    vk_swap_chain_image_view_.emplace_back(vk_device_->createImageViewUnique(
-        image_view_create_info, nullptr, vk_dispatch_));
+    vk_swap_chain_image_view_.emplace_back(
+        vk_device_
+            ->createImageViewUnique(image_view_create_info, nullptr,
+                                    vk_dispatch_)
+            .value);
   }
 }
 
@@ -505,22 +509,14 @@ void VkApp::CreateRenderPass() {
       0, vk::ImageLayout::eColorAttachmentOptimal};
 
   vk::SubpassDescription sub_pass_desc{};
+  sub_pass_desc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
   sub_pass_desc.colorAttachmentCount = 1;
   sub_pass_desc.pColorAttachments = &color_attachment_ref;
 
   std::vector<vk::SubpassDependency> sub_pass_dependencies{};
 
-  vk::SubpassDependency dep1;
-  dep1.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dep1.dstSubpass = 0;
-  dep1.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-  dep1.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-  dep1.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-
-  sub_pass_dependencies.emplace_back(dep1);
-
   vk::RenderPassCreateInfo render_pass_create_info{
-      {}, color_attachment_descriptions, sub_pass_desc, sub_pass_dependencies};
+      {}, color_attachment_descriptions, sub_pass_desc};
 
   auto create_ret = vk_device_->createRenderPassUnique(render_pass_create_info,
                                                        nullptr, vk_dispatch_);
@@ -582,7 +578,7 @@ void VkApp::BeginForDraw() {
 
   std::array<vk::ClearValue, 1> clear_values;
   clear_values[0].color =
-      vk::ClearColorValue(std::array<float, 4>{0.3f, 0.4f, 0.5f, 1.0f});
+      vk::ClearColorValue(std::array<float, 4>{0.3f, 0.4f, 0.5f, 0.1f});
   clear_values[0].depthStencil = vk::ClearDepthStencilValue{1.f, 0};
 
   vk_command_buffer_->begin(
