@@ -119,6 +119,7 @@ void VkApp::Run() {
   CreateCommandPoolAndBuffer();
   CreateSyncObject();
   CreatePipeline();
+  CreateVertexBuffer();
 
   this->OnCreate();
 
@@ -605,6 +606,8 @@ void VkApp::BeginForDraw() {
   vk_command_buffer_->bindPipeline(vk::PipelineBindPoint::eGraphics,
                                    vk_pipeline_.get(), vk_dispatch_);
 
+  vk_command_buffer_->bindVertexBuffers(0, vk_vertex_buffer_.get(), {0});
+
   vk_command_buffer_->draw(3, 1, 0, 0);
 }
 
@@ -646,9 +649,10 @@ void VkApp::EndForDraw() {
 
 void VkApp::CreatePipeline() {
   auto vert_shader_module_ret = vk_device_->createShaderModuleUnique(
-      vk::ShaderModuleCreateInfo{{},
-                                 vk_demo_shader_vert_spv_size,
-                                 (const uint32_t*)vk_demo_shader_vert_spv},
+      vk::ShaderModuleCreateInfo{
+          {},
+          vk_demo_buffer_shader_vert_spv_size,
+          (const uint32_t*)vk_demo_buffer_shader_vert_spv},
       nullptr, vk_dispatch_);
   assert(vert_shader_module_ret.result == vk::Result::eSuccess);
 
@@ -674,13 +678,30 @@ void VkApp::CreatePipeline() {
                                         frag_shader_module_ret.value.get(),
                                         "main"});
 
-  vk::VertexInputBindingDescription vertex_binding_desc{};
+  // description for vertex buffer
+  vk::VertexInputBindingDescription vertex_binding_desc{
+      0, 6 * sizeof(float), vk::VertexInputRate::eVertex};
+
+  std::array<vk::VertexInputAttributeDescription, 2>
+      vertex_input_attr_description{};
+
+  vertex_input_attr_description[0].binding = 0;
+  vertex_input_attr_description[0].location = 0;
+  vertex_input_attr_description[0].format = vk::Format::eR32G32Sfloat;
+  vertex_input_attr_description[0].offset = 0;
+
+  vertex_input_attr_description[1].binding = 0;
+  vertex_input_attr_description[1].location = 1;
+  vertex_input_attr_description[1].format = vk::Format::eR32G32B32A32Sfloat;
+  vertex_input_attr_description[1].offset = 2 * sizeof(float);
+
   vk::PipelineInputAssemblyStateCreateInfo
       pipeline_input_assembly_state_create_info{
           {}, vk::PrimitiveTopology::eTriangleList, VK_FALSE};
 
   vk::PipelineVertexInputStateCreateInfo
-      pipeline_vertex_input_state_create_info{};
+      pipeline_vertex_input_state_create_info{
+          {}, vertex_binding_desc, vertex_input_attr_description};
 
   vk::Viewport view_port{
       0.f, 0.f, (float)vk_frame_extent_.width, (float)vk_frame_extent_.height,
@@ -782,6 +803,71 @@ void VkApp::CreatePipeline() {
   assert(result.result == vk::Result::eSuccess);
 
   vk_pipeline_ = std::move(result.value);
+}
+
+void VkApp::CreateVertexBuffer() {
+  std::vector<float> vertex{0.f,   -0.5f, 1.f, 0.f, 1.f, 1.0f,
+                            0.5f,  0.5f,  0.f, 1.f, 0.f, 0.5f,
+                            -0.5f, 0.5f,  0.f, 0.f, 1.f, 0.0f};
+  vk::BufferCreateInfo buffer_create_info{
+      {},
+      vertex.size() * sizeof(float),
+      vk::BufferUsageFlagBits::eVertexBuffer,
+      vk::SharingMode::eExclusive};
+
+  auto buffer_create_ret =
+      vk_device_->createBufferUnique(buffer_create_info, nullptr, vk_dispatch_);
+
+  assert(buffer_create_ret.result == vk::Result::eSuccess);
+
+  vk_vertex_buffer_ = std::move(buffer_create_ret.value);
+
+  auto memory_requirements = vk_device_->getBufferMemoryRequirements(
+      vk_vertex_buffer_.get(), vk_dispatch_);
+
+  vk::MemoryAllocateInfo memory_allocate_info{
+      memory_requirements.size,
+      FindMemoryType(memory_requirements.memoryTypeBits,
+                     vk::MemoryPropertyFlagBits::eHostVisible |
+                         vk::MemoryPropertyFlagBits::eHostCoherent)};
+
+  auto allocate_ret = vk_device_->allocateMemoryUnique(memory_allocate_info,
+                                                       nullptr, vk_dispatch_);
+
+  assert(allocate_ret.result == vk::Result::eSuccess);
+  vk_vertex_buffer_memory_ = std::move(allocate_ret.value);
+
+  void* data;
+  vk_device_->mapMemory(vk_vertex_buffer_memory_.get(), 0,
+                        buffer_create_info.size, vk::MemoryMapFlagBits{}, &data,
+                        vk_dispatch_);
+
+  std::memcpy(data, vertex.data(), (size_t)buffer_create_info.size);
+
+  vk_device_->unmapMemory(vk_vertex_buffer_memory_.get(), vk_dispatch_);
+
+  vk_device_->bindBufferMemory(vk_vertex_buffer_.get(),
+                               vk_vertex_buffer_memory_.get(), 0, vk_dispatch_);
+}
+
+uint32_t VkApp::FindMemoryType(uint32_t typeFilter,
+                               vk::MemoryPropertyFlags properties) {
+  auto memory_properties =
+      vk_physical_device_.getMemoryProperties(vk_dispatch_);
+  uint32_t type_index = ~0;
+
+  for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {
+    if ((typeFilter & 1) && ((memory_properties.memoryTypes[i].propertyFlags &
+                              properties) == properties)) {
+      type_index = i;
+      break;
+    }
+    typeFilter >>= 1;
+  }
+
+  assert(type_index != uint32_t(~0));
+
+  return type_index;
 }
 
 }  // namespace example

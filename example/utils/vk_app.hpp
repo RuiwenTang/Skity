@@ -41,6 +41,9 @@ class VkApp {
   void CreateFramebuffer();
   void CreateSyncObject();
   void CreatePipeline();
+  void CreateVertexBuffer();
+  uint32_t FindMemoryType(uint32_t typeFilter,
+                          vk::MemoryPropertyFlags properties);
 
   void BeginForDraw();
   void EndForDraw();
@@ -74,6 +77,8 @@ class VkApp {
   vk::UniqueFence vk_draw_fence_;
   vk::UniquePipelineLayout vk_pipeline_layout_;
   vk::UniquePipeline vk_pipeline_;
+  vk::UniqueBuffer vk_vertex_buffer_;
+  vk::UniqueDeviceMemory vk_vertex_buffer_memory_;
 };
 }  // namespace example
 
