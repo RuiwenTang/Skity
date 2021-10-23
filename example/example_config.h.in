@@ -1,3 +1,4 @@
 #pragma once
 
 #cmakedefine EXAMPLE_IMAGE_ROOT "@EXAMPLE_IMAGE_ROOT@"
+#cmakedefine EXAMPLE_VK_SHADER_ROOT "@EXAMPLE_VK_SHADER_ROOT@"

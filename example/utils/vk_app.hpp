@@ -25,6 +25,22 @@ class VkApp {
   void Update(float elapsed_time);
 
  protected:
+  vk::Device GetVkDevice() { return vk_device_.get(); }
+  vk::SurfaceKHR GetVkSurface() { return vk_surface_.get(); }
+  vk::CommandBuffer GetVkCommandBuffer() { return vk_command_buffer_.get(); }
+  vk::CommandPool GetVkCommandPool() { return vk_command_pool_.get(); }
+  vk::Extent2D GetFrameExtend() { return vk_frame_extent_; }
+  vk::Format GetFrameFormat() { return vk_color_attachment_format_; }
+  vk::DispatchLoaderStatic const& GetVkDispatch() { return vk_dispatch_; }
+  vk::Framebuffer GetCurrentFramebuffer() {
+    return vk_swap_chain_frame_buffer_[vk_current_frame_index_].get();
+  }
+  vk::RenderPass GetAppRenderPass() { return vk_render_pass_.get(); }
+
+  // util function may move to other class
+  uint32_t FindMemoryType(uint32_t typeFilter,
+                          vk::MemoryPropertyFlags properties);
+
   virtual void OnCreate() {}
   virtual void OnUpdate(float elapsed_time) {}
   virtual void OnDestroy() {}
@@ -40,10 +56,6 @@ class VkApp {
   void CreateRenderPass();
   void CreateFramebuffer();
   void CreateSyncObject();
-  void CreatePipeline();
-  void CreateVertexBuffer();
-  uint32_t FindMemoryType(uint32_t typeFilter,
-                          vk::MemoryPropertyFlags properties);
 
   void BeginForDraw();
   void EndForDraw();
@@ -75,11 +87,8 @@ class VkApp {
   uint32_t vk_current_frame_index_ = 0;
   vk::UniqueSemaphore vk_image_acquired_semaphore_;
   vk::UniqueFence vk_draw_fence_;
-  vk::UniquePipelineLayout vk_pipeline_layout_;
-  vk::UniquePipeline vk_pipeline_;
-  vk::UniqueBuffer vk_vertex_buffer_;
-  vk::UniqueDeviceMemory vk_vertex_buffer_memory_;
 };
+
 }  // namespace example
 
 #endif  // EXAMPLE_UTILS_VK_APP_HPP
