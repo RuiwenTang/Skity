@@ -41,6 +41,31 @@ class VkApp {
   uint32_t FindMemoryType(uint32_t typeFilter,
                           vk::MemoryPropertyFlags properties);
 
+  void SetImageLayout(vk::Image image, vk::ImageAspectFlags aspect_mask,
+                      vk::ImageLayout old_image_layout,
+                      vk::ImageLayout new_image_layout,
+                      vk::PipelineStageFlags src_stage_mask =
+                          vk::PipelineStageFlagBits::eAllCommands,
+                      vk::PipelineStageFlags dst_stage_mask =
+                          vk::PipelineStageFlagBits::eAllCommands) {
+    vk::ImageSubresourceRange range{};
+    range.aspectMask = aspect_mask;
+    range.baseMipLevel = 0;
+    range.levelCount = 1;
+    range.layerCount = 1;
+
+    SetImageLayout(image, old_image_layout, new_image_layout, range,
+                   src_stage_mask, dst_stage_mask);
+  }
+
+  void SetImageLayout(vk::Image image, vk::ImageLayout old_image_layout,
+                      vk::ImageLayout new_image_layout,
+                      vk::ImageSubresourceRange range,
+                      vk::PipelineStageFlags src_stage_mask =
+                          vk::PipelineStageFlagBits::eAllCommands,
+                      vk::PipelineStageFlags dst_stage_mask =
+                          vk::PipelineStageFlagBits::eAllCommands);
+
   virtual void OnCreate() {}
   virtual void OnUpdate(float elapsed_time) {}
   virtual void OnDestroy() {}

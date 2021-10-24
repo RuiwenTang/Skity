@@ -638,7 +638,6 @@ void VkApp::EndForDraw() {
   vk_device_->waitIdle(vk_dispatch_);
 }
 
-
 uint32_t VkApp::FindMemoryType(uint32_t typeFilter,
                                vk::MemoryPropertyFlags properties) {
   auto memory_properties =
@@ -657,6 +656,109 @@ uint32_t VkApp::FindMemoryType(uint32_t typeFilter,
   assert(type_index != uint32_t(~0));
 
   return type_index;
+}
+
+void VkApp::SetImageLayout(vk::Image image, vk::ImageLayout old_image_layout,
+                           vk::ImageLayout new_image_layout,
+                           vk::ImageSubresourceRange range,
+                           vk::PipelineStageFlags src_stage_mask,
+                           vk::PipelineStageFlags dst_stage_mask) {
+  vk::ImageMemoryBarrier image_memory_barrier{};
+  image_memory_barrier.oldLayout = old_image_layout;
+  image_memory_barrier.newLayout = new_image_layout;
+  image_memory_barrier.image = image;
+  image_memory_barrier.subresourceRange = range;
+
+  switch (old_image_layout) {
+    case vk::ImageLayout::eUndefined:
+      image_memory_barrier.srcAccessMask = {};
+      break;
+
+    case vk::ImageLayout::ePreinitialized:
+      image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+      break;
+
+    case vk::ImageLayout::eColorAttachmentOptimal:
+      image_memory_barrier.srcAccessMask =
+          vk::AccessFlagBits::eColorAttachmentWrite;
+      break;
+
+    case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+      image_memory_barrier.srcAccessMask =
+          vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+      break;
+
+    case vk::ImageLayout::eTransferSrcOptimal:
+      image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+      break;
+
+    case vk::ImageLayout::eTransferDstOptimal:
+      image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+      break;
+
+    case vk::ImageLayout::eShaderReadOnlyOptimal:
+      image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+      break;
+    default:
+      break;
+  }
+
+  switch (new_image_layout) {
+    case vk::ImageLayout::eTransferDstOptimal:
+      image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+      break;
+
+    case vk::ImageLayout::eTransferSrcOptimal:
+      image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+      break;
+
+    case vk::ImageLayout::eColorAttachmentOptimal:
+      image_memory_barrier.dstAccessMask =
+          vk::AccessFlagBits::eColorAttachmentWrite;
+      break;
+
+    case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+      image_memory_barrier.dstAccessMask =
+          image_memory_barrier.dstAccessMask |
+          vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+      break;
+
+    case vk::ImageLayout::eShaderReadOnlyOptimal:
+      if (image_memory_barrier.srcAccessMask == vk::AccessFlags{}) {
+        image_memory_barrier.srcAccessMask =
+            vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
+      }
+      image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+      break;
+    default:
+      break;
+  }
+
+  auto temp_cmd = std::move(
+      vk_device_
+          ->allocateCommandBuffersUnique(
+              vk::CommandBufferAllocateInfo{
+                  vk_command_pool_.get(), vk::CommandBufferLevel::ePrimary, 1},
+              vk_dispatch_)
+          .value.front());
+
+  temp_cmd->begin(vk::CommandBufferBeginInfo{}, vk_dispatch_);
+  temp_cmd->pipelineBarrier(src_stage_mask, dst_stage_mask, {}, {}, {},
+                            image_memory_barrier, vk_dispatch_);
+
+  temp_cmd->end(vk_dispatch_);
+
+  vk::SubmitInfo submit_info{};
+  submit_info.commandBufferCount = 1;
+  submit_info.pCommandBuffers = &(temp_cmd.get());
+  vk::FenceCreateInfo fence_create_info{};
+  vk::UniqueFence fence = std::move(
+      vk_device_->createFenceUnique(fence_create_info, nullptr, vk_dispatch_)
+          .value);
+
+  vk_graphic_queue_.submit(submit_info, fence.get(), vk_dispatch_);
+
+  vk_device_->waitForFences(fence.get(), VK_TRUE, UINT64_MAX, vk_dispatch_);
 }
 
 }  // namespace example
