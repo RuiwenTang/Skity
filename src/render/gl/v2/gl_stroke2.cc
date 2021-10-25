@@ -111,7 +111,7 @@ void GLStroke2::HandleQuadTo(const Point& from, const Point& control,
     return;
   }
 
-  float type = IsAntiAlias() ? GLVertex2::STROKE_QUAD : GLVertex2::NONE;
+  float type =GLVertex2::STROKE_QUAD;
 
   Vec2 C = from_vec2;
   Vec2 P1 = control_vec2;
