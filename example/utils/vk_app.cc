@@ -313,9 +313,14 @@ void VkApp::CreateLogicalDevice() {
       vk::DeviceQueueCreateFlags{},
       static_cast<uint32_t>(vk_graphic_queue_index_), 1, &queue_priority};
 
+  // Fixme to solve imageStore with writable image storage
+  vk::PhysicalDeviceFeatures features;
+  features.fragmentStoresAndAtomics = VK_TRUE;
+
   vk::DeviceCreateInfo create_info{
       vk::DeviceCreateFlags{}, device_queue_create_info, required_device_layer,
       required_device_extension};
+  create_info.pEnabledFeatures = &features;
 
   auto create_ret = vk_physical_device_.createDeviceUnique(create_info, nullptr,
                                                            vk_dispatch_);
