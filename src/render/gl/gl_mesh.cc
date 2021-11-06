@@ -21,7 +21,7 @@ void GLMesh::UploadVertexBuffer(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
   if (buffer_size_[0] < length) {
     buffer_size_[0] = length;
-    GL_CALL(BufferData, GL_ARRAY_BUFFER, length, nullptr, GL_STATIC_DRAW);
+    GL_CALL(BufferData, GL_ARRAY_BUFFER, length, nullptr, GL_STREAM_DRAW);
   }
 
   GL_CALL(BufferSubData, GL_ARRAY_BUFFER, 0, length, data);
@@ -34,7 +34,7 @@ void GLMesh::UploadQuadBuffer(void* data, uint32_t length) {
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[4]);
   if (buffer_size_[4] < length) {
     buffer_size_[4] = length;
-    GL_CALL(BufferData, GL_ARRAY_BUFFER, length, nullptr, GL_STATIC_DRAW);
+    GL_CALL(BufferData, GL_ARRAY_BUFFER, length, nullptr, GL_STREAM_DRAW);
   }
 
   GL_CALL(BufferSubData, GL_ARRAY_BUFFER, 0, length, data);
@@ -47,7 +47,7 @@ void GLMesh::UploadFrontIndex(void* data, uint32_t length) {
   if (buffer_size_[1] < length) {
     buffer_size_[1] = length;
     GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
-            GL_STATIC_DRAW);
+            GL_STREAM_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -59,7 +59,7 @@ void GLMesh::UploadBackIndex(void* data, uint32_t length) {
   if (buffer_size_[2] < length) {
     buffer_size_[2] = length;
     GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
-            GL_STATIC_DRAW);
+            GL_STREAM_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -71,7 +71,7 @@ void GLMesh::UploadAAOutlineIndex(void* data, uint32_t length) {
   if (buffer_size_[3] < length) {
     buffer_size_[3] = length;
     GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
-            GL_STATIC_DRAW);
+            GL_STREAM_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -83,7 +83,7 @@ void GLMesh::UploadQuadIndex(void* data, uint32_t length) {
   if (buffer_size_[5] < length) {
     buffer_size_[5] = length;
     GL_CALL(BufferData, GL_ELEMENT_ARRAY_BUFFER, length, nullptr,
-            GL_STATIC_DRAW);
+            GL_STREAM_DRAW);
   }
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, length, data);
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
