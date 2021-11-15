@@ -130,6 +130,16 @@ set(GL_V2_Canvas
         src/render/gl/v2/gl_stroke2.hpp
         )
 
+# hardware canvas code
+set(HW_RENDER
+    src/render/hw/hw_canvas.cc
+    src/render/hw/hw_canvas.hpp
+    src/render/hw/hw_canvas_state.cc
+    src/render/hw/hw_canvas_state.hpp
+    src/render/hw/hw_mesh.cc
+    src/render/hw/hw_mesh.hpp
+)
+
 set(Skity_src
         src/codec/codec.cc
         src/codec/data.cc
@@ -202,6 +212,7 @@ set(Skity_src
         src/xml/xml_parser.hpp
         ${GL_V1_Canvas}
         ${GL_V2_Canvas}
+        ${HW_RENDER}
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")
