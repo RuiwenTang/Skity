@@ -72,7 +72,6 @@ class Typeface::Impl {
     target_info.height = base_info.height * scale;
     target_info.font_size = target_font_size;
 
-
     target_info.path = base_info.path.copyWithScale(scale);
     return target_info;
   }
