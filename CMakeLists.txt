@@ -154,6 +154,8 @@ set(Skity_src
         src/geometry/point_priv.hpp
         src/geometry/rect.cc
         src/geometry/rrect.cc
+        src/geometry/tesselator/mesh.cc
+        src/geometry/tesselator/mesh.hpp
         src/graphic/color.cc
         src/graphic/color_parser.cc
         src/graphic/color_parser.hpp
