@@ -127,6 +127,45 @@ class Mesh {
    */
   bool Splice(HalfEdge* e_org, HalfEdge* e_dst);
 
+  /**
+   * @brief Create a new edge from e_org->dst to e_dst->org, and returns the
+   *        cooresponding half-edge e_new.
+   *        If e_org->l_face == e_dst->l_face, this splits one loop into two,
+   *        and the newly created loop is e_new->l_face. Otherwise, two disjoint
+   *        loops are merged into one, and loop e_dst->l_face is destroyed.
+   *
+   *        If (e_org == e_dst) the new face will have only two edges.
+   *        If (e_org->l_next == e_dst) the old face is reduced to a single edge
+   *        If (e_org->l_next->l_next == e_dst) the old face is reduced to two
+   *        edges.
+   *
+   * @param e_org
+   * @param e_dst
+   * @return HalfEdge*
+   */
+  HalfEdge* Connect(HalfEdge* e_org, HalfEdge* e_dst);
+
+  /**
+   * @brief destroy a face and removes it from the global face list.
+   *        all edges of this face will have a NULL pointer as their left face.
+   *        any edges which also have a NULL pointer as their right face are
+   *        deleted.
+   *
+   * @note  Zapped face cannot be used in future mesh operations.
+   *
+   * @param f_zap
+   */
+  void ZapFace(Face* f_zap);
+
+  /**
+   * @brief Union all structures in both meshes.
+   *
+   * @note the old meshes are destroyed
+   *
+   * @param other
+   */
+  void UnionMesh(Mesh* other);
+
  private:
   /**
    * @brief Create a new pair of half-edges
@@ -180,9 +219,20 @@ class Mesh {
    */
   void DestroyFaceInternal(Face* f_del, Face* new_face);
 
+  /**
+   * @brief destroy an edge(the half-edges e_del and e_del->sym)
+   *        and removes from the global edge list
+   *
+   * @param e_del
+   */
+  void DestroyEdgeInternal(HalfEdge* e_del);
+
  private:
+  // global vertex head
   Vertex* v_head = {};
+  // global face list
   Face* f_head = {};
+  // global edge list
   HalfEdge* e_head = {};
   HalfEdge* e_sym_head = {};
 };

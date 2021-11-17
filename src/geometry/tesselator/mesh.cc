@@ -5,7 +5,16 @@
 namespace skity {
 namespace tess {
 
-Mesh::~Mesh() {}
+Mesh::~Mesh() {
+  auto p = f_head;
+  if (!p) {
+    return;
+  }
+  while (p->next != p) {
+    ZapFace(p->next);
+  }
+  assert(v_head->next == v_head);
+}
 
 HalfEdge* Mesh::AddEdgeVertex(HalfEdge* e_org) {
   HalfEdge* e_new_sym;
@@ -71,6 +80,120 @@ bool Mesh::Splice(HalfEdge* e_org, HalfEdge* e_dst) {
   }
 
   return true;
+}
+
+HalfEdge* Mesh::Connect(HalfEdge* e_org, HalfEdge* e_dst) {
+  HalfEdge* e_new_sym;
+  bool joining_loops = false;
+  HalfEdge* e_new = MakeEdgeInternal(e_org);
+
+  e_new_sym = e_new->sym;
+
+  if (e_dst->l_face != e_org->l_face) {
+    // connecting two disjoint loops -- destroy e_dst->l_face
+    joining_loops = true;
+    DestroyFaceInternal(e_dst->l_face, e_org->l_face);
+  }
+
+  // connect new edge
+  SpliceInternal(e_new, e_org->l_next);
+  SpliceInternal(e_new_sym, e_dst);
+
+  // set vertex and face information
+  e_new->org = e_org->Dst();
+  e_new_sym->org = e_dst->org;
+  e_new->l_face = e_new_sym->l_face = e_org->l_face;
+
+  // make sure the old face points to a valid half-edge
+  e_org->l_face->edge = e_new_sym;
+
+  if (!joining_loops) {
+    // split one loop into two -- the new loop is e_new->l_face
+    MakeFaceInternal(e_new, e_org->l_face);
+  }
+
+  return e_new;
+}
+
+void Mesh::ZapFace(Face* f_zap) {
+  HalfEdge* e_start = f_zap->edge;
+  HalfEdge* e;
+  HalfEdge* e_next;
+  HalfEdge* e_sym;
+  Face* f_prev;
+  Face* f_next;
+
+  // walk around face, deleting edges whose right face is also NULL
+  e_next = e_start->l_next;
+  do {
+    e = e_next;
+    e_next = e->l_next;
+
+    e->l_face = nullptr;
+    if (e->Rface() == nullptr) {
+      // delete the edge
+      if (e->o_next == e) {
+        DestroyVertexInternal(e->org, nullptr);
+      } else {
+        // make sure that e->org points to a valid half-edge
+        e->org->edge = e->o_next;
+        SpliceInternal(e, e->Oprev());
+      }
+      e_sym = e->sym;
+      if (e->sym->o_next == e_sym) {
+        DestroyVertexInternal(e_sym->org, nullptr);
+      } else {
+        // make sure that e_sym->org points to a valid half-edge
+        e_sym->org->edge = e_sym->o_next;
+        SpliceInternal(e_sym, e_sym->Oprev());
+      }
+
+      DestroyEdgeInternal(e);
+    }
+  } while (e != e_start);
+
+  // delete from circular doubly-linked list
+  f_prev = f_zap->prev;
+  f_next = f_zap->next;
+  f_next->prev = f_prev;
+  f_prev->next = f_next;
+
+  delete f_zap;
+}
+
+void Mesh::UnionMesh(Mesh* other) {
+  Face* f1 = this->f_head;
+  Vertex* v1 = this->v_head;
+  HalfEdge* e1 = this->e_head;
+
+  Face* f2 = other->f_head;
+  Vertex* v2 = other->v_head;
+  HalfEdge* e2 = other->e_head;
+
+  // add the faces, vertices, and edges of other mesh to self
+  if (f2->next != f2) {
+    f1->prev->next = f2->next;
+    f2->next->prev = f1->prev;
+    f2->prev->next = f1;
+    f1->prev = f2->prev;
+  }
+
+  if (v2->next != v2) {
+    v1->prev->next = v2->next;
+    v2->next->prev = v1->prev;
+    v2->prev->next = v1;
+    v1->prev = v2->prev;
+  }
+
+  if (e2->next != e2) {
+    e1->sym->next->sym->next = e2->next;
+    e2->next->sym->next = e1->sym->next;
+    e2->sym->next->sym->next = e1;
+    e1->sym->next = e2->sym->next;
+  }
+
+  other->f_head = nullptr;
+  delete other;
 }
 
 HalfEdge* Mesh::MakeEdgeInternal(HalfEdge* e_next) {
@@ -199,6 +322,17 @@ void Mesh::DestroyFaceInternal(Face* f_del, Face* new_face) {
   f_prev->next = f_next;
 
   delete f_del;
+}
+
+void Mesh::DestroyEdgeInternal(HalfEdge* e_del) {
+  // delete from circular doubly-linked list
+  auto e_next = e_del->next;
+  auto e_prev = e_del->sym->next;
+  e_next->sym->next = e_prev;
+  e_prev->sym->next = e_next;
+
+  delete e_del->sym;
+  delete e_del;
 }
 
 }  // namespace tess
