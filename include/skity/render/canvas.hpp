@@ -193,7 +193,26 @@ class SK_API Canvas {
                                                void* process_loader);
 
  protected:
+  // default implement dispatch this to onClipPath
+  virtual void onClipRect(Rect const& rect, ClipOp op);
   virtual void onClipPath(Path const& path, ClipOp op) = 0;
+
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawLine(float x0, float y0, float x1, float y1,
+                          Paint const& paint);
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawCircle(float cx, float cy, float radius,
+                            Paint const& paint);
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawOval(Rect const& oval, Paint const& paint);
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawRect(Rect const& rect, Paint const& paint);
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawRRect(RRect const& rrect, Paint const& paint);
+  // default implement dispatch this to onDrawPath
+  virtual void onDrawRoundRect(Rect const& rect, float rx, float ry,
+                               Paint const& paint);
+
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
   virtual void onDrawGlyphs(std::vector<GlyphInfo> const& glyphs,
                             const Typeface* typeface, Paint const& paint) = 0;

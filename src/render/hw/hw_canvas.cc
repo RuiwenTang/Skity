@@ -19,9 +19,26 @@ void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
   height_ = height;
 }
 
+void HWCanvas::onClipRect(const Rect& rect, ClipOp op) {}
+
 void HWCanvas::onClipPath(const Path& path, ClipOp op) {}
 
+void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
+                          Paint const& paint) {}
+
+void HWCanvas::onDrawCircle(float cx, float cy, float radius,
+                            Paint const& paint) {}
+
 void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {}
+
+void HWCanvas::onDrawOval(Rect const& oval, Paint const& paint) {}
+
+void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {}
+
+void HWCanvas::onDrawRRect(RRect const& rrect, Paint const& paint) {}
+
+void HWCanvas::onDrawRoundRect(Rect const& rect, float rx, float ry,
+                               Paint const& paint) {}
 
 void HWCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
                             const Typeface* typeface, const Paint& paint) {}

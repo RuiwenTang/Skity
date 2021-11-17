@@ -23,6 +23,23 @@ class HWCanvas : public Canvas {
  protected:
   virtual void OnInit() = 0;
 
+  void onClipRect(Rect const& rect, ClipOp op) override;
+
+  void onDrawLine(float x0, float y0, float x1, float y1,
+                  Paint const& paint) override;
+
+  void onDrawCircle(float cx, float cy, float radius,
+                    Paint const& paint) override;
+
+  void onDrawOval(Rect const& oval, Paint const& paint) override;
+
+  void onDrawRect(Rect const& rect, Paint const& paint) override;
+
+  void onDrawRRect(RRect const& rrect, Paint const& paint) override;
+
+  void onDrawRoundRect(Rect const& rect, float rx, float ry,
+                       Paint const& paint) override;
+
   void onClipPath(const Path& path, ClipOp op) override;
 
   void onDrawPath(const Path& path, const Paint& paint) override;
