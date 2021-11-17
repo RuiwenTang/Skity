@@ -50,6 +50,10 @@ void Canvas::skew(float sx, float sy) {}
 void Canvas::concat(const Matrix &matrix) { onConcat(matrix); }
 
 void Canvas::clipRect(const Rect &rect, ClipOp op) {
+  this->onClipRect(rect, op);
+}
+
+void Canvas::onClipRect(const Rect &rect, ClipOp op) {
   Path path;
   path.addRect(rect);
   this->onClipPath(path, op);
@@ -61,52 +65,28 @@ void Canvas::clipPath(const Path &path, ClipOp op) {
 
 void Canvas::drawLine(float x0, float y0, float x1, float y1,
                       const Paint &paint) {
-  Path path;
-  path.moveTo(x0, y0);
-  path.lineTo(x1, y1);
-
-  drawPath(path, paint);
+  this->onDrawLine(x0, y0, x1, y1, paint);
 }
 
 void Canvas::drawCircle(float cx, float cy, float radius, Paint const &paint) {
-  if (radius < 0) {
-    radius = 0;
-  }
-
-  Rect r;
-  r.setLTRB(cx - radius, cy - radius, cx + radius, cy + radius);
-  this->drawOval(r, paint);
+  this->onDrawCircle(cx, cy, radius, paint);
 }
 
 void Canvas::drawOval(Rect const &oval, Paint const &paint) {
-  RRect rrect;
-  rrect.setOval(oval);
-  this->drawRRect(rrect, paint);
+  this->onDrawOval(oval, paint);
 }
 
 void Canvas::drawRect(Rect const &rect, Paint const &paint) {
-  Path path;
-  path.addRect(rect);
-
-  this->drawPath(path, paint);
+  this->onDrawRect(rect, paint);
 }
 
 void Canvas::drawRRect(RRect const &rrect, Paint const &paint) {
-  Path path;
-  path.addRRect(rrect);
-
-  this->drawPath(path, paint);
+  this->onDrawRRect(rrect, paint);
 }
 
 void Canvas::drawRoundRect(Rect const &rect, float rx, float ry,
                            Paint const &paint) {
-  if (rx > 0 && ry > 0) {
-    RRect rrect;
-    rrect.setRectXY(rect, rx, ry);
-    this->drawRRect(rrect, paint);
-  } else {
-    this->drawRect(rect, paint);
-  }
+  this->onDrawRoundRect(rect, rx, ry, paint);
 }
 
 void Canvas::drawPath(const Path &path, const Paint &paint) {
@@ -192,5 +172,56 @@ uint32_t Canvas::height() const { return this->onGetHeight(); }
 void Canvas::internalSave() { this->onSave(); }
 
 void Canvas::internalRestore() { this->onRestore(); }
+
+void Canvas::onDrawLine(float x0, float y0, float x1, float y1,
+                        Paint const &paint) {
+  Path path;
+  path.moveTo(x0, y0);
+  path.lineTo(x1, y1);
+
+  this->onDrawPath(path, paint);
+}
+
+void Canvas::onDrawCircle(float cx, float cy, float radius,
+                          Paint const &paint) {
+  if (radius < 0) {
+    radius = 0;
+  }
+
+  Rect r;
+  r.setLTRB(cx - radius, cy - radius, cx + radius, cy + radius);
+  this->drawOval(r, paint);
+}
+
+void Canvas::onDrawOval(Rect const &oval, Paint const &paint) {
+  RRect rrect;
+  rrect.setOval(oval);
+  this->drawRRect(rrect, paint);
+}
+
+void Canvas::onDrawRRect(RRect const &rrect, Paint const &paint) {
+  Path path;
+  path.addRRect(rrect);
+
+  this->drawPath(path, paint);
+}
+
+void Canvas::onDrawRect(Rect const &rect, Paint const &paint) {
+  Path path;
+  path.addRect(rect);
+
+  this->drawPath(path, paint);
+}
+
+void Canvas::onDrawRoundRect(Rect const &rect, float rx, float ry,
+                             Paint const &paint) {
+  if (rx > 0 && ry > 0) {
+    RRect rrect;
+    rrect.setRectXY(rect, rx, ry);
+    this->drawRRect(rrect, paint);
+  } else {
+    this->drawRect(rect, paint);
+  }
+}
 
 }  // namespace skity
