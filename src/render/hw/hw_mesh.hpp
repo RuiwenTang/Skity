@@ -40,10 +40,14 @@ enum class HWDrawType {
 struct HWDrawRange {
   uint32_t start = 0;
   uint32_t count = 0;
+  HWDrawType type = HWDrawType::COLOR;
 };
 
 class HWMesh {
  public:
+  HWMesh() = default;
+  ~HWMesh() = default;
+
   size_t AppendVertex(float x, float y, float mix, float u = 0.f,
                       float v = 0.f);
   size_t AppendVertex(HWVertex const& vertex);
@@ -53,6 +57,8 @@ class HWMesh {
   size_t IndexBase() { return raw_index_buffer_.size(); }
 
   size_t AppendIndices(std::vector<uint32_t> const& indices);
+
+  void Reset();
 
  private:
   std::vector<HWVertex> raw_vertex_buffer_;
