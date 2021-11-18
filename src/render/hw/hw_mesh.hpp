@@ -28,19 +28,9 @@ struct HWVertex {
   float mix = 0.f;
   float u = 0.f;
   float v = 0.f;
-};
 
-enum class HWDrawType {
-  STENCIL_FRONT,
-  STENCIL_BACK,
-  COLOR,
-  AA,
-};
-
-struct HWDrawRange {
-  uint32_t start = 0;
-  uint32_t count = 0;
-  HWDrawType type = HWDrawType::COLOR;
+  HWVertex(float v1, float v2, float v3, float v4, float v5)
+      : x(v1), y(v2), mix(v3), u(v4), v(v5) {}
 };
 
 class HWMesh {

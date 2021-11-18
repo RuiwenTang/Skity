@@ -2,10 +2,18 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "src/render/hw/hw_mesh.hpp"
+
 namespace skity {
 
 HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height)
-    : Canvas(), mvp_(mvp), width_(width), height_(height) {}
+    : Canvas(),
+      mvp_(mvp),
+      width_(width),
+      height_(height),
+      mesh_(std::make_unique<HWMesh>()) {}
+
+HWCanvas::~HWCanvas() = default;
 
 void HWCanvas::Init() { this->OnInit(); }
 

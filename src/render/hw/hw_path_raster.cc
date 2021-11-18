@@ -34,8 +34,6 @@ uint32_t HWPathRaster::AppendVertex(float x, float y, float mix, float u,
 }
 
 void HWPathRaster::OnBeginPath() {
-  HWPathVisitor::OnBeginPath();
-
   stencil_front_buffer_.clear();
   stencil_front_count_ = stencil_front_start_ = 0;
 
@@ -50,8 +48,6 @@ void HWPathRaster::OnBeginPath() {
 }
 
 void HWPathRaster::OnEndPath() {
-  HWPathVisitor::OnEndPath();
-
   if (!stencil_front_buffer_.empty()) {
     stencil_front_start_ = mesh_->IndexBase();
     stencil_front_count_ = stencil_front_buffer_.size();

@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_HW_HW_CANVAS_HPP
 #define SKITY_SRC_RENDER_HW_HW_CANVAS_HPP
 
+#include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/render/canvas.hpp>
 #include <vector>
@@ -9,6 +10,9 @@
 
 namespace skity {
 
+class HWMesh;
+class HWShader;
+
 /**
  * @class HWCanvas
  *  Base class for all hardware canvas implementation
@@ -16,12 +20,14 @@ namespace skity {
 class HWCanvas : public Canvas {
  public:
   HWCanvas(Matrix mvp, uint32_t width, uint32_t height);
-  ~HWCanvas() override = default;
+  ~HWCanvas() override;
 
   void Init();
 
  protected:
   virtual void OnInit() = 0;
+
+  virtual HWShader* GetShader() = 0;
 
   void onClipRect(Rect const& rect, ClipOp op) override;
 
@@ -68,6 +74,8 @@ class HWCanvas : public Canvas {
   uint32_t onGetHeight() const override;
 
   void onUpdateViewport(uint32_t width, uint32_t height) override;
+
+  HWMesh* GetMesh();
 
  private:
   Matrix mvp_;
