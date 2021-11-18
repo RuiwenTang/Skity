@@ -30,6 +30,18 @@ struct HWVertex {
   float v = 0.f;
 };
 
+enum class HWDrawType {
+  STENCIL_FRONT,
+  STENCIL_BACK,
+  COLOR,
+  AA,
+};
+
+struct HWDrawRange {
+  uint32_t start = 0;
+  uint32_t count = 0;
+};
+
 class HWMesh {
  public:
   size_t AppendVertex(float x, float y, float mix, float u = 0.f,
