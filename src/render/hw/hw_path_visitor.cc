@@ -101,4 +101,6 @@ void HWPathVisitor::HandleCubicTo(glm::vec2 const& p1, glm::vec2 const& p2,
   prev_dir_ = glm::normalize(p4 - p3);
 }
 
+void HWPathVisitor::HandleClose() {}
+
 }  // namespace skity
