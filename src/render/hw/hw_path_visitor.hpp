@@ -1,10 +1,8 @@
 #ifndef SKITY_SRC_RENDER_HW_HW_PATH_VISITOR_HPP
 #define SKITY_SRC_RENDER_HW_HW_PATH_VISITOR_HPP
 
-#include <memory>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
-#include <vector>
 
 namespace skity {
 

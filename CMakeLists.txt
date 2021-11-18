@@ -138,6 +138,8 @@ set(HW_RENDER
     src/render/hw/hw_canvas_state.hpp
     src/render/hw/hw_mesh.cc
     src/render/hw/hw_mesh.hpp
+    src/render/hw/hw_path_raster.cc
+    src/render/hw/hw_path_raster.hpp
     src/render/hw/hw_path_visitor.cc
     src/render/hw/hw_path_visitor.hpp
 )
