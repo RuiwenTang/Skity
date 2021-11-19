@@ -65,7 +65,7 @@ void Paint::setColor(Color color) {
 
 void Paint::setAntiAlias(bool aa) { is_anti_alias_ = aa; }
 
-bool Paint::isAntiAlias() const { return is_anti_alias_; }
+bool Paint::isAntiAlias() const { return false; }
 
 float Paint::getAlphaF() const { return global_alpha_; }
 

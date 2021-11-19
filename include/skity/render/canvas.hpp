@@ -192,6 +192,9 @@ class SK_API Canvas {
                                                uint32_t width, uint32_t height,
                                                void* process_loader);
 
+  static std::unique_ptr<Canvas> MakeHardwareAccelationCanvas(
+      uint32_t width, uint32_t height, void* process_loader);
+
  protected:
   // default implement dispatch this to onClipPath
   virtual void onClipRect(Rect const& rect, ClipOp op);

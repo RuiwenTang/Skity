@@ -13,7 +13,7 @@ enum {
   // line with aa alpha calculation, this is used in onDrawLine, or onDrawRect,
   // which path only contains line
   HW_VERTEX_TYPE_LINE_AA = 2,
-  // circle fill, and u,v store
+  // circle fill, and u,v store circle center
   HW_VERTEX_TYPE_CIRCLE = 3,
   // circle fill, with aa alpha calculation
   HW_VERTEX_TYPE_CIRCLE_AA = 4,

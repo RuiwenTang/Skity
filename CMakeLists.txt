@@ -86,49 +86,49 @@ set(Skity_header
         )
 
 
-set(GL_V1_Canvas
-        src/render/gl/v1/draw/gl_clear_stencil_op.cc
-        src/render/gl/v1/draw/gl_clear_stencil_op.hpp
-        src/render/gl/v1/draw/gl_draw_debug_line_op.cc
-        src/render/gl/v1/draw/gl_draw_debug_line_op.hpp
-        src/render/gl/v1/draw/gl_draw_mesh_op.cc
-        src/render/gl/v1/draw/gl_draw_mesh_op.hpp
-        src/render/gl/v1/draw/gl_draw_mesh_op_aa.cc
-        src/render/gl/v1/draw/gl_draw_mesh_op_aa.hpp
-        src/render/gl/v1/draw/gl_fill_color_op.cc
-        src/render/gl/v1/draw/gl_fill_color_op.hpp
-        src/render/gl/v1/draw/gl_fill_gradient_op.cc
-        src/render/gl/v1/draw/gl_fill_gradient_op.hpp
-        src/render/gl/v1/draw/gl_fill_texture_op.cc
-        src/render/gl/v1/draw/gl_fill_texture_op.hpp
-        src/render/gl/v1/draw/gl_stencil_op.cc
-        src/render/gl/v1/draw/gl_stencil_op.hpp
-        src/render/gl/v1/gl_canvas.cc
-        src/render/gl/v1/gl_canvas.hpp
-        src/render/gl/v1/gl_draw_op.cc
-        src/render/gl/v1/gl_draw_op.hpp
-        src/render/gl/v1/gl_fill.cc
-        src/render/gl/v1/gl_fill.hpp
-        src/render/gl/v1/gl_glyph_raster_cache.cc
-        src/render/gl/v1/gl_glyph_raster_cache.hpp
-        src/render/gl/v1/gl_stroke.cc
-        src/render/gl/v1/gl_stroke.hpp
-        src/render/gl/v1/gl_stroke_aa.cc
-        src/render/gl/v1/gl_stroke_aa.hpp
-        )
+# set(GL_V1_Canvas
+#         src/render/gl/v1/draw/gl_clear_stencil_op.cc
+#         src/render/gl/v1/draw/gl_clear_stencil_op.hpp
+#         src/render/gl/v1/draw/gl_draw_debug_line_op.cc
+#         src/render/gl/v1/draw/gl_draw_debug_line_op.hpp
+#         src/render/gl/v1/draw/gl_draw_mesh_op.cc
+#         src/render/gl/v1/draw/gl_draw_mesh_op.hpp
+#         src/render/gl/v1/draw/gl_draw_mesh_op_aa.cc
+#         src/render/gl/v1/draw/gl_draw_mesh_op_aa.hpp
+#         src/render/gl/v1/draw/gl_fill_color_op.cc
+#         src/render/gl/v1/draw/gl_fill_color_op.hpp
+#         src/render/gl/v1/draw/gl_fill_gradient_op.cc
+#         src/render/gl/v1/draw/gl_fill_gradient_op.hpp
+#         src/render/gl/v1/draw/gl_fill_texture_op.cc
+#         src/render/gl/v1/draw/gl_fill_texture_op.hpp
+#         src/render/gl/v1/draw/gl_stencil_op.cc
+#         src/render/gl/v1/draw/gl_stencil_op.hpp
+#         src/render/gl/v1/gl_canvas.cc
+#         src/render/gl/v1/gl_canvas.hpp
+#         src/render/gl/v1/gl_draw_op.cc
+#         src/render/gl/v1/gl_draw_op.hpp
+#         src/render/gl/v1/gl_fill.cc
+#         src/render/gl/v1/gl_fill.hpp
+#         src/render/gl/v1/gl_glyph_raster_cache.cc
+#         src/render/gl/v1/gl_glyph_raster_cache.hpp
+#         src/render/gl/v1/gl_stroke.cc
+#         src/render/gl/v1/gl_stroke.hpp
+#         src/render/gl/v1/gl_stroke_aa.cc
+#         src/render/gl/v1/gl_stroke_aa.hpp
+#         )
 
-set(GL_V2_Canvas
-        src/render/gl/v2/gl_canvas2.cc
-        src/render/gl/v2/gl_canvas2.hpp
-        src/render/gl/v2/gl_draw_op2.cc
-        src/render/gl/v2/gl_draw_op2.hpp
-        src/render/gl/v2/gl_fill2.cc
-        src/render/gl/v2/gl_fill2.hpp
-        src/render/gl/v2/gl_path_visitor.cc
-        src/render/gl/v2/gl_path_visitor.hpp
-        src/render/gl/v2/gl_stroke2.cc
-        src/render/gl/v2/gl_stroke2.hpp
-        )
+# set(GL_V2_Canvas
+#         src/render/gl/v2/gl_canvas2.cc
+#         src/render/gl/v2/gl_canvas2.hpp
+#         src/render/gl/v2/gl_draw_op2.cc
+#         src/render/gl/v2/gl_draw_op2.hpp
+#         src/render/gl/v2/gl_fill2.cc
+#         src/render/gl/v2/gl_fill2.hpp
+#         src/render/gl/v2/gl_path_visitor.cc
+#         src/render/gl/v2/gl_path_visitor.hpp
+#         src/render/gl/v2/gl_stroke2.cc
+#         src/render/gl/v2/gl_stroke2.hpp
+#         )
 
 # hardware canvas code
 set(HW_RENDER
@@ -138,6 +138,8 @@ set(HW_RENDER
     src/render/hw/hw_canvas_state.hpp
     src/render/hw/hw_draw.cc
     src/render/hw/hw_draw.hpp
+    src/render/hw/hw_geometry_raster.cc
+    src/render/hw/hw_geometry_raster.hpp
     src/render/hw/hw_mesh.cc
     src/render/hw/hw_mesh.hpp
     src/render/hw/hw_path_raster.cc
@@ -145,6 +147,16 @@ set(HW_RENDER
     src/render/hw/hw_path_visitor.cc
     src/render/hw/hw_path_visitor.hpp
     src/render/hw/hw_pipeline.hpp
+)
+
+# hardware GL backend
+set(HW_GL_RENDER
+    src/render/hw/gl/gl_interface.cc
+    src/render/hw/gl/gl_interface.hpp
+    src/render/hw/gl/gl_pipeline.cc
+    src/render/hw/gl/gl_pipeline.hpp
+    src/render/hw/gl/gl_shader.cc
+    src/render/hw/gl/gl_shader.hpp
 )
 
 set(Skity_src
@@ -182,16 +194,6 @@ set(Skity_src
         src/graphic/path_measure.hpp
         src/graphic/path_priv.hpp
         src/render/canvas.cc
-        src/render/gl/gl_interface.cc
-        src/render/gl/gl_interface.hpp
-        src/render/gl/gl_mesh.cc
-        src/render/gl/gl_mesh.hpp
-        src/render/gl/gl_shader.cc
-        src/render/gl/gl_shader.hpp
-        src/render/gl/gl_texture.cc
-        src/render/gl/gl_texture.hpp
-        src/render/gl/gl_vertex.cc
-        src/render/gl/gl_vertex.hpp
         src/svg/svg_attribute.cc
         src/svg/svg_attribute.hpp
         src/svg/svg_attribute_parser.cc
@@ -217,9 +219,8 @@ set(Skity_src
         src/utils/lazy.hpp
         src/xml/xml_parser.cc
         src/xml/xml_parser.hpp
-        ${GL_V1_Canvas}
-        ${GL_V2_Canvas}
         ${HW_RENDER}
+        ${HW_GL_RENDER}
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")

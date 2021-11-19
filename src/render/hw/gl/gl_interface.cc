@@ -1,4 +1,4 @@
-#include "src/render/gl/gl_interface.hpp"
+#include "src/render/hw/gl/gl_interface.hpp"
 
 namespace skity {
 
