@@ -266,8 +266,8 @@ int main(int argc, const char** argv) {
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_STENCIL_TEST);
 
-  auto canvas =
-      skity::Canvas::MakeGLCanvas2(0, 0, 800, 800, (void*)glfwGetProcAddress);
+  auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
+      800, 800, (void*)glfwGetProcAddress);
 
   std::shared_ptr<skity::Pixmap> pixmap;
   if (argc >= 2) {

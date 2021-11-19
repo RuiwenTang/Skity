@@ -85,6 +85,7 @@ class HWCanvas : public Canvas {
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
+  bool msaa_ = true;
 };
 
 }  // namespace skity

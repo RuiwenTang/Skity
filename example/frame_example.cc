@@ -93,7 +93,7 @@ int main(int argc, const char** argv) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   // multisample
-  glfwWindowHint(GLFW_SAMPLES, 0);
+  glfwWindowHint(GLFW_SAMPLES, 16);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -114,14 +114,15 @@ int main(int argc, const char** argv) {
   glClearStencil(0x0);
   glStencilMask(0xFF);
   // blend is need for anti-alias
+  glEnable(GL_MULTISAMPLE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_STENCIL_TEST);
   glClearStencil(0x00);
   glStencilMask(0xFF);
 
-  auto canvas = skity::Canvas::MakeGLCanvas2(0, 0, width, height,
-                                            (void*)glfwGetProcAddress);
+  auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
+      width, height, (void*)glfwGetProcAddress);
 
   std::vector<std::shared_ptr<skity::Pixmap>> images{};
   load_images(images);

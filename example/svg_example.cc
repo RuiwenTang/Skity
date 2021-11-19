@@ -49,7 +49,7 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
 )";
 
   //  auto dom = skity::SVGDom::MakeFromString(simple_svg);
-  auto dom = skity::SVGDom::MakeFromFile(EXAMPLE_IMAGE_ROOT"/tiger.svg");
+  auto dom = skity::SVGDom::MakeFromFile(EXAMPLE_IMAGE_ROOT "/tiger.svg");
   return dom;
 }
 
@@ -66,8 +66,11 @@ int main(int argc, const char** argv) {
 
   auto simple_svg = init_simple_svg();
 
-  auto canvas =
-      skity::Canvas::MakeGLCanvas2(0, 0, 1000, 1000, (void*)glfwGetProcAddress);
+  // auto canvas =
+  //     skity::Canvas::MakeGLCanvas2(0, 0, 1000, 1000,
+  //     (void*)glfwGetProcAddress);
+  auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
+      1000, 1000, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
