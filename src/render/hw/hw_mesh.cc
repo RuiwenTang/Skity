@@ -27,7 +27,7 @@ size_t HWMesh::AppendIndices(const std::vector<uint32_t> &indices) {
   return base;
 }
 
-void HWMesh::Reset() {
+void HWMesh::ResetMesh() {
   raw_index_buffer_.clear();
   raw_vertex_buffer_.clear();
 }

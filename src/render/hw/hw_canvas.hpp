@@ -11,7 +11,8 @@
 namespace skity {
 
 class HWMesh;
-class HWShader;
+class HWPipeline;
+class HWDraw;
 
 /**
  * @class HWCanvas
@@ -27,7 +28,7 @@ class HWCanvas : public Canvas {
  protected:
   virtual void OnInit() = 0;
 
-  virtual HWShader* GetShader() = 0;
+  virtual HWPipeline* GetPipeline() = 0;
 
   void onClipRect(Rect const& rect, ClipOp op) override;
 
@@ -82,6 +83,8 @@ class HWCanvas : public Canvas {
   uint32_t width_;
   uint32_t height_;
   HWCanvasState state_;
+  std::unique_ptr<HWMesh> mesh_;
+  std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
 };
 
 }  // namespace skity

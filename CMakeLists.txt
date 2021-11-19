@@ -144,7 +144,7 @@ set(HW_RENDER
     src/render/hw/hw_path_raster.hpp
     src/render/hw/hw_path_visitor.cc
     src/render/hw/hw_path_visitor.hpp
-    src/render/hw/hw_shader.hpp
+    src/render/hw/hw_pipeline.hpp
 )
 
 set(Skity_src

@@ -7,9 +7,34 @@
 
 namespace skity {
 
-class HWShader {
+enum class HWPipelineMode {
+  STENCIL,
+  COLOR,
+};
+
+enum class HWStencilOp {
+  INC_WRAP,
+  DESC_WRAP,
+  KEEP,
+  REPLACE,
+};
+
+enum class HWStencilFunc {
+  EQUAL,
+  NOT_EQUAL,
+  LESS,
+  ALWAYS,
+};
+
+class HWPipeline {
  public:
-  virtual ~HWShader() = default;
+  virtual ~HWPipeline() = default;
+
+  virtual void Init() = 0;
+
+  virtual void Bind() = 0;
+
+  virtual void UnBind() = 0;
 
   /**
    * @brief Upload projection matrix to GPU shader
@@ -62,6 +87,28 @@ class HWShader {
    * @param pos
    */
   virtual void SetPositions(std::vector<float> const& pos) = 0;
+
+  /**
+   * @brief Upload vertex buffer data to GPU
+   *
+   * @param data pointer to buffer data
+   * @param data_size size of buffer data
+   */
+  virtual void UploadVertexBuffer(void* data, size_t data_size) = 0;
+
+  virtual void UploadIndexBuffer(void* data, size_t data_size) = 0;
+
+  virtual void EnableStencilTest() = 0;
+
+  virtual void DisableStencilTest() = 0;
+
+  virtual void UpdateStencilMask(uint8_t write_mask, uint8_t compile_mask) = 0;
+
+  virtual void UpdateStencilOp(HWStencilOp op) = 0;
+
+  virtual void UpdateStencilFunc(HWStencilFunc func, uint32_t value) = 0;
+
+  virtual void DrawIndex(uint32_t start, uint32_t count) = 0;
 };
 
 }  // namespace skity

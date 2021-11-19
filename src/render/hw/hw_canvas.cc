@@ -2,7 +2,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "src/render/hw/hw_draw.hpp"
 #include "src/render/hw/hw_mesh.hpp"
+#include "src/render/hw/hw_pipeline.hpp"
 
 namespace skity {
 
@@ -72,6 +74,16 @@ void HWCanvas::onRotate(float degree, float px, float py) {
 
 void HWCanvas::onConcat(const Matrix& matrix) { state_.Concat(matrix); }
 
-void HWCanvas::onFlush() {}
+void HWCanvas::onFlush() {
+  GetPipeline()->Bind();
+
+  for (const auto& op : draw_ops_) {
+    op->Draw();
+  }
+
+  GetPipeline()->UnBind();
+
+  mesh_->ResetMesh();
+}
 
 }  // namespace skity
