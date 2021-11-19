@@ -48,7 +48,7 @@ class HWMesh {
 
   size_t AppendIndices(std::vector<uint32_t> const& indices);
 
-  void Reset();
+  void ResetMesh();
 
  private:
   std::vector<HWVertex> raw_vertex_buffer_;
