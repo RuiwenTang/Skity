@@ -5,6 +5,7 @@
 #include "src/render/hw/hw_draw.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_path_raster.hpp"
 
 namespace skity {
 
@@ -29,42 +30,19 @@ void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
   height_ = height;
 }
 
+HWMesh* HWCanvas::GetMesh() { return mesh_.get(); }
+
 void HWCanvas::onClipRect(const Rect& rect, ClipOp op) {}
 
 void HWCanvas::onClipPath(const Path& path, ClipOp op) {}
 
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {
-  // single line just have two line cap
-  float stroke_width = glm::min(1.f, paint.getStrokeWidth());
-  bool hair_line = stroke_width == 1.f;
-  float stroke_radius = stroke_width * 0.5f;
+  HWPathRaster raster(GetMesh(), paint);
+  raster.RasterLine({x0, y0}, {x1, y1});
+  raster.FlushRaster();
 
-  glm::vec2 p0 = {x0, y0};
-  glm::vec2 p1 = {x1, y1};
 
-  glm::vec2 dir = glm::normalize(p1 - p0);
-  glm::vec2 normal = glm::vec2{-dir.y, dir.x};
-
-  auto a = p0 + normal * stroke_radius;
-  auto b = p0 - normal * stroke_radius;
-  auto c = p1 + normal * stroke_radius;
-  auto d = p1 - normal * stroke_radius;
-
-  float p_flag = msaa_ ? HW_VERTEX_TYPE_LINE_NORMAL : HW_VERTEX_TYPE_LINE_AA;
-
-  uint32_t a_index = mesh_->AppendVertex(a.x, a.y, p_flag, msaa_ ? 0.f : 1.f);
-  uint32_t b_index = mesh_->AppendVertex(b.x, b.y, p_flag, msaa_ ? 0.f : -1.f);
-  uint32_t c_index = mesh_->AppendVertex(c.x, c.y, p_flag, msaa_ ? 0.f : 1.f);
-  uint32_t d_index = mesh_->AppendVertex(d.x, d.y, p_flag, msaa_ ? 0.f : -1.f);
-
-  std::vector<uint32_t> index_buffer = {};
-  index_buffer.emplace_back(a_index);
-  index_buffer.emplace_back(b_index);
-  index_buffer.emplace_back(d_index);
-  index_buffer.emplace_back(a_index);
-  index_buffer.emplace_back(c_index);
-  index_buffer.emplace_back(d_index);
 }
 
 void HWCanvas::onDrawCircle(float cx, float cy, float radius,

@@ -6,20 +6,12 @@
 namespace skity {
 
 enum {
-  // this is used for stroke fill path outline in fill path without MSAA
-  HW_VERTEX_TYPE_AA_OUTLINE = 0,
-  // normal triangle fill no more calculation
   HW_VERTEX_TYPE_LINE_NORMAL = 1,
-  // line with aa alpha calculation, this is used in onDrawLine, or onDrawRect,
-  // which path only contains line
-  HW_VERTEX_TYPE_LINE_AA = 2,
   // circle fill, and u,v store circle center
-  HW_VERTEX_TYPE_CIRCLE = 3,
-  // circle fill, with aa alpha calculation
-  HW_VERTEX_TYPE_CIRCLE_AA = 4,
+  HW_VERTEX_TYPE_CIRCLE = 2,
   // quad fill, this used for path fill with quad, or maybe path stroke
-  HW_VERTEX_TYPE_QUAD_IN = 5,
-  HW_VERTEX_TYPE_QUAD_OUT = 6,
+  HW_VERTEX_TYPE_QUAD_IN = 3,
+  HW_VERTEX_TYPE_QUAD_OUT = 4,
 };
 
 struct HWVertex {

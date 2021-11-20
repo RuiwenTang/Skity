@@ -16,7 +16,7 @@ class HWDraw;
 
 /**
  * @class HWCanvas
- *  Base class for all hardware canvas implementation
+ *  Base class for all hardware canvas implementation, use MSAA for anti-alias
  */
 class HWCanvas : public Canvas {
  public:
@@ -85,7 +85,6 @@ class HWCanvas : public Canvas {
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
-  bool msaa_ = true;
 };
 
 }  // namespace skity

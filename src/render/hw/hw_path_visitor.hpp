@@ -4,14 +4,17 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 
+#include "src/render/hw/hw_geometry_raster.hpp"
+
 namespace skity {
 
 class HWDrawRange;
 class HWMesh;
 
-class HWPathVisitor {
+class HWPathVisitor : public HWGeometryRaster {
  public:
-  HWPathVisitor(Paint const& paint);
+  HWPathVisitor(HWMesh* mesh, Paint const& paint)
+      : HWGeometryRaster(mesh, paint) {}
   virtual ~HWPathVisitor() = default;
 
   void VisitPath(Path const& path, bool force_close);
@@ -43,13 +46,7 @@ class HWPathVisitor {
   virtual void OnQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                         glm::vec2 const& p3) = 0;
 
-  float StrokeWidth() const { return paint_.getStrokeWidth(); }
-  float StrokeMiter() const { return paint_.getStrokeMiter(); }
-  Paint::Cap LineCap() const { return paint_.getStrokeCap(); }
-  Paint::Join LineJoin() const { return paint_.getStrokeJoin(); }
-
  private:
-  Paint paint_;
   glm::vec2 first_pt_ = {};
   glm::vec2 prev_dir_ = {};
 };

@@ -6,14 +6,14 @@
 
 namespace skity {
 
-HWGeometryRaster::HWGeometryRaster(HWMesh* mesh, Paint const& paint, bool msaa)
-    : mesh_(mesh), paint_(paint), msaa_(msaa) {}
+HWGeometryRaster::HWGeometryRaster(HWMesh* mesh, Paint const& paint)
+    : mesh_(mesh), paint_(paint) {}
 
-std::array<uint32_t, 2> HWGeometryRaster::RasterLine(const glm::vec2& p0,
+void HWGeometryRaster::RasterLine(const glm::vec2& p0,
                                                      const glm::vec2& p1) {
   if (paint_.getStyle() == Paint::kFill_Style) {
     // single line can not do fill operation
-    return {0, 0};
+    return;
   }
   float stroke_width = std::min(1.f, paint_.getStrokeWidth());
   float stroke_radius = stroke_width * 0.5f;
@@ -21,55 +21,90 @@ std::array<uint32_t, 2> HWGeometryRaster::RasterLine(const glm::vec2& p0,
   bool hair_line = stroke_width <= 1.f;
 
   // [a,b, c, d]
-  auto aabb = ExpandLine(p0, p1);
+  auto aabb = ExpandLine(p0, p1, stroke_radius);
 
-  auto a_index = AppendLineVertex(aabb[0], 1.f);
-  auto b_index = AppendLineVertex(aabb[1], -1.f);
-  auto c_index = AppendLineVertex(aabb[2], 1.f);
-  auto d_index = AppendLineVertex(aabb[3], -1.f);
+  auto a_index = AppendLineVertex(aabb[0]);
+  auto b_index = AppendLineVertex(aabb[1]);
+  auto c_index = AppendLineVertex(aabb[2]);
+  auto d_index = AppendLineVertex(aabb[3]);
 
   AppendRect(a_index, b_index, c_index, d_index);
 
   auto dir = glm::normalize(p1 - p0);
-  HandleLineCap(aabb[0], aabb[1], -dir, stroke_radius);
-  HandleLineCap(aabb[2], aabb[3], dir, stroke_radius);
+  HandleLineCap(p0, aabb[0], aabb[1], -dir, stroke_radius);
+  HandleLineCap(p1, aabb[2], aabb[3], dir, stroke_radius);
 
-  return FlushIndexBuffer();
 }
 
-void HWGeometryRaster::HandleLineCap(glm::vec2 const& p0, glm::vec2 const& p1,
+void HWGeometryRaster::ResetRaster() {  }
+
+void HWGeometryRaster::FlushRaster() {}
+
+void HWGeometryRaster::HandleLineCap(glm::vec2 const& center,
+                                     glm::vec2 const& p0, glm::vec2 const& p1,
                                      glm::vec2 const& out_dir,
                                      float stroke_radius) {
-  glm::vec2 a;
-  glm::vec2 b;
-  switch (paint_.getStrokeCap()) {
-    case Paint::kRound_Cap:
-    case Paint::kButt_Cap:
-      a = p0 + out_dir * stroke_radius;
-      b = p1 + out_dir * stroke_radius;
-      break;
-    case Paint::kSquare_Cap:
-      a = p0 + out_dir * 0.1f;
-      b = p0 + out_dir * 0.1f;
-      break;
-    default:
-      return;
+  if (paint_.getStrokeCap() == Paint::kSquare_Cap) {
+    return;
   }
+
+  glm::vec2 a = p0 + out_dir * stroke_radius;
+  glm::vec2 b = p1 + out_dir * stroke_radius;
 
   uint32_t i1, i2, i3, i4;
   if (paint_.getStrokeCap() == Paint::kRound_Cap) {
-  } else {
-    if (msaa_ && paint_.getStrokeCap() == Paint::kSquare_Cap) {
-      return;
-    }
-    i1 = AppendLineVertex(p0, 0.f);
-    i2 = AppendLineVertex(p1, 0.f);
+    i1 = AppendCircleVertex(p0, center);
+    i2 = AppendCircleVertex(p1, center);
 
-    i3 = AppendLineVertex(a, 1.f);
-    i4 = AppendLineVertex(b, 1.f);
+    i3 = AppendCircleVertex(a, center);
+    i4 = AppendCircleVertex(b, center);
+  } else {
+    i1 = AppendLineVertex(p0);
+    i2 = AppendLineVertex(p1);
+
+    i3 = AppendLineVertex(a);
+    i4 = AppendLineVertex(b);
   }
 
   AppendRect(i1, i2, i3, i4);
+}
+
+std::array<glm::vec2, 4> HWGeometryRaster::ExpandLine(glm::vec2 const& p0,
+                                                      glm::vec2 const& p1,
+                                                      float stroke_radius) {
+  std::array<glm::vec2, 4> ret = {};
+
+  glm::vec2 dir = glm::normalize(p1 - p0);
+  glm::vec2 normal = {-dir.y, dir.x};
+
+  ret[0] = p0 + normal * stroke_radius;
+  ret[1] = p0 - normal * stroke_radius;
+
+  ret[2] = p1 + normal * stroke_radius;
+  ret[3] = p1 - normal * stroke_radius;
+
+  return ret;
+}
+
+uint32_t HWGeometryRaster::AppendLineVertex(glm::vec2 const& p) {
+  return mesh_->AppendVertex(p.x, p.y, HW_VERTEX_TYPE_LINE_NORMAL);
+}
+
+uint32_t HWGeometryRaster::AppendCircleVertex(glm::vec2 const& p,
+                                              glm::vec2 const& center) {
+  return mesh_->AppendVertex(p.x, p.y, HW_VERTEX_TYPE_CIRCLE, center.x,
+                             center.y);
+}
+
+void HWGeometryRaster::AppendRect(uint32_t a, uint32_t b, uint32_t c,
+                                  uint32_t d) {
+  /**
+   *   a --------- c
+   *   |           |
+   *   |           |
+   *   b-----------d
+   */
+
 }
 
 }  // namespace skity
