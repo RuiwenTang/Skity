@@ -12,29 +12,55 @@ class HWMesh;
 
 class HWGeometryRaster {
  public:
-  HWGeometryRaster(HWMesh* mesh, Paint const& paint, bool msaa);
-  ~HWGeometryRaster() = default;
+  HWGeometryRaster(HWMesh* mesh, Paint const& paint);
+  virtual ~HWGeometryRaster() = default;
 
-  std::array<uint32_t, 2> RasterLine(glm::vec2 const& p0, glm::vec2 const& p1);
+  void RasterLine(glm::vec2 const& p0, glm::vec2 const& p1);
 
- private:
-  void HandleLineCap(glm::vec2 const& p0, glm::vec2 const& p1,
-                     glm::vec2 const& out_dir, float stroke_radius);
+  void ResetRaster();
+  void FlushRaster();
 
-  std::array<glm::vec2, 4> ExpandLine(glm::vec2 const& p0, glm::vec2 const& p1);
 
-  uint32_t AppendLineVertex(glm::vec2 const& p, float v1);
+  uint32_t StencilFrontStart() const { return stencil_front_start_; }
+  uint32_t StencilFrontCount() const { return stencil_front_count_; }
+  uint32_t StencilBackStart() const { return stencil_back_start_; }
+  uint32_t StencilBackCount() const { return stencil_back_count_; }
+  uint32_t ColorStart() const { return color_start_; }
+  uint32_t ColorCount() const { return color_count_; }
+
+ protected:
+  float StrokeWidth() const { return paint_.getStrokeWidth(); }
+  float StrokeMiter() const { return paint_.getStrokeMiter(); }
+  Paint::Cap LineCap() const { return paint_.getStrokeCap(); }
+  Paint::Join LineJoin() const { return paint_.getStrokeJoin(); }
+
+ protected:
+  void HandleLineCap(glm::vec2 const& center, glm::vec2 const& p0,
+                     glm::vec2 const& p1, glm::vec2 const& out_dir,
+                     float stroke_radius);
+
+  std::array<glm::vec2, 4> ExpandLine(glm::vec2 const& p0, glm::vec2 const& p1,
+                                      float stroke_radius);
+
+  uint32_t AppendLineVertex(glm::vec2 const& p);
   uint32_t AppendCircleVertex(glm::vec2 const& p, glm::vec2 const& center);
 
   void AppendRect(uint32_t a, uint32_t b, uint32_t c, uint32_t d);
 
-  std::array<uint32_t, 2> FlushIndexBuffer();
-
  private:
   HWMesh* mesh_;
   Paint paint_;
-  bool msaa_;
-  std::vector<uint32_t> index_buffer_;
+
+  uint32_t stencil_front_start_ = {};
+  uint32_t stencil_front_count_ = {};
+  uint32_t stencil_back_start_ = {};
+  uint32_t stencil_back_count_ = {};
+  uint32_t color_start_ = {};
+  uint32_t color_count_ = {};
+
+  std::vector<uint32_t> stencil_front_buffer_ = {};
+  std::vector<uint32_t> stencil_back_buffer_ = {};
+  std::vector<uint32_t> color_buffer_ = {};
 };
 
 }  // namespace skity
