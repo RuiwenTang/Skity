@@ -23,12 +23,16 @@ class HWCanvasState {
 
   bool HasClip();
 
+  bool MatrixDirty();
+  void ClearMatrixDirty();
+
  private:
   void PushMatrixStack();
   void PopMatrixStack();
 
  private:
   std::vector<Matrix> matrix_state_ = {};
+  bool matrix_dirty_ = true;
 };
 
 }  // namespace skity

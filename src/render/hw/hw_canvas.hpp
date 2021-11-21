@@ -79,7 +79,8 @@ class HWCanvas : public Canvas {
   HWMesh* GetMesh();
 
  private:
-  std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint);
+  std::unique_ptr<HWDraw> GenerateOp();
+  std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint, bool stroke = false);
 
  private:
   Matrix mvp_;

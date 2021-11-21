@@ -31,12 +31,29 @@ void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
 
 HWMesh* HWCanvas::GetMesh() { return mesh_.get(); }
 
-std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint) {
+std::unique_ptr<HWDraw> HWCanvas::GenerateOp() {
   auto draw = std::make_unique<HWDraw>(GetPipeline(), state_.HasClip());
+
+  if (state_.MatrixDirty()) {
+    draw->SetTransformMatrix(state_.CurrentMatrix());
+    state_.ClearMatrixDirty();
+  }
+
+  return draw;
+}
+
+std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
+                                                  bool stroke) {
+  auto draw = GenerateOp();
   auto shader = paint.getShader();
 
   if (shader) {
   } else {
+    if (stroke) {
+      draw->SetUniformColor(paint.GetStrokeColor());
+    } else {
+      draw->SetUniformColor(paint.GetFillColor());
+    }
   }
 
   return draw;
@@ -54,7 +71,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
 
   HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-  auto draw = GenerateColorOp(paint);
+  auto draw = GenerateColorOp(paint, true);
 
   draw->SetColorRange(range);
 

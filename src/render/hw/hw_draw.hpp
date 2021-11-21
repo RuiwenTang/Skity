@@ -17,8 +17,8 @@ class HWPipeline;
 
 class HWDraw {
  public:
-  HWDraw(HWPipeline* pipeline, bool has_clip)
-      : pipeline_(pipeline), has_clip_(has_clip) {}
+  HWDraw(HWPipeline* pipeline, bool has_clip, bool clip_stencil = false)
+      : pipeline_(pipeline), has_clip_(has_clip), clip_stencil_(clip_stencil) {}
   virtual ~HWDraw() = default;
 
   void Draw();
@@ -29,6 +29,8 @@ class HWDraw {
                        HWDrawRange const& back_range);
 
   void SetColorRange(HWDrawRange const& color_range);
+
+  void SetStrokeWidth(float width);
 
   void SetUniformColor(glm::vec4 const& color);
 
@@ -45,13 +47,19 @@ class HWDraw {
   bool HasClip() { return has_clip_; }
 
  private:
+  void DoStencilIfNeed();
+  void DoColorFill();
+  void DoStencilBufferMove();
+
  private:
   HWPipeline* pipeline_;
   bool has_clip_;
+  bool clip_stencil_;
   uint32_t pipeline_type_ = 0;
   HWDrawRange stencil_front_range_ = {};
   HWDrawRange stencil_back_range_ = {};
   HWDrawRange color_range_ = {};
+  Lazy<float> stroke_width_ = {};
   Lazy<glm::vec4> uniform_color_ = {};
   Lazy<glm::mat4> transform_matrix_ = {};
   Lazy<glm::vec4> gradient_bounds_ = {};
