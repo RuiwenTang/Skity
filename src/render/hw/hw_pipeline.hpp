@@ -7,7 +7,7 @@
 
 namespace skity {
 
-enum HWPipelineMode {
+enum class HWPipelineMode {
   kStencil = 0,
   kUniformColor = 1,
   kImageTexture = 2,
@@ -63,6 +63,13 @@ class HWPipeline {
    * @brief Upload StrokeWidth to GPU shader
    */
   virtual void SetStrokeWidth(float width) = 0;
+
+  /**
+   * @brief Upload uniform color to GPU shader
+   *
+   */
+  virtual void SetUniformColor(glm::vec4 const& color) = 0;
+
   /**
    * @brief vec4 info property
    *        [p1.x, p1.y, p2.x, p2.y]
@@ -105,7 +112,7 @@ class HWPipeline {
 
   virtual void DisableStencilTest() = 0;
 
-  virtual void UpdateStencilMask(uint8_t write_mask, uint8_t compile_mask) = 0;
+  virtual void UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) = 0;
 
   virtual void UpdateStencilOp(HWStencilOp op) = 0;
 
