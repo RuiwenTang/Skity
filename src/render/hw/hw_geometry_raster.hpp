@@ -20,7 +20,6 @@ class HWGeometryRaster {
   void ResetRaster();
   void FlushRaster();
 
-
   uint32_t StencilFrontStart() const { return stencil_front_start_; }
   uint32_t StencilFrontCount() const { return stencil_front_count_; }
   uint32_t StencilBackStart() const { return stencil_back_start_; }
@@ -29,6 +28,14 @@ class HWGeometryRaster {
   uint32_t ColorCount() const { return color_count_; }
 
  protected:
+  enum BufferType {
+    kStencilFront,
+    kStencilBack,
+    kColor,
+  };
+
+  void SetBufferType(BufferType type) { buffer_type_ = type; }
+
   float StrokeWidth() const { return paint_.getStrokeWidth(); }
   float StrokeMiter() const { return paint_.getStrokeMiter(); }
   Paint::Cap LineCap() const { return paint_.getStrokeCap(); }
@@ -47,9 +54,15 @@ class HWGeometryRaster {
 
   void AppendRect(uint32_t a, uint32_t b, uint32_t c, uint32_t d);
 
+  void AppendFrontTriangle(uint32_t a, uint32_t b, uint32_t c);
+  void AppendBackTriangle(uint32_t a, uint32_t b, uint32_t c);
+
+ private:
+  std::vector<uint32_t>& CurrentIndexBuffer();
  private:
   HWMesh* mesh_;
   Paint paint_;
+  BufferType buffer_type_ = kColor;
 
   uint32_t stencil_front_start_ = {};
   uint32_t stencil_front_count_ = {};

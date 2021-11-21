@@ -7,12 +7,12 @@
 #include <vector>
 
 #include "src/render/hw/hw_canvas_state.hpp"
+#include "src/render/hw/hw_draw.hpp"
 
 namespace skity {
 
 class HWMesh;
 class HWPipeline;
-class HWDraw;
 
 /**
  * @class HWCanvas
@@ -77,6 +77,9 @@ class HWCanvas : public Canvas {
   void onUpdateViewport(uint32_t width, uint32_t height) override;
 
   HWMesh* GetMesh();
+
+ private:
+  std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint);
 
  private:
   Matrix mvp_;

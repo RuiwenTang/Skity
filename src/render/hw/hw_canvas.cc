@@ -2,10 +2,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "src/render/hw/hw_draw.hpp"
 #include "src/render/hw/hw_mesh.hpp"
-#include "src/render/hw/hw_pipeline.hpp"
 #include "src/render/hw/hw_path_raster.hpp"
+#include "src/render/hw/hw_pipeline.hpp"
 
 namespace skity {
 
@@ -32,6 +31,17 @@ void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
 
 HWMesh* HWCanvas::GetMesh() { return mesh_.get(); }
 
+std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint) {
+  auto draw = std::make_unique<HWDraw>(GetPipeline(), state_.HasClip());
+  auto shader = paint.getShader();
+
+  if (shader) {
+  } else {
+  }
+
+  return draw;
+}
+
 void HWCanvas::onClipRect(const Rect& rect, ClipOp op) {}
 
 void HWCanvas::onClipPath(const Path& path, ClipOp op) {}
@@ -42,7 +52,13 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
   raster.RasterLine({x0, y0}, {x1, y1});
   raster.FlushRaster();
 
+  HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
+  auto draw = GenerateColorOp(paint);
+
+  draw->SetColorRange(range);
+
+  draw_ops_.emplace_back(std::move(draw));
 }
 
 void HWCanvas::onDrawCircle(float cx, float cy, float radius,
