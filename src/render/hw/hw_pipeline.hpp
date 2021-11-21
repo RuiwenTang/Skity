@@ -7,9 +7,12 @@
 
 namespace skity {
 
-enum class HWPipelineMode {
-  STENCIL,
-  COLOR,
+enum HWPipelineMode {
+  kStencil = 0,
+  kUniformColor = 1,
+  kImageTexture = 2,
+  kLinearGradient = 3,
+  kRadialGradient = 4,
 };
 
 enum class HWStencilOp {
@@ -51,28 +54,28 @@ class HWPipeline {
   virtual void SetModelMatrix(glm::mat4 const& matrix) = 0;
 
   /**
-   * @brief ivec4 info property,
-   *        [type, gradient_color_count, gradient_color_stop_count, text]
+   * @brief Upload PipelineMode to GPU shader
    *
-   * @param info
    */
-  virtual void SetInfoI(glm::ivec4 const& info) = 0;
+  virtual void SetPipelineMode(HWPipelineMode mode) = 0;
 
   /**
-   * @brief vec4 info1 property
-   *        [stroke_width, TBD, TBD, TBD]
-   *
-   * @param info
+   * @brief Upload StrokeWidth to GPU shader
    */
-  virtual void SetInfoF1(glm::vec4 const& info) = 0;
-
+  virtual void SetStrokeWidth(float width) = 0;
   /**
-   * @brief vec4 info2 property
+   * @brief vec4 info property
    *        [p1.x, p1.y, p2.x, p2.y]
    *
    * @param info
    */
-  virtual void SetInfo2(glm::vec4 const& info) = 0;
+  virtual void SetGradientBoundInfo(glm::vec4 const& info) = 0;
+
+  /**
+   * @brief Upload gradient count info to GPU shader
+   *
+   */
+  virtual void SetGradientCountInfo(int32_t color_count, int32_t pos_count) = 0;
 
   /**
    * @brief Upload gradient colors to GPU shader
