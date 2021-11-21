@@ -4,16 +4,32 @@
 // Fixme to solve uniform array length
 #define MAX_COLORS 32
 
+#define PIPELINE_MODE_STENCIL 0
+#define PIPELINE_MODE_UNIFORM_COLOR 1
+#define PIPELINE_MODE_IMAGE_TEXTURE 2
+#define PIPELINE_MODE_LINEAR_GRADIENT 3
+#define PIPELINE_MODE_RADIAL_GRADIENT 4
+
+#define VERTEX_TYPE_LINE_NORMAL 1
+#define VERTEX_TYPE_CIRCLE 2
+#define VERTEX_TYPE_QUAD_IN 3
+#define VERTEX_TYPE_QUAD_OUT 4
+
 // image texture
 uniform sampler2D UserTexture;
 // font texture
 uniform sampler2D FontTexture;
 
+// uniform color set from Paint
 uniform vec4 UserColor;
-uniform ivec4 UserData1;
-uniform ivec4 UserData2;
-uniform vec4 UserData3;
-uniform vec4 UserData4;
+// stroke width or circle radius
+uniform float StrokeWidth;
+// color type
+uniform int ColorType;
+// [color_count, pos_count]
+uniform ivec2 GradientCounts;
+// [p1.x, p1.y, p2.x, p2.y]
+uniform vec4 GradientBounds;
 
 // gradient color and stops
 uniform vec4 GradientColors[MAX_COLORS];
@@ -23,3 +39,7 @@ uniform float GradientStops[MAX_COLORS];
 in vec2 vPos;
 // [mix, u, v]
 in vec3 vPosInfo;
+
+void main() {
+
+}
