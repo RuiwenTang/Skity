@@ -151,6 +151,8 @@ set(HW_RENDER
 
 # hardware GL backend
 set(HW_GL_RENDER
+    src/render/hw/gl/gl_canvas.cc
+    src/render/hw/gl/gl_canvas.hpp
     src/render/hw/gl/gl_interface.cc
     src/render/hw/gl/gl_interface.hpp
     src/render/hw/gl/gl_pipeline.cc

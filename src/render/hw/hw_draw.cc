@@ -62,6 +62,7 @@ void HWDraw::DoStencilIfNeed() {
     return;
   }
 
+  pipeline_->DisableColorOutput();
   pipeline_->EnableStencilTest();
   pipeline_->UpdateStencilMask(0x0F, 0x0F);
   pipeline_->SetPipelineMode(HWPipelineMode::kStencil);
@@ -77,6 +78,8 @@ void HWDraw::DoStencilIfNeed() {
     pipeline_->UpdateStencilOp(HWStencilOp::DESC_WRAP);
     pipeline_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
   }
+
+  pipeline_->EnableColorOutput();
 }
 
 void HWDraw::DoColorFill() {

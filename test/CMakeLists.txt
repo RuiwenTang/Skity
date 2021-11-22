@@ -54,38 +54,20 @@ target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(gl_path_mesh_test gl_path_mesh_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_path_mesh_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(gl_path_stroke_mesh gl_path_stroke_mesh.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_path_stroke_mesh skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(gl_draw_op_test gl_draw_op_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_draw_op_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
 add_executable(gl_canvas_test gl_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(gl_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(gl_canvas2_test gl_canvas2_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(gl_canvas2_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(test_gl_stroke2 test_gl_stroke2.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(test_gl_stroke2 skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(test_gl_fill2 test_gl_fill2.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(test_gl_fill2 skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
 add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(raw_linear_gradient_test raw_linear_gradient_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(raw_linear_gradient_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(gl_texture_test gl_texture_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_texture_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
 add_executable(shader_aa_test shader_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(shader_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
+add_executable(hw_canvas_test hw_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(hw_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(svg_parser_test svg_parser_test.cc)
 target_link_libraries(svg_parser_test skity)

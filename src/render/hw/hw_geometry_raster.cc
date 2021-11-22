@@ -43,7 +43,7 @@ void HWGeometryRaster::FlushRaster() {
     stencil_front_count_ = stencil_front_buffer_.size();
     mesh_->AppendIndices(stencil_front_buffer_);
   }
-  
+
   if (!stencil_back_buffer_.empty()) {
     stencil_back_start_ = mesh_->IndexBase();
     stencil_back_count_ = stencil_back_buffer_.size();

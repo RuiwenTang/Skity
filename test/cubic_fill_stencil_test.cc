@@ -10,8 +10,8 @@
 
 #include "common/test_common.hpp"
 #include "src/geometry/geometry.hpp"
-#include "src/render/gl/gl_interface.hpp"
 #include "src/render/gl/gl_mesh.hpp"
+#include "src/render/hw/gl/gl_interface.hpp"
 
 class CubicFill : public test::TestApp {
  public:

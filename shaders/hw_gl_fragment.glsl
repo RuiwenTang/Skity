@@ -40,6 +40,21 @@ in vec2 vPos;
 // [mix, u, v]
 in vec3 vPosInfo;
 
-void main() {
+out vec4 FragColor;
 
+void main() {
+  int vertex_type = int(vPosInfo.x);
+
+  if (vertex_type == VERTEX_TYPE_CIRCLE) {
+    float r = length(vPos - vPosInfo.yz);
+    if (r > StrokeWidth) {
+      discard;
+    }
+  }
+
+  if (ColorType == PIPELINE_MODE_STENCIL) {
+    FragColor = vec4(0, 0, 0, 0);
+  } else {
+    FragColor = UserColor;
+  }
 }

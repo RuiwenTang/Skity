@@ -2,11 +2,25 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "src/render/hw/gl/gl_canvas.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 #include "src/render/hw/hw_path_raster.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
 
 namespace skity {
+
+std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(
+    uint32_t width, uint32_t height, void* process_loader) {
+  // TODO make vk_canvas
+  auto mvp = glm::ortho<float>(0, 0, width, height);
+
+  std::unique_ptr<HWCanvas> canvas =
+      std::make_unique<GLCanvas>(mvp, width, height);
+
+  canvas->Init(process_loader);
+
+  return canvas;
+}
 
 HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height)
     : Canvas(),
@@ -17,7 +31,7 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height)
 
 HWCanvas::~HWCanvas() = default;
 
-void HWCanvas::Init() { this->OnInit(); }
+void HWCanvas::Init(void* ctx) { this->OnInit(ctx); }
 
 uint32_t HWCanvas::onGetWidth() const { return width_; }
 

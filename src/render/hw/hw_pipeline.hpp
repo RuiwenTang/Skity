@@ -112,6 +112,10 @@ class HWPipeline {
 
   virtual void DisableStencilTest() = 0;
 
+  virtual void EnableColorOutput() = 0;
+
+  virtual void DisableColorOutput() = 0;
+
   virtual void UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) = 0;
 
   virtual void UpdateStencilOp(HWStencilOp op) = 0;
