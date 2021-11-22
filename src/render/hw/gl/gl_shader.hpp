@@ -8,7 +8,7 @@
 
 namespace skity {
 
-class GLColorStencilShader;
+class GLPipelineShader;
 
 /**
  * @class Shader wrapper for internal use
@@ -34,7 +34,7 @@ class GLShader {
 
   virtual void InitLocations();
 
-  static std::unique_ptr<GLColorStencilShader> CreateColorStencilShader();
+  static std::unique_ptr<GLPipelineShader> CreatePipelineShader();
 
  protected:
   GLShader() = default;
@@ -42,26 +42,25 @@ class GLShader {
   int32_t program_ = 0;
 };
 
-class GLColorStencilShader : public GLShader {
+class GLPipelineShader : public GLShader {
  public:
-  ~GLColorStencilShader() override = default;
-
-  void SetProjectionMatrix(glm::mat4 const& matrix);
-  void SetTransformMatrix(glm::mat4 const& matrix);
-  void SetVecIInfo1(glm::ivec4 const& info);
-  void SetVecIInfo2(glm::ivec4 const& info);
-  void SetVecFInfo1(glm::vec4 const& info);
-  void SetVecFInfo2(glm::vec4 const& info);
+  GLPipelineShader() = default;
+  ~GLPipelineShader() override = default;
 
   void InitLocations() override;
 
  private:
   int32_t mvp_location_ = -1;
-  int32_t transform_location_ = -1;
-  int32_t veci_info1_location_ = -1;
-  int32_t veci_info2_location_ = -1;
-  int32_t vecf_info1_location_ = -1;
-  int32_t vecf_info2_location_ = -1;
+  int32_t user_transform_locaion_ = -1;
+  int32_t user_texture_location_ = -1;
+  int32_t font_texture_location_ = -1;
+  int32_t uniform_color_location_ = -1;
+  int32_t stroke_width_location_ = -1;
+  int32_t color_type_location_ = -1;
+  int32_t gradient_count_location_ = -1;
+  int32_t gradient_bound_location_ = -1;
+  int32_t gradient_colors_location_ = -1;
+  int32_t gradient_pos_location_ = -1;
 };
 
 }  // namespace skity

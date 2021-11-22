@@ -109,4 +109,33 @@ void GLShader::UnBind() { GL_CALL(UseProgram, 0); }
 
 void GLShader::InitLocations() {}
 
+std::unique_ptr<GLPipelineShader> GLShader::CreatePipelineShader() {
+  auto shader = std::make_unique<GLPipelineShader>();
+  std::string vs_shader{(const char*)hw_gl_vertex_glsl, hw_gl_vertex_glsl_size};
+  std::string fs_shader{(const char*)hw_gl_fragment_glsl,
+                        hw_gl_fragment_glsl_size};
+  shader->program_ =
+      create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  shader->InitLocations();
+
+  return shader;
+}
+
+void GLPipelineShader::InitLocations() {
+  GLShader::InitLocations();
+
+  mvp_location_ = GetUniformLocation("mvp");
+  user_transform_locaion_ = GetUniformLocation("UserTransform");
+  user_texture_location_ = GetUniformLocation("UserTexture");
+  font_texture_location_ = GetUniformLocation("FontTexture");
+  uniform_color_location_ = GetUniformLocation("UserColor");
+  stroke_width_location_ = GetUniformLocation("StrokeWidth");
+  color_type_location_ = GetUniformLocation("ColorType");
+  gradient_count_location_ = GetUniformLocation("GradientCounts");
+  gradient_bound_location_ = GetUniformLocation("GradientBounds");
+  gradient_colors_location_ = GetUniformLocation("GradientColors");
+  gradient_pos_location_ = GetUniformLocation("GradientStops");
+}
+
 }  // namespace skity

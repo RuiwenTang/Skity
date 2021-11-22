@@ -23,10 +23,10 @@ class HWCanvas : public Canvas {
   HWCanvas(Matrix mvp, uint32_t width, uint32_t height);
   ~HWCanvas() override;
 
-  void Init();
+  void Init(void* ctx);
 
  protected:
-  virtual void OnInit() = 0;
+  virtual void OnInit(void* ctx) = 0;
 
   virtual HWPipeline* GetPipeline() = 0;
 
@@ -80,7 +80,8 @@ class HWCanvas : public Canvas {
 
  private:
   std::unique_ptr<HWDraw> GenerateOp();
-  std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint, bool stroke = false);
+  std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint,
+                                          bool stroke = false);
 
  private:
   Matrix mvp_;

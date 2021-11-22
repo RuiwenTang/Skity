@@ -1,5 +1,7 @@
 #include "src/render/hw/hw_mesh.hpp"
 
+#include "src/render/hw/hw_pipeline.hpp"
+
 namespace skity {
 
 size_t HWMesh::AppendVertex(float x, float y, float mix, float u, float v) {
@@ -25,6 +27,14 @@ size_t HWMesh::AppendIndices(const std::vector<uint32_t> &indices) {
                            indices.end());
 
   return base;
+}
+
+void HWMesh::UploadMesh(HWPipeline *pipeline) {
+  pipeline->UploadVertexBuffer(raw_vertex_buffer_.data(),
+                               sizeof(float) * raw_vertex_buffer_.size());
+
+  pipeline->UploadIndexBuffer(raw_index_buffer_.data(),
+                              sizeof(uint32_t) * raw_index_buffer_.size());
 }
 
 void HWMesh::ResetMesh() {

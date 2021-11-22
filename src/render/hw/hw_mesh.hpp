@@ -5,6 +5,8 @@
 
 namespace skity {
 
+class HWPipeline;
+
 enum {
   HW_VERTEX_TYPE_LINE_NORMAL = 1,
   // circle fill, and u,v store circle center
@@ -40,6 +42,7 @@ class HWMesh {
 
   size_t AppendIndices(std::vector<uint32_t> const& indices);
 
+  void UploadMesh(HWPipeline* pipeline);
   void ResetMesh();
 
  private:
