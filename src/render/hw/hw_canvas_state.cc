@@ -15,7 +15,7 @@ void HWCanvasState::Restore() {
   Matrix prev_matrix = CurrentMatrix();
   PopMatrixStack();
 
-  matrix_dirty_ = CurrentMatrix() == prev_matrix;
+  matrix_dirty_ = CurrentMatrix() != prev_matrix;
 }
 
 void HWCanvasState::Translate(float dx, float dy) {

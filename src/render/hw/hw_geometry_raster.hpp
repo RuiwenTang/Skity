@@ -3,6 +3,7 @@
 
 #include <array>
 #include <glm/glm.hpp>
+#include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <vector>
 
@@ -16,6 +17,8 @@ class HWGeometryRaster {
   virtual ~HWGeometryRaster() = default;
 
   void RasterLine(glm::vec2 const& p0, glm::vec2 const& p1);
+  void RasterRect(Rect const& rect);
+  void FillCircle(float cx, float cy, float radius);
 
   void ResetRaster();
   void FlushRaster();
@@ -36,7 +39,7 @@ class HWGeometryRaster {
 
   void SetBufferType(BufferType type) { buffer_type_ = type; }
 
-  float StrokeWidth() const { return paint_.getStrokeWidth(); }
+  float StrokeWidth() const;
   float StrokeMiter() const { return paint_.getStrokeMiter(); }
   Paint::Cap LineCap() const { return paint_.getStrokeCap(); }
   Paint::Join LineJoin() const { return paint_.getStrokeJoin(); }
@@ -57,8 +60,12 @@ class HWGeometryRaster {
   void AppendFrontTriangle(uint32_t a, uint32_t b, uint32_t c);
   void AppendBackTriangle(uint32_t a, uint32_t b, uint32_t c);
 
+  void FillRect(Rect const& rect);
+  void StrokeRect(Rect const& rect);
+
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();
+
  private:
   HWMesh* mesh_;
   Paint paint_;

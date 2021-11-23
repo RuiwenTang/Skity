@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "src/geometry/math.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 
 namespace skity {
@@ -14,7 +15,7 @@ void HWGeometryRaster::RasterLine(const glm::vec2& p0, const glm::vec2& p1) {
     // single line can not do fill operation
     return;
   }
-  float stroke_width = std::max(1.f, paint_.getStrokeWidth());
+  float stroke_width = StrokeWidth();
   float stroke_radius = stroke_width * 0.5f;
 
   bool hair_line = stroke_width <= 1.f;
@@ -32,6 +33,29 @@ void HWGeometryRaster::RasterLine(const glm::vec2& p0, const glm::vec2& p1) {
   auto dir = glm::normalize(p1 - p0);
   HandleLineCap(p0, aabb[0], aabb[1], -dir, stroke_radius);
   HandleLineCap(p1, aabb[2], aabb[3], dir, stroke_radius);
+}
+
+void HWGeometryRaster::RasterRect(const Rect& rect) {
+  if (paint_.getStyle() == Paint::kFill_Style) {
+    FillRect(rect);
+  } else {
+    StrokeRect(rect);
+  }
+}
+
+void HWGeometryRaster::FillCircle(float cx, float cy, float radius) {
+  auto p1 = glm::vec2{cx - radius, cy - radius};
+  auto p2 = glm::vec2{cx - radius, cy + radius};
+  auto p3 = glm::vec2{cx + radius, cy - radius};
+  auto p4 = glm::vec2{cx + radius, cy + radius};
+
+  auto center = glm::vec2{cx, cy};
+  auto a = AppendCircleVertex(p1, center);
+  auto b = AppendCircleVertex(p2, center);
+  auto c = AppendCircleVertex(p3, center);
+  auto d = AppendCircleVertex(p4, center);
+
+  AppendRect(a, b, c, d);
 }
 
 void HWGeometryRaster::ResetRaster() {}
@@ -55,6 +79,10 @@ void HWGeometryRaster::FlushRaster() {
     color_count_ = color_buffer_.size();
     mesh_->AppendIndices(color_buffer_);
   }
+}
+
+float HWGeometryRaster::StrokeWidth() const {
+  return std::max(1.f, paint_.getStrokeWidth());
 }
 
 void HWGeometryRaster::HandleLineCap(glm::vec2 const& center,
@@ -155,6 +183,61 @@ std::vector<uint32_t>& HWGeometryRaster::CurrentIndexBuffer() {
   }
 
   return color_buffer_;
+}
+
+void HWGeometryRaster::FillRect(Rect const& rect) {
+  uint32_t a = AppendLineVertex(glm::vec2{rect.left(), rect.top()});
+  uint32_t b = AppendLineVertex(glm::vec2{rect.left(), rect.bottom()});
+  uint32_t c = AppendLineVertex(glm::vec2{rect.right(), rect.top()});
+  uint32_t d = AppendLineVertex(glm::vec2{rect.right(), rect.bottom()});
+
+  AppendRect(a, b, c, d);
+}
+
+void HWGeometryRaster::StrokeRect(Rect const& rect) {
+  float stroke_width = StrokeWidth();
+  float expand_length = stroke_width * 0.5f;
+
+  auto p1 = glm::vec2{rect.left(), rect.top()};
+  auto p2 = glm::vec2{rect.right(), rect.top()};
+  auto p3 = glm::vec2{rect.right(), rect.bottom()};
+  auto p4 = glm::vec2{rect.left(), rect.bottom()};
+
+  auto dir_p12 = glm::normalize(p2 - p1);
+  auto dir_p23 = glm::normalize(p3 - p2);
+  auto dir_p34 = glm::normalize(p4 - p3);
+  auto dir_p41 = glm::normalize(p1 - p4);
+
+  auto out_dir_p1 = dir_p41 - dir_p12;
+  auto out_dir_p2 = dir_p12 - dir_p23;
+  auto out_dir_p3 = dir_p23 - dir_p34;
+  auto out_dir_p4 = dir_p34 - dir_p41;
+
+  auto p1_o = p1 + out_dir_p1 * expand_length;
+  auto p1_i = p1 - out_dir_p1 * expand_length;
+
+  auto p2_o = p2 + out_dir_p2 * expand_length;
+  auto p2_i = p2 - out_dir_p2 * expand_length;
+
+  auto p3_o = p3 + out_dir_p3 * expand_length;
+  auto p3_i = p3 - out_dir_p3 * expand_length;
+
+  auto p4_o = p4 + out_dir_p4 * expand_length;
+  auto p4_i = p4 - out_dir_p4 * expand_length;
+
+  auto p1_o_index = AppendLineVertex(p1_o);
+  auto p1_i_index = AppendLineVertex(p1_i);
+  auto p2_o_index = AppendLineVertex(p2_o);
+  auto p2_i_index = AppendLineVertex(p2_i);
+  auto p3_o_index = AppendLineVertex(p3_o);
+  auto p3_i_index = AppendLineVertex(p3_i);
+  auto p4_o_index = AppendLineVertex(p4_o);
+  auto p4_i_index = AppendLineVertex(p4_i);
+
+  AppendRect(p1_o_index, p1_i_index, p2_o_index, p2_i_index);
+  AppendRect(p2_o_index, p2_i_index, p3_o_index, p3_i_index);
+  AppendRect(p3_o_index, p3_i_index, p4_o_index, p4_i_index);
+  AppendRect(p4_o_index, p4_i_index, p1_o_index, p1_i_index);
 }
 
 }  // namespace skity
