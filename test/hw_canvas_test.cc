@@ -34,6 +34,19 @@ class HWCanvasTest : public test::TestApp {
 
     canvas_->drawLine(100, 100, 400, 200, paint);
 
+    canvas_->drawRect(skity::Rect::MakeXYWH(300, 300, 50, 50), paint);
+
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setColor(skity::ColorSetARGB(255, 0, 0x9D, 0x58));
+
+    canvas_->save();
+
+    canvas_->rotate(30, 225, 225);
+
+    canvas_->drawRect(skity::Rect::MakeXYWH(200, 200, 50, 50), paint);
+
+    canvas_->restore();
+
     canvas_->flush();
   }
 

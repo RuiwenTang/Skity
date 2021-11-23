@@ -55,6 +55,6 @@ void main() {
   if (ColorType == PIPELINE_MODE_STENCIL) {
     FragColor = vec4(0, 0, 0, 0);
   } else {
-    FragColor = UserColor;
+    FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w);
   }
 }

@@ -94,13 +94,70 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
 }
 
 void HWCanvas::onDrawCircle(float cx, float cy, float radius,
-                            Paint const& paint) {}
+                            Paint const& paint) {
+  if (paint.getStyle() != Paint::kFill_Style) {
+    Path path;
+    path.addCircle(cx, cy, radius);
+    onDrawPath(path, paint);
+
+    return;
+  }
+
+  HWPathRaster raster{GetMesh(), paint};
+  raster.FillCircle(cx, cy, radius);
+
+  raster.FlushRaster();
+
+  HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
+
+  auto draw = GenerateColorOp(paint, false);
+  draw->SetColorRange(range);
+  draw->SetStrokeWidth(radius * 2.f);
+
+  draw_ops_.emplace_back(std::move(draw));
+}
 
 void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {}
 
 void HWCanvas::onDrawOval(Rect const& oval, Paint const& paint) {}
 
-void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {}
+void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
+  Paint work_paint{paint};
+  bool need_fill = paint.getStyle() != Paint::kStroke_Style;
+  bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  if (need_fill) {
+    HWPathRaster raster(GetMesh(), paint);
+    work_paint.setStyle(Paint::kFill_Style);
+    raster.RasterRect(rect);
+
+    raster.FlushRaster();
+
+    HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
+
+    auto draw = GenerateColorOp(work_paint, false);
+    draw->SetColorRange(range);
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+
+  if (need_stroke) {
+    HWPathRaster raster(GetMesh(), paint);
+    work_paint.setStyle(Paint::kStroke_Style);
+    raster.RasterRect(rect);
+
+    raster.FlushRaster();
+
+    HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
+
+    auto draw = GenerateColorOp(work_paint, false);
+
+    draw->SetStrokeWidth(work_paint.getStrokeWidth());
+    draw->SetColorRange(range);
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+}
 
 void HWCanvas::onDrawRRect(RRect const& rrect, Paint const& paint) {}
 
