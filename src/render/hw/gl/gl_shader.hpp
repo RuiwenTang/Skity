@@ -19,6 +19,7 @@ class GLShader {
   int32_t GetUniformLocation(const char* name);
   void SetUniform(int32_t location, glm::vec4 const& value);
   void SetUniform4i(int32_t location, glm::ivec4 const& value);
+  void SetUniform2i(int32_t location, glm::ivec2 const& value);
   void SetUniform(int32_t location, glm::vec3 const& value);
   void SetUniform(int32_t location, glm::vec2 const& value);
   void SetUniform(int32_t location, glm::mat4 const& value);
@@ -48,6 +49,18 @@ class GLPipelineShader : public GLShader {
   ~GLPipelineShader() override = default;
 
   void InitLocations() override;
+
+  void SetMVP(Matrix const& mvp);
+  void SetTransformMatrix(Matrix const& matrix);
+  void SetUserTexture(int32_t unit);
+  void SetFontTexture(int32_t unit);
+  void SetUniformColor(glm::vec4 const& color);
+  void SetStrokeWidth(float width);
+  void SetColorType(int32_t type);
+  void SetGradientCountInfo(int32_t color_count, int32_t pos_count);
+  void SetGradientBoundInfo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void SetGradientColors(std::vector<glm::vec4> const& colors);
+  void SetGradientPostions(std::vector<float> const& pos);
 
  private:
   int32_t mvp_location_ = -1;

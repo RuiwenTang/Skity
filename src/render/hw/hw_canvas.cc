@@ -12,7 +12,7 @@ namespace skity {
 std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(
     uint32_t width, uint32_t height, void* process_loader) {
   // TODO make vk_canvas
-  auto mvp = glm::ortho<float>(0, 0, width, height);
+  auto mvp = glm::ortho<float>(0, width, height, 0);
 
   std::unique_ptr<HWCanvas> canvas =
       std::make_unique<GLCanvas>(mvp, width, height);
@@ -87,6 +87,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
 
   auto draw = GenerateColorOp(paint, true);
 
+  draw->SetStrokeWidth(paint.getStrokeWidth());
   draw->SetColorRange(range);
 
   draw_ops_.emplace_back(std::move(draw));
@@ -132,6 +133,11 @@ void HWCanvas::onConcat(const Matrix& matrix) { state_.Concat(matrix); }
 
 void HWCanvas::onFlush() {
   GetPipeline()->Bind();
+
+  mesh_->UploadMesh(GetPipeline());
+
+  // global props set to pipeline
+  GetPipeline()->SetViewProjectionMatrix(mvp_);
 
   for (const auto& op : draw_ops_) {
     op->Draw();

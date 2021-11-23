@@ -13,6 +13,11 @@ class HWCanvasTest : public test::TestApp {
   void OnInit() override {
     glClearColor(0.3f, 0.4f, 0.5f, 1.f);
     glClearStencil(0x0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_STENCIL_TEST);
+    glClearStencil(0x00);
+    glStencilMask(0xFF);
 
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
         800, 600, (void*)glfwGetProcAddress);
@@ -25,7 +30,7 @@ class HWCanvasTest : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setColor(skity::Color_RED);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
-    paint.setStrokeWidth(10.f);
+    paint.setStrokeWidth(20.f);
 
     canvas_->drawLine(100, 100, 400, 200, paint);
 

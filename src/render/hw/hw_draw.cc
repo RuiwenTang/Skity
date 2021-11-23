@@ -100,6 +100,7 @@ void HWDraw::DoColorFill() {
   }
 
   if (uniform_color_.IsValid()) {
+    pipeline_->SetPipelineMode(HWPipelineMode::kUniformColor);
     pipeline_->SetUniformColor(*uniform_color_);
   }
 

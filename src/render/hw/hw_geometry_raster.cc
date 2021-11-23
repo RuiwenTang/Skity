@@ -14,7 +14,7 @@ void HWGeometryRaster::RasterLine(const glm::vec2& p0, const glm::vec2& p1) {
     // single line can not do fill operation
     return;
   }
-  float stroke_width = std::min(1.f, paint_.getStrokeWidth());
+  float stroke_width = std::max(1.f, paint_.getStrokeWidth());
   float stroke_radius = stroke_width * 0.5f;
 
   bool hair_line = stroke_width <= 1.f;

@@ -67,6 +67,10 @@ void GLShader::SetUniform4i(int32_t location, const glm::ivec4& value) {
   GL_CALL(Uniform4i, location, value[0], value[1], value[2], value[3]);
 }
 
+void GLShader::SetUniform2i(int32_t location, const glm::ivec2& value) {
+  GL_CALL(Uniform2i, location, value.x, value.y);
+}
+
 void GLShader::SetUniform(int32_t location, glm::vec3 const& value) {
   GL_CALL(Uniform3f, location, value[0], value[1], value[2]);
 }
@@ -136,6 +140,55 @@ void GLPipelineShader::InitLocations() {
   gradient_bound_location_ = GetUniformLocation("GradientBounds");
   gradient_colors_location_ = GetUniformLocation("GradientColors");
   gradient_pos_location_ = GetUniformLocation("GradientStops");
+}
+
+void GLPipelineShader::SetMVP(const Matrix& mvp) {
+  SetUniform(mvp_location_, mvp);
+}
+
+void GLPipelineShader::SetTransformMatrix(const Matrix& matrix) {
+  SetUniform(user_transform_locaion_, matrix);
+}
+
+void GLPipelineShader::SetUserTexture(int32_t unit) {
+  SetUniform(user_texture_location_, unit);
+}
+
+void GLPipelineShader::SetFontTexture(int32_t unit) {
+  SetUniform(font_texture_location_, unit);
+}
+
+void GLPipelineShader::SetUniformColor(const glm::vec4& color) {
+  SetUniform(uniform_color_location_, color);
+}
+
+void GLPipelineShader::SetStrokeWidth(float width) {
+  SetUniform(stroke_width_location_, width);
+}
+
+void GLPipelineShader::SetColorType(int32_t type) {
+  SetUniform(color_type_location_, type);
+}
+
+void GLPipelineShader::SetGradientCountInfo(int32_t color_count,
+                                            int32_t pos_count) {
+  glm::ivec2 counts{color_count, pos_count};
+  SetUniform2i(gradient_count_location_, counts);
+}
+
+void GLPipelineShader::SetGradientBoundInfo(const glm::vec2& p1,
+                                            const glm::vec2& p2) {
+  glm::vec4 bounds{p1, p2};
+  SetUniform(gradient_bound_location_, bounds);
+}
+
+void GLPipelineShader::SetGradientColors(const std::vector<glm::vec4>& colors) {
+  SetUniform(gradient_colors_location_, (glm::vec4*)colors.data(),
+             (int32_t)colors.size());
+}
+
+void GLPipelineShader::SetGradientPostions(const std::vector<float>& pos) {
+  SetUniform(gradient_pos_location_, (float*)pos.data(), pos.size());
 }
 
 }  // namespace skity

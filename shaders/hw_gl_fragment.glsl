@@ -47,7 +47,7 @@ void main() {
 
   if (vertex_type == VERTEX_TYPE_CIRCLE) {
     float r = length(vPos - vPosInfo.yz);
-    if (r > StrokeWidth) {
+    if (r > StrokeWidth / 2.0) {
       discard;
     }
   }
