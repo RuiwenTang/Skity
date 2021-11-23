@@ -7,7 +7,7 @@
 
 namespace skity {
 
-enum class HWPipelineMode {
+enum HWPipelineMode {
   kStencil = 0,
   kUniformColor = 1,
   kImageTexture = 2,

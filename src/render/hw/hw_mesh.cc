@@ -31,7 +31,7 @@ size_t HWMesh::AppendIndices(const std::vector<uint32_t> &indices) {
 
 void HWMesh::UploadMesh(HWPipeline *pipeline) {
   pipeline->UploadVertexBuffer(raw_vertex_buffer_.data(),
-                               sizeof(float) * raw_vertex_buffer_.size());
+                               sizeof(HWVertex) * raw_vertex_buffer_.size());
 
   pipeline->UploadIndexBuffer(raw_index_buffer_.data(),
                               sizeof(uint32_t) * raw_index_buffer_.size());

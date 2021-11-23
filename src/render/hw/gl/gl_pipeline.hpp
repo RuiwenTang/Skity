@@ -62,11 +62,15 @@ class GLPipeline : public HWPipeline {
   void InitShader();
   void InitBufferObject();
 
+  void BindBuffers();
+  void UnBindBuffers();
+
  private:
   void* ctx_;
-  std::unique_ptr<GLShader> shader_ = {};
+  std::unique_ptr<GLPipelineShader> shader_ = {};
   uint32_t vao_ = 0;
   std::array<uint32_t, 2> buffers_ = {};
+  std::array<size_t, 2> buffer_sizes_ = {};
 };
 
 }  // namespace skity
