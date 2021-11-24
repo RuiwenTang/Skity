@@ -47,6 +47,9 @@ class HWCanvasTest : public test::TestApp {
 
     canvas_->restore();
 
+    paint.setColor(skity::ColorSetARGB(128, 255, 0x9D, 0x58));
+    canvas_->drawCircle(400, 400, 100, paint);
+
     canvas_->flush();
   }
 

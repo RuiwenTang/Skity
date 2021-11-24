@@ -58,7 +58,15 @@ void HWGeometryRaster::FillCircle(float cx, float cy, float radius) {
   AppendRect(a, b, c, d);
 }
 
-void HWGeometryRaster::ResetRaster() {}
+void HWGeometryRaster::ResetRaster() {
+  stencil_front_buffer_.clear();
+  stencil_back_buffer_.clear();
+  color_buffer_.clear();
+
+  stencil_front_start_ = stencil_front_count_ = 0;
+  stencil_back_start_ = stencil_back_count_ = 0;
+  color_start_ = color_count_ = 0;
+}
 
 void HWGeometryRaster::FlushRaster() {
   // stencil front
@@ -139,6 +147,11 @@ uint32_t HWGeometryRaster::AppendCircleVertex(glm::vec2 const& p,
                                               glm::vec2 const& center) {
   return mesh_->AppendVertex(p.x, p.y, HW_VERTEX_TYPE_CIRCLE, center.x,
                              center.y);
+}
+
+uint32_t HWGeometryRaster::AppendVertex(float x, float y, float mix, float u,
+                                        float v) {
+  return mesh_->AppendVertex(x, y, mix, u, v);
 }
 
 void HWGeometryRaster::AppendRect(uint32_t a, uint32_t b, uint32_t c,

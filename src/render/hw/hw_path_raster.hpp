@@ -14,6 +14,9 @@ class HWPathRaster : public HWPathVisitor {
   HWPathRaster(HWMesh* mesh, Paint const& paint) : HWPathVisitor(mesh, paint) {}
   ~HWPathRaster() override = default;
 
+  void FillPath(Path const& path);
+  void StrokePath(Path const& path);
+
  protected:
   void OnBeginPath() override;
   void OnEndPath() override;
@@ -23,6 +26,32 @@ class HWPathRaster : public HWPathVisitor {
 
   void OnQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                 glm::vec2 const& p3) override;
+
+ private:
+  void StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                    glm::vec2 const& p3);
+  void FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                  glm::vec2 const& p3);
+  void HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
+                      float stroke_radius);
+
+  void HandleMiterJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
+
+  void HandleBevelJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& p2, Vec2 const& curr_dir);
+
+  void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
+                               Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
+
+ private:
+  bool stroke_ = false;
+  glm::vec2 first_pt_ = {};
+  int32_t first_pt_index_ = -1;
+  glm::vec2 first_pt_dir_ = {};
+  glm::vec2 prev_pt_ = {};
 };
 
 }  // namespace skity
