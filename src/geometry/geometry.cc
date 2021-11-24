@@ -280,6 +280,20 @@ void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
   sub_quad2[2] = quad[2];
 }
 
+void SubDividedQuad(const Vec2 quad[3], Vec2 sub_quad1[3], Vec2 sub_quad2[3]) {
+  Vec2 p1 = (quad[0] + quad[1]) * 0.5f;
+  Vec2 p2 = (quad[1] + quad[2]) * 0.5f;
+  Vec2 p3 = (p1 + p2) * 0.5f;
+
+  sub_quad1[0] = quad[0];
+  sub_quad1[1] = p1;
+  sub_quad1[2] = p3;
+
+  sub_quad2[0] = p3;
+  sub_quad2[1] = p2;
+  sub_quad2[2] = quad[2];
+}
+
 void CubicToQuadratic(const Point cubic[4], Point quad[3]) {
   quad[0] = cubic[0];
   quad[1] = (3.f * (cubic[1] + cubic[2]) - (cubic[0] + cubic[3])) / 4.f;

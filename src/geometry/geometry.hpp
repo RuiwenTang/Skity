@@ -273,6 +273,8 @@ void SubDividedCubic8(const Point cubic[4], Point sub_cubic[32]);
 void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
                     Point sub_quad2[3]);
 
+void SubDividedQuad(const Vec2 quad[3], Vec2 sub_quad1[3], Vec2 sub_quad2[3]);
+
 void CubicToQuadratic(const Point cubic[4], Point quad[3]);
 
 void CalculateQuadPQ(Vec2 const& A, Vec2 const& B, Vec2 const& C, Vec2 const& P,

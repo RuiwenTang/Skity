@@ -54,6 +54,7 @@ class HWGeometryRaster {
 
   uint32_t AppendLineVertex(glm::vec2 const& p);
   uint32_t AppendCircleVertex(glm::vec2 const& p, glm::vec2 const& center);
+  uint32_t AppendVertex(float x, float y, float mix, float u, float v);
 
   void AppendRect(uint32_t a, uint32_t b, uint32_t c, uint32_t d);
 
