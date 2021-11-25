@@ -4,6 +4,36 @@
 
 namespace skity {
 
+static GLenum hw_stencil_func_to_gl(HWStencilFunc func) {
+  switch (func) {
+    case HWStencilFunc::EQUAL:
+      return GL_EQUAL;
+    case HWStencilFunc::NOT_EQUAL:
+      return GL_NOTEQUAL;
+    case HWStencilFunc::ALWAYS:
+      return GL_ALWAYS;
+    case HWStencilFunc::LESS:
+      return GL_LESS;
+  }
+
+  return 0;
+}
+
+static GLenum hw_stencil_op_to_gl(HWStencilOp op) {
+  switch (op) {
+    case HWStencilOp::DECR_WRAP:
+      return GL_DECR_WRAP;
+    case HWStencilOp::INCR_WRAP:
+      return GL_INCR_WRAP;
+    case HWStencilOp::KEEP:
+      return GL_KEEP;
+    case HWStencilOp::REPLACE:
+      return GL_REPLACE;
+  }
+
+  return 0;
+}
+
 GLPipeline::GLPipeline(void* ctx) : HWPipeline(), ctx_(ctx) {}
 
 GLPipeline::~GLPipeline() {}
@@ -74,19 +104,26 @@ void GLPipeline::UploadIndexBuffer(void* data, size_t data_size) {
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, data_size, data);
 }
 
-void GLPipeline::EnableStencilTest() {}
+void GLPipeline::EnableStencilTest() { GL_CALL(Enable, GL_STENCIL_TEST); }
 
-void GLPipeline::DisableStencilTest() {}
+void GLPipeline::DisableStencilTest() { GL_CALL(Disable, GL_STENCIL_TEST); }
 
-void GLPipeline::DisableColorOutput() {}
+void GLPipeline::DisableColorOutput() { GL_CALL(ColorMask, 0, 0, 0, 0); }
 
-void GLPipeline::EnableColorOutput() {}
+void GLPipeline::EnableColorOutput() { GL_CALL(ColorMask, 1, 1, 1, 1); }
 
-void GLPipeline::UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) {}
+void GLPipeline::UpdateStencilMask(uint8_t write_mask) {
+  GL_CALL(StencilMask, write_mask);
+}
 
-void GLPipeline::UpdateStencilOp(HWStencilOp op) {}
+void GLPipeline::UpdateStencilOp(HWStencilOp op) {
+  GL_CALL(StencilOp, GL_KEEP, GL_KEEP, hw_stencil_op_to_gl(op));
+}
 
-void GLPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value) {}
+void GLPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
+                                   uint32_t compare_mask) {
+  GL_CALL(StencilFunc, hw_stencil_func_to_gl(func), value, compare_mask);
+}
 
 void GLPipeline::DrawIndex(uint32_t start, uint32_t count) {
   GL_CALL(DrawElements, GL_TRIANGLES, count, GL_UNSIGNED_INT,

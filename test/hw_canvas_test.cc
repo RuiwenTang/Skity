@@ -30,9 +30,19 @@ class HWCanvasTest : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setColor(skity::Color_RED);
     paint.setStrokeCap(skity::Paint::kRound_Cap);
+    paint.setStrokeJoin(skity::Paint::kRound_Join);
     paint.setStrokeWidth(20.f);
 
     canvas_->drawLine(100, 100, 400, 200, paint);
+
+    skity::Path path;
+    path.moveTo(100, 50);
+    path.lineTo(300, 60);
+    path.lineTo(150, 120);
+    path.close();
+
+    paint.setColor(skity::ColorSetARGB(128, 0, 0x9D, 0x58));
+    canvas_->drawPath(path, paint);
 
     canvas_->drawRect(skity::Rect::MakeXYWH(300, 300, 50, 50), paint);
 

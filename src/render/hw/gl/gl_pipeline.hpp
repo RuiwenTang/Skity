@@ -50,11 +50,12 @@ class GLPipeline : public HWPipeline {
 
   void DisableColorOutput() override;
 
-  void UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) override;
+  void UpdateStencilMask(uint8_t write_mask) override;
 
   void UpdateStencilOp(HWStencilOp op) override;
 
-  void UpdateStencilFunc(HWStencilFunc func, uint32_t value) override;
+  void UpdateStencilFunc(HWStencilFunc func, uint32_t value,
+                         uint32_t compare_mask) override;
 
   void DrawIndex(uint32_t start, uint32_t count) override;
 

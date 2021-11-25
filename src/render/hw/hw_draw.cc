@@ -64,18 +64,18 @@ void HWDraw::DoStencilIfNeed() {
 
   pipeline_->DisableColorOutput();
   pipeline_->EnableStencilTest();
-  pipeline_->UpdateStencilMask(0x0F, 0x0F);
+  pipeline_->UpdateStencilMask(0x0F);
   pipeline_->SetPipelineMode(HWPipelineMode::kStencil);
-  pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01);
+  pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
 
   if (stencil_front_range_.count > 0) {
-    pipeline_->UpdateStencilOp(HWStencilOp::INC_WRAP);
+    pipeline_->UpdateStencilOp(HWStencilOp::INCR_WRAP);
     pipeline_->DrawIndex(stencil_front_range_.start,
                          stencil_front_range_.count);
   }
 
   if (stencil_back_range_.count > 0) {
-    pipeline_->UpdateStencilOp(HWStencilOp::DESC_WRAP);
+    pipeline_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
     pipeline_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
   }
 
@@ -89,11 +89,11 @@ void HWDraw::DoColorFill() {
   if (has_stencil_discard) {
     pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
     if (has_clip_) {
-      pipeline_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10);
-      pipeline_->UpdateStencilMask(0x0F, 0x1F);
+      pipeline_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
+      pipeline_->UpdateStencilMask(0x0F);
     } else {
-      pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0);
-      pipeline_->UpdateStencilMask(0x0F, 0x0F);
+      pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
+      pipeline_->UpdateStencilMask(0x0F);
     }
   } else {
     pipeline_->DisableStencilTest();

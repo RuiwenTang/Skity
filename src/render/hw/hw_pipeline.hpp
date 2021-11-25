@@ -16,8 +16,8 @@ enum HWPipelineMode {
 };
 
 enum class HWStencilOp {
-  INC_WRAP,
-  DESC_WRAP,
+  INCR_WRAP,
+  DECR_WRAP,
   KEEP,
   REPLACE,
 };
@@ -116,11 +116,12 @@ class HWPipeline {
 
   virtual void DisableColorOutput() = 0;
 
-  virtual void UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) = 0;
+  virtual void UpdateStencilMask(uint8_t write_mask) = 0;
 
   virtual void UpdateStencilOp(HWStencilOp op) = 0;
 
-  virtual void UpdateStencilFunc(HWStencilFunc func, uint32_t value) = 0;
+  virtual void UpdateStencilFunc(HWStencilFunc func, uint32_t value,
+                                 uint32_t compare_mask) = 0;
 
   virtual void DrawIndex(uint32_t start, uint32_t count) = 0;
 };
