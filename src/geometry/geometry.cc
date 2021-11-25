@@ -395,19 +395,4 @@ int32_t IntersectLineLine(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
   }
 }
 
-bool PointInTriangle(Point const& p, Point const& p0, Point const& p1,
-                     Point const& p2) {
-  // https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
-  float dx = p.x - p2.x;
-  float dy = p.y - p2.y;
-  float dx21 = p2.x - p1.x;
-  float dy12 = p1.y - p2.y;
-  float D = dy12 * (p0.x - p2.x) + dx21 * (p0.y - p2.y);
-  float s = dy12 * dx + dx21 * dy;
-  float t = (p2.y - p0.y) * dx + (p0.x - p2.x) * dy;
-
-  if (D < 0.f) return s <= 0.f && t <= 0 && (s + t) >= D;
-  return s >= 0 && t >= 0 && (s + t) <= D;
-}
-
 }  // namespace skity

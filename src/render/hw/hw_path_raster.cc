@@ -116,19 +116,67 @@ void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
 
 void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                                 glm::vec2 const& p3) {
-  if (CalculateOrientation(p1, p2, p3) == Orientation::kLinear) {
+  Orientation orientation = CalculateOrientation(p1, p2, p3);
+  if (orientation == Orientation::kLinear) {
     StrokeLineTo(p1, p3);
     return;
   }
 
-  std::array<glm::vec2, 3> quad = {p1, p2, p3};
-  std::array<glm::vec2, 3> sub_quad1 = {};
-  std::array<glm::vec2, 3> sub_quad2 = {};
+  float stroke_radius = StrokeWidth() * 0.5f;
 
-  SubDividedQuad(quad.data(), sub_quad1.data(), sub_quad2.data());
+  glm::vec2 start_dir = glm::normalize(p2 - p1);
+  glm::vec2 start_vertical_line = glm::vec2{start_dir.y, -start_dir.x};
+  glm::vec2 start_pt1 = p1 + start_vertical_line * stroke_radius;
+  glm::vec2 start_pt2 = p1 - start_vertical_line * stroke_radius;
 
-  StrokeQuadTo(sub_quad1[0], sub_quad1[1], sub_quad1[2]);
-  StrokeQuadTo(sub_quad2[0], sub_quad2[1], sub_quad2[2]);
+  glm::vec2 end_dir = glm::normalize(p3 - p2);
+  glm::vec2 end_vertical_line = glm::vec2{end_dir.y, -end_dir.x};
+  glm::vec2 end_pt1 = p3 + end_vertical_line * stroke_radius;
+  glm::vec2 end_pt2 = p3 - end_vertical_line * stroke_radius;
+
+  glm::vec2 control_dir = glm::normalize(start_dir + end_dir);
+  glm::vec2 control_vertical_line = {control_dir.y, -control_dir.x};
+
+  glm::vec2 outerStart = start_pt1;
+  glm::vec2 outerStartControl = start_pt1 + start_dir;
+  glm::vec2 outerControl;
+  IntersectLineLine(outerStart, outerStartControl, p2,
+                    p2 + control_vertical_line, outerControl);
+
+  glm::vec2 innerStart = start_pt2;
+  glm::vec2 innerStartControl = start_pt2 + start_dir;
+  glm::vec2 innerControl;
+  IntersectLineLine(innerStart, innerStartControl, p2,
+                    p2 - control_vertical_line, innerControl);
+
+  glm::vec2 control_pt1 = outerControl;
+  glm::vec2 control_pt2 = innerControl;
+
+  std::array<glm::vec2, 3> outer_quad{};
+  std::array<glm::vec2, 3> inner_quad{};
+
+  if (orientation == Orientation::kAntiClockWise) {
+    outer_quad[0] = start_pt1;
+    outer_quad[1] = control_pt1;
+    outer_quad[2] = end_pt1;
+
+    inner_quad[0] = start_pt2;
+    inner_quad[1] = control_pt2;
+    inner_quad[2] = end_pt2;
+  } else {
+    inner_quad[0] = start_pt1;
+    inner_quad[1] = control_pt1;
+    inner_quad[2] = end_pt1;
+
+    outer_quad[0] = start_pt2;
+    outer_quad[1] = control_pt2;
+    outer_quad[2] = end_pt2;
+  }
+
+  AppendQuadOrSplitRecursively(outer_quad, inner_quad);
+
+  prev_pt_ = p2;
+  curr_pt_ = p3;
 }
 
 void HWPathRaster::FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
@@ -185,9 +233,6 @@ void HWPathRaster::FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
 void HWPathRaster::HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
                                   float stroke_radius) {
   Orientation orientation = CalculateOrientation(prev_pt_, p1, p2);
-  if (orientation == Orientation::kLinear) {
-    return;
-  }
 
   auto prev_dir = glm::normalize(p1 - prev_pt_);
   auto curr_dir = glm::normalize(p2 - p1);
@@ -197,6 +242,20 @@ void HWPathRaster::HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
 
   glm::vec2 prev_join = {};
   glm::vec2 curr_join = {};
+
+  if (orientation == Orientation::kLinear) {
+    // FIXME to solve no smooth quad line
+    if (CrossProductResult(prev_pt_, p1, p2) < 0) {
+      prev_join = p1 - prev_normal * stroke_radius;
+      curr_join = p1 - current_normal * stroke_radius;
+    } else {
+      prev_join = p1 + prev_normal * stroke_radius;
+      curr_join = p1 + current_normal * stroke_radius;
+    }
+    HandleBevelJoinInternal(p1, prev_join, curr_join,
+                            glm::normalize(prev_dir - curr_dir));
+    return;
+  }
 
   if (orientation == Orientation::kAntiClockWise) {
     prev_join = p1 - prev_normal * stroke_radius;
@@ -278,6 +337,54 @@ void HWPathRaster::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
 
   AppendFrontTriangle(a, b, e);
   AppendFrontTriangle(a, e, c);
+}
+
+void HWPathRaster::AppendQuadOrSplitRecursively(
+    std::array<Vec2, 3> const& outer, std::array<Vec2, 3> const& inner) {
+  if (PointInTriangle(inner[1], outer[0], outer[1], outer[2])) {
+    // overlap need split
+    std::array<Vec2, 3> outer_1;
+    std::array<Vec2, 3> outer_2;
+    std::array<Vec2, 3> inner_1;
+    std::array<Vec2, 3> inner_2;
+    // TODO maybe inner no need to be subdivided
+    SubDividedQuad(outer.data(), outer_1.data(), outer_2.data());
+    SubDividedQuad(inner.data(), inner_1.data(), inner_2.data());
+
+    AppendQuadOrSplitRecursively(outer_1, inner_1);
+    AppendQuadOrSplitRecursively(outer_2, inner_2);
+  } else {
+    // add quad triangle
+    int32_t o_p1 =
+        AppendVertex(outer[0].x, outer[0].y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+    int32_t o_p2 =
+        AppendVertex(outer[1].x, outer[1].y, HW_VERTEX_TYPE_QUAD_IN, 0.5f, 0.f);
+    int32_t o_p3 =
+        AppendVertex(outer[2].x, outer[2].y, HW_VERTEX_TYPE_QUAD_IN, 1.f, 1.f);
+
+    int32_t i_p1 =
+        AppendVertex(inner[0].x, inner[0].y, HW_VERTEX_TYPE_QUAD_OUT, 0.f, 0.f);
+    int32_t i_p2 =
+        AppendVertex(inner[1].x, inner[1].y, HW_VERTEX_TYPE_QUAD_OUT, .5f, 0.f);
+    int32_t i_p3 =
+        AppendVertex(inner[2].x, inner[2].y, HW_VERTEX_TYPE_QUAD_OUT, 1.f, 1.f);
+
+    AppendFrontTriangle(o_p1, o_p2, o_p3);
+    AppendFrontTriangle(i_p1, i_p2, i_p3);
+
+    // add normal triangle
+
+    int32_t on_p1 = AppendLineVertex(outer[0]);
+    int32_t on_p2 = AppendLineVertex(outer[2]);
+
+    int32_t in_p1 = AppendLineVertex(inner[0]);
+    int32_t in_p2 = AppendLineVertex(inner[1]);
+    int32_t in_p3 = AppendLineVertex(inner[2]);
+
+    AppendFrontTriangle(on_p1, in_p1, in_p2);
+    AppendFrontTriangle(on_p1, in_p2, on_p2);
+    AppendFrontTriangle(on_p2, in_p2, in_p3);
+  }
 }
 
 }  // namespace skity

@@ -38,14 +38,7 @@ class HWCanvas : public Canvas {
   void onDrawCircle(float cx, float cy, float radius,
                     Paint const& paint) override;
 
-  void onDrawOval(Rect const& oval, Paint const& paint) override;
-
   void onDrawRect(Rect const& rect, Paint const& paint) override;
-
-  void onDrawRRect(RRect const& rrect, Paint const& paint) override;
-
-  void onDrawRoundRect(Rect const& rect, float rx, float ry,
-                       Paint const& paint) override;
 
   void onClipPath(const Path& path, ClipOp op) override;
 

@@ -161,8 +161,6 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   }
 }
 
-void HWCanvas::onDrawOval(Rect const& oval, Paint const& paint) {}
-
 void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
   Paint work_paint{paint};
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
@@ -200,11 +198,6 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
     draw_ops_.emplace_back(std::move(draw));
   }
 }
-
-void HWCanvas::onDrawRRect(RRect const& rrect, Paint const& paint) {}
-
-void HWCanvas::onDrawRoundRect(Rect const& rect, float rx, float ry,
-                               Paint const& paint) {}
 
 void HWCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
                             const Typeface* typeface, const Paint& paint) {}

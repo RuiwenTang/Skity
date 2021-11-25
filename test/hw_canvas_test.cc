@@ -60,6 +60,12 @@ class HWCanvasTest : public test::TestApp {
     paint.setColor(skity::ColorSetARGB(128, 255, 0x9D, 0x58));
     canvas_->drawCircle(400, 400, 100, paint);
 
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(10.f);
+
+    canvas_->drawRoundRect(skity::Rect::MakeXYWH(500, 200, 100, 100), 30.f,
+                           30.f, paint);
+
     canvas_->flush();
   }
 
