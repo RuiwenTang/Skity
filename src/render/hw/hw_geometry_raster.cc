@@ -140,17 +140,20 @@ std::array<glm::vec2, 4> HWGeometryRaster::ExpandLine(glm::vec2 const& p0,
 }
 
 uint32_t HWGeometryRaster::AppendLineVertex(glm::vec2 const& p) {
+  ExpandBounds(p);
   return mesh_->AppendVertex(p.x, p.y, HW_VERTEX_TYPE_LINE_NORMAL);
 }
 
 uint32_t HWGeometryRaster::AppendCircleVertex(glm::vec2 const& p,
                                               glm::vec2 const& center) {
+  ExpandBounds(p);
   return mesh_->AppendVertex(p.x, p.y, HW_VERTEX_TYPE_CIRCLE, center.x,
                              center.y);
 }
 
 uint32_t HWGeometryRaster::AppendVertex(float x, float y, float mix, float u,
                                         float v) {
+  ExpandBounds({x, y});
   return mesh_->AppendVertex(x, y, mix, u, v);
 }
 
@@ -196,6 +199,18 @@ std::vector<uint32_t>& HWGeometryRaster::CurrentIndexBuffer() {
   }
 
   return color_buffer_;
+}
+
+void HWGeometryRaster::ExpandBounds(glm::vec2 const& p) {
+  if (!bounds_.IsValid()) {
+    bounds_.Set({p.x, p.y, p.x, p.y});
+    return;
+  }
+  // bounds -> {left, top, right, bottom}
+  bounds_->x = std::min(p.x, bounds_->x);  // left
+  bounds_->y = std::min(p.y, bounds_->y);  // top
+  bounds_->z = std::max(p.x, bounds_->z);  // right
+  bounds_->w = std::max(p.y, bounds_->w);  // bottom
 }
 
 void HWGeometryRaster::FillRect(Rect const& rect) {
@@ -251,6 +266,14 @@ void HWGeometryRaster::StrokeRect(Rect const& rect) {
   AppendRect(p2_o_index, p2_i_index, p3_o_index, p3_i_index);
   AppendRect(p3_o_index, p3_i_index, p4_o_index, p4_i_index);
   AppendRect(p4_o_index, p4_i_index, p1_o_index, p1_i_index);
+}
+
+Rect HWGeometryRaster::RasterBounds() const {
+  if (!bounds_.IsValid()) {
+    return Rect{};
+  }
+
+  return Rect::MakeLTRB(bounds_->x, bounds_->y, bounds_->z, bounds_->w);
 }
 
 }  // namespace skity

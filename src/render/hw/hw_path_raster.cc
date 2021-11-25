@@ -6,9 +6,16 @@
 namespace skity {
 
 void HWPathRaster::FillPath(const Path& path) {
+  SetBufferType(BufferType::kStencilFront);
   stroke_ = false;
 
   VisitPath(path, true);
+
+  SetBufferType(BufferType::kColor);
+
+  Rect bounds = RasterBounds();
+
+  FillRect(bounds);
 }
 
 void HWPathRaster::StrokePath(const Path& path) {
@@ -16,11 +23,41 @@ void HWPathRaster::StrokePath(const Path& path) {
   stroke_ = true;
 
   VisitPath(path, false);
+
+  SetBufferType(BufferType::kColor);
+
+  Rect bounds = RasterBounds();
+
+  FillRect(bounds);
 }
 
 void HWPathRaster::OnBeginPath() { ResetRaster(); }
 
-void HWPathRaster::OnEndPath() {}
+void HWPathRaster::OnEndPath() {
+  if (!stroke_) {
+    return;
+  }
+
+  float stroke_radius = StrokeWidth() * 0.5f;
+  if (curr_pt_ == first_pt_) {
+    auto p2 = first_pt_ + first_pt_dir_;
+    HandleLineJoin(first_pt_, p2, stroke_radius);
+    return;
+  }
+
+  auto first_normal = glm::vec2{-first_pt_dir_.y, first_pt_dir_.x};
+
+  HandleLineCap(first_pt_, first_pt_ + first_normal * stroke_radius,
+                first_pt_ - first_normal * stroke_radius, -first_pt_dir_,
+                stroke_radius);
+
+  auto prev_dir = glm::normalize(curr_pt_ - prev_pt_);
+  auto prev_normal = glm::vec2{-prev_dir.y, prev_dir.x};
+
+  HandleLineCap(curr_pt_, curr_pt_ + prev_normal * stroke_radius,
+                curr_pt_ - prev_normal * stroke_radius, prev_dir,
+                stroke_radius);
+}
 
 void HWPathRaster::OnMoveTo(glm::vec2 const& p) {
   first_pt_ = p;
@@ -52,6 +89,8 @@ void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
   if (p1 == first_pt_) {
     // first point
     prev_pt_ = first_pt_;
+    curr_pt_ = p2;
+    first_pt_dir_ = glm::normalize(p2 - p1);
   }
 
   float stroke_width = StrokeWidth();
@@ -72,6 +111,7 @@ void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
 
   // save prev dir
   prev_pt_ = p1;
+  curr_pt_ = p2;
 }
 
 void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
@@ -218,10 +258,26 @@ void HWPathRaster::HandleMiterJoinInternal(Vec2 const& center, Vec2 const& p1,
 
 void HWPathRaster::HandleBevelJoinInternal(Vec2 const& center, Vec2 const& p1,
                                            Vec2 const& p2,
-                                           Vec2 const& curr_dir) {}
+                                           Vec2 const& curr_dir) {
+  auto a = AppendLineVertex(center);
+  auto b = AppendLineVertex(p1);
+  auto c = AppendLineVertex(p2);
+
+  AppendFrontTriangle(a, b, c);
+}
 
 void HWPathRaster::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                            Vec2 const& d1, Vec2 const& p2,
-                                           Vec2 const& d2) {}
+                                           Vec2 const& d2) {
+  Vec2 out_point = center + (d1 - d2) * StrokeWidth() * FloatRoot2Over2;
+
+  auto a = AppendCircleVertex(center, center);
+  auto b = AppendCircleVertex(p1, center);
+  auto c = AppendCircleVertex(p2, center);
+  auto e = AppendCircleVertex(out_point, center);
+
+  AppendFrontTriangle(a, b, e);
+  AppendFrontTriangle(a, e, c);
+}
 
 }  // namespace skity

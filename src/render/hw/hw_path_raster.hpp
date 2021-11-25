@@ -52,6 +52,7 @@ class HWPathRaster : public HWPathVisitor {
   int32_t first_pt_index_ = -1;
   glm::vec2 first_pt_dir_ = {};
   glm::vec2 prev_pt_ = {};
+  glm::vec2 curr_pt_ = {};
 };
 
 }  // namespace skity

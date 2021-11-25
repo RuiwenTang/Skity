@@ -7,6 +7,8 @@
 #include <skity/graphic/paint.hpp>
 #include <vector>
 
+#include "src/utils/lazy.hpp"
+
 namespace skity {
 
 class HWMesh;
@@ -64,8 +66,11 @@ class HWGeometryRaster {
   void FillRect(Rect const& rect);
   void StrokeRect(Rect const& rect);
 
+  Rect RasterBounds() const;
+
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();
+  void ExpandBounds(glm::vec2 const& p);
 
  private:
   HWMesh* mesh_;
@@ -82,6 +87,8 @@ class HWGeometryRaster {
   std::vector<uint32_t> stencil_front_buffer_ = {};
   std::vector<uint32_t> stencil_back_buffer_ = {};
   std::vector<uint32_t> color_buffer_ = {};
+
+  Lazy<glm::vec4> bounds_ = {};
 };
 
 }  // namespace skity

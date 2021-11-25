@@ -117,7 +117,49 @@ void HWCanvas::onDrawCircle(float cx, float cy, float radius,
   draw_ops_.emplace_back(std::move(draw));
 }
 
-void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {}
+void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
+  bool need_fill = paint.getStyle() != Paint::kStroke_Style;
+  bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  Paint working_paint{paint};
+  if (need_fill) {
+    working_paint.setStyle(Paint::kFill_Style);
+
+    HWPathRaster raster{GetMesh(), working_paint};
+
+    raster.FillPath(path);
+    raster.FlushRaster();
+
+    auto draw = GenerateColorOp(working_paint, false);
+
+    draw->SetStencilRange(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()});
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+
+  if (need_stroke) {
+    working_paint.setStyle(Paint::kStroke_Style);
+
+    HWPathRaster raster{GetMesh(), working_paint};
+
+    raster.StrokePath(path);
+    raster.FlushRaster();
+
+    auto draw = GenerateColorOp(working_paint, true);
+
+    draw->SetStrokeWidth(paint.getStrokeWidth());
+
+    draw->SetStencilRange(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()});
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+}
 
 void HWCanvas::onDrawOval(Rect const& oval, Paint const& paint) {}
 
@@ -202,6 +244,7 @@ void HWCanvas::onFlush() {
 
   GetPipeline()->UnBind();
 
+  draw_ops_.clear();
   mesh_->ResetMesh();
 }
 
