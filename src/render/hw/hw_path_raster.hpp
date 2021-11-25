@@ -46,6 +46,9 @@ class HWPathRaster : public HWPathVisitor {
   void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
 
+  void AppendQuadOrSplitRecursively(std::array<Vec2, 3> const& outer,
+                                    std::array<Vec2, 3> const& inner);
+
  private:
   bool stroke_ = false;
   glm::vec2 first_pt_ = {};

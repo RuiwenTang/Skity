@@ -1077,7 +1077,7 @@ Path Path::copyWithScale(float scale) const {
   ret.last_move_to_index_ = last_move_to_index_;
   ret.convexity_ = convexity_;
   ret.first_direction_ = first_direction_;
-  
+
   ret.points_.reserve(this->points_.size());
   for (auto p : this->points_) {
     p.x *= scale;
@@ -1086,7 +1086,8 @@ Path Path::copyWithScale(float scale) const {
   }
 
   ret.conic_weights_.resize(conic_weights_.size());
-  std::memcpy(ret.conic_weights_.data(), conic_weights_.data(), conic_weights_.size() * sizeof(float));
+  std::memcpy(ret.conic_weights_.data(), conic_weights_.data(),
+              conic_weights_.size() * sizeof(float));
   ret.verbs_.resize(verbs_.size());
   std::memcpy(ret.verbs_.data(), verbs_.data(), verbs_.size() * sizeof(Verb));
 
