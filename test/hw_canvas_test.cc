@@ -1,3 +1,4 @@
+#include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
@@ -33,7 +34,25 @@ class HWCanvasTest : public test::TestApp {
     paint.setStrokeJoin(skity::Paint::kRound_Join);
     paint.setStrokeWidth(20.f);
 
+    {
+      skity::Vec4 colors[] = {
+          skity::Vec4{0.f, 1.f, 1.f, 1.f},
+          skity::Vec4{0.f, 0.f, 1.f, 1.f},
+          skity::Vec4{1.f, 0.f, 0.f, 1.f},
+      };
+
+      std::vector<skity::Point> pts = {
+          skity::Point{100.f, 100.f, 0.f, 1.f},
+          skity::Point{400.f, 200.f, 0.f, 1.f},
+      };
+
+      auto lgs = skity::Shader::MakeLinear(pts.data(), colors, nullptr, 3);
+      paint.setShader(lgs);
+    }
+
     canvas_->drawLine(100, 100, 400, 200, paint);
+
+    paint.setShader(nullptr);
 
     skity::Path path;
     path.moveTo(100, 50);
@@ -58,7 +77,20 @@ class HWCanvasTest : public test::TestApp {
     canvas_->restore();
 
     paint.setColor(skity::ColorSetARGB(128, 255, 0x9D, 0x58));
+
+    {
+      skity::Point center{400, 400, 0, 1.f};
+      skity::Vec4 radialColors[] = {skity::Vec4{1.f, 1.f, 1.f, 1.f},
+                                    skity::Vec4{0.f, 0.f, 0.f, 1.f}};
+      float pts[] = {0.f, 1.f};
+      auto rgs =
+          skity::Shader::MakeRadial(center, 120.f, radialColors, nullptr, 2);
+      paint.setShader(rgs);
+    }
+
     canvas_->drawCircle(400, 400, 100, paint);
+
+    paint.setShader(nullptr);
 
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(10.f);

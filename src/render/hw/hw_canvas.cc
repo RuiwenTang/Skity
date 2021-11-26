@@ -62,7 +62,30 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
   auto shader = paint.getShader();
 
   if (shader) {
+    auto pixmap = paint.getShader()->asImage();
+    Shader::GradientInfo gradient_info{};
+    Shader::GradientType gradient_type = shader->asGradient(&gradient_info);
+    if (gradient_type != Shader::kNone) {
+      if (gradient_type == Shader::kLinear) {
+        draw->SetPipelineColorMode(HWPipelineColorMode::kLinearGradient);
+        draw->SetGradientBounds(gradient_info.point[0], gradient_info.point[1]);
+      } else if (gradient_type == Shader::kRadial) {
+        draw->SetGradientBounds(
+            gradient_info.point[0],
+            {gradient_info.radius[0], gradient_info.radius[1]});
+        draw->SetPipelineColorMode(HWPipelineColorMode::kRadialGradient);
+      }
+      // gradient common info
+
+      draw->SetGradientColors(gradient_info.colors);
+      draw->SetGradientPositions(gradient_info.color_offsets);
+    } else if (pixmap) {
+      // TODO HWTexture
+    } else {
+      // unsupport shader type
+    }
   } else {
+    draw->SetPipelineColorMode(HWPipelineColorMode::kUniformColor);
     if (stroke) {
       draw->SetUniformColor(paint.GetStrokeColor());
     } else {

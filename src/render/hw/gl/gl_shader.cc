@@ -176,10 +176,8 @@ void GLPipelineShader::SetGradientCountInfo(int32_t color_count,
   SetUniform2i(gradient_count_location_, counts);
 }
 
-void GLPipelineShader::SetGradientBoundInfo(const glm::vec2& p1,
-                                            const glm::vec2& p2) {
-  glm::vec4 bounds{p1, p2};
-  SetUniform(gradient_bound_location_, bounds);
+void GLPipelineShader::SetGradientBoundInfo(const glm::vec4& info) {
+  SetUniform(gradient_bound_location_, info);
 }
 
 void GLPipelineShader::SetGradientColors(const std::vector<glm::vec4>& colors) {

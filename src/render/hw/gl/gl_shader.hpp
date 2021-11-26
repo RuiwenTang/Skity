@@ -58,7 +58,7 @@ class GLPipelineShader : public GLShader {
   void SetStrokeWidth(float width);
   void SetColorType(int32_t type);
   void SetGradientCountInfo(int32_t color_count, int32_t pos_count);
-  void SetGradientBoundInfo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void SetGradientBoundInfo(glm::vec4 const& info);
   void SetGradientColors(std::vector<glm::vec4> const& colors);
   void SetGradientPostions(std::vector<float> const& pos);
 

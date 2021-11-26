@@ -7,7 +7,7 @@
 
 namespace skity {
 
-enum HWPipelineMode {
+enum HWPipelineColorMode {
   kStencil = 0,
   kUniformColor = 1,
   kImageTexture = 2,
@@ -57,7 +57,7 @@ class HWPipeline {
    * @brief Upload PipelineMode to GPU shader
    *
    */
-  virtual void SetPipelineMode(HWPipelineMode mode) = 0;
+  virtual void SetPipelineColorMode(HWPipelineColorMode mode) = 0;
 
   /**
    * @brief Upload StrokeWidth to GPU shader
@@ -89,14 +89,14 @@ class HWPipeline {
    *
    * @param colors
    */
-  virtual void SetColors(std::vector<Color4f> const& colors) = 0;
+  virtual void SetGradientColors(std::vector<Color4f> const& colors) = 0;
 
   /**
    * @brief Upload gradient positions to GPU shader
    *
    * @param pos
    */
-  virtual void SetPositions(std::vector<float> const& pos) = 0;
+  virtual void SetGradientPositions(std::vector<float> const& pos) = 0;
 
   /**
    * @brief Upload vertex buffer data to GPU

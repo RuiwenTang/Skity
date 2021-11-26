@@ -24,7 +24,7 @@ class GLPipeline : public HWPipeline {
 
   void SetModelMatrix(glm::mat4 const& matrix) override;
 
-  void SetPipelineMode(HWPipelineMode mode) override;
+  void SetPipelineColorMode(HWPipelineColorMode mode) override;
 
   void SetStrokeWidth(float width) override;
 
@@ -34,9 +34,9 @@ class GLPipeline : public HWPipeline {
 
   void SetGradientCountInfo(int32_t color_count, int32_t pos_count) override;
 
-  void SetColors(std::vector<Color4f> const& colors) override;
+  void SetGradientColors(std::vector<Color4f> const& colors) override;
 
-  void SetPositions(std::vector<float> const& pos) override;
+  void SetGradientPositions(std::vector<float> const& pos) override;
 
   void UploadVertexBuffer(void* data, size_t data_size) override;
 

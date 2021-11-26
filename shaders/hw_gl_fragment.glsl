@@ -20,6 +20,9 @@ uniform sampler2D UserTexture;
 // font texture
 uniform sampler2D FontTexture;
 
+// transform matrix
+uniform mat4 UserTransform;
+
 // uniform color set from Paint
 uniform vec4 UserColor;
 // stroke width or circle radius
@@ -41,6 +44,100 @@ in vec2 vPos;
 in vec3 vPosInfo;
 
 out vec4 FragColor;
+
+vec4 lerp_color(float current) {
+  if (current > 1.0) {
+    current = 1.0;
+  }
+
+  int colorCount = GradientCounts[0];
+  int stopCount = GradientCounts[1];
+  int premulAlpha = 0;
+
+  int startIndex = 0;
+  int endIndex = 1;
+
+  float step = 1.0 / (colorCount - 1);
+  int i = 0;
+  float start, end;
+  for (i = 0; i < colorCount - 1; i++) {
+    if (stopCount > 0) {
+      start = GradientStops[i];
+      end = GradientStops[i + 1];
+    } else {
+      start = step * i;
+      end = step * (i + 1);
+    }
+
+    if (current >= start && current <= end) {
+      startIndex = i;
+      endIndex = i + 1;
+      break;
+    }
+  }
+
+  if (i == colorCount - 1 && colorCount > 0) {
+    return GradientColors[colorCount - 1];
+  }
+
+  float total = (end - start);
+  float value = (current - start);
+
+  float mixValue = 0.5;
+  if (total > 0) {
+    mixValue = value / total;
+  }
+
+  vec4 color;
+  if (premulAlpha == 1) {
+    color =
+        mix(vec4(GradientColors[startIndex].xyz * GradientColors[startIndex].w,
+                 GradientColors[startIndex].w),
+            vec4(GradientColors[endIndex].xyz * GradientColors[endIndex].w,
+                 GradientColors[endIndex].w),
+            mixValue);
+  } else {
+    color = mix(GradientColors[startIndex], GradientColors[endIndex], mixValue);
+  }
+
+  return color;
+}
+
+vec4 calculate_radial_color() {
+  vec4 mappedCenter = UserTransform * vec4(GradientBounds.xy, 0.0, 1.0);
+  vec4 currentPoint = UserTransform * vec4(vPos, 0.0, 1.0);
+
+  float mixValue = distance(mappedCenter.xy, currentPoint.xy);
+  return lerp_color(mixValue / GradientBounds.z);
+}
+
+vec4 calculate_linear_color() {
+  vec4 startPointMaped = UserTransform * vec4(GradientBounds.xy, 0.0, 1.0);
+  vec4 endPointMapped = UserTransform * vec4(GradientBounds.zw, 0.0, 1.0);
+  vec4 currentPoint = UserTransform * vec4(vPos, 0.0, 1.0);
+
+  vec2 sc = vec2(currentPoint.x - startPointMaped.x,
+                 currentPoint.y - startPointMaped.y);
+  vec2 se = (endPointMapped - startPointMaped).xy;
+
+  if (sc.x * se.x + sc.y * se.y < 0) {
+    return lerp_color(0.0);
+  }
+
+  float mixValue = dot(sc, se) / length(se);
+  float totalDist = length(se);
+  return lerp_color(mixValue / totalDist);
+}
+
+vec4 calculate_gradient_color() {
+  if (ColorType == PIPELINE_MODE_LINEAR_GRADIENT) {
+    return calculate_linear_color();
+  } else if (ColorType == PIPELINE_MODE_RADIAL_GRADIENT) {
+    return calculate_radial_color();
+  } else {
+    return vec4(1.0, 0.0, 0.0, 1.0);
+  }
+}
 
 void main() {
   int vertex_type = int(vPosInfo.x);
@@ -64,7 +161,12 @@ void main() {
 
   if (ColorType == PIPELINE_MODE_STENCIL) {
     FragColor = vec4(0, 0, 0, 0);
-  } else {
+  } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w);
+  } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE) {
+    // Texture sampler
+    FragColor = texture(UserTexture, vPosInfo.yz);
+  } else {
+    FragColor = calculate_gradient_color();
   }
 }
