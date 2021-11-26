@@ -62,7 +62,7 @@ void GLPipeline::SetModelMatrix(glm::mat4 const& matrix) {
   shader_->SetTransformMatrix(matrix);
 }
 
-void GLPipeline::SetPipelineMode(HWPipelineMode mode) {
+void GLPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {
   int32_t color_type = static_cast<int32_t>(mode);
   shader_->SetColorType(color_type);
 }
@@ -73,13 +73,21 @@ void GLPipeline::SetUniformColor(const glm::vec4& color) {
   shader_->SetUniformColor(color);
 }
 
-void GLPipeline::SetGradientBoundInfo(const glm::vec4& info) {}
+void GLPipeline::SetGradientBoundInfo(const glm::vec4& info) {
+  shader_->SetGradientBoundInfo(info);
+}
 
-void GLPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {}
+void GLPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
+  shader_->SetGradientCountInfo(color_count, pos_count);
+}
 
-void GLPipeline::SetColors(const std::vector<Color4f>& colors) {}
+void GLPipeline::SetGradientColors(const std::vector<Color4f>& colors) {
+  shader_->SetGradientColors(colors);
+}
 
-void GLPipeline::SetPositions(const std::vector<float>& pos) {}
+void GLPipeline::SetGradientPositions(const std::vector<float>& pos) {
+  shader_->SetGradientPostions(pos);
+}
 
 void GLPipeline::UploadVertexBuffer(void* data, size_t data_size) {
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);

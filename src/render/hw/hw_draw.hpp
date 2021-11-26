@@ -23,7 +23,7 @@ class HWDraw {
 
   void Draw();
 
-  void SetPipelineType(uint32_t type);
+  void SetPipelineColorMode(uint32_t mode);
 
   void SetStencilRange(HWDrawRange const& front_range,
                        HWDrawRange const& back_range);
@@ -55,7 +55,7 @@ class HWDraw {
   HWPipeline* pipeline_;
   bool has_clip_;
   bool clip_stencil_;
-  uint32_t pipeline_type_ = 0;
+  uint32_t pipeline_mode_ = 0;
   HWDrawRange stencil_front_range_ = {};
   HWDrawRange stencil_back_range_ = {};
   HWDrawRange color_range_ = {};

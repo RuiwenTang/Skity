@@ -23,7 +23,7 @@ void HWDraw::Draw() {
   }
 }
 
-void HWDraw::SetPipelineType(uint32_t type) { pipeline_type_ = type; }
+void HWDraw::SetPipelineColorMode(uint32_t mode) { pipeline_mode_ = mode; }
 
 void HWDraw::SetStencilRange(HWDrawRange const& front_range,
                              HWDrawRange const& back_range) {
@@ -65,7 +65,7 @@ void HWDraw::DoStencilIfNeed() {
   pipeline_->DisableColorOutput();
   pipeline_->EnableStencilTest();
   pipeline_->UpdateStencilMask(0x0F);
-  pipeline_->SetPipelineMode(HWPipelineMode::kStencil);
+  pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
   pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
 
   if (stencil_front_range_.count > 0) {
@@ -99,9 +99,21 @@ void HWDraw::DoColorFill() {
     pipeline_->DisableStencilTest();
   }
 
-  if (uniform_color_.IsValid()) {
-    pipeline_->SetPipelineMode(HWPipelineMode::kUniformColor);
-    pipeline_->SetUniformColor(*uniform_color_);
+  if (pipeline_mode_ == kUniformColor) {
+    pipeline_->SetPipelineColorMode(HWPipelineColorMode::kUniformColor);
+    if (uniform_color_.IsValid()) {
+      pipeline_->SetUniformColor(*uniform_color_);
+    }
+  } else if (pipeline_mode_ == kLinearGradient ||
+             pipeline_mode_ == kRadialGradient) {
+    pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
+    pipeline_->SetGradientCountInfo(gradient_colors_.size(),
+                                    gradient_stops_.size());
+    pipeline_->SetGradientBoundInfo(*gradient_bounds_);
+    pipeline_->SetGradientColors(gradient_colors_);
+    if (!gradient_stops_.empty()) {
+      pipeline_->SetGradientPositions(gradient_stops_);
+    }
   }
 
   pipeline_->DrawIndex(color_range_.start, color_range_.count);
