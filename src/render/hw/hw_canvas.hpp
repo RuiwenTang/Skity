@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_HW_HW_CANVAS_HPP
 #define SKITY_SRC_RENDER_HW_HW_CANVAS_HPP
 
+#include <map>
 #include <memory>
 #include <skity/geometry/point.hpp>
 #include <skity/render/canvas.hpp>
@@ -8,8 +9,11 @@
 
 #include "src/render/hw/hw_canvas_state.hpp"
 #include "src/render/hw/hw_draw.hpp"
+#include "src/render/hw/hw_texture.hpp"
 
 namespace skity {
+
+class Pixmap;
 
 class HWMesh;
 class HWPipeline;
@@ -29,6 +33,7 @@ class HWCanvas : public Canvas {
   virtual void OnInit(void* ctx) = 0;
 
   virtual HWPipeline* GetPipeline() = 0;
+  virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
 
   void onClipRect(Rect const& rect, ClipOp op) override;
 
@@ -74,7 +79,10 @@ class HWCanvas : public Canvas {
  private:
   std::unique_ptr<HWDraw> GenerateOp();
   std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint,
-                                          bool stroke = false);
+                                          bool stroke = false,
+                                          Rect const& = {});
+
+  HWTexture* QueryTexture(Pixmap* pixmap);
 
  private:
   Matrix mvp_;
@@ -83,6 +91,7 @@ class HWCanvas : public Canvas {
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
+  std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
 };
 
 }  // namespace skity

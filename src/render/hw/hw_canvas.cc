@@ -1,6 +1,7 @@
 #include "src/render/hw/hw_canvas.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <skity/codec/pixmap.hpp>
 
 #include "src/render/hw/gl/gl_canvas.hpp"
 #include "src/render/hw/hw_mesh.hpp"
@@ -57,7 +58,8 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateOp() {
 }
 
 std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
-                                                  bool stroke) {
+                                                  bool stroke,
+                                                  Rect const& bounds) {
   auto draw = GenerateOp();
   auto shader = paint.getShader();
 
@@ -80,7 +82,26 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
       draw->SetGradientColors(gradient_info.colors);
       draw->SetGradientPositions(gradient_info.color_offsets);
     } else if (pixmap) {
-      // TODO HWTexture
+      auto texture = QueryTexture(pixmap.get());
+      draw->SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
+      draw->SetTexture(texture);
+
+      float width =
+          std::min<float>(bounds.width(), static_cast<float>(pixmap->Width()));
+      float height = std::min<float>(bounds.height(),
+                                     static_cast<float>(pixmap->Height()));
+
+      glm::vec2 p1{};
+      glm::vec2 p2{};
+      float x = bounds.left() + (bounds.width() - width) / 2.f;
+      float y = bounds.top() + (bounds.height() - height) / 2.f;
+
+      p1.x = x;
+      p1.y = y;
+      p2.x = x + width;
+      p2.y = y + height;
+
+      draw->SetGradientBounds(p1, p2);
     } else {
       // unsupport shader type
     }
@@ -108,7 +129,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
 
   HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-  auto draw = GenerateColorOp(paint, true);
+  auto draw = GenerateColorOp(paint, true, raster.RasterBounds());
 
   draw->SetStrokeWidth(paint.getStrokeWidth());
   draw->SetColorRange(range);
@@ -133,7 +154,7 @@ void HWCanvas::onDrawCircle(float cx, float cy, float radius,
 
   HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-  auto draw = GenerateColorOp(paint, false);
+  auto draw = GenerateColorOp(paint, false, raster.RasterBounds());
   draw->SetColorRange(range);
   draw->SetStrokeWidth(radius * 2.f);
 
@@ -153,7 +174,7 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
     raster.FillPath(path);
     raster.FlushRaster();
 
-    auto draw = GenerateColorOp(working_paint, false);
+    auto draw = GenerateColorOp(working_paint, false, raster.RasterBounds());
 
     draw->SetStencilRange(
         {raster.StencilFrontStart(), raster.StencilFrontCount()},
@@ -171,7 +192,7 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
     raster.StrokePath(path);
     raster.FlushRaster();
 
-    auto draw = GenerateColorOp(working_paint, true);
+    auto draw = GenerateColorOp(working_paint, true, raster.RasterBounds());
 
     draw->SetStrokeWidth(paint.getStrokeWidth());
 
@@ -198,7 +219,7 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
 
     HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-    auto draw = GenerateColorOp(work_paint, false);
+    auto draw = GenerateColorOp(work_paint, false, raster.RasterBounds());
     draw->SetColorRange(range);
 
     draw_ops_.emplace_back(std::move(draw));
@@ -213,7 +234,7 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
 
     HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-    auto draw = GenerateColorOp(work_paint, false);
+    auto draw = GenerateColorOp(work_paint, false, raster.RasterBounds());
 
     draw->SetStrokeWidth(work_paint.getStrokeWidth());
     draw->SetColorRange(range);
@@ -262,6 +283,30 @@ void HWCanvas::onFlush() {
 
   draw_ops_.clear();
   mesh_->ResetMesh();
+}
+
+HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {
+  auto it = image_texture_store_.find(pixmap);
+
+  if (it != image_texture_store_.end()) {
+    return it->second.get();
+  }
+
+  auto texture = GenerateTexture();
+
+  texture->Init(HWTexture::Type::kColorTexture, HWTexture::Format::kRGBA);
+
+  texture->Bind();
+
+  texture->Resize(pixmap->Width(), pixmap->Height());
+  texture->UploadData(0, 0, pixmap->Width(), pixmap->Height(),
+                      (void*)pixmap->Addr());
+
+  texture->UnBind();
+
+  image_texture_store_[pixmap] = std::move(texture);
+
+  return image_texture_store_[pixmap].get();
 }
 
 }  // namespace skity
