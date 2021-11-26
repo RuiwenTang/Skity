@@ -34,9 +34,23 @@ static GLenum hw_stencil_op_to_gl(HWStencilOp op) {
   return 0;
 }
 
+static GLenum slot_to_gl_texture_unit(uint32_t slot) {
+  switch (slot) {
+    case 0:
+      return GL_TEXTURE0;
+    case 1:
+      return GL_TEXTURE1;
+  }
+
+  return GL_TEXTURE0;
+}
+
 GLPipeline::GLPipeline(void* ctx) : HWPipeline(), ctx_(ctx) {}
 
-GLPipeline::~GLPipeline() {}
+GLPipeline::~GLPipeline() {
+  GL_CALL(DeleteBuffers, buffers_.size(), buffers_.data());
+  GL_CALL(DeleteVertexArrays, 1, &vao_);
+}
 
 void GLPipeline::Init() {
   GLInterface::InitGlobalInterface(ctx_);
@@ -160,5 +174,10 @@ void GLPipeline::BindBuffers() {
 }
 
 void GLPipeline::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
+
+void GLPipeline::BindTexture(HWTexture* /* unused */, uint32_t slot) {
+  GL_CALL(ActiveTexture, slot_to_gl_texture_unit(slot));
+  shader_->SetUserTexture(slot);
+}
 
 }  // namespace skity

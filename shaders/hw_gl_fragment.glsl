@@ -139,6 +139,20 @@ vec4 calculate_gradient_color() {
   }
 }
 
+vec2 calculate_uv() {
+  vec4 mappedLT = vec4(GradientBounds.xy, 0.0, 1.0);
+  vec4 mappedBR = vec4(GradientBounds.zw, 0.0, 1.0);
+
+  vec4 mappedPos = vec4(vPos.xy, 0.0, 1.0);
+
+  float totalX = mappedBR.x - mappedLT.x;
+  float totalY = mappedBR.y - mappedLT.y;
+
+  float vX = (mappedPos.x - mappedLT.x) / totalX;
+  float vY = (mappedPos.y - mappedLT.y) / totalY;
+  return vec2(vX, vY);
+}
+
 void main() {
   int vertex_type = int(vPosInfo.x);
 
@@ -165,7 +179,12 @@ void main() {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w);
   } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE) {
     // Texture sampler
-    FragColor = texture(UserTexture, vPosInfo.yz);
+    vec2 uv = calculate_uv();
+
+    uv.x = clamp(uv.x, 0.0, 1.0);
+
+    uv.y = clamp(uv.y, 0.0, 1.0);
+    FragColor = texture(UserTexture, uv);
   } else {
     FragColor = calculate_gradient_color();
   }

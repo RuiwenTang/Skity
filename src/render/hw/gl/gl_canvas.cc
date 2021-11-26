@@ -1,5 +1,7 @@
 #include "src/render/hw/gl/gl_canvas.hpp"
 
+#include "src/render/hw/gl/gl_texture.hpp"
+
 namespace skity {
 
 GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height)
@@ -11,5 +13,9 @@ void GLCanvas::OnInit(void* ctx) {
 }
 
 HWPipeline* GLCanvas::GetPipeline() { return pipeline_.get(); }
+
+std::unique_ptr<HWTexture> GLCanvas::GenerateTexture() {
+  return std::make_unique<GLTexture>();
+}
 
 }  // namespace skity

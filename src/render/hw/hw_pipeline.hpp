@@ -29,6 +29,8 @@ enum class HWStencilFunc {
   ALWAYS,
 };
 
+class HWTexture;
+
 class HWPipeline {
  public:
   virtual ~HWPipeline() = default;
@@ -124,6 +126,8 @@ class HWPipeline {
                                  uint32_t compare_mask) = 0;
 
   virtual void DrawIndex(uint32_t start, uint32_t count) = 0;
+
+  virtual void BindTexture(HWTexture* texture, uint32_t slot) = 0;
 };
 
 }  // namespace skity

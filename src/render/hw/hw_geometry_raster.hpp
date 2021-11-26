@@ -32,6 +32,8 @@ class HWGeometryRaster {
   uint32_t ColorStart() const { return color_start_; }
   uint32_t ColorCount() const { return color_count_; }
 
+  Rect RasterBounds() const;
+
  protected:
   enum BufferType {
     kStencilFront,
@@ -64,8 +66,6 @@ class HWGeometryRaster {
 
   void FillRect(Rect const& rect);
   void StrokeRect(Rect const& rect);
-
-  Rect RasterBounds() const;
 
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();

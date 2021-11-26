@@ -14,6 +14,7 @@ struct HWDrawRange {
 };
 
 class HWPipeline;
+class HWTexture;
 
 class HWDraw {
  public:
@@ -42,6 +43,8 @@ class HWDraw {
 
   void SetGradientPositions(std::vector<float> const& pos);
 
+  void SetTexture(HWTexture* texture);
+
  protected:
   HWPipeline* GetPipeline() { return pipeline_; }
   bool HasClip() { return has_clip_; }
@@ -65,6 +68,7 @@ class HWDraw {
   Lazy<glm::vec4> gradient_bounds_ = {};
   std::vector<glm::vec4> gradient_colors_ = {};
   std::vector<float> gradient_stops_ = {};
+  HWTexture* texture_ = {};
 };
 
 }  // namespace skity

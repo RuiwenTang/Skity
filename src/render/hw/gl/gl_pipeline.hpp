@@ -59,6 +59,8 @@ class GLPipeline : public HWPipeline {
 
   void DrawIndex(uint32_t start, uint32_t count) override;
 
+  void BindTexture(HWTexture* texture, uint32_t slot) override;
+
  private:
   void InitShader();
   void InitBufferObject();

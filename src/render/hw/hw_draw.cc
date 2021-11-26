@@ -1,6 +1,7 @@
 #include "src/render/hw/hw_draw.hpp"
 
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_texture.hpp"
 
 namespace skity {
 
@@ -56,6 +57,8 @@ void HWDraw::SetGradientColors(std::vector<glm::vec4> const& colors) {
 void HWDraw::SetGradientPositions(std::vector<float> const& pos) {
   gradient_stops_ = pos;
 }
+
+void HWDraw::SetTexture(HWTexture* texture) { texture_ = texture; }
 
 void HWDraw::DoStencilIfNeed() {
   if (stencil_front_range_.count == 0 && stencil_back_range_.count == 0) {
@@ -114,9 +117,20 @@ void HWDraw::DoColorFill() {
     if (!gradient_stops_.empty()) {
       pipeline_->SetGradientPositions(gradient_stops_);
     }
+  } else if (pipeline_mode_ == kImageTexture) {
+    pipeline_->SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
+    texture_->Bind();
+    // slot 0 is font texture
+    // slot 1 is image texture
+    pipeline_->BindTexture(texture_, 1);
+    pipeline_->SetGradientBoundInfo(*gradient_bounds_);
   }
 
   pipeline_->DrawIndex(color_range_.start, color_range_.count);
+
+  if (texture_) {
+    texture_->UnBind();
+  }
 }
 
 void HWDraw::DoStencilBufferMove() {}

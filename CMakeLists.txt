@@ -147,6 +147,7 @@ set(HW_RENDER
     src/render/hw/hw_path_visitor.cc
     src/render/hw/hw_path_visitor.hpp
     src/render/hw/hw_pipeline.hpp
+    src/render/hw/hw_texture.hpp
 )
 
 # hardware GL backend
@@ -159,6 +160,8 @@ set(HW_GL_RENDER
     src/render/hw/gl/gl_pipeline.hpp
     src/render/hw/gl/gl_shader.cc
     src/render/hw/gl/gl_shader.hpp
+    src/render/hw/gl/gl_texture.cc
+    src/render/hw/gl/gl_texture.hpp
 )
 
 set(Skity_src

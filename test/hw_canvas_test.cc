@@ -1,8 +1,12 @@
+#include <skity/codec/codec.hpp>
+#include <skity/codec/data.hpp>
+#include <skity/codec/pixmap.hpp>
 #include <skity/effect/shader.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
 
+#include "skity_config.hpp"
 #include "test/common/test_common.hpp"
 
 class HWCanvasTest : public test::TestApp {
@@ -22,6 +26,17 @@ class HWCanvasTest : public test::TestApp {
 
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
         800, 600, (void*)glfwGetProcAddress);
+
+    auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
+
+    if (skity_data) {
+      auto codec = skity::Codec::MakeFromData(skity_data);
+
+      if (codec) {
+        codec->SetData(skity_data);
+        pixmap_ = codec->Decode();
+      }
+    }
   }
 
   void OnDraw() override {
@@ -72,7 +87,15 @@ class HWCanvasTest : public test::TestApp {
 
     canvas_->rotate(30, 225, 225);
 
+    {
+      if (pixmap_) {
+        auto shader = skity::Shader::MakeShader(pixmap_);
+        paint.setShader(shader);
+      }
+    }
+
     canvas_->drawRect(skity::Rect::MakeXYWH(200, 200, 50, 50), paint);
+    paint.setShader(nullptr);
 
     canvas_->restore();
 
@@ -103,6 +126,7 @@ class HWCanvasTest : public test::TestApp {
 
  private:
   std::unique_ptr<skity::Canvas> canvas_ = {};
+  std::shared_ptr<skity::Pixmap> pixmap_ = {};
 };
 
 int main(int argc, const char** argv) {

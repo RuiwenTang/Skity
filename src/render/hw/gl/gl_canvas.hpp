@@ -16,6 +16,7 @@ class GLCanvas : public HWCanvas {
  protected:
   void OnInit(void* ctx) override;
   HWPipeline* GetPipeline() override;
+  std::unique_ptr<HWTexture> GenerateTexture() override;
 
  private:
   std::unique_ptr<GLPipeline> pipeline_;

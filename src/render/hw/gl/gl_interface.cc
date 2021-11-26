@@ -86,6 +86,7 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(UseProgram);
   GET_PROC(TexParameteri);
   GET_PROC(TexImage2D);
+  GET_PROC(TexSubImage2D);
 }
 
 GLInterface* GLInterface::GlobalInterface() { return g_interface; }

@@ -89,6 +89,7 @@ struct GLInterface {
   PFNGLUSEPROGRAMPROC fUseProgram = nullptr;
   PFNGLTEXPARAMETERIPROC fTexParameteri = nullptr;
   PFNGLTEXIMAGE2DPROC fTexImage2D = nullptr;
+  PFNGLTEXSUBIMAGE2DPROC fTexSubImage2D = nullptr;
 };
 
 }  // namespace skity
