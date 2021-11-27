@@ -128,11 +128,16 @@ class HWCanvasTest : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(2.f);
 
+    degree_ += 1.f;
+    if (degree_ == 360.f) {
+      degree_ = 0.f;
+    }
+
     canvas_->save();
-    canvas_->rotate(30, 570, 440);
+    canvas_->rotate(degree_, 570, 440);
     canvas_->drawPath(clip_path, paint);
     canvas_->clipPath(clip_path);
-    canvas_->rotate(-30, 570, 440);
+    canvas_->rotate(-degree_, 570, 440);
     paint.setStrokeWidth(10.f);
     paint.setColor(skity::ColorSetARGB(64, 255, 0, 0));
     {
@@ -153,6 +158,7 @@ class HWCanvasTest : public test::TestApp {
  private:
   std::unique_ptr<skity::Canvas> canvas_ = {};
   std::shared_ptr<skity::Pixmap> pixmap_ = {};
+  float degree_ = 0.f;
 };
 
 int main(int argc, const char** argv) {

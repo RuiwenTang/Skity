@@ -186,6 +186,7 @@ void main() {
     uv.y = clamp(uv.y, 0.0, 1.0);
     FragColor = texture(UserTexture, uv);
   } else {
-    FragColor = calculate_gradient_color();
+    vec4 g_color = calculate_gradient_color();
+    FragColor = vec4(g_color.xyz * g_color.w, g_color.w);
   }
 }
