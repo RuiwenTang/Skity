@@ -276,4 +276,24 @@ Rect HWGeometryRaster::RasterBounds() const {
   return Rect::MakeLTRB(bounds_->x, bounds_->y, bounds_->z, bounds_->w);
 }
 
+void HWGeometryRaster::SwitchStencilToColor() {
+  if (!stencil_back_buffer_.empty() && !stencil_front_buffer_.empty()) {
+    return;
+  }
+
+  if (!color_buffer_.empty()) {
+    return;
+  }
+
+  if (!stencil_back_buffer_.empty()) {
+    color_buffer_ = stencil_back_buffer_;
+    stencil_back_buffer_.clear();
+  }
+
+  if (!stencil_front_buffer_.empty()) {
+    color_buffer_ = stencil_front_buffer_;
+    stencil_front_buffer_.clear();
+  }
+}
+
 }  // namespace skity

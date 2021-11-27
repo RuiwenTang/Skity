@@ -58,6 +58,8 @@ void HWDraw::SetGradientPositions(std::vector<float> const& pos) {
   gradient_stops_ = pos;
 }
 
+void HWDraw::SetClearStencilClip(bool clear) { clear_stencil_clip_ = clear; }
+
 void HWDraw::SetTexture(HWTexture* texture) { texture_ = texture; }
 
 void HWDraw::DoStencilIfNeed() {
@@ -99,7 +101,13 @@ void HWDraw::DoColorFill() {
       pipeline_->UpdateStencilMask(0x0F);
     }
   } else {
-    pipeline_->DisableStencilTest();
+    if (has_clip_) {
+      pipeline_->EnableStencilTest();
+      pipeline_->UpdateStencilOp(HWStencilOp::KEEP);
+      pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
+    } else {
+      pipeline_->DisableStencilTest();
+    }
   }
 
   if (pipeline_mode_ == kUniformColor) {
@@ -133,6 +141,41 @@ void HWDraw::DoColorFill() {
   }
 }
 
-void HWDraw::DoStencilBufferMove() {}
+void HWDraw::DoStencilBufferMove() {
+  pipeline_->DisableColorOutput();
+  pipeline_->EnableStencilTest();
+  pipeline_->UpdateStencilMask(0xFF);
+  pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
+  if (clear_stencil_clip_) {
+    // clear stencil clip value
+    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);
+  } else {
+    if (stencil_front_range_.count == 0 && stencil_back_range_.count == 0) {
+      // this is a convexity polygon clip and no stencil discard
+      pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x10, 0x0F);
+    } else {
+      // mark bit 9 if lower 8 bit is not zero
+      pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x10, 0x0F);
+    }
+  }
+
+  if (stencil_front_range_.count > 0) {
+    pipeline_->DrawIndex(stencil_front_range_.start,
+                         stencil_front_range_.count);
+  }
+
+  if (stencil_back_range_.count > 0) {
+    pipeline_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
+  }
+
+  if (color_range_.count > 0) {
+    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  }
+
+  pipeline_->UpdateStencilMask(0x0F);
+  pipeline_->UpdateStencilOp(HWStencilOp::KEEP);
+  pipeline_->DisableStencilTest();
+  pipeline_->EnableColorOutput();
+}
 
 }  // namespace skity

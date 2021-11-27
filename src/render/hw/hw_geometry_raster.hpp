@@ -67,6 +67,9 @@ class HWGeometryRaster {
   void FillRect(Rect const& rect);
   void StrokeRect(Rect const& rect);
 
+  // used for convexity polygon
+  void SwitchStencilToColor();
+
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();
   void ExpandBounds(glm::vec2 const& p);

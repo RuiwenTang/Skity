@@ -14,8 +14,10 @@ void HWCanvasState::Save() { PushMatrixStack(); }
 void HWCanvasState::Restore() {
   Matrix prev_matrix = CurrentMatrix();
   PopMatrixStack();
+  PopClipStack();
 
-  matrix_dirty_ = CurrentMatrix() != prev_matrix;
+  // matrix_dirty_ = CurrentMatrix() != prev_matrix;
+  matrix_dirty_ = true;
 }
 
 void HWCanvasState::Translate(float dx, float dy) {
@@ -65,9 +67,39 @@ void HWCanvasState::Concat(const Matrix &matrix) {
   matrix_dirty_ = true;
 }
 
+void HWCanvasState::SaveClipPath(HWDrawRange const &front_range,
+                             HWDrawRange const &back_range,
+                             HWDrawRange const &bound_range,
+                             Matrix const &matrix) {
+
+  ClipStackValue value{};
+  value.stack_depth = matrix_state_.size();
+  value.front_range = front_range;
+  value.back_range = back_range;
+  value.bound_range = bound_range;
+  value.stack_matrix = matrix;
+
+  clip_stack_.emplace_back(value);
+}
+
+bool HWCanvasState::ClipStackEmpty() { return clip_stack_.empty(); }
+
+bool HWCanvasState::NeedRevertClipStencil() {
+  return !clip_stack_.empty() &&
+         clip_stack_.back().stack_depth == matrix_state_.size();
+}
+
+HWCanvasState::ClipStackValue HWCanvasState::CurrentClipStackValue() {
+  if (ClipStackEmpty()) {
+    return ClipStackValue();
+  } else {
+    return clip_stack_.back();
+  }
+}
+
 Matrix HWCanvasState::CurrentMatrix() { return matrix_state_.back(); }
 
-bool HWCanvasState::HasClip() { return false; }
+bool HWCanvasState::HasClip() { return !clip_stack_.empty(); }
 
 bool HWCanvasState::MatrixDirty() { return matrix_dirty_; }
 
@@ -78,5 +110,17 @@ void HWCanvasState::PushMatrixStack() {
 }
 
 void HWCanvasState::PopMatrixStack() { matrix_state_.pop_back(); }
+
+void HWCanvasState::PopClipStack() {
+  if (clip_stack_.empty()) {
+    return;
+  }
+
+  if (clip_stack_.back().stack_depth <= matrix_state_.size()) {
+    return;
+  }
+
+  clip_stack_.pop_back();
+}
 
 }  // namespace skity

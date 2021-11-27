@@ -19,6 +19,8 @@ target_link_libraries(path_test gtest skity)
 add_executable(path_measure_test path_measure_test.cc)
 target_link_libraries(path_measure_test gtest skity)
 
+message("test cmake")
+
 #GLFW
 if (WIN32)
     set(glfw3_DIR "C:/Program Files (x86)/GLFW")

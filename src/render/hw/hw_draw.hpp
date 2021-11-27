@@ -43,6 +43,8 @@ class HWDraw {
 
   void SetGradientPositions(std::vector<float> const& pos);
 
+  void SetClearStencilClip(bool clear);
+
   void SetTexture(HWTexture* texture);
 
  protected:
@@ -58,6 +60,8 @@ class HWDraw {
   HWPipeline* pipeline_;
   bool has_clip_;
   bool clip_stencil_;
+  bool clear_stencil_clip_ = false;
+  uint32_t pipeline_type_ = 0;
   uint32_t pipeline_mode_ = 0;
   HWDrawRange stencil_front_range_ = {};
   HWDrawRange stencil_back_range_ = {};

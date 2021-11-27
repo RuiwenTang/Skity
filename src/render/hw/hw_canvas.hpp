@@ -35,8 +35,6 @@ class HWCanvas : public Canvas {
   virtual HWPipeline* GetPipeline() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
 
-  void onClipRect(Rect const& rect, ClipOp op) override;
-
   void onDrawLine(float x0, float y0, float x1, float y1,
                   Paint const& paint) override;
 
@@ -78,6 +76,7 @@ class HWCanvas : public Canvas {
 
  private:
   std::unique_ptr<HWDraw> GenerateOp();
+
   std::unique_ptr<HWDraw> GenerateColorOp(Paint const& paint,
                                           bool stroke = false,
                                           Rect const& = {});

@@ -439,6 +439,9 @@ class SK_API Path {
   Path copyWithMatrix(Matrix const& matrix) const;
   Path copyWithScale(float scale) const;
 
+  void setConvexityType(ConvexityType type) { convexity_ = type; }
+  ConvexityType getConvexityType() const { return convexity_; }
+
  private:
   void injectMoveToIfNeed();
   void computeBounds() const;
