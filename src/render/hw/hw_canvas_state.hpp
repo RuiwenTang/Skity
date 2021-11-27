@@ -4,10 +4,20 @@
 #include <skity/graphic/path.hpp>
 #include <vector>
 
+#include "src/render/hw/hw_draw.hpp"
+
 namespace skity {
 
 class HWCanvasState {
  public:
+  struct ClipStackValue {
+    uint32_t stack_depth = {};
+    HWDrawRange front_range = {};
+    HWDrawRange back_range = {};
+    HWDrawRange bound_range = {};
+    Matrix stack_matrix = {};
+  };
+
   HWCanvasState();
   ~HWCanvasState() = default;
 
@@ -19,6 +29,19 @@ class HWCanvasState {
   void Rotate(float degree, float px, float py);
   void Concat(Matrix const& matrix);
 
+  void SaveClipPath(HWDrawRange const& front_range,
+                    HWDrawRange const& back_range,
+                    HWDrawRange const& bound_range, Matrix const& matrix);
+
+  bool ClipStackEmpty();
+
+  bool NeedRevertClipStencil();
+
+  bool NeedDoForwardClip() { return forward_clip_; }
+  void ClearForawardClipFlag() { forward_clip_ = false; }
+
+  ClipStackValue CurrentClipStackValue();
+
   Matrix CurrentMatrix();
 
   bool HasClip();
@@ -29,10 +52,13 @@ class HWCanvasState {
  private:
   void PushMatrixStack();
   void PopMatrixStack();
+  void PopClipStack();
 
  private:
   std::vector<Matrix> matrix_state_ = {};
+  std::vector<ClipStackValue> clip_stack_ = {};
   bool matrix_dirty_ = true;
+  bool forward_clip_ = false;
 };
 
 }  // namespace skity

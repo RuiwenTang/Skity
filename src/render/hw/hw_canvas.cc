@@ -117,9 +117,41 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
   return draw;
 }
 
-void HWCanvas::onClipRect(const Rect& rect, ClipOp op) {}
+void HWCanvas::onClipPath(const Path& path, ClipOp op) {
+  // TODO support other ClipOp
+  Paint working_paint;
+  working_paint.setStyle(Paint::kFill_Style);
 
-void HWCanvas::onClipPath(const Path& path, ClipOp op) {}
+  HWPathRaster raster{GetMesh(), working_paint};
+
+  // raster path as normal path fill
+  raster.FillPath(path);
+
+  raster.FlushRaster();
+
+  state_.SaveClipPath({raster.StencilFrontStart(), raster.StencilFrontCount()},
+                      {raster.StencilBackStart(), raster.StencilBackCount()},
+                      {raster.ColorStart(), raster.ColorCount()},
+                      state_.CurrentMatrix());
+
+  auto draw = std::make_unique<HWDraw>(GetPipeline(),
+                                       false,  // no need to handle clip mask
+                                       true);
+
+  if (raster.StencilBackCount() == 0 && raster.StencilFrontCount() == 0) {
+    // this is a convexity polygon
+
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+  } else {
+    draw->SetStencilRange(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()});
+  }
+
+  draw->SetTransformMatrix(state_.CurrentMatrix());
+
+  draw_ops_.emplace_back(std::move(draw));
+}
 
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {
@@ -250,9 +282,41 @@ void HWCanvas::onSave() { state_.Save(); }
 
 void HWCanvas::onRestore() {
   // step 1 check if there is clip path need clean
+  if (state_.NeedRevertClipStencil()) {
+    auto clip_info = state_.CurrentClipStackValue();
+    auto draw = std::make_unique<HWDraw>(GetPipeline(),
+                                         false,  // no need to handle clip mask
+                                         true);
+    draw->SetClearStencilClip(true);
+    draw->SetTransformMatrix(clip_info.stack_matrix);
+
+    if (clip_info.bound_range.count > 0) {
+      draw->SetColorRange(clip_info.bound_range);
+    } else {
+      draw->SetStencilRange(clip_info.front_range, clip_info.back_range);
+    }
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
   // step 2 restore state
   state_.Restore();
   // step 3 check if there is clip path need to apply
+  if (state_.NeedDoForwardClip()) {
+    auto clip_value = state_.CurrentClipStackValue();
+    auto draw = std::make_unique<HWDraw>(GetPipeline(),
+                                         false,  // no need to handle clip mask
+                                         true);
+
+    draw->SetTransformMatrix(clip_value.stack_matrix);
+    if (clip_value.front_range.count == 0 && clip_value.back_range.count == 0) {
+      draw->SetColorRange(clip_value.bound_range);
+    } else {
+      draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
+    }
+
+    draw_ops_.emplace_back(std::move(draw));
+    state_.ClearForawardClipFlag();
+  }
 }
 
 void HWCanvas::onTranslate(float dx, float dy) { state_.Translate(dx, dy); }

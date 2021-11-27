@@ -56,6 +56,8 @@ void Canvas::clipRect(const Rect &rect, ClipOp op) {
 void Canvas::onClipRect(const Rect &rect, ClipOp op) {
   Path path;
   path.addRect(rect);
+  path.setConvexityType(Path::ConvexityType::kConvex);
+
   this->onClipPath(path, op);
 }
 
@@ -202,6 +204,7 @@ void Canvas::onDrawOval(Rect const &oval, Paint const &paint) {
 void Canvas::onDrawRRect(RRect const &rrect, Paint const &paint) {
   Path path;
   path.addRRect(rrect);
+  path.setConvexityType(Path::ConvexityType::kConvex);
 
   this->drawPath(path, paint);
 }

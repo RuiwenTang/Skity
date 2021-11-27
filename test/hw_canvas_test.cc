@@ -115,11 +115,37 @@ class HWCanvasTest : public test::TestApp {
 
     paint.setShader(nullptr);
 
-    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStyle(skity::Paint::kFill_Style);
     paint.setStrokeWidth(10.f);
 
     canvas_->drawRoundRect(skity::Rect::MakeXYWH(500, 200, 100, 100), 30.f,
                            30.f, paint);
+
+    skity::Path clip_path;
+    clip_path.addRect(skity::Rect::MakeXYWH(520, 400, 100, 80));
+
+    paint.setColor(skity::Color_BLUE);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(2.f);
+
+    canvas_->save();
+    canvas_->rotate(30, 570, 440);
+    canvas_->drawPath(clip_path, paint);
+    canvas_->clipPath(clip_path);
+    canvas_->rotate(-30, 570, 440);
+    paint.setStrokeWidth(10.f);
+    paint.setColor(skity::ColorSetARGB(64, 255, 0, 0));
+    {
+      skity::Path temp_path;
+      temp_path.moveTo(500, 380);
+      temp_path.lineTo(600, 450);
+      temp_path.lineTo(600, 400);
+      canvas_->drawPath(temp_path, paint);
+    }
+    canvas_->restore();
+
+    paint.setColor(skity::Color_LTGRAY);
+    canvas_->drawLine(500, 420, 600, 470, paint);
 
     canvas_->flush();
   }

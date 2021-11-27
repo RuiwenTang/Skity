@@ -11,11 +11,15 @@ void HWPathRaster::FillPath(const Path& path) {
 
   VisitPath(path, true);
 
-  SetBufferType(BufferType::kColor);
+  if (path.getConvexityType() == Path::ConvexityType::kConvex) {
+    SwitchStencilToColor();
+  } else {
+    SetBufferType(BufferType::kColor);
 
-  Rect bounds = RasterBounds();
+    Rect bounds = RasterBounds();
 
-  FillRect(bounds);
+    FillRect(bounds);
+  }
 }
 
 void HWPathRaster::StrokePath(const Path& path) {
