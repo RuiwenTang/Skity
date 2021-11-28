@@ -114,6 +114,14 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
     }
   }
 
+  if (!global_alpha_.IsValid()) {
+    global_alpha_.Set(paint.getAlphaF());
+    draw->SetGlobalAlpha(paint.getAlphaF());
+  } else if (*global_alpha_ != paint.getAlphaF()) {
+    global_alpha_.Set(paint.getAlphaF());
+    draw->SetGlobalAlpha(paint.getAlphaF());
+  }
+
   return draw;
 }
 
@@ -347,6 +355,7 @@ void HWCanvas::onFlush() {
 
   draw_ops_.clear();
   mesh_->ResetMesh();
+  global_alpha_.Reset();
 }
 
 HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {

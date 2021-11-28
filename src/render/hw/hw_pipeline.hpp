@@ -110,6 +110,8 @@ class HWPipeline {
 
   virtual void UploadIndexBuffer(void* data, size_t data_size) = 0;
 
+  virtual void SetGlobalAlpha(float alpha) = 0;
+
   virtual void EnableStencilTest() = 0;
 
   virtual void DisableStencilTest() = 0;

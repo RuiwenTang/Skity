@@ -126,6 +126,8 @@ void GLPipeline::UploadIndexBuffer(void* data, size_t data_size) {
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, data_size, data);
 }
 
+void GLPipeline::SetGlobalAlpha(float alpha) { shader_->SetGlobalAlpha(alpha); }
+
 void GLPipeline::EnableStencilTest() { GL_CALL(Enable, GL_STENCIL_TEST); }
 
 void GLPipeline::DisableStencilTest() { GL_CALL(Disable, GL_STENCIL_TEST); }

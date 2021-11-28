@@ -22,7 +22,8 @@ uniform sampler2D FontTexture;
 
 // transform matrix
 uniform mat4 UserTransform;
-
+// global alpha
+uniform float GlobalAlpha;
 // uniform color set from Paint
 uniform vec4 UserColor;
 // stroke width or circle radius
@@ -176,7 +177,7 @@ void main() {
   if (ColorType == PIPELINE_MODE_STENCIL) {
     FragColor = vec4(0, 0, 0, 0);
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
-    FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w);
+    FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w) * GlobalAlpha;
   } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE) {
     // Texture sampler
     vec2 uv = calculate_uv();
@@ -184,9 +185,9 @@ void main() {
     uv.x = clamp(uv.x, 0.0, 1.0);
 
     uv.y = clamp(uv.y, 0.0, 1.0);
-    FragColor = texture(UserTexture, uv);
+    FragColor = texture(UserTexture, uv) * GlobalAlpha;
   } else {
     vec4 g_color = calculate_gradient_color();
-    FragColor = vec4(g_color.xyz * g_color.w, g_color.w);
+    FragColor = vec4(g_color.xyz * g_color.w, g_color.w) * GlobalAlpha;
   }
 }

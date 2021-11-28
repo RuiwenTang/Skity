@@ -10,6 +10,7 @@
 #include "src/render/hw/hw_canvas_state.hpp"
 #include "src/render/hw/hw_draw.hpp"
 #include "src/render/hw/hw_texture.hpp"
+#include "src/utils/lazy.hpp"
 
 namespace skity {
 
@@ -89,6 +90,7 @@ class HWCanvas : public Canvas {
   uint32_t height_;
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
+  Lazy<float> global_alpha_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
 };
