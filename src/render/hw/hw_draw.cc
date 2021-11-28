@@ -16,6 +16,11 @@ void HWDraw::Draw() {
     pipeline_->SetStrokeWidth(*stroke_width_);
   }
 
+  // global alpha
+  if (global_alpha_.IsValid()) {
+    pipeline_->SetGlobalAlpha(*global_alpha_);
+  }
+
   DoStencilIfNeed();
   if (clip_stencil_) {
     DoStencilBufferMove();
@@ -61,6 +66,8 @@ void HWDraw::SetGradientPositions(std::vector<float> const& pos) {
 void HWDraw::SetClearStencilClip(bool clear) { clear_stencil_clip_ = clear; }
 
 void HWDraw::SetTexture(HWTexture* texture) { texture_ = texture; }
+
+void HWDraw::SetGlobalAlpha(float alpha) { global_alpha_.Set(alpha); }
 
 void HWDraw::DoStencilIfNeed() {
   if (stencil_front_range_.count == 0 && stencil_back_range_.count == 0) {

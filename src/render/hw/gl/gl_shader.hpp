@@ -61,6 +61,7 @@ class GLPipelineShader : public GLShader {
   void SetGradientBoundInfo(glm::vec4 const& info);
   void SetGradientColors(std::vector<glm::vec4> const& colors);
   void SetGradientPostions(std::vector<float> const& pos);
+  void SetGlobalAlpha(float alpha);
 
  private:
   int32_t mvp_location_ = -1;
@@ -74,6 +75,7 @@ class GLPipelineShader : public GLShader {
   int32_t gradient_bound_location_ = -1;
   int32_t gradient_colors_location_ = -1;
   int32_t gradient_pos_location_ = -1;
+  int32_t global_alpha_location_ = -1;
 };
 
 }  // namespace skity

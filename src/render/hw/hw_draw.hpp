@@ -47,6 +47,8 @@ class HWDraw {
 
   void SetTexture(HWTexture* texture);
 
+  void SetGlobalAlpha(float alpha);
+
  protected:
   HWPipeline* GetPipeline() { return pipeline_; }
   bool HasClip() { return has_clip_; }
@@ -70,6 +72,7 @@ class HWDraw {
   Lazy<glm::vec4> uniform_color_ = {};
   Lazy<glm::mat4> transform_matrix_ = {};
   Lazy<glm::vec4> gradient_bounds_ = {};
+  Lazy<float> global_alpha_ = {};
   std::vector<glm::vec4> gradient_colors_ = {};
   std::vector<float> gradient_stops_ = {};
   HWTexture* texture_ = {};

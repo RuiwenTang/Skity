@@ -42,6 +42,8 @@ class GLPipeline : public HWPipeline {
 
   void UploadIndexBuffer(void* data, size_t data_size) override;
 
+  void SetGlobalAlpha(float alpha) override;
+
   void EnableStencilTest() override;
 
   void DisableStencilTest() override;

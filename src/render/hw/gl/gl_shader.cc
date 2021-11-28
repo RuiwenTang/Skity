@@ -140,6 +140,7 @@ void GLPipelineShader::InitLocations() {
   gradient_bound_location_ = GetUniformLocation("GradientBounds");
   gradient_colors_location_ = GetUniformLocation("GradientColors");
   gradient_pos_location_ = GetUniformLocation("GradientStops");
+  global_alpha_location_ = GetUniformLocation("GlobalAlpha");
 }
 
 void GLPipelineShader::SetMVP(const Matrix& mvp) {
@@ -187,6 +188,10 @@ void GLPipelineShader::SetGradientColors(const std::vector<glm::vec4>& colors) {
 
 void GLPipelineShader::SetGradientPostions(const std::vector<float>& pos) {
   SetUniform(gradient_pos_location_, (float*)pos.data(), pos.size());
+}
+
+void GLPipelineShader::SetGlobalAlpha(float alpha) {
+  SetUniform(global_alpha_location_, alpha);
 }
 
 }  // namespace skity
