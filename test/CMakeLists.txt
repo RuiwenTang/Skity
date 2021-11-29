@@ -56,12 +56,6 @@ target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(gl_canvas_test gl_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(gl_canvas2_test gl_canvas2_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(gl_canvas2_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
 add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
@@ -73,6 +67,9 @@ target_link_libraries(hw_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(svg_parser_test svg_parser_test.cc)
 target_link_libraries(svg_parser_test skity)
+
+add_executable(texture_atlas_test texture_atlas_test.cc)
+target_link_libraries(texture_atlas_test skity)
 
 if (${FREETYPE_FOUND})
     message(${FREETYPE_INCLUDE_DIRS})
