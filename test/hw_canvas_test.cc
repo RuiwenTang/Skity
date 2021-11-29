@@ -128,8 +128,8 @@ class HWCanvasTest : public test::TestApp {
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(2.f);
 
-    degree_ += 1.f;
-    if (degree_ == 360.f) {
+    degree_ += 0.01f;
+    if (degree_ >= 360.f) {
       degree_ = 0.f;
     }
 

@@ -202,6 +202,9 @@ std::vector<uint32_t>& HWGeometryRaster::CurrentIndexBuffer() {
 }
 
 void HWGeometryRaster::ExpandBounds(glm::vec2 const& p) {
+  if (FloatIsNan(p.x) || FloatIsNan(p.y)) {
+    return;
+  }
   if (!bounds_.IsValid()) {
     bounds_.Set({p.x, p.y, p.x, p.y});
     return;
