@@ -199,6 +199,8 @@ set(Skity_src
         src/graphic/path_measure.hpp
         src/graphic/path_priv.hpp
         src/render/canvas.cc
+        src/render/texture_atlas.cc
+        src/render/texture_atlas.hpp
         src/svg/svg_attribute.cc
         src/svg/svg_attribute.hpp
         src/svg/svg_attribute_parser.cc
