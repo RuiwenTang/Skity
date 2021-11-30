@@ -45,19 +45,26 @@ class Typeface::Impl {
     return ft_typeface_ != nullptr;
   }
 
-  GlyphInfo GetGlyphInfo(GlyphID glyph_id, float font_size) {
+  GlyphInfo GetGlyphInfo(GlyphID glyph_id, float font_size, bool load_path) {
     if (glyph_cache_.count(glyph_id) != 0) {
       // got catch
-      return ScaleInfo(glyph_cache_[glyph_id], font_size);
+      return ScaleInfo(glyph_cache_[glyph_id], font_size, load_path);
     } else {
-      GlyphInfo info = LoadGlyphInfo(glyph_id, font_size);
+      GlyphInfo info = LoadGlyphInfo(glyph_id, font_size, load_path);
       glyph_cache_[glyph_id] = info;
       return info;
     }
   }
 
+  GlyphBitmapInfo getGlyphBitmapInfo(GlyphID glyph_id, float font_size) {
+    auto info = ft_typeface_->LoadGlyphBitmap(glyph_id, font_size);
+
+    return {info.width, info.height, info.buffer};
+  }
+
  private:
-  GlyphInfo ScaleInfo(GlyphInfo const& base_info, float target_font_size) {
+  GlyphInfo ScaleInfo(GlyphInfo const& base_info, float target_font_size,
+                      bool load_path) {
     if (target_font_size == base_info.font_size) {
       return base_info;
     }
@@ -71,12 +78,13 @@ class Typeface::Impl {
     target_info.width = base_info.width * scale;
     target_info.height = base_info.height * scale;
     target_info.font_size = target_font_size;
-
-    target_info.path = base_info.path.copyWithScale(scale);
+    if (load_path) {
+      target_info.path = base_info.path.copyWithScale(scale);
+    }
     return target_info;
   }
 
-  GlyphInfo LoadGlyphInfo(GlyphID glyph_id, float font_size) {
+  GlyphInfo LoadGlyphInfo(GlyphID glyph_id, float font_size, bool load_path) {
     GlyphInfo glyph_info{};
 
     if (!ft_typeface_) {
@@ -84,7 +92,7 @@ class Typeface::Impl {
       return glyph_info;
     }
 
-    auto ft_info = ft_typeface_->LoadGlyph(glyph_id, font_size);
+    auto ft_info = ft_typeface_->LoadGlyph(glyph_id, font_size, load_path);
 
     glyph_info.id = glyph_id;
     glyph_info.path = ft_info.path;
@@ -183,14 +191,21 @@ void Typeface::textToGlyphInfo(const char* text, float font_size,
 }
 
 void Typeface::getGlyphInfo(const std::vector<GlyphID>& glyph_id,
-                            float font_size, std::vector<GlyphInfo>& info) {
+                            float font_size, std::vector<GlyphInfo>& info,
+                            bool load_path) {
   for (auto id : glyph_id) {
-    info.emplace_back(getGlyphInfo(id, font_size));
+    info.emplace_back(getGlyphInfo(id, font_size, load_path));
   }
 }
 
-GlyphInfo Typeface::getGlyphInfo(GlyphID glyph_id, float font_size) {
-  return impl_->GetGlyphInfo(glyph_id, font_size);
+GlyphInfo Typeface::getGlyphInfo(GlyphID glyph_id, float font_size,
+                                 bool load_path) {
+  return impl_->GetGlyphInfo(glyph_id, font_size, load_path);
+}
+
+GlyphBitmapInfo Typeface::getGlyphBitmapInfo(GlyphID glyph_id,
+                                             float font_size) {
+  return impl_->getGlyphBitmapInfo(glyph_id, font_size);
 }
 
 }  // namespace skity

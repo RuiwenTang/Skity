@@ -138,6 +138,7 @@ set(HW_RENDER
     src/render/hw/hw_canvas_state.hpp
     src/render/hw/hw_draw.cc
     src/render/hw/hw_draw.hpp
+    src/render/hw/hw_font_texture.hpp
     src/render/hw/hw_geometry_raster.cc
     src/render/hw/hw_geometry_raster.hpp
     src/render/hw/hw_mesh.cc
@@ -154,6 +155,8 @@ set(HW_RENDER
 set(HW_GL_RENDER
     src/render/hw/gl/gl_canvas.cc
     src/render/hw/gl/gl_canvas.hpp
+    src/render/hw/gl/gl_font_texture.cc
+    src/render/hw/gl/gl_font_texture.hpp
     src/render/hw/gl/gl_interface.cc
     src/render/hw/gl/gl_interface.hpp
     src/render/hw/gl/gl_pipeline.cc
@@ -199,6 +202,8 @@ set(Skity_src
         src/graphic/path_measure.hpp
         src/graphic/path_priv.hpp
         src/render/canvas.cc
+        src/render/text/font_texture.cc
+        src/render/text/font_texture.hpp
         src/render/texture_atlas.cc
         src/render/texture_atlas.hpp
         src/svg/svg_attribute.cc

@@ -21,6 +21,8 @@ class HWGeometryRaster {
   void RasterLine(glm::vec2 const& p0, glm::vec2 const& p1);
   void RasterRect(Rect const& rect);
   void FillCircle(float cx, float cy, float radius);
+  void FillTextRect(glm::vec4 const& bounds, glm::vec2 const& uv_lt,
+                    glm::vec2 const& uv_rb);
 
   void ResetRaster();
   void FlushRaster();

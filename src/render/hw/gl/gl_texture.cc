@@ -6,6 +6,8 @@ namespace skity {
 
 static GLenum hw_texture_format_to_gl(HWTexture::Format format) {
   switch (format) {
+    case HWTexture::Format::kR:
+      return GL_RED;
     case HWTexture::Format::kRGB:
       return GL_RGB;
     case HWTexture::Format::kRGBA:

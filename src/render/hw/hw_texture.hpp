@@ -12,6 +12,7 @@ namespace skity {
 class HWTexture {
  public:
   enum class Format {
+    kR,
     kRGB,
     kRGBA,
   };

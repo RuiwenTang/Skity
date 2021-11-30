@@ -284,7 +284,13 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
 }
 
 void HWCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
-                            const Typeface* typeface, const Paint& paint) {}
+                            Typeface* typeface, const Paint& paint) {
+  bool need_fill = paint.getStyle() != Paint::kStroke_Style;
+  bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  if (need_fill) {
+  }
+}
 
 void HWCanvas::onSave() { state_.Save(); }
 
@@ -374,12 +380,29 @@ HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {
   texture->Resize(pixmap->Width(), pixmap->Height());
   texture->UploadData(0, 0, pixmap->Width(), pixmap->Height(),
                       (void*)pixmap->Addr());
-
+  // can we move this function call ?
   texture->UnBind();
 
   image_texture_store_[pixmap] = std::move(texture);
 
   return image_texture_store_[pixmap].get();
+}
+
+HWFontTexture* HWCanvas::QueryFontTexture(Typeface* typeface) {
+  auto it = font_texture_store_.find(typeface);
+  if (it != font_texture_store_.end()) {
+    return it->second.get();
+  }
+
+  // generate new one
+
+  auto texture = GenerateFontTexture(typeface);
+
+  texture->Init();
+
+  font_texture_store_[typeface] = std::move(texture);
+
+  return font_texture_store_[typeface].get();
 }
 
 }  // namespace skity

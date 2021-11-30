@@ -5,6 +5,8 @@
 #include <locale>
 #include <skity/codec/data.hpp>
 
+#include "src/geometry/math.hpp"
+
 #include FT_OUTLINE_H
 
 namespace skity {
@@ -129,7 +131,8 @@ std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
   return infos;
 }
 
-FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size) {
+FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size,
+                                  bool load_path) {
   FTGlyphInfo info;
   current_font_size_ = font_size;
 
@@ -159,7 +162,9 @@ FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size) {
   info.bearing_y = ft_face_->glyph->metrics.horiBearingY * current_font_size_ /
                    ft_face_->units_per_EM;
 
-  info.path = ExtractOutLine();
+  if (load_path) {
+    info.path = ExtractOutLine();
+  }
 
   return info;
 }
@@ -205,6 +210,29 @@ Path FTTypeFace::ExtractOutLine() {
   path.close();
 
   return path;
+}
+
+FTGlyphBitmapInfo FTTypeFace::LoadGlyphBitmap(GlyphID glyph_id,
+                                              float font_size) {
+  if (!FloatNearlyZero(current_font_size_ - font_size)) {
+    current_font_size_ = font_size;
+    FT_Set_Pixel_Sizes(ft_face_, 0, font_size);
+  }
+
+  FT_UInt c_index = FT_Get_Char_Index(ft_face_, glyph_id);
+
+  if (FT_Load_Glyph(ft_face_, c_index, FT_LOAD_RENDER)) {
+    std::cerr << "Failed to load glyph id: " << glyph_id << std::endl;
+    return {};
+  }
+
+  FTGlyphBitmapInfo info{};
+
+  info.width = ft_face_->glyph->bitmap.width;
+  info.height = ft_face_->glyph->bitmap.rows;
+  info.buffer = ft_face_->glyph->bitmap.buffer;
+
+  return info;
 }
 
 }  // namespace skity

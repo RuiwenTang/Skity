@@ -24,6 +24,12 @@ struct SK_API GlyphInfo {
   float font_size;
 };
 
+struct SK_API GlyphBitmapInfo {
+  float width = {};
+  float height = {};
+  uint8_t* buffer = {};
+};
+
 /**
  * @class Typeface
  *  Helper class to holding Font information used in paint to draw text.
@@ -61,9 +67,12 @@ class SK_API Typeface {
                        std::vector<GlyphInfo>& info);
 
   void getGlyphInfo(std::vector<GlyphID> const& glyph_id, float font_size,
-                    std::vector<GlyphInfo>& info);
+                    std::vector<GlyphInfo>& info, bool load_path = false);
 
-  GlyphInfo getGlyphInfo(GlyphID glyph_id, float font_size);
+  GlyphInfo getGlyphInfo(GlyphID glyph_id, float font_size,
+                         bool load_path = false);
+
+  GlyphBitmapInfo getGlyphBitmapInfo(GlyphID glyph_id, float font_size);
 
  private:
   class Impl;

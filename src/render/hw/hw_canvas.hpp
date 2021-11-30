@@ -9,12 +9,14 @@
 
 #include "src/render/hw/hw_canvas_state.hpp"
 #include "src/render/hw/hw_draw.hpp"
+#include "src/render/hw/hw_font_texture.hpp"
 #include "src/render/hw/hw_texture.hpp"
 #include "src/utils/lazy.hpp"
 
 namespace skity {
 
 class Pixmap;
+class Typeface;
 
 class HWMesh;
 class HWPipeline;
@@ -35,6 +37,8 @@ class HWCanvas : public Canvas {
 
   virtual HWPipeline* GetPipeline() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
+  virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
+      Typeface* typeface) = 0;
 
   void onDrawLine(float x0, float y0, float x1, float y1,
                   Paint const& paint) override;
@@ -48,8 +52,8 @@ class HWCanvas : public Canvas {
 
   void onDrawPath(const Path& path, const Paint& paint) override;
 
-  void onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
-                    const Typeface* typeface, const Paint& paint) override;
+  void onDrawGlyphs(const std::vector<GlyphInfo>& glyphs, Typeface* typeface,
+                    const Paint& paint) override;
 
   void onSave() override;
 
@@ -83,6 +87,7 @@ class HWCanvas : public Canvas {
                                           Rect const& = {});
 
   HWTexture* QueryTexture(Pixmap* pixmap);
+  HWFontTexture* QueryFontTexture(Typeface* typeface);
 
  private:
   Matrix mvp_;
@@ -93,6 +98,7 @@ class HWCanvas : public Canvas {
   Lazy<float> global_alpha_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
+  std::map<Typeface*, std::unique_ptr<HWFontTexture>> font_texture_store_ = {};
 };
 
 }  // namespace skity

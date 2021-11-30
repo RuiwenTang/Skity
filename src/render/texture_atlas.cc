@@ -1,5 +1,6 @@
 #include "src/render/texture_atlas.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <limits>
@@ -156,6 +157,13 @@ void TextureAtlas::Resize(uint32_t new_width, uint32_t new_height) {
                old_data + old_row_size + pixel_size);
 
   std::free(old_data);
+}
+
+glm::vec2 TextureAtlas::CalculateUV(uint32_t x, uint32_t y) {
+  float u = (float)x / (float)width_;
+  float v = (float)y / (float)height_;
+
+  return {u, v};
 }
 
 void TextureAtlas::MergeNodes() {

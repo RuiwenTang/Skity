@@ -67,6 +67,10 @@ void HWDraw::SetClearStencilClip(bool clear) { clear_stencil_clip_ = clear; }
 
 void HWDraw::SetTexture(HWTexture* texture) { texture_ = texture; }
 
+void HWDraw::SetFontTexture(HWTexture* font_texture) {
+  font_texture_ = font_texture;
+}
+
 void HWDraw::SetGlobalAlpha(float alpha) { global_alpha_.Set(alpha); }
 
 void HWDraw::DoStencilIfNeed() {
@@ -115,6 +119,11 @@ void HWDraw::DoColorFill() {
     } else {
       pipeline_->DisableStencilTest();
     }
+  }
+
+  if (font_texture_) {
+    // slot 0 is font texture
+    pipeline_->BindTexture(font_texture_, 0);
   }
 
   if (pipeline_mode_ == kUniformColor) {
