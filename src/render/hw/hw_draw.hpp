@@ -47,6 +47,8 @@ class HWDraw {
 
   void SetTexture(HWTexture* texture);
 
+  void SetFontTexture(HWTexture* font_texture);
+
   void SetGlobalAlpha(float alpha);
 
  protected:
@@ -76,6 +78,7 @@ class HWDraw {
   std::vector<glm::vec4> gradient_colors_ = {};
   std::vector<float> gradient_stops_ = {};
   HWTexture* texture_ = {};
+  HWTexture* font_texture_ = {};
 };
 
 }  // namespace skity

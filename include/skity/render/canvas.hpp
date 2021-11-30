@@ -218,7 +218,7 @@ class SK_API Canvas {
 
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
   virtual void onDrawGlyphs(std::vector<GlyphInfo> const& glyphs,
-                            const Typeface* typeface, Paint const& paint) = 0;
+                            Typeface* typeface, Paint const& paint) = 0;
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
   virtual void onTranslate(float dx, float dy) = 0;
@@ -229,6 +229,8 @@ class SK_API Canvas {
   virtual void onFlush() = 0;
   virtual uint32_t onGetWidth() const = 0;
   virtual uint32_t onGetHeight() const = 0;
+
+  virtual bool needGlyphPath(Paint const& paint);
 
   virtual void onUpdateViewport(uint32_t width, uint32_t height) = 0;
   inline bool isDrawDebugLine() const { return draw_debug_line_; }

@@ -24,6 +24,12 @@ struct FTGlyphInfo {
   float bearing_y;
 };
 
+struct FTGlyphBitmapInfo {
+  float width = {};
+  float height = {};
+  uint8_t* buffer = {};
+};
+
 class FTLibrary final {
   friend class FTTypeFace;
 
@@ -46,7 +52,8 @@ class FTTypeFace final {
 
   std::vector<FTGlyphInfo> LoadGlyph(const char* text, float fontSize,
                                      float canvasWidth, float canvasHeight);
-  FTGlyphInfo LoadGlyph(GlyphID glyph_id, float font_size);
+  FTGlyphInfo LoadGlyph(GlyphID glyph_id, float font_size, bool load_path);
+  FTGlyphBitmapInfo LoadGlyphBitmap(GlyphID glyph_id, float font_size);
 
  private:
   void FilpOutline();

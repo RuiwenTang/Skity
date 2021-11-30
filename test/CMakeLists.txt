@@ -71,6 +71,9 @@ target_link_libraries(svg_parser_test skity)
 add_executable(texture_atlas_test texture_atlas_test.cc)
 target_link_libraries(texture_atlas_test skity)
 
+add_executable(font_texture_test font_texture_test.cc)
+target_link_libraries(font_texture_test skity)
+
 if (${FREETYPE_FOUND})
     message(${FREETYPE_INCLUDE_DIRS})
     add_executable(freetype_path_test freetype_path_test.cc)

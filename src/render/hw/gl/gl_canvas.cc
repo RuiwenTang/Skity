@@ -1,5 +1,6 @@
 #include "src/render/hw/gl/gl_canvas.hpp"
 
+#include "src/render/hw/gl/gl_font_texture.hpp"
 #include "src/render/hw/gl/gl_texture.hpp"
 
 namespace skity {
@@ -16,6 +17,11 @@ HWPipeline* GLCanvas::GetPipeline() { return pipeline_.get(); }
 
 std::unique_ptr<HWTexture> GLCanvas::GenerateTexture() {
   return std::make_unique<GLTexture>();
+}
+
+std::unique_ptr<HWFontTexture> GLCanvas::GenerateFontTexture(
+    Typeface* typeface) {
+  return std::make_unique<GLFontTexture>(typeface);
 }
 
 }  // namespace skity

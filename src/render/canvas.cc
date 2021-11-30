@@ -142,7 +142,8 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
 
   this->translate(x, y);
 
-  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
+  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs,
+                                  needGlyphPath(paint));
 
   this->onDrawGlyphs(glyphs, default_typeface_.get(), paint);
 
@@ -225,6 +226,10 @@ void Canvas::onDrawRoundRect(Rect const &rect, float rx, float ry,
   } else {
     this->drawRect(rect, paint);
   }
+}
+
+bool Canvas::needGlyphPath(Paint const &paint) {
+  return paint.getStyle() != Paint::kFill_Style;
 }
 
 }  // namespace skity

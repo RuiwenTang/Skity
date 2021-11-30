@@ -14,6 +14,8 @@ enum {
   // quad fill, this used for path fill with quad, or maybe path stroke
   HW_VERTEX_TYPE_QUAD_IN = 3,
   HW_VERTEX_TYPE_QUAD_OUT = 4,
+  // text fill,
+  HW_VERTEX_TYPE_TEXT = 5,
 };
 
 struct HWVertex {

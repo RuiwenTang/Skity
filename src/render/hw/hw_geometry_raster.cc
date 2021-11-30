@@ -58,6 +58,29 @@ void HWGeometryRaster::FillCircle(float cx, float cy, float radius) {
   AppendRect(a, b, c, d);
 }
 
+void HWGeometryRaster::FillTextRect(const glm::vec4& bounds,
+                                    const glm::vec2& uv_lt,
+                                    const glm::vec2& uv_rb) {
+  glm::vec2 left_top = {bounds.x, bounds.y};
+  glm::vec2 left_bottom = {bounds.x, bounds.w};
+  glm::vec2 top_right = {bounds.z, left_top.y};
+  glm::vec2 right_bottom = {bounds.z, bounds.w};
+
+  glm::vec2 uv_tr = {uv_rb.x, uv_lt.y};
+  glm::vec2 uv_lb = {uv_lt.x, uv_rb.y};
+
+  auto a = AppendVertex(left_top.x, left_top.y, HW_VERTEX_TYPE_TEXT, uv_lt.x,
+                        uv_lt.y);
+  auto b = AppendVertex(left_bottom.x, left_bottom.y, HW_VERTEX_TYPE_TEXT,
+                        uv_lb.x, uv_lb.y);
+  auto c = AppendVertex(top_right.x, top_right.y, HW_VERTEX_TYPE_TEXT, uv_tr.x,
+                        uv_tr.y);
+  auto d = AppendVertex(right_bottom.x, right_bottom.y, HW_VERTEX_TYPE_TEXT,
+                        uv_rb.x, uv_rb.y);
+
+  AppendRect(a, b, c, d);
+}
+
 void HWGeometryRaster::ResetRaster() {
   stencil_front_buffer_.clear();
   stencil_back_buffer_.clear();

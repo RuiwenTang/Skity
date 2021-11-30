@@ -54,6 +54,18 @@ class TextureAtlas {
    */
   void Resize(uint32_t new_width, uint32_t new_height);
 
+  /**
+   * @brief   Calculate texture uv coordinate
+   *
+   * @param x
+   * @param y
+   * @return glm::vec2
+   */
+  glm::vec2 CalculateUV(uint32_t x, uint32_t y);
+
+  uint32_t Width() const { return width_; }
+  uint32_t Height() const { return height_; }
+
  protected:
   virtual void OnUploadRegion(uint32_t x, uint32_t y, uint32_t width,
                               uint32_t height, uint8_t* data) {}
