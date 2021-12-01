@@ -54,7 +54,9 @@ std::unique_ptr<skity::SVGDom> init_simple_svg() {
 }
 
 int main(int argc, const char** argv) {
-  GLFWwindow* window = init_glfw_window(800, 800, "SKITY render example");
+  int32_t width = 800;
+  int32_t height = 800;
+  GLFWwindow* window = init_glfw_window(width, height, "SKITY render example");
 
   glClearColor(0.3f, 0.4f, 0.5f, 1.f);
   glClearStencil(0x0);
@@ -69,8 +71,14 @@ int main(int argc, const char** argv) {
   // auto canvas =
   //     skity::Canvas::MakeGLCanvas2(0, 0, 1000, 1000,
   //     (void*)glfwGetProcAddress);
+
+  int32_t pp_width, pp_height;
+  glfwGetFramebufferSize(window, &pp_width, &pp_height);
+
+  float density = (float)(pp_width * pp_width + pp_height * pp_height) /
+                  (float)(width * width + height * height);
   auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
-      1000, 1000, (void*)glfwGetProcAddress);
+      1000, 1000, density, (void*)glfwGetProcAddress);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

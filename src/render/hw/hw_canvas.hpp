@@ -27,7 +27,7 @@ class HWPipeline;
  */
 class HWCanvas : public Canvas {
  public:
-  HWCanvas(Matrix mvp, uint32_t width, uint32_t height);
+  HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density);
   ~HWCanvas() override;
 
   void Init(void* ctx);
@@ -93,6 +93,7 @@ class HWCanvas : public Canvas {
   Matrix mvp_;
   uint32_t width_;
   uint32_t height_;
+  float density_ = 1.f;
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   Lazy<float> global_alpha_ = {};

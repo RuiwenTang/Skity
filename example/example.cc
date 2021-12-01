@@ -256,7 +256,9 @@ void draw_canvas(skity::Canvas* canvas,
 }
 
 int main(int argc, const char** argv) {
-  GLFWwindow* window = init_glfw_window(800, 800, "SKITY render example");
+  int32_t width = 800;
+  int32_t height = 800;
+  GLFWwindow* window = init_glfw_window(width, height, "SKITY render example");
 
   glClearColor(1.f, 1.f, 1.f, 1.f);
   glClearStencil(0x0);
@@ -266,8 +268,14 @@ int main(int argc, const char** argv) {
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_STENCIL_TEST);
 
+  int32_t pp_width, pp_height;
+  glfwGetFramebufferSize(window, &pp_width, &pp_height);
+
+  float density = (float)(pp_width * pp_width + pp_height * pp_height) /
+                  (float)(width * width + height * height);
+
   auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
-      800, 800, (void*)glfwGetProcAddress);
+      800, 800, density, (void*)glfwGetProcAddress);
 
   std::shared_ptr<skity::Pixmap> pixmap;
   if (argc >= 2) {

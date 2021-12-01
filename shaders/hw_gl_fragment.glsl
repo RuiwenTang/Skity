@@ -14,6 +14,7 @@
 #define VERTEX_TYPE_CIRCLE 2
 #define VERTEX_TYPE_QUAD_IN 3
 #define VERTEX_TYPE_QUAD_OUT 4
+#define VERTEX_TYPE_TEXT 5
 
 // image texture
 uniform sampler2D UserTexture;
@@ -189,5 +190,10 @@ void main() {
   } else {
     vec4 g_color = calculate_gradient_color();
     FragColor = vec4(g_color.xyz * g_color.w, g_color.w) * GlobalAlpha;
+  }
+
+  if (vertex_type == VERTEX_TYPE_TEXT) {
+    float r = texture(FontTexture, vec2(vPosInfo.y, vPosInfo.z)).r;
+    FragColor = FragColor * r;
   }
 }

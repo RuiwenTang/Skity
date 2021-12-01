@@ -60,6 +60,8 @@ void GLPipeline::Init() {
 
 void GLPipeline::Bind() {
   shader_->Bind();
+  shader_->SetUserTexture(0);
+  shader_->SetFontTexture(1);
   BindBuffers();
 }
 
@@ -179,7 +181,6 @@ void GLPipeline::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
 
 void GLPipeline::BindTexture(HWTexture* /* unused */, uint32_t slot) {
   GL_CALL(ActiveTexture, slot_to_gl_texture_unit(slot));
-  shader_->SetUserTexture(slot);
 }
 
 }  // namespace skity

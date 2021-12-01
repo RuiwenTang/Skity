@@ -11,23 +11,24 @@
 namespace skity {
 
 std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(
-    uint32_t width, uint32_t height, void* process_loader) {
+    uint32_t width, uint32_t height, float density, void* process_loader) {
   // TODO make vk_canvas
   auto mvp = glm::ortho<float>(0, width, height, 0);
 
   std::unique_ptr<HWCanvas> canvas =
-      std::make_unique<GLCanvas>(mvp, width, height);
+      std::make_unique<GLCanvas>(mvp, width, height, density);
 
   canvas->Init(process_loader);
 
   return canvas;
 }
 
-HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height)
+HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
     : Canvas(),
       mvp_(mvp),
       width_(width),
       height_(height),
+      density_(density),
       mesh_(std::make_unique<HWMesh>()) {}
 
 HWCanvas::~HWCanvas() = default;
@@ -288,7 +289,87 @@ void HWCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
 
+  float offset_x = 0.f;
+  float max_height = 0.f;
   if (need_fill) {
+    Paint working_paint{paint};
+    working_paint.setStyle(Paint::kFill_Style);
+
+    auto font_texture = QueryFontTexture(typeface);
+    HWPathRaster raster{GetMesh(), working_paint};
+
+    for (auto const& info : glyphs) {
+      auto region =
+          font_texture->GetGlyphRegion(info.id, info.font_size * density_);
+      float x = offset_x + info.bearing_x;
+      float y = -info.ascent;
+      float w = region.z / density_;
+      float h = region.w / density_;
+
+      max_height = std::max(h, max_height);
+
+      offset_x += info.advance_x;
+
+      if (h == 0) {
+        continue;
+      }
+
+      glm::vec4 bounds = {x, y, x + w, y + h};
+      glm::vec2 uv_lt = font_texture->CalculateUV(region.x, region.y);
+      glm::vec2 uv_rb =
+          font_texture->CalculateUV(region.x + region.z, region.y + region.w);
+
+      raster.FillTextRect(bounds, uv_lt, uv_rb);
+    }
+
+    raster.FlushRaster();
+
+    auto draw =
+        GenerateColorOp(working_paint, false,
+                        skity::Rect::MakeXYWH(0.f, 0.f, offset_x, max_height));
+
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+    draw->SetFontTexture(font_texture->GetHWTexture());
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+
+  offset_x = 0.f;
+  max_height = 0.f;
+
+  if (need_stroke) {
+    Paint working_paint{paint};
+    working_paint.setStyle(Paint::kStroke_Style);
+
+    for (auto const& info : glyphs) {
+      HWPathRaster raster{GetMesh(), working_paint};
+      glm::mat4 transform =
+          glm::translate(glm::identity<glm::mat4>(), {offset_x, 0.f, 0.f});
+
+      Path path = info.path.copyWithMatrix(transform);
+
+      offset_x += info.advance_x;
+
+      if (path.isEmpty()) {
+        continue;
+      }
+
+      Rect bounds = path.getBounds();
+      max_height = std::max(max_height, bounds.height());
+
+      raster.StrokePath(path);
+      raster.FlushRaster();
+
+      auto draw = GenerateColorOp(working_paint, true,
+                                  Rect::MakeXYWH(0, 0, offset_x, max_height));
+
+      draw->SetStencilRange(
+          {raster.StencilFrontStart(), raster.StencilFrontCount()},
+          {raster.StencilBackStart(), raster.StencilBackCount()});
+      draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+
+      draw_ops_.emplace_back(std::move(draw));
+    }
   }
 }
 

@@ -25,7 +25,7 @@ class HWCanvasTest : public test::TestApp {
     glStencilMask(0xFF);
 
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
-        800, 600, (void*)glfwGetProcAddress);
+        800, 600, Density(), (void*)glfwGetProcAddress);
 
     auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
 
@@ -151,6 +151,15 @@ class HWCanvasTest : public test::TestApp {
 
     paint.setColor(skity::Color_LTGRAY);
     canvas_->drawLine(500, 420, 600, 470, paint);
+
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setTextSize(20.f);
+    canvas_->drawSimpleText2("12ATx", 500, 300, paint);
+
+    paint.setColor(skity::Color_GREEN);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(2.f);
+    canvas_->drawLine(500, 300, 600, 300, paint);
 
     canvas_->flush();
   }

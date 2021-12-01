@@ -37,7 +37,7 @@ int main(int argc, const char** argv) {
   for (auto const& region : regions) {
     glm::vec4 uv = {
         font_texture.CalculateUV(region.x, region.y),
-        font_texture.CalculateUV(region.z, region.w),
+        font_texture.CalculateUV(region.x + region.z, region.y + region.w),
     };
 
     regions_uv.emplace_back(uv);

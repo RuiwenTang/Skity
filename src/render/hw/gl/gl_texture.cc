@@ -36,6 +36,9 @@ void GLTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  if (format == HWTexture::Format::kR) {
+    GL_CALL(PixelStorei, GL_UNPACK_ALIGNMENT, 1);
+  }
 
   UnBind();
 }

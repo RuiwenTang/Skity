@@ -15,6 +15,7 @@ TextureAtlas::TextureAtlas(uint32_t width, uint32_t height, uint32_t depth)
   nodes_.emplace_back(node);
   modified_ = true;
   data_ = (uint8_t *)std::malloc(width * height * depth * sizeof(uint8_t));
+  std::memset(data_, 0, width * height * depth * sizeof(uint8_t));
 }
 
 TextureAtlas::~TextureAtlas() {
