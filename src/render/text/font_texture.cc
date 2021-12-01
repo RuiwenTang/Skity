@@ -30,7 +30,7 @@ glm::ivec4 FontTexture::GenerateGlyphRegion(GlyphKey const& key) {
     uint32_t width = Width();
     uint32_t height = Height();
 
-    Resize(width, height);
+    Resize(width * 2.f, height * 2.f);
 
     region = AllocateRegion(bitmap_info.width, bitmap_info.height);
   }
