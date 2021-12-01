@@ -47,6 +47,9 @@ class Typeface::Impl {
 
   GlyphInfo GetGlyphInfo(GlyphID glyph_id, float font_size, bool load_path) {
     if (glyph_cache_.count(glyph_id) != 0) {
+      if (load_path && glyph_cache_[glyph_id].path.isEmpty()) {
+        glyph_cache_[glyph_id] = LoadGlyphInfo(glyph_id, font_size, true);
+      }
       // got catch
       return ScaleInfo(glyph_cache_[glyph_id], font_size, load_path);
     } else {
@@ -100,6 +103,7 @@ class Typeface::Impl {
     glyph_info.advance_y = ft_info.advance_y;
     glyph_info.ascent = ft_info.bearing_y;
     glyph_info.descent = glyph_info.height - glyph_info.ascent;
+    glyph_info.bearing_x = ft_info.bearing_x;
 
     glyph_info.font_size = font_size;
 

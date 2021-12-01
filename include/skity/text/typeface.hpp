@@ -22,6 +22,7 @@ struct SK_API GlyphInfo {
   float width;
   float height;
   float font_size;
+  float bearing_x;
 };
 
 struct SK_API GlyphBitmapInfo {

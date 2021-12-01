@@ -96,6 +96,13 @@ void TestApp::Init() {
   glfwSetWindowUserPointer(window_, this);
   glfwSetWindowSizeCallback(window_, framebuffer_size_callback);
   glfwMakeContextCurrent(window_);
+
+  int32_t pp_width, pp_height;
+  glfwGetFramebufferSize(window_, &pp_width, &pp_height);
+
+  density_ =
+      (float)(pp_width * pp_width + pp_height * pp_height) /
+      (float)(window_width_ * window_width_ + window_height_ * window_height_);
   this->OnInit();
 }
 

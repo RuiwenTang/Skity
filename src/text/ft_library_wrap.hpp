@@ -62,9 +62,9 @@ class FTTypeFace final {
  private:
   FTLibrary* ft_library_wrap_;
   FT_Face ft_face_;
-  float current_font_size_;
-  float current_screen_width_;
-  float current_screen_height_;
+  float current_font_size_ = {};
+  float current_screen_width_ = {};
+  float current_screen_height_ = {};
 };
 
 }  // namespace skity

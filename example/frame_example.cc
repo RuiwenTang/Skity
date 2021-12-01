@@ -121,8 +121,14 @@ int main(int argc, const char** argv) {
   glClearStencil(0x00);
   glStencilMask(0xFF);
 
+  int32_t pp_width, pp_height;
+  glfwGetFramebufferSize(window, &pp_width, &pp_height);
+
+  float density = (float)(pp_width * pp_width + pp_height * pp_height) /
+                  (float)(width * width + height * height);
+
   auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
-      width, height, (void*)glfwGetProcAddress);
+      width, height, density, (void*)glfwGetProcAddress);
 
   std::vector<std::shared_ptr<skity::Pixmap>> images{};
   load_images(images);
@@ -151,11 +157,11 @@ int main(int argc, const char** argv) {
     render_frame_demo(canvas.get(), images, svg_dom.get(), mx, my, width,
                       height, t);
 
+    cpuTime = glfwGetTime() - t;
     fpsGraph.RenderGraph(canvas.get(), 5, 5);
     cpuGraph.RenderGraph(canvas.get(), 5 + 200 + 5, 5);
     canvas->flush();
 
-    cpuTime = glfwGetTime() - t;
     fpsGraph.UpdateGraph(dt);
     cpuGraph.UpdateGraph(cpuTime);
 

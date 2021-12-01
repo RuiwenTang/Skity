@@ -21,6 +21,7 @@ class TestApp {
   virtual void OnInit() = 0;
   virtual void OnDraw() = 0;
   virtual void OnWindowSizeUpdate(uint32_t width, uint32_t height) {}
+  float Density() { return density_; }
 
  private:
   void Init();
@@ -29,6 +30,7 @@ class TestApp {
  private:
   uint32_t window_width_;
   uint32_t window_height_;
+  float density_ = 1.f;
   GLFWwindow* window_;
 };
 

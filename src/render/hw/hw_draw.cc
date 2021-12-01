@@ -122,8 +122,9 @@ void HWDraw::DoColorFill() {
   }
 
   if (font_texture_) {
-    // slot 0 is font texture
-    pipeline_->BindTexture(font_texture_, 0);
+    // slot 1 is font texture
+    pipeline_->BindTexture(font_texture_, 1);
+    font_texture_->Bind();
   }
 
   if (pipeline_mode_ == kUniformColor) {
@@ -144,9 +145,10 @@ void HWDraw::DoColorFill() {
   } else if (pipeline_mode_ == kImageTexture) {
     pipeline_->SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
     texture_->Bind();
-    // slot 0 is font texture
-    // slot 1 is image texture
-    pipeline_->BindTexture(texture_, 1);
+    // slot 0 is image texture
+    // slot 1 is font texture
+    pipeline_->BindTexture(texture_, 0);
+    texture_->Bind();
     pipeline_->SetGradientBoundInfo(*gradient_bounds_);
   }
 

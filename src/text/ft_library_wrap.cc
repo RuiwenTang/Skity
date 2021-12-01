@@ -134,7 +134,10 @@ std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
 FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size,
                                   bool load_path) {
   FTGlyphInfo info;
-  current_font_size_ = font_size;
+  if (!FloatNearlyZero(current_font_size_ - font_size)) {
+    current_font_size_ = font_size;
+    FT_Set_Pixel_Sizes(ft_face_, 0, font_size);
+  }
 
   info.glyph_id = glyph_id;
 
