@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/codec/pixmap.hpp>
+#include <skity/effect/path_effect.hpp>
 
 #include "src/render/hw/gl/gl_canvas.hpp"
 #include "src/render/hw/hw_mesh.hpp"
@@ -164,6 +165,11 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
 
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {
+  if (paint.getPathEffect()) {
+    Canvas::onDrawLine(x0, y0, x1, y1, paint);
+    return;
+  }
+
   HWPathRaster raster(GetMesh(), paint);
   raster.RasterLine({x0, y0}, {x1, y1});
   raster.FlushRaster();
@@ -211,8 +217,13 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
     working_paint.setStyle(Paint::kFill_Style);
 
     HWPathRaster raster{GetMesh(), working_paint};
-
-    raster.FillPath(path);
+    Path dst;
+    if (paint.getPathEffect() &&
+        paint.getPathEffect()->filterPath(&dst, path, false, working_paint)) {
+      raster.FillPath(dst);
+    } else {
+      raster.FillPath(path);
+    }
     raster.FlushRaster();
 
     auto draw = GenerateColorOp(working_paint, false, raster.RasterBounds());
@@ -230,7 +241,14 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
 
     HWPathRaster raster{GetMesh(), working_paint};
 
-    raster.StrokePath(path);
+    Path dst;
+    if (paint.getPathEffect() &&
+        paint.getPathEffect()->filterPath(&dst, path, true, working_paint)) {
+      raster.StrokePath(dst);
+    } else {
+      raster.StrokePath(path);
+    }
+
     raster.FlushRaster();
 
     auto draw = GenerateColorOp(working_paint, true, raster.RasterBounds());
