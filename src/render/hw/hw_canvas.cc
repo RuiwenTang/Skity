@@ -4,6 +4,7 @@
 #include <skity/codec/pixmap.hpp>
 #include <skity/effect/path_effect.hpp>
 
+#include "src/geometry/math.hpp"
 #include "src/render/hw/gl/gl_canvas.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 #include "src/render/hw/hw_path_raster.hpp"
@@ -211,6 +212,10 @@ void HWCanvas::onDrawCircle(float cx, float cy, float radius,
 void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  if (FloatNearlyZero(paint.getAlphaF())) {
+    return;
+  }
 
   Paint working_paint{paint};
   if (need_fill) {

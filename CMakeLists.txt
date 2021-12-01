@@ -85,51 +85,6 @@ set(Skity_header
         include/skity/text/utf.hpp
         )
 
-
-# set(GL_V1_Canvas
-#         src/render/gl/v1/draw/gl_clear_stencil_op.cc
-#         src/render/gl/v1/draw/gl_clear_stencil_op.hpp
-#         src/render/gl/v1/draw/gl_draw_debug_line_op.cc
-#         src/render/gl/v1/draw/gl_draw_debug_line_op.hpp
-#         src/render/gl/v1/draw/gl_draw_mesh_op.cc
-#         src/render/gl/v1/draw/gl_draw_mesh_op.hpp
-#         src/render/gl/v1/draw/gl_draw_mesh_op_aa.cc
-#         src/render/gl/v1/draw/gl_draw_mesh_op_aa.hpp
-#         src/render/gl/v1/draw/gl_fill_color_op.cc
-#         src/render/gl/v1/draw/gl_fill_color_op.hpp
-#         src/render/gl/v1/draw/gl_fill_gradient_op.cc
-#         src/render/gl/v1/draw/gl_fill_gradient_op.hpp
-#         src/render/gl/v1/draw/gl_fill_texture_op.cc
-#         src/render/gl/v1/draw/gl_fill_texture_op.hpp
-#         src/render/gl/v1/draw/gl_stencil_op.cc
-#         src/render/gl/v1/draw/gl_stencil_op.hpp
-#         src/render/gl/v1/gl_canvas.cc
-#         src/render/gl/v1/gl_canvas.hpp
-#         src/render/gl/v1/gl_draw_op.cc
-#         src/render/gl/v1/gl_draw_op.hpp
-#         src/render/gl/v1/gl_fill.cc
-#         src/render/gl/v1/gl_fill.hpp
-#         src/render/gl/v1/gl_glyph_raster_cache.cc
-#         src/render/gl/v1/gl_glyph_raster_cache.hpp
-#         src/render/gl/v1/gl_stroke.cc
-#         src/render/gl/v1/gl_stroke.hpp
-#         src/render/gl/v1/gl_stroke_aa.cc
-#         src/render/gl/v1/gl_stroke_aa.hpp
-#         )
-
-# set(GL_V2_Canvas
-#         src/render/gl/v2/gl_canvas2.cc
-#         src/render/gl/v2/gl_canvas2.hpp
-#         src/render/gl/v2/gl_draw_op2.cc
-#         src/render/gl/v2/gl_draw_op2.hpp
-#         src/render/gl/v2/gl_fill2.cc
-#         src/render/gl/v2/gl_fill2.hpp
-#         src/render/gl/v2/gl_path_visitor.cc
-#         src/render/gl/v2/gl_path_visitor.hpp
-#         src/render/gl/v2/gl_stroke2.cc
-#         src/render/gl/v2/gl_stroke2.hpp
-#         )
-
 # hardware canvas code
 set(HW_RENDER
     src/render/hw/hw_canvas.cc

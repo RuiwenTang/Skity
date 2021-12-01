@@ -120,6 +120,7 @@ int main(int argc, const char** argv) {
   glEnable(GL_STENCIL_TEST);
   glClearStencil(0x00);
   glStencilMask(0xFF);
+  glDisable(GL_DEPTH_TEST);
 
   int32_t pp_width, pp_height;
   glfwGetFramebufferSize(window, &pp_width, &pp_height);
@@ -157,6 +158,7 @@ int main(int argc, const char** argv) {
     render_frame_demo(canvas.get(), images, svg_dom.get(), mx, my, width,
                       height, t);
 
+    canvas->flush();
     cpuTime = glfwGetTime() - t;
     fpsGraph.RenderGraph(canvas.get(), 5, 5);
     cpuGraph.RenderGraph(canvas.get(), 5 + 200 + 5, 5);
