@@ -30,7 +30,7 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
       mvp_(mvp),
       width_(width),
       height_(height),
-      density_(density),
+      density_(density * 2.f),
       mesh_(std::make_unique<HWMesh>()) {}
 
 HWCanvas::~HWCanvas() = default;

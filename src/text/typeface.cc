@@ -80,6 +80,7 @@ class Typeface::Impl {
     target_info.descent = base_info.descent * scale;
     target_info.width = base_info.width * scale;
     target_info.height = base_info.height * scale;
+    target_info.bearing_x = base_info.bearing_x * scale;
     target_info.font_size = target_font_size;
     if (load_path) {
       target_info.path = base_info.path.copyWithScale(scale);

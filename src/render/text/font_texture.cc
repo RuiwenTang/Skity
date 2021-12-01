@@ -40,8 +40,8 @@ glm::ivec4 FontTexture::GenerateGlyphRegion(GlyphKey const& key) {
                bitmap_info.buffer);
 
   // Fixme to solve black edge for single char
-  region.z = bitmap_info.width - 1.f;
-  region.w = bitmap_info.height - 1.f;
+  region.z = bitmap_info.width;
+  region.w = bitmap_info.height;
   // save region info
   glyph_regions_.insert(std::make_pair(key, region));
 

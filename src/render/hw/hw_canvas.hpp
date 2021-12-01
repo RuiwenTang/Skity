@@ -93,7 +93,7 @@ class HWCanvas : public Canvas {
   Matrix mvp_;
   uint32_t width_;
   uint32_t height_;
-  float density_ = 1.f;
+  float density_ = 2.f;
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   Lazy<float> global_alpha_ = {};
