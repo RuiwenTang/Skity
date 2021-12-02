@@ -124,7 +124,7 @@ class Typeface::Impl {
 };
 #endif
 
-std::unique_ptr<Typeface> Typeface::MakeDefault() {
+std::shared_ptr<Typeface> Typeface::MakeDefault() {
 #ifdef ENABLE_TEXT_RENDER
   std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
   impl->SetFTLibrary(GlobalFTLibrary());
@@ -133,7 +133,7 @@ std::unique_ptr<Typeface> Typeface::MakeDefault() {
     return nullptr;
   }
 
-  std::unique_ptr<Typeface> typeface{new Typeface};
+  std::shared_ptr<Typeface> typeface{new Typeface};
   typeface->impl_ = std::move(impl);
   return typeface;
 #else
@@ -143,7 +143,7 @@ std::unique_ptr<Typeface> Typeface::MakeDefault() {
 
 Typeface::~Typeface() = default;
 
-std::unique_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
+std::shared_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
 #ifdef ENABLE_TEXT_RENDER
   std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
   impl->SetFTLibrary(GlobalFTLibrary());
@@ -151,7 +151,7 @@ std::unique_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
     return nullptr;
   }
 
-  std::unique_ptr<Typeface> typeface{new Typeface};
+  std::shared_ptr<Typeface> typeface{new Typeface};
   typeface->impl_ = std::move(impl);
   return typeface;
 #else
@@ -159,7 +159,7 @@ std::unique_ptr<Typeface> Typeface::MakeFromFile(const char* path) {
 #endif
 }
 
-std::unique_ptr<Typeface> Typeface::MakeFromData(
+std::shared_ptr<Typeface> Typeface::MakeFromData(
     const std::shared_ptr<Data>& data) {
 #ifdef ENABLE_TEXT_RENDER
   std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
@@ -168,7 +168,7 @@ std::unique_ptr<Typeface> Typeface::MakeFromData(
     return nullptr;
   }
 
-  std::unique_ptr<Typeface> typeface{new Typeface};
+  std::shared_ptr<Typeface> typeface{new Typeface};
   typeface->impl_ = std::move(impl);
   return typeface;
 #else

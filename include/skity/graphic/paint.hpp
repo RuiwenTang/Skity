@@ -12,6 +12,7 @@ namespace skity {
 
 class PathEffect;
 class Shader;
+class Typeface;
 
 /**
  * @class Paint
@@ -165,6 +166,10 @@ class SK_API Paint {
   }
   std::shared_ptr<Shader> getShader() const { return shader_; }
 
+  void setTypeface(std::shared_ptr<Typeface> typeface) { typeface_ = typeface; }
+
+  std::shared_ptr<Typeface> getTypeface() const { return typeface_; }
+
  private:
   void updateMiterLimit();
 
@@ -181,6 +186,7 @@ class SK_API Paint {
   bool is_anti_alias_ = false;
   std::shared_ptr<PathEffect> path_effect_;
   std::shared_ptr<Shader> shader_;
+  std::shared_ptr<Typeface> typeface_;
 };
 
 }  // namespace skity

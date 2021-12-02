@@ -44,7 +44,7 @@ class SK_API Typeface {
    * return nullptr
    * @return default build in typeface instance.
    */
-  static std::unique_ptr<Typeface> MakeDefault();
+  static std::shared_ptr<Typeface> MakeDefault();
 
   /**
    * Create a new typeface given a file. If the file does not exist, or is not a
@@ -52,14 +52,14 @@ class SK_API Typeface {
    * @param path path to font file.
    * @return Typeface instance or nullptr.
    */
-  static std::unique_ptr<Typeface> MakeFromFile(const char* path);
+  static std::shared_ptr<Typeface> MakeFromFile(const char* path);
 
   /**
    * Create a new typeface from memory
    * @param data
    * @return
    */
-  static std::unique_ptr<Typeface> MakeFromData(
+  static std::shared_ptr<Typeface> MakeFromData(
       std::shared_ptr<Data> const& data);
 
   void textToGlyphId(const char* text, std::vector<GlyphID>& glyphs);

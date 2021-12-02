@@ -1,4 +1,5 @@
 #include <skity/graphic/paint.hpp>
+#include <skity/text/typeface.hpp>
 
 namespace skity {
 

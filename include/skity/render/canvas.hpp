@@ -176,7 +176,7 @@ class SK_API Canvas {
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
   // just draw text not a usable interface
   void drawSimpleText2(const char* text, float x, float y, Paint const& paint);
-  float simpleTextBounds(const char* text, Paint const& paint);
+  Vec2 simpleTextBounds(const char* text, Paint const& paint);
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 
@@ -242,7 +242,7 @@ class SK_API Canvas {
  private:
   uint32_t save_count_ = 0;
   bool draw_debug_line_ = false;
-  std::unique_ptr<Typeface> default_typeface_;
+  std::shared_ptr<Typeface> default_typeface_;
 };
 
 }  // namespace skity

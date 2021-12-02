@@ -128,7 +128,7 @@ void Canvas::drawSimpleText(const char *text, float x, float y,
 
 void Canvas::drawSimpleText2(const char *text, float x, float y,
                              const Paint &paint) {
-  if (!default_typeface_) {
+  if (!default_typeface_ && !paint.getTypeface()) {
     return;
   }
 
@@ -142,26 +142,41 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
 
   this->translate(x, y);
 
-  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs,
-                                  needGlyphPath(paint));
+  auto typeface = default_typeface_.get();
 
-  this->onDrawGlyphs(glyphs, default_typeface_.get(), paint);
+  if (paint.getTypeface()) {
+    typeface = paint.getTypeface().get();
+  }
+
+  typeface->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs,
+                         needGlyphPath(paint));
+
+  this->onDrawGlyphs(glyphs, typeface, paint);
 
   this->restore();
 }
 
-float Canvas::simpleTextBounds(const char *text, const Paint &paint) {
+Vec2 Canvas::simpleTextBounds(const char *text, const Paint &paint) {
   std::vector<GlyphInfo> glyphs;
   std::vector<GlyphID> glyph_id;
   if (!UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id)) {
-    return 0.f;
+    return {0.f, 0.f};
   }
-  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
+
+  auto typeface = default_typeface_.get();
+
+  if (paint.getTypeface()) {
+    typeface = paint.getTypeface().get();
+  }
+
+  typeface->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
   float total_width = 0.f;
+  float max_height = 0.f;
   for (auto &glyph : glyphs) {
     total_width += glyph.advance_x;
+    max_height = std::max(max_height, glyph.ascent - glyph.descent);
   }
-  return total_width;
+  return {total_width, max_height};
 }
 
 void Canvas::updateViewport(uint32_t width, uint32_t height) {

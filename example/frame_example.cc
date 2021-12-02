@@ -22,7 +22,8 @@
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    skity::SVGDom* svg, float mx, float my, float width, float height, float t);
+    skity::SVGDom* svg, std::shared_ptr<skity::Typeface> const& typeface,
+    float mx, float my, float width, float height, float t);
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
                float mx, float my, float t);
@@ -83,6 +84,10 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
 void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
                     float w, float h, float t);
 
+void draw_paragraph(skity::Canvas* canvas,
+                    std::shared_ptr<skity::Typeface> const& typeface, float x,
+                    float y, float width, float height);
+
 int main(int argc, const char** argv) {
   GLFWwindow* window = nullptr;
 
@@ -135,6 +140,9 @@ int main(int argc, const char** argv) {
   load_images(images);
   // load svg;
   auto svg_dom = skity::SVGDom::MakeFromFile(EXAMPLE_IMAGE_ROOT "/tiger.svg");
+  // load graphic typeface
+  auto typeface =
+      skity::Typeface::MakeFromFile(EXAMPLE_IMAGE_ROOT "/Roboto-Regular.ttf");
 
   glfwSwapInterval(0);
 
@@ -155,8 +163,8 @@ int main(int argc, const char** argv) {
     dt = t - prevt;
     prevt = t;
 
-    render_frame_demo(canvas.get(), images, svg_dom.get(), mx, my, width,
-                      height, t);
+    render_frame_demo(canvas.get(), images, svg_dom.get(), typeface, mx, my,
+                      width, height, t);
 
     canvas->flush();
     cpuTime = glfwGetTime() - t;
@@ -180,12 +188,12 @@ int main(int argc, const char** argv) {
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    skity::SVGDom* svg, float mx, float my, float width, float height,
-    float t) {
+    skity::SVGDom* svg, std::shared_ptr<skity::Typeface> const& typeface,
+    float mx, float my, float width, float height, float t) {
   float x, y, popy;
 
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
-  // draw_paragraph
+  draw_paragraph(canvas, typeface, width - 450, 180, 150, 100);
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
   // this make some performance issue
   // draw_tiger_svg(canvas, svg, width / 2.f + 50, 100.f, 200.f, 200.f, t);
@@ -1012,11 +1020,11 @@ void draw_button(skity::Canvas* canvas, const char* pre_icon, const char* text,
 
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setTextSize(17.f);
-  tw = canvas->simpleTextBounds(text, paint);
+  tw = canvas->simpleTextBounds(text, paint).x;
 
   if (pre_icon) {
     paint.setTextSize(h * 0.8f);
-    iw = canvas->simpleTextBounds(pre_icon, paint);
+    iw = canvas->simpleTextBounds(pre_icon, paint).x;
     canvas->drawSimpleText2(pre_icon, x + w * 0.5f - tw * 0.5f - iw,
                             y + h * 0.75f, paint);
   }
@@ -1040,14 +1048,14 @@ void draw_edit_box_num(skity::Canvas* canvas, const char* text,
   paint.setTextSize(15.f);
   paint.setStyle(skity::Paint::kFill_Style);
 
-  uw = canvas->simpleTextBounds(units, paint);
+  uw = canvas->simpleTextBounds(units, paint).x;
 
   paint.setColor(skity::ColorSetARGB(64, 255, 255, 255));
   canvas->drawSimpleText2(units, x + w - h * 0.3f - uw, y + h * 0.6f, paint);
 
   paint.setTextSize(17.f);
   paint.setColor(skity::ColorSetARGB(128, 255, 255, 255));
-  float tw = canvas->simpleTextBounds(text, paint);
+  float tw = canvas->simpleTextBounds(text, paint).x;
 
   canvas->drawSimpleText2(text, x + w - h * 0.5f - uw - tw, y + h * 0.65f,
                           paint);
@@ -1308,4 +1316,46 @@ void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
   svg->Render(canvas);
 
   canvas->restore();
+}
+
+void draw_paragraph(skity::Canvas* canvas,
+                    std::shared_ptr<skity::Typeface> const& typeface, float x,
+                    float y, float width, float height) {
+  skity::Paint paint;
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setTextSize(15.f);
+  paint.setTypeface(typeface);
+
+  const char* text1 = "This is longer chunk of text.";
+  const char* text2 = "Would have used lorem ipsum.";
+  const char* text3 = "but she    was busy jumping";
+  const char* text4 = "over the lazy dog with the fox";
+  const char* text5 = "and all the men who came to";
+  const char* text6 = "the aid of the party.🎉";
+
+  skity::Vec2 text1_bounds = canvas->simpleTextBounds(text1, paint);
+  skity::Vec2 text2_bounds = canvas->simpleTextBounds(text2, paint);
+  skity::Vec2 text3_bounds = canvas->simpleTextBounds(text3, paint);
+  skity::Vec2 text4_bounds = canvas->simpleTextBounds(text4, paint);
+  skity::Vec2 text5_bounds = canvas->simpleTextBounds(text5, paint);
+  skity::Vec2 text6_bounds = canvas->simpleTextBounds(text6, paint);
+
+  float y_offset = y;
+  // line 1
+  canvas->drawSimpleText2(text1, x, y_offset, paint);
+  // line 2
+  y_offset += text1_bounds.y;
+  canvas->drawSimpleText2(text2, x, y_offset, paint);
+  // line 3
+  y_offset += text2_bounds.y;
+  canvas->drawSimpleText2(text3, x, y_offset, paint);
+  // line 4
+  y_offset += text3_bounds.y;
+  canvas->drawSimpleText2(text4, x, y_offset, paint);
+  // line 5
+  y_offset += text4_bounds.y;
+  canvas->drawSimpleText2(text5, x, y_offset, paint);
+  // line 6
+  y_offset += text5_bounds.y;
+  canvas->drawSimpleText2(text6, x, y_offset, paint);
 }
