@@ -5,14 +5,7 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
-#include <skity/effect/path_effect.hpp>
-#include <skity/effect/shader.hpp>
-#include <skity/graphic/paint.hpp>
-#include <skity/graphic/path.hpp>
-#include <skity/render/canvas.hpp>
+#include <skity/skity.hpp>
 #include <string>
 
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,

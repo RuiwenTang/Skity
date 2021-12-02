@@ -75,6 +75,7 @@ set(Skity_header
         include/skity/graphic/path.hpp
         include/skity/macros.hpp
         include/skity/render/canvas.hpp
+        include/skity/skity.hpp
         include/skity/svg/svg_dom.hpp
         include/skity/text/typeface.hpp
         include/skity/text/utf.hpp

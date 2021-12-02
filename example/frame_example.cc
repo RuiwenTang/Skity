@@ -7,14 +7,7 @@
 #include <cstdlib>
 #include <example_config.hpp>
 #include <glm/glm.hpp>
-#include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
-#include <skity/effect/shader.hpp>
-#include <skity/graphic/paint.hpp>
-#include <skity/graphic/path.hpp>
-#include <skity/render/canvas.hpp>
-#include <skity/svg/svg_dom.hpp>
+#include <skity/skity.hpp>
 #include <string>
 
 #include "perf.hpp"
