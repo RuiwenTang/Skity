@@ -47,37 +47,3 @@ target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad>)
 target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-if (VULKAN_BACKEND)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-    add_definitions(-DVULKAN_HPP_NO_EXCEPTIONS)
-    set(VK_APP_SRC
-        utils/vk_app.hpp
-        utils/vk_app.cc
-        utils/vk_platform.hpp
-        utils/platform/platform_glfw.hpp
-        utils/platform/platform_glfw.cc
-    )
-
-    set(VK_APP_LIBS "")
-    if (WIN32)
-        set(VK_APP_SRC ${VK_APP_SRC}
-            utils/platform/win/platform_win.cc
-        )
-    elseif(APPLE)
-        set(VK_APP_SRC ${VK_APP_SRC}
-                utils/platform/osx/platform_darwin.mm
-                )
-        set(VK_APP_LIBS ${VK_APP_LIBS} "-framework QuartzCore -framework Cocoa")
-        add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
-    endif()
-
-    add_library(vk_app OBJECT
-        ${VK_APP_SRC}
-    )
-
-    add_executable(vulkan_hello_world 
-        vulkan_hello_world.cc
-        $<TARGET_OBJECTS:vk_app>
-        )
-    target_link_libraries(vulkan_hello_world skity vk_app ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${VK_APP_LIBS})
-endif()

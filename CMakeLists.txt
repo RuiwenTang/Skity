@@ -22,11 +22,6 @@ endif()
 # Vulkan option
 option(VULKAN_BACKEND "option for vulkan backend" ON)
 
-# Vulan libraries
-if (VULKAN_BACKEND)
-    find_package(Vulkan REQUIRED)
-    include_directories(${Vulkan_INCLUDE_DIRS})
-endif()
 
 # Creates C resources file from files in given directory
 function(create_resources dir output)
@@ -195,10 +190,6 @@ set(BUILD_IN_IMAGE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/wall.png")
 
 set(SKITY_DEP_LIBRARIES "")
 
-if (VULKAN_BACKEND)
-    set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${Vulkan_LIBRARIES})
-endif()
-
 if (${FREETYPE_FOUND})
     message("Find freetype with version ${FREETYPE_VERSION_STRING}")
     include_directories(${FREETYPE_INCLUDE_DIRS})
@@ -271,14 +262,8 @@ else()
 endif()
 
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-  shaders/fs_bitmap_basic.glsl
-  shaders/fs_color_basic.glsl
-  shaders/fs_gradient_basic.glsl
-  shaders/fs_stencil_basic.glsl
-  shaders/vs_bitmap_basic.glsl
-  shaders/vs_color_basic.glsl
-  shaders/vs_gradient_basic.glsl
-  shaders/vs_stencil_basic.glsl
+  shaders/hw_gl_fragment.glsl
+  shaders/hw_gl_vertex.glsl
 )
 
 # source group for XCode and Visual Studio
