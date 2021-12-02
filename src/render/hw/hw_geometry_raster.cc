@@ -113,7 +113,7 @@ void HWGeometryRaster::FlushRaster() {
 }
 
 float HWGeometryRaster::StrokeWidth() const {
-  return std::max(1.f, paint_.getStrokeWidth());
+  return std::max(0.5f, paint_.getStrokeWidth());
 }
 
 void HWGeometryRaster::HandleLineCap(glm::vec2 const& center,
