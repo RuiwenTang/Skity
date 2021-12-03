@@ -47,3 +47,15 @@ target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad>)
 target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+# vulkan examples
+if (VULKAN_BACKEND)
+  add_library(vk_app OBJECT 
+    vk/vk_app.cc 
+    vk/vk_app.hpp
+  )
+
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+  add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
+  target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES})
+endif()
