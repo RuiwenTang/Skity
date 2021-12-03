@@ -56,6 +56,7 @@ add_subdirectory(third_party/pugixml)
 
 if (${VULKAN_BACKEND})
     add_definitions(-DSKITY_VULKAN=1)
+    include_directories(third_party/Vulkan-Headers/include)
 endif()
 
 include_directories(include)

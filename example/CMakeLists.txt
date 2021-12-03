@@ -54,8 +54,10 @@ if (VULKAN_BACKEND)
     vk/vk_app.hpp
   )
 
+  find_package(Vulkan REQUIRED)
+
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES})
+  target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
 endif()

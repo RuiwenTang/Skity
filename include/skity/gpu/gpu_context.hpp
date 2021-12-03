@@ -29,6 +29,7 @@ struct GPUVkContext : public GPUContext {
   VkInstance vk_instance = {};
   VkPhysicalDevice vk_phy_device = {};
   VkDevice vk_device = {};
+  VkExtent2D vk_frame_extent = {};
 
   GPUVkContext(GPUBackendType type, void* loader) : GPUContext(type, loader) {}
 };

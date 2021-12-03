@@ -13,7 +13,7 @@ class HelloVulkanApp : public example::VkApp {
   ~HelloVulkanApp() override = default;
 
  protected:
-  void OnCreate() override {}
+  void OnStart() override {}
   void OnUpdate(float elapsed_time) override {}
   void OnDestroy() override {}
 
