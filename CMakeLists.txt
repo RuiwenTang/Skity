@@ -54,6 +54,10 @@ include_directories(third_party/OpenGL)
 include_directories(third_party/pugixml/src)
 add_subdirectory(third_party/pugixml)
 
+if (${VULKAN_BACKEND})
+    add_definitions(-DSKITY_VULKAN=1)
+endif()
+
 include_directories(include)
 
 
@@ -70,6 +74,7 @@ set(Skity_header
         include/skity/geometry/point.hpp
         include/skity/geometry/rect.hpp
         include/skity/geometry/rrect.hpp
+        include/skity/gpu/gpu_context.hpp
         include/skity/graphic/color.hpp
         include/skity/graphic/paint.hpp
         include/skity/graphic/path.hpp

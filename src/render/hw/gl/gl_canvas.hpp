@@ -14,7 +14,7 @@ class GLCanvas : public HWCanvas {
   ~GLCanvas() override = default;
 
  protected:
-  void OnInit(void* ctx) override;
+  void OnInit(GPUContext* ctx) override;
   HWPipeline* GetPipeline() override;
   std::unique_ptr<HWTexture> GenerateTexture() override;
   std::unique_ptr<HWFontTexture> GenerateFontTexture(

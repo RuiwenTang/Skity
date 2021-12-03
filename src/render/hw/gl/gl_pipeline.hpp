@@ -3,6 +3,7 @@
 
 #include <array>
 #include <memory>
+#include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/gl/gl_shader.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
@@ -11,7 +12,7 @@ namespace skity {
 
 class GLPipeline : public HWPipeline {
  public:
-  GLPipeline(void* ctx);
+  GLPipeline(GPUContext* ctx);
   ~GLPipeline() override;
 
   void Init() override;
@@ -71,7 +72,7 @@ class GLPipeline : public HWPipeline {
   void UnBindBuffers();
 
  private:
-  void* ctx_;
+  GPUContext* ctx_;
   std::unique_ptr<GLPipelineShader> shader_ = {};
   uint32_t vao_ = 0;
   std::array<uint32_t, 2> buffers_ = {};

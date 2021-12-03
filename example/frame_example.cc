@@ -126,8 +126,11 @@ int main(int argc, const char** argv) {
   float density = (float)(pp_width * pp_width + pp_height * pp_height) /
                   (float)(width * width + height * height);
 
-  auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
-      width, height, density, (void*)glfwGetProcAddress);
+  skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
+                        (void*)glfwGetProcAddress};
+
+  auto canvas =
+      skity::Canvas::MakeHardwareAccelationCanvas(width, height, density, &ctx);
 
   std::vector<std::shared_ptr<skity::Pixmap>> images{};
   load_images(images);

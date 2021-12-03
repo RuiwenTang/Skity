@@ -77,8 +77,11 @@ int main(int argc, const char** argv) {
 
   float density = (float)(pp_width * pp_width + pp_height * pp_height) /
                   (float)(width * width + height * height);
-  auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(
-      1000, 1000, density, (void*)glfwGetProcAddress);
+
+  skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
+                        (void*)glfwGetProcAddress};
+  auto canvas =
+      skity::Canvas::MakeHardwareAccelationCanvas(1000, 1000, density, &ctx);
 
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

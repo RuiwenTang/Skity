@@ -12,15 +12,25 @@
 
 namespace skity {
 
-std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(
-    uint32_t width, uint32_t height, float density, void* process_loader) {
-  // TODO make vk_canvas
+std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
+                                                             uint32_t height,
+                                                             float density,
+                                                             GPUContext* ctx) {
   auto mvp = glm::ortho<float>(0, width, height, 0);
 
-  std::unique_ptr<HWCanvas> canvas =
-      std::make_unique<GLCanvas>(mvp, width, height, density);
+  std::unique_ptr<HWCanvas> canvas;
+  if (ctx->type == GPUBackendType::kOpenGL) {
+    canvas = std::make_unique<GLCanvas>(mvp, width, height, density);
+  } else if (ctx->type == GPUBackendType::kVulkan) {
+    // TODO make vk_canvas
+  } else {
+    // nullptr may cause crash
+    return canvas;
+  }
 
-  canvas->Init(process_loader);
+  if (canvas) {
+    canvas->Init(ctx);
+  }
 
   return canvas;
 }
@@ -35,7 +45,7 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 HWCanvas::~HWCanvas() = default;
 
-void HWCanvas::Init(void* ctx) { this->OnInit(ctx); }
+void HWCanvas::Init(GPUContext* ctx) { this->OnInit(ctx); }
 
 uint32_t HWCanvas::onGetWidth() const { return width_; }
 

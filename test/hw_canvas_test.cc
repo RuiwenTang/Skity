@@ -24,8 +24,11 @@ class HWCanvasTest : public test::TestApp {
     glClearStencil(0x00);
     glStencilMask(0xFF);
 
-    canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
-        800, 600, Density(), (void*)glfwGetProcAddress);
+    skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
+                          (void*)glfwGetProcAddress};
+
+    canvas_ =
+        skity::Canvas::MakeHardwareAccelationCanvas(800, 600, Density(), &ctx);
 
     auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
 

@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <skity/geometry/rect.hpp>
+#include <skity/gpu/gpu_context.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/macros.hpp>
@@ -183,17 +184,11 @@ class SK_API Canvas {
   void updateViewport(uint32_t width, uint32_t height);
   uint32_t width() const;
   uint32_t height() const;
-  static std::unique_ptr<Canvas> MakeGLCanvas(uint32_t x, uint8_t y,
-                                              uint32_t width, uint32_t height,
-                                              void* procss_loader);
 
-  // FIXME when refactor is done, this will be removed
-  static std::unique_ptr<Canvas> MakeGLCanvas2(uint32_t x, uint8_t y,
-                                               uint32_t width, uint32_t height,
-                                               void* process_loader);
-
-  static std::unique_ptr<Canvas> MakeHardwareAccelationCanvas(
-      uint32_t width, uint32_t height, float density, void* process_loader);
+  static std::unique_ptr<Canvas> MakeHardwareAccelationCanvas(uint32_t width,
+                                                              uint32_t height,
+                                                              float density,
+                                                              GPUContext* ctx);
 
  protected:
   // default implement dispatch this to onClipPath

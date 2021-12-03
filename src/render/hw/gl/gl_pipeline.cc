@@ -45,7 +45,7 @@ static GLenum slot_to_gl_texture_unit(uint32_t slot) {
   return GL_TEXTURE0;
 }
 
-GLPipeline::GLPipeline(void* ctx) : HWPipeline(), ctx_(ctx) {}
+GLPipeline::GLPipeline(GPUContext* ctx) : HWPipeline(), ctx_(ctx) {}
 
 GLPipeline::~GLPipeline() {
   GL_CALL(DeleteBuffers, buffers_.size(), buffers_.data());
@@ -53,7 +53,7 @@ GLPipeline::~GLPipeline() {
 }
 
 void GLPipeline::Init() {
-  GLInterface::InitGlobalInterface(ctx_);
+  GLInterface::InitGlobalInterface(ctx_->proc_loader);
   InitShader();
   InitBufferObject();
 }

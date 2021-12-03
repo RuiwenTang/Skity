@@ -30,10 +30,10 @@ class HWCanvas : public Canvas {
   HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density);
   ~HWCanvas() override;
 
-  void Init(void* ctx);
+  void Init(GPUContext* ctx);
 
  protected:
-  virtual void OnInit(void* ctx) = 0;
+  virtual void OnInit(GPUContext* ctx) = 0;
 
   virtual HWPipeline* GetPipeline() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
