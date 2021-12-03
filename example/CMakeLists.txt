@@ -49,6 +49,10 @@ target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # vulkan examples
 if (VULKAN_BACKEND)
+
+  # spdlog
+  include_directories(../third_party/spdlog/include)
+
   add_library(vk_app OBJECT 
     vk/vk_app.cc 
     vk/vk_app.hpp

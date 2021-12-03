@@ -34,12 +34,16 @@ class VkApp {
   void Loop();
   void CleanUp();
 
+  // vulkan utils function
+  void CreateVkInstance();
+
  private:
   int32_t width_ = 0;
   int32_t height_ = 0;
   std::string window_name_ = {};
   GLFWwindow* window_ = {};
   VkInstance vk_instance_ = {};
+  VkDebugUtilsMessengerEXT vk_debug_messenger_ = {};
   VkPhysicalDevice vk_phy_device_ = {};
   VkDevice vk_device_ = {};
 };
