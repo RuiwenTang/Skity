@@ -36,6 +36,11 @@ class VkApp {
 
   // vulkan utils function
   void CreateVkInstance();
+  void CreateVkSurface();
+  void PickPhysicalDevice();
+  void CreateVkDevice();
+  void CreateSwapChain();
+  void CreateSwapChainImageViews();
 
  private:
   int32_t width_ = 0;
@@ -43,9 +48,18 @@ class VkApp {
   std::string window_name_ = {};
   GLFWwindow* window_ = {};
   VkInstance vk_instance_ = {};
+  VkSurfaceKHR vk_surface_ = {};
   VkDebugUtilsMessengerEXT vk_debug_messenger_ = {};
   VkPhysicalDevice vk_phy_device_ = {};
   VkDevice vk_device_ = {};
+  uint32_t graphic_queue_index_ = {};
+  uint32_t present_queue_index_ = {};
+  VkQueue vk_graphic_queue_ = {};
+  VkQueue vk_present_queue_ = {};
+  VkSwapchainKHR vk_swap_chain_ = {};
+  VkFormat swap_chain_format_ = {};
+  VkExtent2D swap_chain_extend_ = {};
+  std::vector<VkImageView> swap_chain_image_views = {};
 };
 
 }  // namespace example
