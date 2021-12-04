@@ -70,23 +70,43 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                VkDebugUtilsMessageTypeFlagsEXT messageType,
                const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                void* pUserData) {
-  if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-    spdlog::error("{} Code {} : {}", pCallbackData->pMessageIdName,
-                  pCallbackData->messageIdNumber, pCallbackData->pMessage);
-  } else if (messageSeverity &
+  auto logger = spdlog::default_logger();
+  auto level = spdlog::level::debug;
+
+  if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+    level = spdlog::level::err;
+  } else if (messageSeverity ==
              VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-    spdlog::warn("{} Code {} : {}", pCallbackData->pMessageIdName,
-                 pCallbackData->messageIdNumber, pCallbackData->pMessage);
-  } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) {
-    spdlog::critical("{} Code {} : {}", pCallbackData->pMessageIdName,
-                     pCallbackData->messageIdNumber, pCallbackData->pMessage);
-  } else if (messageSeverity &
-             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
-    spdlog::trace("{} Code {} : {}", pCallbackData->pMessageIdName,
-                  pCallbackData->messageIdNumber, pCallbackData->pMessage);
-  } else {
-    spdlog::info("{} Code {} : {}", pCallbackData->pMessageIdName,
-                 pCallbackData->messageIdNumber, pCallbackData->pMessage);
+    level = spdlog::level::warn;
+  }
+
+  logger->log(level, "{} Code {} : {}", pCallbackData->pMessageIdName,
+              pCallbackData->messageIdNumber, pCallbackData->pMessage);
+  if (0 < pCallbackData->queueLabelCount) {
+    logger->log(level, "\t Queue Labels:");
+    for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+      logger->log(level, "\t\t labelName = [ {} ]",
+                  pCallbackData->pQueueLabels[i].pLabelName);
+    }
+  }
+
+  if (0 < pCallbackData->cmdBufLabelCount) {
+    logger->log(level, "\t CMD labels: \n");
+    for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+      logger->log(level, "\t\t labelName = [ {} ]",
+                  pCallbackData->pCmdBufLabels[i].pLabelName);
+    }
+  }
+
+  if (0 < pCallbackData->objectCount) {
+    for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+      logger->log(
+          level,
+          "\t Object [{}]  \t\t objectType <{}> handle [{:X}] name : <{}>",
+          i + 1, pCallbackData->pObjects[i].objectType,
+          pCallbackData->pObjects[i].objectHandle,
+          pCallbackData->pObjects[i].pObjectName);
+    }
   }
 
   return VK_FALSE;
@@ -98,6 +118,12 @@ VkApp::VkApp(int32_t width, int32_t height, std::string name)
 VkApp::~VkApp() = default;
 
 void VkApp::Run() {
+  if (g_enable_validation) {
+    spdlog::set_level(spdlog::level::debug);
+  } else {
+    spdlog::set_level(spdlog::level::info);
+  }
+
   glfwInit();
   // no need OpenGL api
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -106,9 +132,6 @@ void VkApp::Run() {
   // create window
   window_ =
       glfwCreateWindow(width_, height_, window_name_.c_str(), nullptr, nullptr);
-
-  // init log property
-  spdlog::flush_every(std::chrono::seconds(1));
 
   SetupVkContext();
 
@@ -172,21 +195,8 @@ void VkApp::CreateVkInstance() {
   create_info.ppEnabledExtensionNames = extension_names.data();
 
   if (g_enable_validation) {
-    VkDebugUtilsMessengerCreateInfoEXT debug_create_info{
-        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
-    debug_create_info.messageSeverity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debug_create_info.messageType =
-        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debug_create_info.pfnUserCallback = debug_callback;
-
     create_info.enabledLayerCount = 1;
     create_info.ppEnabledLayerNames = &g_validation_name;
-    create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
   } else {
     create_info.enabledLayerCount = 0;
   }
