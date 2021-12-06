@@ -47,20 +47,8 @@ add_library(test_common
         common/test_common.cc
         common/test_common.hpp
         )
-add_executable(raw_gl_render_test raw_gl_render_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(raw_gl_render_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
 add_executable(ms_paper_test ms_paper_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(ms_paper_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(cubic_fill_stencil_test cubic_fill_stencil_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(cubic_fill_stencil_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(canvas_aa_test canvas_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(canvas_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
-
-add_executable(shader_aa_test shader_aa_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
-target_link_libraries(shader_aa_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(hw_canvas_test hw_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(hw_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
