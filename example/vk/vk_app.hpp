@@ -41,6 +41,11 @@ class VkApp {
   void CreateVkDevice();
   void CreateSwapChain();
   void CreateSwapChainImageViews();
+  void CreateCommandPool();
+  void CreateCommandBuffers();
+  void CreateSyncObjects();
+  void CreateRenderPass();
+  void CreateFramebuffers();
 
  private:
   int32_t width_ = 0;
@@ -60,6 +65,14 @@ class VkApp {
   VkFormat swap_chain_format_ = {};
   VkExtent2D swap_chain_extend_ = {};
   std::vector<VkImageView> swap_chain_image_views = {};
+  std::vector<VkFramebuffer> swap_chain_frame_buffers_ = {};
+  VkCommandPool cmd_pool_ = {};
+  std::vector<VkCommandBuffer> cmd_buffers_ = {};
+  std::vector<VkFence> cmd_fences_ = {};
+  VkSemaphore present_semaphore_ = {};
+  VkSemaphore render_semaphore_ = {};
+  VkRenderPass render_pass_ = {};
+  uint32_t current_frame_ = {};
 };
 
 }  // namespace example

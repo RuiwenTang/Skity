@@ -176,6 +176,11 @@ void VkApp::SetupVkContext() {
   CreateVkDevice();
   CreateSwapChain();
   CreateSwapChainImageViews();
+  CreateCommandPool();
+  CreateCommandBuffers();
+  CreateSyncObjects();
+  CreateRenderPass();
+  CreateFramebuffers();
 
   OnStart();
 }
@@ -183,8 +188,88 @@ void VkApp::SetupVkContext() {
 void VkApp::Loop() {
   while (!glfwWindowShouldClose(window_)) {
     glfwPollEvents();
-  
-    
+
+    VkResult result = vkAcquireNextImageKHR(
+        vk_device_, vk_swap_chain_, std::numeric_limits<uint64_t>::max(),
+        present_semaphore_, nullptr, &current_frame_);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+      spdlog::error("need to handle window resize of recreate swap chain!");
+      break;
+    }
+
+    if (vkWaitForFences(vk_device_, 1, &cmd_fences_[current_frame_], VK_TRUE,
+                        std::numeric_limits<uint64_t>::max()) != VK_SUCCESS) {
+      spdlog::error("Error in wait fences");
+      break;
+    }
+
+    vkResetFences(vk_device_, 1, &cmd_fences_[current_frame_]);
+
+    VkCommandBuffer current_cmd = cmd_buffers_[current_frame_];
+
+    VkCommandBufferBeginInfo cmd_begin_info{
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+
+    if (vkBeginCommandBuffer(current_cmd, &cmd_begin_info) != VK_SUCCESS) {
+      spdlog::error("Failed to begin cmd buffer at index : {}", current_frame_);
+      break;
+    }
+
+    std::vector<VkClearValue> clear_values{1};
+    clear_values[0].color = {0.3f, 0.4f, 0.5f, 1.0f};
+
+    VkRenderPassBeginInfo render_pass_begin_info{
+        VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
+    render_pass_begin_info.renderPass = render_pass_;
+    render_pass_begin_info.framebuffer =
+        swap_chain_frame_buffers_[current_frame_];
+    render_pass_begin_info.renderArea.offset = {0, 0};
+    render_pass_begin_info.renderArea.extent = swap_chain_extend_;
+    render_pass_begin_info.clearValueCount = clear_values.size();
+    render_pass_begin_info.pClearValues = clear_values.data();
+
+    vkCmdBeginRenderPass(current_cmd, &render_pass_begin_info,
+                         VK_SUBPASS_CONTENTS_INLINE);
+
+    OnUpdate(0.f);
+
+    vkCmdEndRenderPass(current_cmd);
+
+    if (vkEndCommandBuffer(current_cmd) != VK_SUCCESS) {
+      spdlog::error("Failed to end cmd buffer at index : {}", current_frame_);
+      break;
+    }
+    VkPipelineStageFlags submit_pipeline_stages =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo submit_info{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    submit_info.pWaitDstStageMask = &submit_pipeline_stages;
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = &present_semaphore_;
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores = &render_semaphore_;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &current_cmd;
+
+    if (vkQueueSubmit(vk_present_queue_, 1, &submit_info,
+                      cmd_fences_[current_frame_]) != VK_SUCCESS) {
+      spdlog::error("Failed to submit command buffer!");
+      break;
+    }
+
+    VkPresentInfoKHR present_info{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains = &vk_swap_chain_;
+    present_info.pImageIndices = &current_frame_;
+    present_info.pWaitSemaphores = &render_semaphore_;
+    present_info.waitSemaphoreCount = 1;
+
+    result = vkQueuePresentKHR(vk_present_queue_, &present_info);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+      spdlog::error("need to handle window resize of recreate swap chain!");
+      break;
+    }
   }
 
   vkDeviceWaitIdle(vk_device_);
@@ -193,6 +278,14 @@ void VkApp::Loop() {
 void VkApp::CleanUp() {
   OnDestroy();
 
+  vkDestroySemaphore(vk_device_, present_semaphore_, nullptr);
+  vkDestroySemaphore(vk_device_, render_semaphore_, nullptr);
+  for (auto fence : cmd_fences_) {
+    vkDestroyFence(vk_device_, fence, nullptr);
+  }
+  vkResetCommandPool(vk_device_, cmd_pool_,
+                     VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+  vkDestroyCommandPool(vk_device_, cmd_pool_, nullptr);
   for (auto image_view : swap_chain_image_views) {
     vkDestroyImageView(vk_device_, image_view, nullptr);
   }
@@ -474,6 +567,118 @@ void VkApp::CreateSwapChainImageViews() {
     if (vkCreateImageView(vk_device_, &create_info, nullptr,
                           &swap_chain_image_views[i]) != VK_SUCCESS) {
       spdlog::error("Failed to create swap chain image view");
+      exit(-1);
+    }
+  }
+}
+
+void VkApp::CreateCommandPool() {
+  VkCommandPoolCreateInfo create_info{
+      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+  create_info.queueFamilyIndex = graphic_queue_index_;
+  create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+  if (vkCreateCommandPool(vk_device_, &create_info, nullptr, &cmd_pool_) !=
+      VK_SUCCESS) {
+    spdlog::error("Failed to create Command Pool.");
+    exit(-1);
+  }
+}
+
+void VkApp::CreateCommandBuffers() {
+  cmd_buffers_.resize(swap_chain_image_views.size());
+
+  VkCommandBufferAllocateInfo allocate_info{
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+  allocate_info.commandPool = cmd_pool_;
+  allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  allocate_info.commandBufferCount = static_cast<uint32_t>(cmd_buffers_.size());
+
+  if (vkAllocateCommandBuffers(vk_device_, &allocate_info,
+                               cmd_buffers_.data()) != VK_SUCCESS) {
+    spdlog::error("Failed to allocate command buffers");
+    exit(-1);
+  }
+}
+
+void VkApp::CreateSyncObjects() {
+  VkFenceCreateInfo create_info{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+  create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  cmd_fences_.resize(cmd_buffers_.size());
+
+  for (size_t i = 0; i < cmd_fences_.size(); i++) {
+    if (vkCreateFence(vk_device_, &create_info, nullptr, &cmd_fences_[i]) !=
+        VK_SUCCESS) {
+      spdlog::error("Failed to create fence at index : {}", i);
+      exit(-1);
+    }
+  }
+
+  VkSemaphoreCreateInfo semaphore_create_info{
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+  if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
+                        &present_semaphore_) != VK_SUCCESS) {
+    spdlog::error("Failed to create present semaphore");
+    exit(-1);
+  }
+  if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
+                        &render_semaphore_) != VK_SUCCESS) {
+    spdlog::error("Failed to create render semaphore");
+    exit(-1);
+  }
+}
+
+void VkApp::CreateRenderPass() {
+  VkAttachmentDescription color_attachment{};
+  color_attachment.format = swap_chain_format_;
+  // TODO multisample
+  color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference color_reference{};
+  color_reference.attachment = 0;
+  color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkSubpassDescription subpass{};
+  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.colorAttachmentCount = 1;
+  subpass.pColorAttachments = &color_reference;
+
+  VkRenderPassCreateInfo create_info{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+  create_info.attachmentCount = 1;
+  create_info.pAttachments = &color_attachment;
+  create_info.subpassCount = 1;
+  create_info.pSubpasses = &subpass;
+
+  if (vkCreateRenderPass(vk_device_, &create_info, nullptr, &render_pass_) !=
+      VK_SUCCESS) {
+    spdlog::error("Failed to create render pass!");
+    exit(-1);
+  }
+}
+
+void VkApp::CreateFramebuffers() {
+  swap_chain_frame_buffers_.resize(swap_chain_image_views.size());
+
+  for (size_t i = 0; i < swap_chain_frame_buffers_.size(); i++) {
+    std::vector<VkImageView> attachments = {swap_chain_image_views[i]};
+
+    VkFramebufferCreateInfo create_info{
+        VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
+    create_info.renderPass = render_pass_;
+    create_info.attachmentCount = attachments.size();
+    create_info.pAttachments = attachments.data();
+    create_info.width = swap_chain_extend_.width;
+    create_info.height = swap_chain_extend_.height;
+    create_info.layers = 1;
+
+    if (vkCreateFramebuffer(vk_device_, &create_info, nullptr,
+                            &swap_chain_frame_buffers_[i]) != VK_SUCCESS) {
+      spdlog::error("Failed to create frame buffer");
       exit(-1);
     }
   }
