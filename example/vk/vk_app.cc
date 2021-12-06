@@ -141,6 +141,30 @@ static VkFormat choose_swap_chain_format(VkPhysicalDevice phy_device,
   return formats[0].format;
 }
 
+static bool get_support_depth_format(VkPhysicalDevice phy_devce,
+                                     VkFormat* out_format) {
+  // Since all depth formats may be optional, we need to find a suitable depth
+  // format to use
+  // Start with the highest precision packed format
+  std::vector<VkFormat> depthFormats = {
+      VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT,
+      VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT,
+      VK_FORMAT_D16_UNORM};
+
+  for (auto& format : depthFormats) {
+    VkFormatProperties formatProps;
+    vkGetPhysicalDeviceFormatProperties(phy_devce, format, &formatProps);
+    // Format must support depth stencil attachment for optimal tiling
+    if (formatProps.optimalTilingFeatures &
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+      *out_format = format;
+      return true;
+    }
+  }
+
+  return false;
+}
+
 VkApp::VkApp(int32_t width, int32_t height, std::string name)
     : width_(width), height_(height), window_name_(name) {}
 
@@ -216,8 +240,9 @@ void VkApp::Loop() {
       break;
     }
 
-    std::vector<VkClearValue> clear_values{1};
+    std::vector<VkClearValue> clear_values{2};
     clear_values[0].color = {0.3f, 0.4f, 0.5f, 1.0f};
+    clear_values[1].depthStencil = {0.f, 0};
 
     VkRenderPassBeginInfo render_pass_begin_info{
         VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
@@ -277,6 +302,15 @@ void VkApp::Loop() {
 
 void VkApp::CleanUp() {
   OnDestroy();
+
+  vkDestroyRenderPass(vk_device_, render_pass_, nullptr);
+  for (auto fb : swap_chain_frame_buffers_) {
+    vkDestroyFramebuffer(vk_device_, fb, nullptr);
+  }
+
+  vkDestroyImageView(vk_device_, stencil_image_.image_view, nullptr);
+  vkDestroyImage(vk_device_, stencil_image_.image, nullptr);
+  vkFreeMemory(vk_device_, stencil_image_.memory, nullptr);
 
   vkDestroySemaphore(vk_device_, present_semaphore_, nullptr);
   vkDestroySemaphore(vk_device_, render_semaphore_, nullptr);
@@ -552,6 +586,7 @@ void VkApp::CreateSwapChainImageViews() {
   vkGetSwapchainImagesKHR(vk_device_, vk_swap_chain_, &image_count,
                           swap_chain_image.data());
 
+  // create image view for color buffer submit to screen
   swap_chain_image_views.resize(image_count);
   for (uint32_t i = 0; i < image_count; i++) {
     VkImageViewCreateInfo create_info{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
@@ -570,6 +605,66 @@ void VkApp::CreateSwapChainImageViews() {
       exit(-1);
     }
   }
+  VkFormat depth_format;
+  if (!get_support_depth_format(vk_phy_device_, &depth_format)) {
+    spdlog::error("can not find format support depth and stencil buffer");
+    exit(-1);
+  }
+  // create image and image-view for stencil buffer
+  VkImageCreateInfo image_create_info{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
+  image_create_info.imageType = VK_IMAGE_TYPE_2D;
+  image_create_info.format = depth_format;
+  image_create_info.extent = {swap_chain_extend_.width,
+                              swap_chain_extend_.height, 1};
+  image_create_info.mipLevels = 1;
+  image_create_info.arrayLayers = 1;
+  image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+  image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+  image_create_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+  if (vkCreateImage(vk_device_, &image_create_info, nullptr,
+                    &stencil_image_.image) != VK_SUCCESS) {
+    spdlog::error("Failed to create stencil buffer");
+    exit(-1);
+  }
+
+  VkMemoryRequirements mem_reqs{};
+  vkGetImageMemoryRequirements(vk_device_, stencil_image_.image, &mem_reqs);
+
+  VkMemoryAllocateInfo mem_alloc{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
+  mem_alloc.allocationSize = mem_reqs.size;
+  mem_alloc.memoryTypeIndex = GetMemoryType(
+      mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  if (vkAllocateMemory(vk_device_, &mem_alloc, nullptr,
+                       &stencil_image_.memory) != VK_SUCCESS) {
+    spdlog::error("Failed to allocate stencil buffer memory");
+    exit(-1);
+  }
+  if (vkBindImageMemory(vk_device_, stencil_image_.image, stencil_image_.memory,
+                        0) != VK_SUCCESS) {
+    spdlog::error("Failed to bind stencil buffer memory");
+    exit(-1);
+  }
+
+  VkImageViewCreateInfo image_view_create_info{
+      VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+  image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  image_view_create_info.image = stencil_image_.image;
+  image_view_create_info.format = depth_format;
+  image_view_create_info.subresourceRange.baseMipLevel = 0;
+  image_view_create_info.subresourceRange.levelCount = 1;
+  image_view_create_info.subresourceRange.baseArrayLayer = 0;
+  image_view_create_info.subresourceRange.layerCount = 1;
+  image_view_create_info.subresourceRange.aspectMask =
+      VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+  if (vkCreateImageView(vk_device_, &image_view_create_info, nullptr,
+                        &stencil_image_.image_view) != VK_SUCCESS) {
+    spdlog::error("Failed to create image view for stencil buffer");
+    exit(-1);
+  }
+
+  stencil_image_.format = depth_format;
 }
 
 void VkApp::CreateCommandPool() {
@@ -628,29 +723,45 @@ void VkApp::CreateSyncObjects() {
 }
 
 void VkApp::CreateRenderPass() {
-  VkAttachmentDescription color_attachment{};
-  color_attachment.format = swap_chain_format_;
-  // TODO multisample
-  color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  std::array<VkAttachmentDescription, 2> attachments = {};
+  // color attachment
+  attachments[0].format = swap_chain_format_;
+  attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+  attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  // depth stencil attachment
+  attachments[1].format = stencil_image_.format;
+  attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+  attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
   VkAttachmentReference color_reference{};
   color_reference.attachment = 0;
   color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  VkAttachmentReference depth_stencil_reference{};
+  depth_stencil_reference.attachment = 1;
+  depth_stencil_reference.layout =
+      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &color_reference;
+  subpass.pDepthStencilAttachment = &depth_stencil_reference;
 
   VkRenderPassCreateInfo create_info{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
-  create_info.attachmentCount = 1;
-  create_info.pAttachments = &color_attachment;
+  create_info.attachmentCount = attachments.size();
+  create_info.pAttachments = attachments.data();
   create_info.subpassCount = 1;
   create_info.pSubpasses = &subpass;
 
@@ -664,9 +775,10 @@ void VkApp::CreateRenderPass() {
 void VkApp::CreateFramebuffers() {
   swap_chain_frame_buffers_.resize(swap_chain_image_views.size());
 
+  std::array<VkImageView, 2> attachments = {};
+  attachments[1] = stencil_image_.image_view;
   for (size_t i = 0; i < swap_chain_frame_buffers_.size(); i++) {
-    std::vector<VkImageView> attachments = {swap_chain_image_views[i]};
-
+    attachments[0] = swap_chain_image_views[i];
     VkFramebufferCreateInfo create_info{
         VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
     create_info.renderPass = render_pass_;
@@ -682,6 +794,25 @@ void VkApp::CreateFramebuffers() {
       exit(-1);
     }
   }
+}
+
+uint32_t VkApp::GetMemoryType(uint32_t type_bits,
+                              VkMemoryPropertyFlags properties) {
+  VkPhysicalDeviceMemoryProperties memory_properties;
+  vkGetPhysicalDeviceMemoryProperties(vk_phy_device_, &memory_properties);
+
+  for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {
+    if ((type_bits & 1) == 1) {
+      if ((memory_properties.memoryTypes[i].propertyFlags & properties) ==
+          properties) {
+        return i;
+      }
+    }
+
+    type_bits >>= 1;
+  }
+
+  return 0;
 }
 
 }  // namespace example

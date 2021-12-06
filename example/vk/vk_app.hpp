@@ -10,6 +10,13 @@
 
 namespace example {
 
+struct ImageWrapper {
+  VkImage image = {};
+  VkImageView image_view = {};
+  VkDeviceMemory memory = {};
+  VkFormat format = {};
+};
+
 class VkApp {
  public:
   VkApp(int32_t width, int32_t height, std::string name);
@@ -46,6 +53,7 @@ class VkApp {
   void CreateSyncObjects();
   void CreateRenderPass();
   void CreateFramebuffers();
+  uint32_t GetMemoryType(uint32_t type_bits, VkMemoryPropertyFlags properties);
 
  private:
   int32_t width_ = 0;
@@ -65,6 +73,7 @@ class VkApp {
   VkFormat swap_chain_format_ = {};
   VkExtent2D swap_chain_extend_ = {};
   std::vector<VkImageView> swap_chain_image_views = {};
+  ImageWrapper stencil_image_ = {};
   std::vector<VkFramebuffer> swap_chain_frame_buffers_ = {};
   VkCommandPool cmd_pool_ = {};
   std::vector<VkCommandBuffer> cmd_buffers_ = {};
