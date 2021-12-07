@@ -2,13 +2,13 @@
 #include <array>
 #include <cstring>
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 #include <skity/graphic/path.hpp>
 #include <sstream>
 
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
 #include "src/geometry/point_priv.hpp"
+#include "src/logging.hpp"
 
 namespace skity {
 
@@ -1199,9 +1199,7 @@ void Path::dump() {
         break;
     }
   }
-
-  std::cout << "-----------" << std::endl
-            << res.str() << "-----------" << std::endl;
+  LOG_INFO("------ {}", res.str());
 }
 
 }  // namespace skity

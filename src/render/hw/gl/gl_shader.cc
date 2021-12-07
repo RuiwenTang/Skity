@@ -2,10 +2,10 @@
 #include "src/render/hw/gl/gl_shader.hpp"
 
 #include <array>
-#include <iostream>
 #include <shader.hpp>
 #include <string>
 
+#include "src/logging.hpp"
 #include "src/render/hw/gl/gl_interface.hpp"
 
 namespace skity {
@@ -20,7 +20,7 @@ GLuint create_shader(const char* source, GLenum type) {
   if (!success) {
     GLchar info_log[1024];
     GL_CALL(GetShaderInfoLog, shader, 1204, nullptr, info_log);
-    std::cerr << "shader compile error = " << info_log;
+    LOG_ERROR("OpenGL shader compile error : {}", info_log);
     exit(-4);
   }
 
@@ -42,7 +42,7 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
   if (!success) {
     GLchar info_log[1024];
     GL_CALL(GetProgramInfoLog, program, 1024, nullptr, info_log);
-    std::cerr << "program link error " << info_log << std::endl;
+    LOG_ERROR("OpenGL program link error : {}", info_log);
     exit(-5);
   }
 

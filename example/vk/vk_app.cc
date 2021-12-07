@@ -332,7 +332,9 @@ void VkApp::CleanUp() {
   vkDestroySwapchainKHR(vk_device_, vk_swap_chain_, nullptr);
   vkDestroyDevice(vk_device_, nullptr);
   vkDestroySurfaceKHR(vk_instance_, vk_surface_, nullptr);
+#ifndef SKITY_RELEASE
   destroy_debug_utils_messenger_ext(vk_instance_, vk_debug_messenger_, nullptr);
+#endif
   vkDestroyInstance(vk_instance_, nullptr);
 
   glfwDestroyWindow(window_);
@@ -396,13 +398,14 @@ void VkApp::CreateVkInstance() {
         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     debug_create_info.pfnUserCallback = debug_callback;
-
+#ifndef SKITY_RELEASE
     if (create_debug_utils_messenger_ext(vk_instance_, &debug_create_info,
                                          nullptr,
                                          &vk_debug_messenger_) != VK_SUCCESS) {
       spdlog::error("Failed to set up debug messenger!");
       exit(-1);
     }
+#endif
   }
 
   spdlog::info("Create instance success");

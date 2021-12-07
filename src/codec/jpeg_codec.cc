@@ -2,9 +2,10 @@
 
 #include <turbojpeg.h>
 
-#include <iostream>
 #include <skity/codec/data.hpp>
 #include <skity/codec/pixmap.hpp>
+
+#include "src/logging.hpp"
 
 struct TJHandlerWrapper {
   explicit TJHandlerWrapper(tjhandle h) : handle(h) {}
@@ -37,7 +38,7 @@ bool JPEGCodec::RecognizeFileType(const char* header, size_t size) {
     return true;
   } else {
     char* err = tjGetErrorStr2(hw.handle);
-    std::cerr << " jpeg decode header failed : [ " << err << "]" << std::endl;
+    LOG_ERROR("jpeg decode header failed: [{}]", err);
     return false;
   }
 }
@@ -58,7 +59,7 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
 
   if (ret != 0) {
     char* err = tjGetErrorStr2(hw.handle);
-    std::cerr << " jpeg decode header failed : [ " << err << "]" << std::endl;
+    LOG_ERROR("jpeg decode header failed: [{}]", err);
     return nullptr;
   }
 
@@ -70,7 +71,7 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
   if (ret != 0) {
     tjFree(buffer);
     char* err = tjGetErrorStr2(hw.handle);
-    std::cerr << " jpeg decode image failed : [ " << err << "]" << std::endl;
+    LOG_ERROR("jpeg decode image failed: [{}]", err);
     return nullptr;
   }
 

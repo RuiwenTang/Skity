@@ -1,11 +1,11 @@
 #include "src/text/ft_library_wrap.hpp"
 
 #include <codecvt>
-#include <iostream>
 #include <locale>
 #include <skity/codec/data.hpp>
 
 #include "src/geometry/math.hpp"
+#include "src/logging.hpp"
 
 #include FT_OUTLINE_H
 
@@ -61,8 +61,7 @@ FTLibrary::FTLibrary() : ft_library_(0) {
   FT_Error error = FT_Init_FreeType(&ft_library_);
 
   if (error) {
-    std::cerr << "Couldn't initialize the library: FT_Init_FreeType() failed"
-              << std::endl;
+    LOG_ERROR("Couldn't initialize the library: FT_Init_FreeType() failed");
   }
 }
 
@@ -73,8 +72,7 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const char* file_path) {
   FT_Error error = FT_New_Face(ft_library_, file_path, 0, &ft_face);
 
   if (error) {
-    std::cerr << "Couldn't load the font file: FT_New_Face() failed"
-              << std::endl;
+    LOG_ERROR("Couldn't load the font file: FT_New_Face() failed");
     return nullptr;
   }
 
@@ -87,7 +85,7 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const Data* data) {
       ft_library_, (const FT_Byte*)data->RawData(), data->Size(), 0, &ft_face);
 
   if (error) {
-    std::cerr << "Couldn't load font from memory" << std::endl;
+    LOG_ERROR("Couldn't load font from memory");
     return nullptr;
   }
 
@@ -115,7 +113,7 @@ std::vector<FTGlyphInfo> FTTypeFace::LoadGlyph(const char* text, float fontSize,
         FT_Load_Glyph(ft_face_, index, FT_LOAD_NO_SCALE | FT_LOAD_NO_BITMAP);
 
     if (error) {
-      std::cerr << "failed to load Glyph " << std::endl;
+      LOG_ERROR("failed to load Glyph {:x} at index {}", c, index);
       continue;
     }
 
@@ -146,7 +144,7 @@ FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size,
       FT_Load_Glyph(ft_face_, index, FT_LOAD_NO_SCALE | FT_LOAD_NO_BITMAP);
 
   if (error) {
-    std::cerr << "failed to load Glyph " << std::endl;
+    LOG_ERROR("failed to load Glyph {} at index {}", glyph_id, index);
     info.glyph_id = 0;
     return info;
   }
@@ -207,7 +205,7 @@ Path FTTypeFace::ExtractOutLine() {
       FT_Outline_Decompose(&ft_face_->glyph->outline, &callback, &outline_info);
 
   if (error) {
-    std::cerr << "FT_Outline_Decompose failed" << std::endl;
+    LOG_ERROR("FT_Outline_Decompose failed");
   }
 
   path.close();
@@ -225,7 +223,7 @@ FTGlyphBitmapInfo FTTypeFace::LoadGlyphBitmap(GlyphID glyph_id,
   FT_UInt c_index = FT_Get_Char_Index(ft_face_, glyph_id);
 
   if (FT_Load_Glyph(ft_face_, c_index, FT_LOAD_RENDER)) {
-    std::cerr << "Failed to load glyph id: " << glyph_id << std::endl;
+    LOG_ERROR("Failed to load glyph id: {}", glyph_id);
     return {};
   }
 

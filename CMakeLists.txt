@@ -19,6 +19,9 @@ else()
     endif()
 endif()
 
+# logging option
+option(ENABLE_LOG "option for logging" ON)
+
 # Vulkan option
 option(VULKAN_BACKEND "option for vulkan backend" ON)
 option(OPENGL_BACKEND "option for opengl backend" ON)
@@ -48,8 +51,12 @@ endfunction()
 create_resources(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}/shader.hpp)
 
 #include
-
 include_directories(third_party/glm)
+
+if (${ENABLE_LOG})
+    add_definitions(-DSKITY_LOG=1)
+    include_directories(third_party/spdlog/include)
+endif()
 
 # xml
 include_directories(third_party/pugixml/src)
@@ -178,6 +185,8 @@ set(Skity_src
         src/graphic/path_measure.cc
         src/graphic/path_measure.hpp
         src/graphic/path_priv.hpp
+        src/logging.cc
+        src/logging.hpp
         src/render/canvas.cc
         src/render/text/font_texture.cc
         src/render/text/font_texture.hpp
