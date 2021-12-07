@@ -21,6 +21,7 @@ endif()
 
 # Vulkan option
 option(VULKAN_BACKEND "option for vulkan backend" ON)
+option(OPENGL_BACKEND "option for opengl backend" ON)
 
 
 # Creates C resources file from files in given directory
@@ -49,7 +50,7 @@ create_resources(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}
 #include
 
 include_directories(third_party/glm)
-include_directories(third_party/OpenGL)
+
 # xml
 include_directories(third_party/pugixml/src)
 add_subdirectory(third_party/pugixml)
@@ -57,6 +58,11 @@ add_subdirectory(third_party/pugixml)
 if (${VULKAN_BACKEND})
     add_definitions(-DSKITY_VULKAN=1)
     include_directories(third_party/Vulkan-Headers/include)
+endif()
+
+if (${OPENGL_BACKEND})
+    add_definitions(-DSKITY_OPENGL=1)
+    include_directories(third_party/OpenGL)
 endif()
 
 include_directories(include)
@@ -108,21 +114,35 @@ set(HW_RENDER
     src/render/hw/hw_texture.hpp
 )
 
+# hardware Vulkan backend
+if (${VULKAN_BACKEND})
+    set(HW_VK_RENDER
+        src/render/hw/vk/vk_canvas.cc
+        src/render/hw/vk/vk_canvas.hpp
+    )
+else()
+    set(HW_VK_RENDER "")
+endif()
+
 # hardware GL backend
-set(HW_GL_RENDER
-    src/render/hw/gl/gl_canvas.cc
-    src/render/hw/gl/gl_canvas.hpp
-    src/render/hw/gl/gl_font_texture.cc
-    src/render/hw/gl/gl_font_texture.hpp
-    src/render/hw/gl/gl_interface.cc
-    src/render/hw/gl/gl_interface.hpp
-    src/render/hw/gl/gl_pipeline.cc
-    src/render/hw/gl/gl_pipeline.hpp
-    src/render/hw/gl/gl_shader.cc
-    src/render/hw/gl/gl_shader.hpp
-    src/render/hw/gl/gl_texture.cc
-    src/render/hw/gl/gl_texture.hpp
-)
+if (${OPENGL_BACKEND})
+    set(HW_GL_RENDER
+        src/render/hw/gl/gl_canvas.cc
+        src/render/hw/gl/gl_canvas.hpp
+        src/render/hw/gl/gl_font_texture.cc
+        src/render/hw/gl/gl_font_texture.hpp
+        src/render/hw/gl/gl_interface.cc
+        src/render/hw/gl/gl_interface.hpp
+        src/render/hw/gl/gl_pipeline.cc
+        src/render/hw/gl/gl_pipeline.hpp
+        src/render/hw/gl/gl_shader.cc
+        src/render/hw/gl/gl_shader.hpp
+        src/render/hw/gl/gl_texture.cc
+        src/render/hw/gl/gl_texture.hpp
+    )
+else()
+   set(HW_GL_RENDER "")
+endif()
 
 set(Skity_src
         src/codec/codec.cc
@@ -190,6 +210,7 @@ set(Skity_src
         src/xml/xml_parser.hpp
         ${HW_RENDER}
         ${HW_GL_RENDER}
+        ${HW_VK_RENDER}
         )
 
 set(BUILD_IN_FONT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Roboto Mono Nerd Font Complete.ttf")

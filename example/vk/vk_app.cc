@@ -186,6 +186,12 @@ void VkApp::Run() {
   window_ =
       glfwCreateWindow(width_, height_, window_name_.c_str(), nullptr, nullptr);
 
+  int32_t pp_width, pp_height;
+  glfwGetFramebufferSize(window_, &pp_width, &pp_height);
+
+  density_ = (float)(pp_width * pp_width + pp_height * pp_height) /
+             (float)(width_ * width_ + height_ * height_);
+
   SetupVkContext();
 
   Loop();

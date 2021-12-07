@@ -26,12 +26,13 @@ struct GPUContext {
 #ifdef SKITY_VULKAN
 
 struct GPUVkContext : public GPUContext {
-  VkInstance vk_instance = {};
-  VkPhysicalDevice vk_phy_device = {};
-  VkDevice vk_device = {};
-  VkExtent2D vk_frame_extent = {};
+  GPUVkContext(void* loader) : GPUContext(GPUBackendType::kVulkan, loader) {}
 
-  GPUVkContext(GPUBackendType type, void* loader) : GPUContext(type, loader) {}
+  virtual VkInstance GetInstance() = 0;
+  virtual VkPhysicalDevice GetPhysicalDevice() = 0;
+  virtual VkDevice GetDevice() = 0;
+  virtual VkExtent2D GetFrameExtent() = 0;
+  virtual VkCommandBuffer GetCurrentCMD() = 0;
 };
 
 #endif

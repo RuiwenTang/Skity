@@ -32,9 +32,15 @@ class VkApp {
   virtual void OnUpdate(float elapsed_time) {}
   virtual void OnDestroy() {}
 
+  float ScreenDensity() const { return density_; }
+
   VkInstance Instance() const { return vk_instance_; }
   VkPhysicalDevice PhysicalDevice() const { return vk_phy_device_; }
   VkDevice Device() const { return vk_device_; }
+  VkExtent2D FrameExtent() const { return swap_chain_extend_; }
+  VkCommandBuffer CurrentCMDBuffer() const {
+    return cmd_buffers_[current_frame_];
+  }
 
  private:
   void SetupVkContext();
@@ -58,6 +64,7 @@ class VkApp {
  private:
   int32_t width_ = 0;
   int32_t height_ = 0;
+  float density_ = 1.f;
   std::string window_name_ = {};
   GLFWwindow* window_ = {};
   VkInstance vk_instance_ = {};

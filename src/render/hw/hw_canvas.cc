@@ -5,10 +5,17 @@
 #include <skity/effect/path_effect.hpp>
 
 #include "src/geometry/math.hpp"
-#include "src/render/hw/gl/gl_canvas.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 #include "src/render/hw/hw_path_raster.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
+
+#ifdef SKITY_OPENGL
+#include "src/render/hw/gl/gl_canvas.hpp"
+#endif
+
+#ifdef SKITY_VULKAN
+#include "src/render/hw/vk/vk_canvas.hpp"
+#endif
 
 namespace skity {
 
@@ -20,9 +27,13 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
 
   std::unique_ptr<HWCanvas> canvas;
   if (ctx->type == GPUBackendType::kOpenGL) {
+#ifdef SKITY_OPENGL
     canvas = std::make_unique<GLCanvas>(mvp, width, height, density);
+#endif
   } else if (ctx->type == GPUBackendType::kVulkan) {
-    // TODO make vk_canvas
+#ifdef SKITY_VULKAN
+    canvas = std::make_unique<VKCanvas>(mvp, width, height, density);
+#endif
   } else {
     // nullptr may cause crash
     return canvas;
