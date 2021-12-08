@@ -13,6 +13,7 @@ struct VKInterface {
                                   PFN_vkGetDeviceProcAddr proc_loader);
 
   PFN_vkCreateShaderModule fvkCreateShaderModule = {};
+  PFN_vkCreatePipelineLayout fvkCreatePipelineLayout = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
 };
 

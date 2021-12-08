@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <skity/gpu/gpu_context.hpp>
+#include <vector>
 
 namespace skity {
 
@@ -23,10 +24,15 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateColorPipeline();
 
  protected:
-  virtual std::vector<VkDescriptorSetLayoutBinding> GetLayoutBindings() = 0;
+  void InitDescriptorSetLayout(GPUVkContext* ctx);
+  void InitPipelineLayout(GPUVkContext* ctx);
+
+  virtual std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(
+      GPUVkContext* ctx) = 0;
 
  private:
   size_t push_const_size_;
+  std::vector<VkDescriptorSetLayout> descriptor_set_layout_ = {};
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
 };
