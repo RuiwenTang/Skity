@@ -1,6 +1,7 @@
 #include "src/render/hw/vk/vk_pipeline.hpp"
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
 
 namespace skity {
 
@@ -8,7 +9,13 @@ VKPipeline::VKPipeline(GPUVkContext* ctx) : HWPipeline(), ctx_(ctx) {}
 
 VKPipeline::~VKPipeline() {}
 
-void VKPipeline::Init() {}
+void VKPipeline::Init() {
+  if (!VKInterface::GlobalInterface()) {
+    VKInterface::InitGlobalInterface(
+        ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
+  }
+  InitPipelines();
+}
 
 void VKPipeline::Bind() {}
 
@@ -56,5 +63,7 @@ void VKPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
 void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {}
 
 void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {}
+
+void VKPipeline::InitPipelines() {}
 
 }  // namespace skity

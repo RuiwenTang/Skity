@@ -23,6 +23,7 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
   VkCommandBuffer GetCurrentCMD() override {
     return example::VkApp::CurrentCMDBuffer();
   }
+  VkRenderPass GetRenderPass() override { return example::VkApp::RenderPass(); }
 
  protected:
   void OnStart() override {

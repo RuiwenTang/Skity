@@ -41,6 +41,7 @@ class VkApp {
   VkCommandBuffer CurrentCMDBuffer() const {
     return cmd_buffers_[current_frame_];
   }
+  VkRenderPass RenderPass() const { return render_pass_; }
 
  private:
   void SetupVkContext();

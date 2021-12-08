@@ -32,7 +32,8 @@ function(create_resources dir output)
     # Create empty output file
     file(WRITE ${output} "#pragma once\n")
     # Collect input files
-    file(GLOB bins ${dir}/*)
+    file(GLOB bins ${dir}/*.glsl ${dir}/*.spv)
+    message(${bins})
     # Iterate through input files
     foreach (bin ${bins})
         # Get short filename
@@ -126,8 +127,14 @@ if (${VULKAN_BACKEND})
     set(HW_VK_RENDER
         src/render/hw/vk/vk_canvas.cc
         src/render/hw/vk/vk_canvas.hpp
+        src/render/hw/vk/vk_interface.cc
+        src/render/hw/vk/vk_interface.hpp
         src/render/hw/vk/vk_pipeline.cc
         src/render/hw/vk/vk_pipeline.hpp
+        src/render/hw/vk/vk_pipeline_wrapper.cc
+        src/render/hw/vk/vk_pipeline_wrapper.hpp
+        src/render/hw/vk/vk_utils.cc
+        src/render/hw/vk/vk_utils.hpp
     )
 else()
     set(HW_VK_RENDER "")

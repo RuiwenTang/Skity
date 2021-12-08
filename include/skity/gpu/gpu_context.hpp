@@ -33,6 +33,7 @@ struct GPUVkContext : public GPUContext {
   virtual VkDevice GetDevice() = 0;
   virtual VkExtent2D GetFrameExtent() = 0;
   virtual VkCommandBuffer GetCurrentCMD() = 0;
+  virtual VkRenderPass GetRenderPass() = 0;
 };
 
 #endif

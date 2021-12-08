@@ -17,6 +17,7 @@ void VKCanvas::OnInit(GPUContext* ctx) {
   }
 
   vk_pipeline_ = std::make_unique<VKPipeline>((GPUVkContext*)ctx);
+  vk_pipeline_->Init();
 }
 
 HWPipeline* VKCanvas::GetPipeline() { return vk_pipeline_.get(); }

@@ -4,6 +4,7 @@
 #include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 
 namespace skity {
 
@@ -62,7 +63,11 @@ class VKPipeline : public HWPipeline {
   void BindTexture(HWTexture* texture, uint32_t slot) override;
 
  private:
+  void InitPipelines();
+
+ private:
   GPUVkContext* ctx_;
+  std::unique_ptr<VKPipelineWrapper> color_pipeline_ = {};
 };
 
 }  // namespace skity
