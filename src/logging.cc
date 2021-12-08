@@ -13,7 +13,13 @@ void Log::Init() {
 
   g_logger->set_pattern("%^[%T] %n: %v%$");
 
+#ifdef SKITY_RELEASE
+  g_logger->set_level(spdlog::level::err);
   g_logger->flush_on(spdlog::level::err);
+#else
+  g_logger->set_level(spdlog::level::debug);
+  g_logger->flush_on(spdlog::level::debug);
+#endif
 }
 
 std::shared_ptr<spdlog::logger> Log::GetLogger() {

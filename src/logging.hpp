@@ -20,12 +20,14 @@ class Log {
 #define LOG_INFO(...) skity::Log::GetLogger()->info(__VA_ARGS__)
 #define LOG_WARN(...) skity::Log::GetLogger()->warn(__VA_ARGS__)
 #define LOG_ERROR(...) skity::Log::GetLogger()->error(__VA_ARGS__)
+#define LOG_DEBUG(...) skity::Log::GetLogger()->debug(__VA_ARGS__)
 
 #else
 
 #define LOG_INFO(...)
 #define LOG_WARN(...)
 #define LOG_ERROR(...)
+#define LOG_DEBUG(...)
 
 #endif
 
