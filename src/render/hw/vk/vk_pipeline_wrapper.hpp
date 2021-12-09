@@ -28,7 +28,7 @@ class VKPipelineWrapper {
   void InitPipelineLayout(GPUVkContext* ctx);
 
   virtual std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(
-      GPUVkContext* ctx) = 0;
+      GPUVkContext* ctx);
 
   virtual VkPipelineDepthStencilStateCreateInfo
   GetDepthStencilStateCreateInfo() = 0;

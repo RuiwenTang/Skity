@@ -14,6 +14,7 @@ struct VKInterface {
 
   PFN_vkCreateShaderModule fvkCreateShaderModule = {};
   PFN_vkCreatePipelineLayout fvkCreatePipelineLayout = {};
+  PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateGraphicsPipelines fvkCreateGraphicsPipelines = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
 };

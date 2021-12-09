@@ -50,6 +50,16 @@ class VKUtils final {
   static VkGraphicsPipelineCreateInfo PipelineCreateInfo(
       VkPipelineLayout layout, VkRenderPass render_pass,
       VkPipelineCreateFlags flags = 0);
+
+  static VkDescriptorSetLayoutBinding DescriptorSetLayoutBinding(
+      VkDescriptorType type, VkShaderStageFlags stage_flags, uint32_t binding,
+      uint32_t descriptor_count = 1);
+
+  static VkDescriptorSetLayoutCreateInfo DescriptorSetLayoutCreateInfo(
+      const VkDescriptorSetLayoutBinding* p_bindings, uint32_t binding_count);
+
+  static VkDescriptorSetLayout CreateDescriptorSetLayout(
+      VkDevice device, VkDescriptorSetLayoutCreateInfo const& create_info);
 };
 
 }  // namespace skity

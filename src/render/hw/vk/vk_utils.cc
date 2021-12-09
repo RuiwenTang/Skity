@@ -134,4 +134,41 @@ VkGraphicsPipelineCreateInfo VKUtils::PipelineCreateInfo(
   return create_info;
 }
 
+VkDescriptorSetLayoutBinding VKUtils::DescriptorSetLayoutBinding(
+    VkDescriptorType type, VkShaderStageFlags stage_flags, uint32_t binding,
+    uint32_t descriptor_count) {
+  VkDescriptorSetLayoutBinding set_layout_binding{};
+
+  set_layout_binding.descriptorType = type;
+  set_layout_binding.stageFlags = stage_flags;
+  set_layout_binding.binding = binding;
+  set_layout_binding.descriptorCount = descriptor_count;
+
+  return set_layout_binding;
+}
+
+VkDescriptorSetLayoutCreateInfo VKUtils::DescriptorSetLayoutCreateInfo(
+    const VkDescriptorSetLayoutBinding *p_bindings, uint32_t binding_count) {
+  VkDescriptorSetLayoutCreateInfo create_info{
+      VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+
+  create_info.pBindings = p_bindings;
+  create_info.bindingCount = binding_count;
+
+  return create_info;
+}
+
+VkDescriptorSetLayout VKUtils::CreateDescriptorSetLayout(
+    VkDevice device, const VkDescriptorSetLayoutCreateInfo &create_info) {
+  VkDescriptorSetLayout ret = VK_NULL_HANDLE;
+
+  if (VK_CALL(vkCreateDescriptorSetLayout, device, &create_info, nullptr,
+              &ret) != VK_SUCCESS) {
+    LOG_ERROR("Failed create DescriptorSet layout with {} bindings",
+              create_info.bindingCount);
+  }
+
+  return ret;
+}
+
 }  // namespace skity

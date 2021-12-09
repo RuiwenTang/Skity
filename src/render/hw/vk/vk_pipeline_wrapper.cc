@@ -69,6 +69,23 @@ void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
   descriptor_set_layout_ = GenearteDescriptorSetLayout(ctx);
 }
 
+std::vector<VkDescriptorSetLayout>
+VKPipelineWrapper::GenearteDescriptorSetLayout(GPUVkContext* ctx) {
+  std::vector<VkDescriptorSetLayout> set_layout{};
+
+  // set 0 is common for all pipelines
+  auto binding = VKUtils::DescriptorSetLayoutBinding(
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+      VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+
+  auto set_create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
+
+  set_layout.emplace_back(
+      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set_create_info));
+
+  return set_layout;
+}
+
 void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
   VkPushConstantRange push_const_range = VKUtils::PushConstantRange(
       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
