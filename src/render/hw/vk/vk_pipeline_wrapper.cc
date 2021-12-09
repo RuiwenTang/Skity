@@ -1,5 +1,7 @@
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 
+#include <array>
+
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
@@ -8,8 +10,55 @@ namespace skity {
 
 void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
                              VkShaderModule fragment) {
+  std::array<VkPipelineShaderStageCreateInfo, 2> shaders{};
+  shaders[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shaders[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+  shaders[0].module = vertex;
+  shaders[0].pName = "main";
+
+  shaders[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shaders[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  shaders[1].module = fragment;
+  shaders[1].pName = "main";
+
   InitDescriptorSetLayout(ctx);
   InitPipelineLayout(ctx);
+
+  auto input_assembly_state = VKUtils::PipelineInputAssemblyStateCreateInfo(
+      VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, 0, VK_FALSE);
+
+  auto rasterization_state = VKUtils::PipelineRasterizationStateCreateInfo(
+      VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+
+  auto color_blend_attachment = GetColorBlendState();
+  auto color_blend_state =
+      VKUtils::PipelineColorBlendStateCreateInfo(1, &color_blend_attachment);
+  auto depth_stencil_state = GetDepthStencilStateCreateInfo();
+  auto view_port_state = VKUtils::PipelineViewportStateCreateInfo(1, 1);
+  // TODO support multisample for vulkan
+  auto multisample_state =
+      VKUtils::PipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
+  auto dynamic_states_value = GetDynamicStates();
+  auto dynamic_state =
+      VKUtils::PipelineDynamicStateCreateInfo(dynamic_states_value);
+
+  auto pipeline_create_info =
+      VKUtils::PipelineCreateInfo(pipeline_layout_, ctx->GetRenderPass());
+
+  pipeline_create_info.pInputAssemblyState = &input_assembly_state;
+  pipeline_create_info.pRasterizationState = &rasterization_state;
+  pipeline_create_info.pColorBlendState = &color_blend_state;
+  pipeline_create_info.pMultisampleState = &multisample_state;
+  pipeline_create_info.pViewportState = &view_port_state;
+  pipeline_create_info.pDepthStencilState = &depth_stencil_state;
+  pipeline_create_info.pDynamicState = &dynamic_state;
+  pipeline_create_info.stageCount = shaders.size();
+  pipeline_create_info.pStages = shaders.data();
+
+  if (VK_CALL(vkCreateGraphicsPipelines, ctx->GetDevice(), nullptr, 1,
+              &pipeline_create_info, nullptr, &pipeline_) != VK_SUCCESS) {
+    LOG_ERROR("Failed to create Graphic Pipeline");
+  }
 }
 
 void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
@@ -38,6 +87,33 @@ void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
     LOG_ERROR("Failed to create pipeline layout for {} descriptor sets",
               descriptor_set_layout_.size());
   }
+}
+
+VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
+  VkPipelineColorBlendAttachmentState blend_attachment_state{};
+  blend_attachment_state.blendEnable = VK_TRUE;
+  blend_attachment_state.colorWriteMask =
+      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+  blend_attachment_state.dstColorBlendFactor =
+      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+  blend_attachment_state.srcAlphaBlendFactor =
+      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
+
+  return blend_attachment_state;
+}
+
+std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
+  std::vector<VkDynamicState> states{
+      VK_DYNAMIC_STATE_VIEWPORT,
+      VK_DYNAMIC_STATE_SCISSOR,
+  };
+
+  return states;
 }
 
 }  // namespace skity

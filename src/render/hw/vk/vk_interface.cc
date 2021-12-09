@@ -15,6 +15,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   g_vk_interface = new VKInterface;
 
   GET_PROC(vkCreatePipelineLayout);
+  GET_PROC(vkCreateGraphicsPipelines);
   GET_PROC(vkCreateShaderModule);
   GET_PROC(vkCmdBindPipeline);
 }

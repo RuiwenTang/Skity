@@ -30,6 +30,13 @@ class VKPipelineWrapper {
   virtual std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(
       GPUVkContext* ctx) = 0;
 
+  virtual VkPipelineDepthStencilStateCreateInfo
+  GetDepthStencilStateCreateInfo() = 0;
+
+  virtual VkPipelineColorBlendAttachmentState GetColorBlendState();
+
+  virtual std::vector<VkDynamicState> GetDynamicStates();
+
  private:
   size_t push_const_size_;
   std::vector<VkDescriptorSetLayout> descriptor_set_layout_ = {};
