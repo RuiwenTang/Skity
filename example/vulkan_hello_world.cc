@@ -31,7 +31,7 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
         800, 800, ScreenDensity(), this);
   }
   void OnUpdate(float elapsed_time) override {}
-  void OnDestroy() override {}
+  void OnDestroy() override { canvas_ = nullptr; }
 
  private:
   std::unique_ptr<skity::Canvas> canvas_ = {};

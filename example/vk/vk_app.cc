@@ -367,6 +367,9 @@ void VkApp::CreateVkInstance() {
     extension_names[i] = glfw_extensions[i];
   }
 
+  // skity need this extension to query device properties
+  extension_names.emplace_back("VK_KHR_get_physical_device_properties2");
+
   if (g_enable_validation) {
     extension_names.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
@@ -390,7 +393,7 @@ void VkApp::CreateVkInstance() {
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info{
         VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
     debug_create_info.messageSeverity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+        //   VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     debug_create_info.messageType =
@@ -466,6 +469,35 @@ void VkApp::PickPhysicalDevice() {
     }
   }
 
+  VkPhysicalDeviceProperties phy_props;
+  vkGetPhysicalDeviceProperties(vk_phy_device_, &phy_props);
+
+  spdlog::info("Picked device name = {}", phy_props.deviceName);
+
+  {
+    // query all extensions
+    uint32_t entry_count = 0;
+    vkEnumerateDeviceExtensionProperties(vk_phy_device_, nullptr, &entry_count,
+                                         nullptr);
+    std::vector<VkExtensionProperties> entries{entry_count};
+    vkEnumerateDeviceExtensionProperties(vk_phy_device_, nullptr, &entry_count,
+                                         entries.data());
+    for (auto ext : entries) {
+      spdlog::info("ext : {}", ext.extensionName);
+    }
+    // query dynamic feature
+    VkPhysicalDeviceExtendedDynamicStateFeaturesEXT dynamic_states{
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT};
+    VkPhysicalDeviceFeatures2 phy_features2{
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+
+    phy_features2.pNext = &dynamic_states;
+    vkGetPhysicalDeviceFeatures2(vk_phy_device_, &phy_features2);
+
+    spdlog::info("dynamic state is enabled: {}",
+                 dynamic_states.extendedDynamicState);
+  }
+
   if (graphic_queue_family == -1 || present_queue_family == -1) {
     spdlog::error("Can not find GPU contains Graphic support");
     exit(-1);
@@ -522,6 +554,9 @@ void VkApp::CreateVkDevice() {
       // VUID-VkDeviceCreateInfo-pProperties-04451
       required_device_extension.emplace_back("VK_KHR_portability_subset");
     }
+
+    // for now hard code this extension used in skity vulkan backend
+    // required_device_extension.emplace_back("VK_EXT_extended_dynamic_state");
   }
 
   VkDeviceCreateInfo create_info{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};

@@ -2,18 +2,35 @@
 
 #include <array>
 
+#include "shader.hpp"
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
 
-ColorPipeline::ColorPipeline(size_t push_const_size)
-    : VKPipelineWrapper(push_const_size) {}
-
-std::vector<VkDescriptorSetLayout> ColorPipeline::GenearteDescriptorSetLayout(
+std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
     GPUVkContext* ctx) {
-  auto layouts = VKPipelineWrapper::GenearteDescriptorSetLayout(ctx);
+  auto static_color_pipeline =
+      std::make_unique<StaticColorPipeline>(sizeof(GlobalPushConst));
 
+  auto vertex =
+      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
+                            vk_common_vert_spv_size);
+
+  auto fragment = VKUtils::CreateShader(ctx->GetDevice(),
+                                        (const char*)vk_uniform_color_frag_spv,
+                                        vk_uniform_color_frag_spv_size);
+  static_color_pipeline->Init(ctx, vertex, fragment);
+
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+
+  return static_color_pipeline;
+}
+
+static VkDescriptorSetLayout create_color_descriptor_set_layout(
+    GPUVkContext* ctx) {
   LOG_DEBUG("Color Pipeline create set 1 layout");
   std::array<VkDescriptorSetLayoutBinding, 2> bindings{
       // set 1 binding 0 global alpha
@@ -26,8 +43,14 @@ std::vector<VkDescriptorSetLayout> ColorPipeline::GenearteDescriptorSetLayout(
   auto create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(bindings.data(), bindings.size());
 
-  layouts.emplace_back(
-      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info));
+  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+}
+
+std::vector<VkDescriptorSetLayout>
+StaticColorPipeline::GenearteDescriptorSetLayout(GPUVkContext* ctx) {
+  auto layouts = VKPipelineWrapper::GenearteDescriptorSetLayout(ctx);
+
+  layouts.emplace_back(create_color_descriptor_set_layout(ctx));
 
   return layouts;
 }

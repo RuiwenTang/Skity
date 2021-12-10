@@ -67,7 +67,7 @@ class VKPipeline : public HWPipeline {
 
  private:
   GPUVkContext* ctx_;
-  std::unique_ptr<VKPipelineWrapper> color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
 };
 
 }  // namespace skity

@@ -3,11 +3,17 @@
 
 #include <vulkan/vulkan.h>
 
+#include <glm/glm.hpp>
 #include <memory>
 #include <skity/gpu/gpu_context.hpp>
 #include <vector>
 
 namespace skity {
+
+struct GlobalPushConst {
+  alignas(16) glm::mat4 mvp = {};
+  alignas(16) int32_t premul_alpha = {};
+};
 
 class VKPipelineWrapper {
  public:
@@ -21,7 +27,8 @@ class VKPipelineWrapper {
 
   void Bind(VkCommandBuffer cmd);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateColorPipeline();
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
+      GPUVkContext* ctx);
 
  protected:
   void InitDescriptorSetLayout(GPUVkContext* ctx);
@@ -36,6 +43,10 @@ class VKPipelineWrapper {
   virtual VkPipelineColorBlendAttachmentState GetColorBlendState();
 
   virtual std::vector<VkDynamicState> GetDynamicStates();
+
+ private:
+  VkVertexInputBindingDescription GetVertexInputBinding();
+  std::array<VkVertexInputAttributeDescription, 2> GetVertexInputAttributes();
 
  private:
   size_t push_const_size_;

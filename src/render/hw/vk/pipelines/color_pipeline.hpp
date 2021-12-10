@@ -1,14 +1,15 @@
 #ifndef SKITY_SRC_RENDER_HW_VK_PIPELINES_COLOR_PIPELINE_HPP
 #define SKITY_SRC_RENDER_HW_VK_PIPELINES_COLOR_PIPELINE_HPP
 
-#include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
+#include "src/render/hw/vk/pipelines/static_pipeline.hpp"
 
 namespace skity {
 
-class ColorPipeline : public VKPipelineWrapper {
+class StaticColorPipeline : public StaticPipeline {
  public:
-  ColorPipeline(size_t push_const_size);
-  ~ColorPipeline() override = default;
+  StaticColorPipeline(size_t push_const_size)
+      : StaticPipeline(push_const_size) {}
+  ~StaticColorPipeline() override = default;
 
  protected:
   std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(

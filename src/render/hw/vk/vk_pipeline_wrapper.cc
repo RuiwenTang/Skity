@@ -24,6 +24,16 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   InitDescriptorSetLayout(ctx);
   InitPipelineLayout(ctx);
 
+  // all pipeline use single input binding with 2 attributes
+  auto input_binding = GetVertexInputBinding();
+  // input attributes
+  auto input_attr = GetVertexInputAttributes();
+  auto vertex_input_state = VKUtils::PipelineVertexInputStateCreateInfo();
+  vertex_input_state.vertexBindingDescriptionCount = 1;
+  vertex_input_state.pVertexBindingDescriptions = &input_binding;
+  vertex_input_state.vertexAttributeDescriptionCount = input_attr.size();
+  vertex_input_state.pVertexAttributeDescriptions = input_attr.data();
+
   auto input_assembly_state = VKUtils::PipelineInputAssemblyStateCreateInfo(
       VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, 0, VK_FALSE);
 
@@ -45,6 +55,7 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   auto pipeline_create_info =
       VKUtils::PipelineCreateInfo(pipeline_layout_, ctx->GetRenderPass());
 
+  pipeline_create_info.pVertexInputState = &vertex_input_state;
   pipeline_create_info.pInputAssemblyState = &input_assembly_state;
   pipeline_create_info.pRasterizationState = &rasterization_state;
   pipeline_create_info.pColorBlendState = &color_blend_state;
@@ -58,6 +69,16 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   if (VK_CALL(vkCreateGraphicsPipelines, ctx->GetDevice(), nullptr, 1,
               &pipeline_create_info, nullptr, &pipeline_) != VK_SUCCESS) {
     LOG_ERROR("Failed to create Graphic Pipeline");
+  }
+}
+
+void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
+  VK_CALL(vkDestroyPipeline, ctx->GetDevice(), pipeline_, nullptr);
+  VK_CALL(vkDestroyPipelineLayout, ctx->GetDevice(), pipeline_layout_, nullptr);
+
+  for (auto set_layout : descriptor_set_layout_) {
+    VK_CALL(vkDestroyDescriptorSetLayout, ctx->GetDevice(), set_layout,
+            nullptr);
   }
 }
 
@@ -131,6 +152,32 @@ std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
   };
 
   return states;
+}
+
+VkVertexInputBindingDescription VKPipelineWrapper::GetVertexInputBinding() {
+  VkVertexInputBindingDescription input_binding{};
+  input_binding.binding = 0;
+  input_binding.stride = 5 * sizeof(float);
+
+  return input_binding;
+}
+
+std::array<VkVertexInputAttributeDescription, 2>
+VKPipelineWrapper::GetVertexInputAttributes() {
+  std::array<VkVertexInputAttributeDescription, 2> input_attr{};
+
+  // location 0 vec2 [x, y]
+  input_attr[0].binding = 0;
+  input_attr[0].location = 0;
+  input_attr[0].format = VK_FORMAT_R32G32_SFLOAT;
+  input_attr[0].offset = 0;
+  // location 1 vec3 [mix, u, v]
+  input_attr[1].binding = 0;
+  input_attr[1].location = 1;
+  input_attr[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+  input_attr[1].offset = 2 * sizeof(float);
+
+  return input_attr;
 }
 
 }  // namespace skity

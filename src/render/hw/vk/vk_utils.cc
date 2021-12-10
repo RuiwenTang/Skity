@@ -41,6 +41,14 @@ VkShaderModule VKUtils::CreateShader(VkDevice device, const char *data,
   return shader_module;
 }
 
+VkPipelineVertexInputStateCreateInfo
+VKUtils::PipelineVertexInputStateCreateInfo() {
+  VkPipelineVertexInputStateCreateInfo create_info{
+      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+
+  return create_info;
+}
+
 VkPipelineInputAssemblyStateCreateInfo
 VKUtils::PipelineInputAssemblyStateCreateInfo(
     VkPrimitiveTopology topology, VkPipelineInputAssemblyStateCreateFlags flags,
@@ -169,6 +177,20 @@ VkDescriptorSetLayout VKUtils::CreateDescriptorSetLayout(
   }
 
   return ret;
+}
+
+VkPipelineDepthStencilStateCreateInfo
+VKUtils::PipelineDepthStencilStateCreateInfo(VkBool32 depth_test_enable,
+                                             VkBool32 depth_write_enable,
+                                             VkCompareOp depth_compare_op) {
+  VkPipelineDepthStencilStateCreateInfo create_info{
+      VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+
+  create_info.depthTestEnable = depth_test_enable;
+  create_info.depthWriteEnable = depth_write_enable;
+  create_info.depthCompareOp = depth_compare_op;
+
+  return create_info;
 }
 
 }  // namespace skity

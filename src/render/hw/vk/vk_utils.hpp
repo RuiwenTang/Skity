@@ -18,6 +18,9 @@ class VKUtils final {
   static VkShaderModule CreateShader(VkDevice, const char* data,
                                      size_t data_size);
 
+  static VkPipelineVertexInputStateCreateInfo
+  PipelineVertexInputStateCreateInfo();
+
   static VkPipelineInputAssemblyStateCreateInfo
   PipelineInputAssemblyStateCreateInfo(
       VkPrimitiveTopology topology,
@@ -60,6 +63,11 @@ class VKUtils final {
 
   static VkDescriptorSetLayout CreateDescriptorSetLayout(
       VkDevice device, VkDescriptorSetLayoutCreateInfo const& create_info);
+
+  static VkPipelineDepthStencilStateCreateInfo
+  PipelineDepthStencilStateCreateInfo(VkBool32 depth_test_enable,
+                                      VkBool32 depth_write_enable,
+                                      VkCompareOp depth_compare_op);
 };
 
 }  // namespace skity

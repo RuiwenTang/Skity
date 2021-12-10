@@ -7,7 +7,7 @@ namespace skity {
 
 VKPipeline::VKPipeline(GPUVkContext* ctx) : HWPipeline(), ctx_(ctx) {}
 
-VKPipeline::~VKPipeline() {}
+VKPipeline::~VKPipeline() { static_color_pipeline_->Destroy(ctx_); }
 
 void VKPipeline::Init() {
   if (!VKInterface::GlobalInterface()) {
@@ -64,6 +64,8 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {}
 
 void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {}
 
-void VKPipeline::InitPipelines() {}
+void VKPipeline::InitPipelines() {
+  static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
+}
 
 }  // namespace skity

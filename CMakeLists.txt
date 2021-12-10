@@ -127,6 +127,8 @@ if (${VULKAN_BACKEND})
     set(HW_VK_RENDER
         src/render/hw/vk/pipelines/color_pipeline.cc
         src/render/hw/vk/pipelines/color_pipeline.hpp
+        src/render/hw/vk/pipelines/static_pipeline.cc
+        src/render/hw/vk/pipelines/static_pipeline.hpp
         src/render/hw/vk/vk_canvas.cc
         src/render/hw/vk/vk_canvas.hpp
         src/render/hw/vk/vk_interface.cc
