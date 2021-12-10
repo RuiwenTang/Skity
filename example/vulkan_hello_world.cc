@@ -30,7 +30,15 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
         800, 800, ScreenDensity(), this);
   }
-  void OnUpdate(float elapsed_time) override {}
+  void OnUpdate(float elapsed_time) override {
+    skity::Paint paint;
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setColor(skity::Color_RED);
+
+    canvas_->drawRect(skity::Rect::MakeXYWH(100, 100, 200, 200), paint);
+
+    canvas_->flush();
+  }
   void OnDestroy() override { canvas_ = nullptr; }
 
  private:

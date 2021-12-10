@@ -17,52 +17,95 @@ void VKPipeline::Init() {
   InitPipelines();
 }
 
-void VKPipeline::Bind() {}
+void VKPipeline::Bind() { LOG_DEBUG("vk_pipeline Bind"); }
 
-void VKPipeline::UnBind() {}
+void VKPipeline::UnBind() { LOG_DEBUG("vk_pipeline UnBind"); }
 
-void VKPipeline::SetViewProjectionMatrix(const glm::mat4& mvp) {}
+void VKPipeline::SetViewProjectionMatrix(const glm::mat4& mvp) {
+  LOG_DEBUG("vk_pipeline set mvp");
+}
 
-void VKPipeline::SetModelMatrix(const glm::mat4& matrix) {}
+void VKPipeline::SetModelMatrix(const glm::mat4& matrix) {
+  LOG_DEBUG("vk_pipeline upload transform matrix");
+}
 
-void VKPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {}
+void VKPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {
+  LOG_DEBUG("vk_pipeline set color mode");
+}
 
-void VKPipeline::SetStrokeWidth(float width) {}
+void VKPipeline::SetStrokeWidth(float width) {
+  LOG_DEBUG("vk_pipeline set stroke width");
+}
 
-void VKPipeline::SetUniformColor(const glm::vec4& color) {}
+void VKPipeline::SetUniformColor(const glm::vec4& color) {
+  LOG_DEBUG("vk_pipeline set uniform color");
+}
 
-void VKPipeline::SetGradientBoundInfo(const glm::vec4& info) {}
+void VKPipeline::SetGradientBoundInfo(const glm::vec4& info) {
+  LOG_DEBUG("vk_pipeline set gradient bounds");
+}
 
-void VKPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {}
+void VKPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
+  LOG_DEBUG("vk_pipeline set gradient color and stop count");
+}
 
-void VKPipeline::SetGradientColors(const std::vector<Color4f>& colors) {}
+void VKPipeline::SetGradientColors(const std::vector<Color4f>& colors) {
+  LOG_DEBUG("vk_pipeline set gradient colors");
+}
 
-void VKPipeline::SetGradientPositions(const std::vector<float>& pos) {}
+void VKPipeline::SetGradientPositions(const std::vector<float>& pos) {
+  LOG_DEBUG("vk_pipeline set gradient stops");
+}
 
-void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {}
+void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {
+  LOG_DEBUG("vk_pipeline upload vertex buffer with size: {}", data_size);
+}
 
-void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {}
+void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
+  LOG_DEBUG("vk_pipeline upload index buffer with size: {}", data_size);
+}
 
-void VKPipeline::SetGlobalAlpha(float alpha) {}
+void VKPipeline::SetGlobalAlpha(float alpha) {
+  LOG_DEBUG("vk_pipeline set global alpha");
+}
 
-void VKPipeline::EnableStencilTest() {}
+void VKPipeline::EnableStencilTest() {
+  LOG_DEBUG("vk_pipeline enable stencil test");
+}
 
-void VKPipeline::DisableStencilTest() {}
+void VKPipeline::DisableStencilTest() {
+  LOG_DEBUG("vk_pipeline disable stencil test");
+}
 
-void VKPipeline::EnableColorOutput() {}
+void VKPipeline::EnableColorOutput() {
+  LOG_DEBUG("vk_pipeline enable color output");
+}
 
-void VKPipeline::DisableColorOutput() {}
+void VKPipeline::DisableColorOutput() {
+  LOG_DEBUG("vk_pipeline disable color output");
+}
 
-void VKPipeline::UpdateStencilMask(uint8_t write_mask) {}
+void VKPipeline::UpdateStencilMask(uint8_t write_mask) {
+  LOG_DEBUG("vk_pipeline set stencil write mask {:x}", write_mask);
+}
 
-void VKPipeline::UpdateStencilOp(HWStencilOp op) {}
+void VKPipeline::UpdateStencilOp(HWStencilOp op) {
+  LOG_DEBUG("vk_pipeline set stencil op");
+}
 
 void VKPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
-                                   uint32_t compare_mask) {}
+                                   uint32_t compare_mask) {
+  LOG_DEBUG("vk_pipeline set stencil func with value : {} ; mask : {:x}", value,
+            compare_mask);
+}
 
-void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {}
+void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
+  LOG_DEBUG("vk_pipeline draw_index [ {} -> {} ]", start, count);
+}
 
-void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {}
+void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
+  LOG_DEBUG("vk_pipeline bind to {}", slot);
+}
 
 void VKPipeline::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
