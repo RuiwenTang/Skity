@@ -66,6 +66,7 @@ add_subdirectory(third_party/pugixml)
 if (${VULKAN_BACKEND})
     add_definitions(-DSKITY_VULKAN=1)
     include_directories(third_party/Vulkan-Headers/include)
+    include_directories(third_party/VulkanMemoryAllocator/include)
 endif()
 
 if (${OPENGL_BACKEND})
@@ -133,6 +134,8 @@ if (${VULKAN_BACKEND})
         src/render/hw/vk/vk_canvas.hpp
         src/render/hw/vk/vk_interface.cc
         src/render/hw/vk/vk_interface.hpp
+        src/render/hw/vk/vk_memory.cc
+        src/render/hw/vk/vk_memory.hpp
         src/render/hw/vk/vk_pipeline.cc
         src/render/hw/vk/vk_pipeline.hpp
         src/render/hw/vk/vk_pipeline_wrapper.cc

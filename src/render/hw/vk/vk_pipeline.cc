@@ -5,7 +5,10 @@
 
 namespace skity {
 
-VKPipeline::VKPipeline(GPUVkContext* ctx) : HWPipeline(), ctx_(ctx) {}
+VKPipeline::VKPipeline(GPUVkContext* ctx)
+    : HWPipeline(),
+      ctx_(ctx),
+      vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
 VKPipeline::~VKPipeline() { static_color_pipeline_->Destroy(ctx_); }
 
@@ -14,6 +17,7 @@ void VKPipeline::Init() {
     VKInterface::InitGlobalInterface(
         ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
   }
+  vk_memory_allocator_->Init(ctx_);
   InitPipelines();
 }
 

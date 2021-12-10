@@ -4,6 +4,7 @@
 #include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 
 namespace skity {
@@ -67,6 +68,7 @@ class VKPipeline : public HWPipeline {
 
  private:
   GPUVkContext* ctx_;
+  std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
 };
 
