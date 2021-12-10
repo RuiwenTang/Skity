@@ -30,8 +30,8 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
 #ifdef SKITY_OPENGL
     canvas = std::make_unique<GLCanvas>(mvp, width, height, density);
 #endif
-  } else if (ctx->type == GPUBackendType::kVulkan) {
 #ifdef SKITY_VULKAN
+  } else if (ctx->type == GPUBackendType::kVulkan) {
     canvas = std::make_unique<VKCanvas>(mvp, width, height, density);
 #endif
   } else {
