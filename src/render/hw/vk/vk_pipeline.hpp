@@ -65,11 +65,15 @@ class VKPipeline : public HWPipeline {
 
  private:
   void InitPipelines();
+  void InitVertexBuffer(size_t new_size);
+  void InitIndexBuffer(size_t new_size);
 
  private:
   GPUVkContext* ctx_;
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
+  std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
+  std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
 };
 
 }  // namespace skity

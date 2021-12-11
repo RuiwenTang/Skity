@@ -34,6 +34,7 @@ struct GPUVkContext : public GPUContext {
   virtual VkExtent2D GetFrameExtent() = 0;
   virtual VkCommandBuffer GetCurrentCMD() = 0;
   virtual VkRenderPass GetRenderPass() = 0;
+  virtual PFN_vkGetInstanceProcAddr GetInstanceProcAddr() = 0;
 };
 
 #endif

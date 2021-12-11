@@ -24,7 +24,9 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     return example::VkApp::CurrentCMDBuffer();
   }
   VkRenderPass GetRenderPass() override { return example::VkApp::RenderPass(); }
-
+  PFN_vkGetInstanceProcAddr GetInstanceProcAddr() override {
+    return &vkGetInstanceProcAddr;
+  }
  protected:
   void OnStart() override {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(

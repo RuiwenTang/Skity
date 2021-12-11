@@ -3,6 +3,8 @@
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 
+#define SKITY_DEFAULT_BUFFER_SIZE 512
+
 namespace skity {
 
 VKPipeline::VKPipeline(GPUVkContext* ctx)
@@ -63,10 +65,26 @@ void VKPipeline::SetGradientPositions(const std::vector<float>& pos) {
 
 void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {
   LOG_DEBUG("vk_pipeline upload vertex buffer with size: {}", data_size);
+
+  if (!vertex_buffer_ || vertex_buffer_->BufferSize() < data_size) {
+    size_t new_size = vertex_buffer_ ? vertex_buffer_->BufferSize() * 2
+                                     : SKITY_DEFAULT_BUFFER_SIZE;
+    InitVertexBuffer(new_size);
+  }
+
+  vk_memory_allocator_->UploadBuffer(vertex_buffer_.get(), data, data_size);
 }
 
 void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
   LOG_DEBUG("vk_pipeline upload index buffer with size: {}", data_size);
+
+  if (!index_buffer_ || index_buffer_->BufferSize() < data_size) {
+    size_t new_size = index_buffer_ ? vertex_buffer_->BufferSize() * 2
+                                     : SKITY_DEFAULT_BUFFER_SIZE;
+    InitIndexBuffer(new_size);
+  }
+
+  vk_memory_allocator_->UploadBuffer(index_buffer_.get(), data, data_size);
 }
 
 void VKPipeline::SetGlobalAlpha(float alpha) {
@@ -113,6 +131,14 @@ void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
 
 void VKPipeline::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
+}
+
+void VKPipeline::InitVertexBuffer(size_t new_size) {
+  vertex_buffer_.reset(vk_memory_allocator_->AllocateVertexBuffer(new_size));
+}
+
+void VKPipeline::InitIndexBuffer(size_t new_size) {
+  index_buffer_.reset(vk_memory_allocator_->AllocateIndexBuffer(new_size));
 }
 
 }  // namespace skity

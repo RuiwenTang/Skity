@@ -28,6 +28,11 @@ class VKMemoryAllocator {
 
   virtual AllocatedBuffer* AllocateIndexBuffer(size_t buffer_size) = 0;
 
+  virtual void FreeBuffer(AllocatedBuffer* allocated_buffer) = 0;
+
+  virtual void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,
+                            size_t data_size) = 0;
+
   static std::unique_ptr<VKMemoryAllocator> CreateMemoryAllocator();
 };
 
