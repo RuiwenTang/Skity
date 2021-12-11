@@ -15,6 +15,11 @@ struct GlobalPushConst {
   alignas(16) int32_t premul_alpha = {};
 };
 
+struct ColorInfoSet {
+  alignas(16) float global_alpha = 1.f;
+  alignas(16) glm::vec4 user_color = {};
+};
+
 class VKPipelineWrapper {
  public:
   VKPipelineWrapper(size_t push_const_size)

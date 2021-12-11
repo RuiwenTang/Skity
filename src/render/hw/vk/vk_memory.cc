@@ -27,6 +27,8 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
   void Init(GPUVkContext* ctx) override { InitVMA(ctx); }
 
+  void Destroy(GPUVkContext* ctx) override { DestroyVMA(ctx); }
+
   AllocatedBuffer* AllocateVertexBuffer(size_t buffer_size) override {
     VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     buffer_info.size = buffer_size;
@@ -61,6 +63,7 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
  private:
   void InitVMA(GPUVkContext* ctx);
+  void DestroyVMA(GPUVkContext* ctx);
 
   AllocatedBuffer* AllocateBufferInternal(
       VkBufferCreateInfo const& buffer_info,
@@ -86,6 +89,10 @@ void VKMemoryAllocatorImpl::InitVMA(GPUVkContext* ctx) {
   if (vmaCreateAllocator(&create_info, &this->vma_allocator_) != VK_SUCCESS) {
     LOG_ERROR("Failed to create vma allocator");
   }
+}
+
+void VKMemoryAllocatorImpl::DestroyVMA(GPUVkContext* ctx) {
+  vmaDestroyAllocator(vma_allocator_);
 }
 
 void VKMemoryAllocatorImpl::UploadBuffer(AllocatedBuffer* allocated_buffer,

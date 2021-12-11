@@ -12,6 +12,8 @@ struct VKInterface {
   static void InitGlobalInterface(VkDevice device,
                                   PFN_vkGetDeviceProcAddr proc_loader);
 
+  PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
+  PFN_vkCmdBindIndexBuffer fvkCmdBindIndexBuffer = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateGraphicsPipelines fvkCreateGraphicsPipelines = {};

@@ -12,7 +12,13 @@ VKPipeline::VKPipeline(GPUVkContext* ctx)
       ctx_(ctx),
       vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
-VKPipeline::~VKPipeline() { static_color_pipeline_->Destroy(ctx_); }
+VKPipeline::~VKPipeline() {
+  vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
+  vk_memory_allocator_->FreeBuffer(index_buffer_.get());
+  static_color_pipeline_->Destroy(ctx_);
+
+  vk_memory_allocator_->Destroy(ctx_);
+}
 
 void VKPipeline::Init() {
   if (!VKInterface::GlobalInterface()) {
@@ -29,14 +35,19 @@ void VKPipeline::UnBind() { LOG_DEBUG("vk_pipeline UnBind"); }
 
 void VKPipeline::SetViewProjectionMatrix(const glm::mat4& mvp) {
   LOG_DEBUG("vk_pipeline set mvp");
+  global_push_const_.value.mvp = mvp;
+  global_push_const_.dirty = true;
 }
 
 void VKPipeline::SetModelMatrix(const glm::mat4& matrix) {
   LOG_DEBUG("vk_pipeline upload transform matrix");
+  model_matrix_.value = matrix;
+  model_matrix_.dirty = true;
 }
 
 void VKPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {
   LOG_DEBUG("vk_pipeline set color mode");
+  color_mode_ = mode;
 }
 
 void VKPipeline::SetStrokeWidth(float width) {
@@ -45,6 +56,8 @@ void VKPipeline::SetStrokeWidth(float width) {
 
 void VKPipeline::SetUniformColor(const glm::vec4& color) {
   LOG_DEBUG("vk_pipeline set uniform color");
+  color_info_set_.value.user_color = color;
+  color_info_set_.dirty = true;
 }
 
 void VKPipeline::SetGradientBoundInfo(const glm::vec4& info) {
@@ -73,6 +86,11 @@ void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {
   }
 
   vk_memory_allocator_->UploadBuffer(vertex_buffer_.get(), data, data_size);
+
+  uint64_t offset = 0;
+  VkBuffer buffer = vertex_buffer_->GetBuffer();
+  VK_CALL(vkCmdBindVertexBuffers, ctx_->GetCurrentCMD(), 0, 1, &buffer,
+          &offset);
 }
 
 void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
@@ -80,45 +98,60 @@ void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
 
   if (!index_buffer_ || index_buffer_->BufferSize() < data_size) {
     size_t new_size = index_buffer_ ? vertex_buffer_->BufferSize() * 2
-                                     : SKITY_DEFAULT_BUFFER_SIZE;
+                                    : SKITY_DEFAULT_BUFFER_SIZE;
     InitIndexBuffer(new_size);
   }
 
   vk_memory_allocator_->UploadBuffer(index_buffer_.get(), data, data_size);
+
+  VK_CALL(vkCmdBindIndexBuffer, ctx_->GetCurrentCMD(),
+          index_buffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 }
 
 void VKPipeline::SetGlobalAlpha(float alpha) {
   LOG_DEBUG("vk_pipeline set global alpha");
+  color_info_set_.value.global_alpha = alpha;
+  color_info_set_.dirty = true;
 }
 
 void VKPipeline::EnableStencilTest() {
   LOG_DEBUG("vk_pipeline enable stencil test");
+  enable_stencil_test_ = true;
 }
 
 void VKPipeline::DisableStencilTest() {
   LOG_DEBUG("vk_pipeline disable stencil test");
+  enable_stencil_test_ = false;
 }
 
 void VKPipeline::EnableColorOutput() {
   LOG_DEBUG("vk_pipeline enable color output");
+  enable_color_output_ = true;
 }
 
 void VKPipeline::DisableColorOutput() {
   LOG_DEBUG("vk_pipeline disable color output");
+  enable_color_output_ = false;
 }
 
 void VKPipeline::UpdateStencilMask(uint8_t write_mask) {
   LOG_DEBUG("vk_pipeline set stencil write mask {:x}", write_mask);
+  stencil_write_mask_ = write_mask;
 }
 
 void VKPipeline::UpdateStencilOp(HWStencilOp op) {
   LOG_DEBUG("vk_pipeline set stencil op");
+  stencil_op_ = op;
 }
 
 void VKPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
                                    uint32_t compare_mask) {
   LOG_DEBUG("vk_pipeline set stencil func with value : {} ; mask : {:x}", value,
             compare_mask);
+
+  stencil_func_ = func;
+  stencil_value_ = value;
+  stencil_compare_mask_ = compare_mask;
 }
 
 void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {

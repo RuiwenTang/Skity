@@ -24,6 +24,8 @@ class VKMemoryAllocator {
 
   virtual void Init(GPUVkContext* ctx) = 0;
 
+  virtual void Destroy(GPUVkContext* ctx) = 0;
+
   virtual AllocatedBuffer* AllocateVertexBuffer(size_t buffer_size) = 0;
 
   virtual AllocatedBuffer* AllocateIndexBuffer(size_t buffer_size) = 0;

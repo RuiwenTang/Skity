@@ -9,6 +9,12 @@
 
 namespace skity {
 
+template <class T>
+struct DirtyValueHolder {
+  T value = {};
+  bool dirty = true;
+};
+
 class VKPipeline : public HWPipeline {
  public:
   VKPipeline(GPUVkContext* ctx);
@@ -70,10 +76,21 @@ class VKPipeline : public HWPipeline {
 
  private:
   GPUVkContext* ctx_;
+  HWPipelineColorMode color_mode_ = HWPipelineColorMode::kUniformColor;
+  HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
+  HWStencilOp stencil_op_ = HWStencilOp::KEEP;
+  bool enable_stencil_test_ = false;
+  bool enable_color_output_ = true;
+  uint8_t stencil_write_mask_ = 0xFF;
+  uint8_t stencil_compare_mask_ = 0xFF;
+  uint8_t stencil_value_ = 0;
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
+  DirtyValueHolder<GlobalPushConst> global_push_const_ = {};
+  DirtyValueHolder<glm::mat4> model_matrix_ = {};
+  DirtyValueHolder<ColorInfoSet> color_info_set_ = {};
 };
 
 }  // namespace skity
