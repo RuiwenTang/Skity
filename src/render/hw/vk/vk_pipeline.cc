@@ -82,6 +82,7 @@ void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {
   if (!vertex_buffer_ || vertex_buffer_->BufferSize() < data_size) {
     size_t new_size = vertex_buffer_ ? vertex_buffer_->BufferSize() * 2
                                      : SKITY_DEFAULT_BUFFER_SIZE;
+    new_size = std::max(new_size, data_size);
     InitVertexBuffer(new_size);
   }
 
@@ -99,6 +100,7 @@ void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
   if (!index_buffer_ || index_buffer_->BufferSize() < data_size) {
     size_t new_size = index_buffer_ ? vertex_buffer_->BufferSize() * 2
                                     : SKITY_DEFAULT_BUFFER_SIZE;
+    new_size = std::max(new_size, data_size);
     InitIndexBuffer(new_size);
   }
 
