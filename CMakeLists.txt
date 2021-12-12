@@ -23,7 +23,7 @@ endif()
 option(ENABLE_LOG "option for logging" ON)
 
 # Vulkan option
-option(VULKAN_BACKEND "option for vulkan backend" ON)
+option(VULKAN_BACKEND "option for vulkan backend" OFF)
 option(OPENGL_BACKEND "option for opengl backend" ON)
 
 
