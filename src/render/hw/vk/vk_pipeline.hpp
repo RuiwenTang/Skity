@@ -74,6 +74,15 @@ class VKPipeline : public HWPipeline {
   void InitVertexBuffer(size_t new_size);
   void InitIndexBuffer(size_t new_size);
 
+  VKPipelineWrapper* PickColorPipeline();
+
+  void BindPipelineIfNeed(VKPipelineWrapper* pipeline);
+
+  void UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline);
+  void UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline);
+  void UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline);
+  void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
+
  private:
   GPUVkContext* ctx_;
   HWPipelineColorMode color_mode_ = HWPipelineColorMode::kUniformColor;
@@ -85,6 +94,8 @@ class VKPipeline : public HWPipeline {
   uint8_t stencil_compare_mask_ = 0xFF;
   uint8_t stencil_value_ = 0;
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
+  // used to check if need to bind pipeline
+  VKPipelineWrapper* prev_pipeline_ = nullptr;
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};

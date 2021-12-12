@@ -29,9 +29,15 @@ void VKPipeline::Init() {
   InitPipelines();
 }
 
-void VKPipeline::Bind() { LOG_DEBUG("vk_pipeline Bind"); }
+void VKPipeline::Bind() {
+  LOG_DEBUG("vk_pipeline Bind");
+  prev_pipeline_ = nullptr;
+}
 
-void VKPipeline::UnBind() { LOG_DEBUG("vk_pipeline UnBind"); }
+void VKPipeline::UnBind() {
+  LOG_DEBUG("vk_pipeline UnBind");
+  prev_pipeline_ = nullptr;
+}
 
 void VKPipeline::SetViewProjectionMatrix(const glm::mat4& mvp) {
   LOG_DEBUG("vk_pipeline set mvp");
@@ -158,6 +164,35 @@ void VKPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
 
 void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
   LOG_DEBUG("vk_pipeline draw_index [ {} -> {} ]", start, count);
+
+  LOG_DEBUG("color output enable : {}", enable_color_output_);
+  LOG_DEBUG("stencil output enable : {}", enable_stencil_test_);
+  if (enable_stencil_test_) {
+    LOG_DEBUG(
+        "stencil func : {}, stencil op: {}, stencil write mask : {:x}, stencil "
+        "compare op : {:x}",
+        stencil_func_, stencil_op_, stencil_write_mask_, stencil_compare_mask_);
+  }
+  LOG_DEBUG("color mode = {}", color_mode_);
+
+  VKPipelineWrapper* picked_pipeline = nullptr;
+  if (color_mode_ == HWPipelineColorMode::kStencil) {
+    // TODO implement pick stencil pipeline
+  } else if (color_mode_ == HWPipelineColorMode::kUniformColor) {
+    picked_pipeline = PickColorPipeline();
+  } else if (color_mode_ == HWPipelineColorMode::kImageTexture) {
+    // TODO implement pick image pipeline
+  } else if (color_mode_ == HWPipelineColorMode::kLinearGradient ||
+             color_mode_ == HWPipelineColorMode::kRadialGradient) {
+    // TODO implement pick gradient pipeline
+  }
+
+  BindPipelineIfNeed(picked_pipeline);
+
+  UpdatePushConstantIfNeed(picked_pipeline);
+  UpdateTransformMatrixIfNeed(picked_pipeline);
+  UpdateStencilConfigIfNeed(picked_pipeline);
+  UpdateColorInfoIfNeed(picked_pipeline);
 }
 
 void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
@@ -174,6 +209,34 @@ void VKPipeline::InitVertexBuffer(size_t new_size) {
 
 void VKPipeline::InitIndexBuffer(size_t new_size) {
   index_buffer_.reset(vk_memory_allocator_->AllocateIndexBuffer(new_size));
+}
+
+VKPipelineWrapper* VKPipeline::PickColorPipeline() {
+  if (!enable_stencil_test_) {
+    return static_color_pipeline_.get();
+  }
+
+  return nullptr;
+}
+
+void VKPipeline::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
+  // TODO implement pipeline bind
+}
+
+void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
+  // TODO implement push constant update
+}
+
+void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
+  // TODO implement transform matrix update
+}
+
+void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
+  // TODO implement stencil info update
+}
+
+void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
+  // TODO implement color info update
 }
 
 }  // namespace skity
