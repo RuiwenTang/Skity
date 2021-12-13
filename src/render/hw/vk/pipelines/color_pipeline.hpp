@@ -12,8 +12,7 @@ class StaticColorPipeline : public StaticPipeline {
   ~StaticColorPipeline() override = default;
 
  protected:
-  std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(
-      GPUVkContext* ctx) override;
+  VkDescriptorSetLayout GenerateColorSetLayout(GPUVkContext* ctx) override;
 };
 
 }  // namespace skity

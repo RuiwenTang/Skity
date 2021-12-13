@@ -87,24 +87,30 @@ void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
 }
 
 void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
-  descriptor_set_layout_ = GenearteDescriptorSetLayout(ctx);
-}
-
-std::vector<VkDescriptorSetLayout>
-VKPipelineWrapper::GenearteDescriptorSetLayout(GPUVkContext* ctx) {
-  std::vector<VkDescriptorSetLayout> set_layout{};
-
-  // set 0 is common for all pipelines
-  auto binding = VKUtils::DescriptorSetLayoutBinding(
+  // create set 0
+  auto set0_binding = VKUtils::DescriptorSetLayoutBinding(
       VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0);
 
-  auto set_create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
+  auto set0_create_info =
+      VKUtils::DescriptorSetLayoutCreateInfo(&set0_binding, 1);
 
-  set_layout.emplace_back(
-      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set_create_info));
+  descriptor_set_layout_[0] =
+      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set0_create_info);
 
-  return set_layout;
+  // create set 1
+  auto set1_binding = VKUtils::DescriptorSetLayoutBinding(
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+
+  auto set1_create_info =
+      VKUtils::DescriptorSetLayoutCreateInfo(&set1_binding, 1);
+
+  descriptor_set_layout_[1] =
+      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set1_create_info);
+
+  // create set 2
+  // set 2 is create by sub class implementation
+  descriptor_set_layout_[2] = GenerateColorSetLayout(ctx);
 }
 
 void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {

@@ -3,10 +3,10 @@
 
 #include <vulkan/vulkan.h>
 
+#include <array>
 #include <glm/glm.hpp>
 #include <memory>
 #include <skity/gpu/gpu_context.hpp>
-#include <vector>
 
 namespace skity {
 
@@ -39,8 +39,7 @@ class VKPipelineWrapper {
   void InitDescriptorSetLayout(GPUVkContext* ctx);
   void InitPipelineLayout(GPUVkContext* ctx);
 
-  virtual std::vector<VkDescriptorSetLayout> GenearteDescriptorSetLayout(
-      GPUVkContext* ctx);
+  virtual VkDescriptorSetLayout GenerateColorSetLayout(GPUVkContext* ctx) = 0;
 
   virtual VkPipelineDepthStencilStateCreateInfo
   GetDepthStencilStateCreateInfo() = 0;
@@ -55,7 +54,12 @@ class VKPipelineWrapper {
 
  private:
   size_t push_const_size_;
-  std::vector<VkDescriptorSetLayout> descriptor_set_layout_ = {};
+  /**
+   * set 0: common transform matrix info
+   * set 1: common fragment color info, [global alpha, stroke width]
+   * set 2: fragment color info
+   */
+  std::array<VkDescriptorSetLayout, 3> descriptor_set_layout_ = {};
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
 };

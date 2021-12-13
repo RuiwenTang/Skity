@@ -46,13 +46,14 @@ static VkDescriptorSetLayout create_color_descriptor_set_layout(
   return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
 }
 
-std::vector<VkDescriptorSetLayout>
-StaticColorPipeline::GenearteDescriptorSetLayout(GPUVkContext* ctx) {
-  auto layouts = VKPipelineWrapper::GenearteDescriptorSetLayout(ctx);
+VkDescriptorSetLayout StaticColorPipeline::GenerateColorSetLayout(
+    GPUVkContext* ctx) {
+  auto binding = VKUtils::DescriptorSetLayoutBinding(
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
 
-  layouts.emplace_back(create_color_descriptor_set_layout(ctx));
+  auto create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
 
-  return layouts;
+  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
 }
 
 }  // namespace skity
