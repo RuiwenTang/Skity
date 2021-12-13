@@ -86,6 +86,13 @@ void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
   VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
 }
 
+void VKPipelineWrapper::PushConstant(GlobalPushConst const& push_const,
+                                     VkCommandBuffer cmd) {
+  VK_CALL(vkCmdPushConstants, cmd, pipeline_layout_,
+          VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT, 0,
+          sizeof(GlobalPushConst), &push_const);
+}
+
 void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
   // create set 0
   auto set0_binding = VKUtils::DescriptorSetLayoutBinding(

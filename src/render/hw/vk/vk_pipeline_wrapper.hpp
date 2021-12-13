@@ -36,6 +36,8 @@ class VKPipelineWrapper {
 
   void Bind(VkCommandBuffer cmd);
 
+  void PushConstant(GlobalPushConst const& push_const, VkCommandBuffer cmd);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 

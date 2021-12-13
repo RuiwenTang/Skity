@@ -16,6 +16,9 @@ struct VKInterface {
   PFN_vkCmdBindIndexBuffer fvkCmdBindIndexBuffer = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
   PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
+  PFN_vkCmdPushConstants fvkCmdPushConstants = {};
+  PFN_vkCmdSetScissor fvkCmdSetScissor = {};
+  PFN_vkCmdSetViewport fvkCmdSetViewport = {};
   PFN_vkCreateDescriptorPool fvkCreateDescriptorPool = {};
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateGraphicsPipelines fvkCreateGraphicsPipelines = {};

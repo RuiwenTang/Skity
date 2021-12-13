@@ -17,6 +17,9 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkCmdBindIndexBuffer);
   GET_PROC(vkCmdBindPipeline);
   GET_PROC(vkCmdBindVertexBuffers);
+  GET_PROC(vkCmdPushConstants);
+  GET_PROC(vkCmdSetScissor);
+  GET_PROC(vkCmdSetViewport);
   GET_PROC(vkCreateDescriptorPool);
   GET_PROC(vkCreateDescriptorSetLayout);
   GET_PROC(vkCreateGraphicsPipelines);

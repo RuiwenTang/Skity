@@ -36,6 +36,18 @@ void VKPipeline::Bind() {
   prev_pipeline_ = nullptr;
 
   CurrentFrameBuffer()->FrameBegin(ctx_);
+
+  // view port
+  VkViewport view_port{0,
+                       0,
+                       static_cast<float>(ctx_->GetFrameExtent().width),
+                       static_cast<float>(ctx_->GetFrameExtent().height),
+                       0.f,
+                       1.f};
+  VK_CALL(vkCmdSetViewport, ctx_->GetCurrentCMD(), 0, 1, &view_port);
+  // scissor
+  VkRect2D scissor{{0, 0}, ctx_->GetFrameExtent()};
+  VK_CALL(vkCmdSetScissor, ctx_->GetCurrentCMD(), 0, 1, &scissor);
 }
 
 void VKPipeline::UnBind() {
@@ -239,11 +251,23 @@ VKPipelineWrapper* VKPipeline::PickColorPipeline() {
 }
 
 void VKPipeline::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
-  // TODO implement pipeline bind
+  if (pipeline == prev_pipeline_) {
+    // no need to call bind pipeline
+    return;
+  }
+
+  pipeline->Bind(ctx_->GetCurrentCMD());
+  prev_pipeline_ = pipeline;
 }
 
 void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
-  // TODO implement push constant update
+  if (!global_push_const_.dirty) {
+    return;
+  }
+
+  global_push_const_.dirty = false;
+
+  pipeline->PushConstant(global_push_const_.value, ctx_->GetCurrentCMD());
 }
 
 void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
