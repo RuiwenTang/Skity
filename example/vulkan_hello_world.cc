@@ -27,6 +27,15 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
   PFN_vkGetInstanceProcAddr GetInstanceProcAddr() override {
     return &vkGetInstanceProcAddr;
   }
+
+  uint32_t GetSwapchainBufferCount() override {
+    return example::VkApp::SwapchinImageCount();
+  }
+
+  uint32_t GetCurrentBufferIndex() override {
+    return example::VkApp::CurrentFrameIndex();
+  }
+
  protected:
   void OnStart() override {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(

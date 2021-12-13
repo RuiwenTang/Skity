@@ -35,6 +35,8 @@ struct GPUVkContext : public GPUContext {
   virtual VkCommandBuffer GetCurrentCMD() = 0;
   virtual VkRenderPass GetRenderPass() = 0;
   virtual PFN_vkGetInstanceProcAddr GetInstanceProcAddr() = 0;
+  virtual uint32_t GetSwapchainBufferCount() = 0;
+  virtual uint32_t GetCurrentBufferIndex() = 0;
 };
 
 #endif

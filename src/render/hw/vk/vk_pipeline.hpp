@@ -4,6 +4,7 @@
 #include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 
@@ -70,9 +71,12 @@ class VKPipeline : public HWPipeline {
   void BindTexture(HWTexture* texture, uint32_t slot) override;
 
  private:
+  void InitFrameBuffers();
   void InitPipelines();
   void InitVertexBuffer(size_t new_size);
   void InitIndexBuffer(size_t new_size);
+
+  void DestroyFrameBuffers();
 
   VKPipelineWrapper* PickColorPipeline();
 
@@ -82,6 +86,8 @@ class VKPipeline : public HWPipeline {
   void UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline);
   void UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline);
   void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
+
+  VKFrameBuffer* CurrentFrameBuffer();
 
  private:
   GPUVkContext* ctx_;
@@ -94,6 +100,7 @@ class VKPipeline : public HWPipeline {
   uint8_t stencil_compare_mask_ = 0xFF;
   uint8_t stencil_value_ = 0;
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
+  std::vector<std::unique_ptr<VKFrameBuffer>> frame_buffer_ = {};
   // used to check if need to bind pipeline
   VKPipelineWrapper* prev_pipeline_ = nullptr;
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
@@ -101,6 +108,7 @@ class VKPipeline : public HWPipeline {
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
   DirtyValueHolder<GlobalPushConst> global_push_const_ = {};
   DirtyValueHolder<glm::mat4> model_matrix_ = {};
+  DirtyValueHolder<CommonFragmentSet> common_fragment_set_ = {};
   DirtyValueHolder<ColorInfoSet> color_info_set_ = {};
 };
 

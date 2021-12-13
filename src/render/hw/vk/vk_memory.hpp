@@ -30,6 +30,8 @@ class VKMemoryAllocator {
 
   virtual AllocatedBuffer* AllocateIndexBuffer(size_t buffer_size) = 0;
 
+  virtual AllocatedBuffer* AllocateUniformBuffer(size_t buffer_size) = 0;
+
   virtual void FreeBuffer(AllocatedBuffer* allocated_buffer) = 0;
 
   virtual void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,

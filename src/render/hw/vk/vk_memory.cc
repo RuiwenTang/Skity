@@ -53,6 +53,18 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
     return AllocateBufferInternal(buffer_info, vma_info);
   }
 
+  AllocatedBuffer* AllocateUniformBuffer(size_t buffer_size) override {
+    VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    buffer_info.size = buffer_size;
+    buffer_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+    VmaAllocationCreateInfo vma_info{};
+    vma_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    vma_info.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    return AllocateBufferInternal(buffer_info, vma_info);
+  }
+
   void FreeBuffer(AllocatedBuffer* allocated_buffer) override {
     AllocatedBufferImpl* impl = (AllocatedBufferImpl*)allocated_buffer;
     vmaDestroyBuffer(vma_allocator_, impl->buffer, impl->vma_allocation);

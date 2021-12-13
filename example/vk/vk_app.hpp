@@ -43,6 +43,9 @@ class VkApp {
   }
   VkRenderPass RenderPass() const { return render_pass_; }
 
+  uint32_t SwapchinImageCount() const { return swap_chain_image_views.size(); }
+  uint32_t CurrentFrameIndex() const { return current_frame_; }
+
  private:
   void SetupVkContext();
   void Loop();

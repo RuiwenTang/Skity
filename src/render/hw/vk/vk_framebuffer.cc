@@ -1,0 +1,104 @@
+#include "src/render/hw/vk/vk_framebuffer.hpp"
+
+#include <array>
+#include <cassert>
+#include <skity/geometry/point.hpp>
+
+#include "src/logging.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_memory.hpp"
+#include "src/render/hw/vk/vk_utils.hpp"
+
+namespace skity {
+
+#define DEFAULT_UNIFORM_SIZE_PER_POOL 1000
+
+VKFrameBuffer::VKFrameBuffer(VKMemoryAllocator* allocator)
+    : allocator_(allocator) {}
+
+void VKFrameBuffer::Init(GPUVkContext* ctx) { AppendUniformBufferPool(ctx); }
+
+void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
+  for (auto buffer : transform_buffer_) {
+    allocator_->FreeBuffer(buffer);
+  }
+  current_transform_buffer_index = -1;
+
+  for (auto pool : uniform_buffer_pool_) {
+    VK_CALL(vkResetDescriptorPool, ctx->GetDevice(), pool, 0);
+    VK_CALL(vkDestroyDescriptorPool, ctx->GetDevice(), pool, nullptr);
+  }
+
+  uniform_buffer_pool_.clear();
+  current_uniform_pool_index = -1;
+}
+
+void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
+  current_uniform_pool_index = 0;
+
+  for (auto pool : uniform_buffer_pool_) {
+    VK_CALL(vkResetDescriptorPool, ctx->GetDevice(), pool, 0);
+  }
+}
+
+void VKFrameBuffer::AppendUniformBufferPool(GPUVkContext* ctx) {
+  std::array<VkDescriptorPoolSize, 1> pool_size{};
+  pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  pool_size[0].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
+
+  auto create_info = VKUtils::DescriptorPoolCreateInfo(
+      pool_size.size(), pool_size.data(), DEFAULT_UNIFORM_SIZE_PER_POOL);
+
+  VkDescriptorPool pool = VK_NULL_HANDLE;
+
+  if (VK_CALL(vkCreateDescriptorPool, ctx->GetDevice(), &create_info, nullptr,
+              &pool) != VK_SUCCESS) {
+    LOG_ERROR("Failed to create descriptor pool for uniform buffer!");
+    assert(false);
+  }
+
+  uniform_buffer_pool_.emplace_back(pool);
+  current_uniform_pool_index += 1;
+}
+
+AllocatedBuffer* VKFrameBuffer::ObtainTransformBuffer() {
+  current_transform_buffer_index++;
+  if (current_transform_buffer_index < transform_buffer_.size()) {
+    return transform_buffer_[current_transform_buffer_index];
+  }
+
+  transform_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(glm::mat4)));
+
+  return transform_buffer_.back();
+}
+
+VkDescriptorSet VKFrameBuffer::ObtainTransformDataSet(
+    GPUVkContext* ctx, VkDescriptorSetLayout layout) {
+  VkDescriptorSet ret = VK_NULL_HANDLE;
+
+  auto allocate_info = VKUtils::DescriptorSetAllocateInfo(
+      uniform_buffer_pool_[current_uniform_pool_index], &layout, 1);
+
+  auto result =
+      VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), nullptr, &ret);
+
+  if (result == VK_ERROR_OUT_OF_POOL_MEMORY) {
+    AppendUniformBufferPool(ctx);
+
+    allocate_info.descriptorPool =
+        uniform_buffer_pool_[current_uniform_pool_index];
+
+    result = VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), nullptr, &ret);
+  }
+
+  if (result != VK_SUCCESS) {
+    LOG_ERROR("Failed to allocate descriptor set for transform uniform buffer");
+
+    return VK_NULL_HANDLE;
+  }
+
+  return ret;
+}
+
+}  // namespace skity

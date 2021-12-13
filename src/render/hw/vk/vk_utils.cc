@@ -193,4 +193,30 @@ VKUtils::PipelineDepthStencilStateCreateInfo(VkBool32 depth_test_enable,
   return create_info;
 }
 
+VkDescriptorPoolCreateInfo VKUtils::DescriptorPoolCreateInfo(
+    uint32_t pool_size_count, VkDescriptorPoolSize *p_pool_size,
+    uint32_t max_sets) {
+  VkDescriptorPoolCreateInfo create_info{
+      VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+
+  create_info.poolSizeCount = pool_size_count;
+  create_info.pPoolSizes = p_pool_size;
+  create_info.maxSets = max_sets;
+
+  return create_info;
+}
+
+VkDescriptorSetAllocateInfo VKUtils::DescriptorSetAllocateInfo(
+    VkDescriptorPool pool, VkDescriptorSetLayout *p_set_layouts,
+    uint32_t descriptor_set_count) {
+  VkDescriptorSetAllocateInfo allocate_info{
+      VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
+
+  allocate_info.descriptorPool = pool;
+  allocate_info.pSetLayouts = p_set_layouts;
+  allocate_info.descriptorSetCount = descriptor_set_count;
+
+  return allocate_info;
+}
+
 }  // namespace skity

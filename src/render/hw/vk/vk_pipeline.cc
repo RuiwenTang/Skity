@@ -17,6 +17,7 @@ VKPipeline::~VKPipeline() {
   vk_memory_allocator_->FreeBuffer(index_buffer_.get());
   static_color_pipeline_->Destroy(ctx_);
 
+  DestroyFrameBuffers();
   vk_memory_allocator_->Destroy(ctx_);
 }
 
@@ -26,12 +27,15 @@ void VKPipeline::Init() {
         ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
   }
   vk_memory_allocator_->Init(ctx_);
+  InitFrameBuffers();
   InitPipelines();
 }
 
 void VKPipeline::Bind() {
   LOG_DEBUG("vk_pipeline Bind");
   prev_pipeline_ = nullptr;
+
+  CurrentFrameBuffer()->FrameBegin(ctx_);
 }
 
 void VKPipeline::UnBind() {
@@ -118,8 +122,8 @@ void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
 
 void VKPipeline::SetGlobalAlpha(float alpha) {
   LOG_DEBUG("vk_pipeline set global alpha");
-  color_info_set_.value.global_alpha = alpha;
-  color_info_set_.dirty = true;
+  common_fragment_set_.value.global_alpha = alpha;
+  common_fragment_set_.dirty = true;
 }
 
 void VKPipeline::EnableStencilTest() {
@@ -199,6 +203,21 @@ void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
   LOG_DEBUG("vk_pipeline bind to {}", slot);
 }
 
+void VKPipeline::InitFrameBuffers() {
+  frame_buffer_.resize(ctx_->GetSwapchainBufferCount());
+  for (size_t i = 0; i < frame_buffer_.size(); i++) {
+    frame_buffer_[i] =
+        std::make_unique<VKFrameBuffer>(vk_memory_allocator_.get());
+    frame_buffer_[i]->Init(ctx_);
+  }
+}
+
+void VKPipeline::DestroyFrameBuffers() {
+  for (size_t i = 0; i < frame_buffer_.size(); i++) {
+    frame_buffer_[i]->Destroy(ctx_);
+  }
+}
+
 void VKPipeline::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
 }
@@ -237,6 +256,10 @@ void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
 
 void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
   // TODO implement color info update
+}
+
+VKFrameBuffer* VKPipeline::CurrentFrameBuffer() {
+  return frame_buffer_[ctx_->GetCurrentBufferIndex()].get();
 }
 
 }  // namespace skity

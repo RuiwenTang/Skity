@@ -12,17 +12,21 @@ struct VKInterface {
   static void InitGlobalInterface(VkDevice device,
                                   PFN_vkGetDeviceProcAddr proc_loader);
 
-  PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
+  PFN_vkAllocateDescriptorSets fvkAllocateDescriptorSets = {};
   PFN_vkCmdBindIndexBuffer fvkCmdBindIndexBuffer = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
+  PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
+  PFN_vkCreateDescriptorPool fvkCreateDescriptorPool = {};
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateGraphicsPipelines fvkCreateGraphicsPipelines = {};
   PFN_vkCreatePipelineLayout fvkCreatePipelineLayout = {};
   PFN_vkCreateShaderModule fvkCreateShaderModule = {};
+  PFN_vkDestroyDescriptorPool fvkDestroyDescriptorPool = {};
   PFN_vkDestroyDescriptorSetLayout fvkDestroyDescriptorSetLayout = {};
   PFN_vkDestroyPipeline fvkDestroyPipeline = {};
   PFN_vkDestroyPipelineLayout fvkDestroyPipelineLayout = {};
   PFN_vkDestroyShaderModule fvkDestroyShaderModule = {};
+  PFN_vkResetDescriptorPool fvkResetDescriptorPool = {};
 };
 
 }  // namespace skity

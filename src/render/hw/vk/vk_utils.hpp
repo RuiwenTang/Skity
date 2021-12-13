@@ -68,6 +68,14 @@ class VKUtils final {
   PipelineDepthStencilStateCreateInfo(VkBool32 depth_test_enable,
                                       VkBool32 depth_write_enable,
                                       VkCompareOp depth_compare_op);
+
+  static VkDescriptorPoolCreateInfo DescriptorPoolCreateInfo(
+      uint32_t pool_size_count, VkDescriptorPoolSize* p_pool_size,
+      uint32_t max_sets);
+
+  static VkDescriptorSetAllocateInfo DescriptorSetAllocateInfo(
+      VkDescriptorPool pool, VkDescriptorSetLayout* p_set_layouts,
+      uint32_t descriptor_set_count);
 };
 
 }  // namespace skity
