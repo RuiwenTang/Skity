@@ -48,7 +48,7 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     paint.setColor(skity::ColorSetARGB(255, 0x42, 0x85, 0xF4));
 
     canvas_->save();
-    canvas_->rotate(rotate, 150, 150);
+    canvas_->rotate(rotate, 200, 200);
     canvas_->drawRect(skity::Rect::MakeXYWH(100, 100, 200, 200), paint);
     canvas_->restore();
 

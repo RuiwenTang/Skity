@@ -23,7 +23,12 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
                                                              uint32_t height,
                                                              float density,
                                                              GPUContext* ctx) {
-  auto mvp = glm::ortho<float>(0, width, height, 0);
+  glm::mat4 mvp;
+  if (ctx->type == GPUBackendType::kOpenGL) {
+    mvp = glm::ortho<float>(0, width, height, 0);
+  } else if (ctx->type == GPUBackendType::kVulkan) {
+    mvp = glm::ortho<float>(0, width, 0, height);
+  }
 
   std::unique_ptr<HWCanvas> canvas;
   if (ctx->type == GPUBackendType::kOpenGL) {
