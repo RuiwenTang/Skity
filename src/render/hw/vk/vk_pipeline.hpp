@@ -76,6 +76,7 @@ class VKPipeline : public HWPipeline {
   void InitVertexBuffer(size_t new_size);
   void InitIndexBuffer(size_t new_size);
 
+  void DestroyPipelines();
   void DestroyFrameBuffers();
 
   VKPipelineWrapper* PickColorPipeline();
@@ -104,7 +105,12 @@ class VKPipeline : public HWPipeline {
   std::vector<std::unique_ptr<VKFrameBuffer>> frame_buffer_ = {};
   // used to check if need to bind pipeline
   VKPipelineWrapper* prev_pipeline_ = nullptr;
+
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
+
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
   DirtyValueHolder<GlobalPushConst> global_push_const_ = {};

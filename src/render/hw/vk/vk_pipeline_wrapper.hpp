@@ -58,6 +58,15 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+      GPUVkContext* ctx);
+
  protected:
   void InitDescriptorSetLayout(GPUVkContext* ctx);
   void InitPipelineLayout(GPUVkContext* ctx);

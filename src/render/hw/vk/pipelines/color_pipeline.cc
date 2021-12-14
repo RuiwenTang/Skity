@@ -31,6 +31,27 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
   return static_color_pipeline;
 }
 
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx) {
+  auto stencil_color_pipeline =
+      std::make_unique<StencilDiscardColorPipeline>(sizeof(GlobalPushConst));
+
+  auto vertex =
+      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
+                            vk_common_vert_spv_size);
+
+  auto fragment = VKUtils::CreateShader(ctx->GetDevice(),
+                                        (const char*)vk_uniform_color_frag_spv,
+                                        vk_uniform_color_frag_spv_size);
+
+  stencil_color_pipeline->Init(ctx, vertex, fragment);
+
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+
+  return stencil_color_pipeline;
+}
+
 static VkDescriptorSetLayout create_color_descriptor_set_layout(
     GPUVkContext* ctx) {
   LOG_DEBUG("Color Pipeline create set 1 layout");
@@ -82,6 +103,23 @@ void StaticColorPipeline::UploadUniformColor(ColorInfoSet const& info,
   VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
           &descriptor_set, 0, nullptr);
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilDiscardColorPipeline::GetDepthStencilStateCreateInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_NOT_EQUAL;
+  depth_stencil_state.front.compareMask = 0x0F;
+  depth_stencil_state.front.writeMask = 0x0F;
+  depth_stencil_state.front.reference = 0x00;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
 }
 
 }  // namespace skity

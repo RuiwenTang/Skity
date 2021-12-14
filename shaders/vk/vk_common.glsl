@@ -33,3 +33,24 @@ layout(location = 0) in vec2 vPos;
 layout(location = 1) in vec3 vPosInfo;
 
 layout(location = 0) out vec4 outColor;
+
+void calculate_discard() {
+  int vertex_type = int(vPosInfo.x);
+
+  if (vertex_type == VERTEX_TYPE_CIRCLE) {
+    float r = length(vPos - vPosInfo.yz);
+    if (r > AlphaStroke.info.g / 2.0) {
+      discard;
+    }
+  } else if (vertex_type == VERTEX_TYPE_QUAD_IN ||
+             vertex_type == VERTEX_TYPE_QUAD_OUT) {
+    float f_x = vPosInfo.y * vPosInfo.y - vPosInfo.z;
+    if (vertex_type == VERTEX_TYPE_QUAD_IN && f_x > 0.0) {
+      discard;
+    }
+
+    if (vertex_type == VERTEX_TYPE_QUAD_OUT && f_x < 0.0) {
+      discard;
+    }
+  }
+}

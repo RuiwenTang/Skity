@@ -181,7 +181,13 @@ void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
   VkPipelineLayoutCreateInfo create_info{
       VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
 
-  create_info.setLayoutCount = descriptor_set_layout_.size();
+  uint32_t descriptor_set_count = descriptor_set_layout_.size();
+  // stencil pipeline not use set 2
+  if (descriptor_set_layout_[2] == VK_NULL_HANDLE) {
+    descriptor_set_count -= 1;
+  }
+
+  create_info.setLayoutCount = descriptor_set_count;
   create_info.pSetLayouts = descriptor_set_layout_.data();
   create_info.pushConstantRangeCount = 1;
   create_info.pPushConstantRanges = &push_const_range;

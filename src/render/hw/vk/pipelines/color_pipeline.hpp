@@ -19,6 +19,18 @@ class StaticColorPipeline : public StaticPipeline {
   VkDescriptorSetLayout GenerateColorSetLayout(GPUVkContext* ctx) override;
 };
 
+class StencilDiscardColorPipeline : public StaticColorPipeline {
+ public:
+  StencilDiscardColorPipeline(size_t push_const_size)
+      : StaticColorPipeline(push_const_size) {}
+
+  ~StencilDiscardColorPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_COLOR_PIPELINE_HPP

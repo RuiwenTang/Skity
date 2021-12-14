@@ -15,8 +15,8 @@ VKPipeline::VKPipeline(GPUVkContext* ctx)
 VKPipeline::~VKPipeline() {
   vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
   vk_memory_allocator_->FreeBuffer(index_buffer_.get());
-  static_color_pipeline_->Destroy(ctx_);
 
+  DestroyPipelines();
   DestroyFrameBuffers();
   vk_memory_allocator_->Destroy(ctx_);
 }
@@ -234,6 +234,13 @@ void VKPipeline::InitFrameBuffers() {
   }
 }
 
+void VKPipeline::DestroyPipelines() {
+  static_color_pipeline_->Destroy(ctx_);
+  stencil_color_pipeline_->Destroy(ctx_);
+  stencil_front_pipeline_->Destroy(ctx_);
+  stencil_back_pipeline_->Destroy(ctx_);
+}
+
 void VKPipeline::DestroyFrameBuffers() {
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
     frame_buffer_[i]->Destroy(ctx_);
@@ -242,6 +249,9 @@ void VKPipeline::DestroyFrameBuffers() {
 
 void VKPipeline::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
+  stencil_color_pipeline_ = VKPipelineWrapper::CreateStencilColorPipeline(ctx_);
+  stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
+  stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
 }
 
 void VKPipeline::InitVertexBuffer(size_t new_size) {
@@ -255,6 +265,8 @@ void VKPipeline::InitIndexBuffer(size_t new_size) {
 VKPipelineWrapper* VKPipeline::PickColorPipeline() {
   if (!enable_stencil_test_) {
     return static_color_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
+    return stencil_color_pipeline_.get();
   }
 
   return nullptr;
