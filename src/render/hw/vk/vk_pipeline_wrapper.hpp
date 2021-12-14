@@ -10,6 +10,9 @@
 
 namespace skity {
 
+class VKMemoryAllocator;
+class VKFrameBuffer;
+
 struct GlobalPushConst {
   alignas(16) glm::mat4 mvp = {};
   alignas(16) int32_t premul_alpha = {};
@@ -36,7 +39,21 @@ class VKPipelineWrapper {
 
   void Bind(VkCommandBuffer cmd);
 
-  void PushConstant(GlobalPushConst const& push_const, VkCommandBuffer cmd);
+  void UploadPushConstant(GlobalPushConst const& push_const,
+                          VkCommandBuffer cmd);
+
+  void UploadTransformMatrix(glm::mat4 const& matrix, GPUVkContext* ctx,
+                             VKFrameBuffer* frame_buffer,
+                             VKMemoryAllocator* allocator);
+
+  void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
+                       VKFrameBuffer* frame_buffer,
+                       VKMemoryAllocator* allocator);
+
+  // sub class implement
+  virtual void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
+                                  VKFrameBuffer* frame_buffer,
+                                  VKMemoryAllocator* allocator) {}
 
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
@@ -53,6 +70,12 @@ class VKPipelineWrapper {
   virtual VkPipelineColorBlendAttachmentState GetColorBlendState();
 
   virtual std::vector<VkDynamicState> GetDynamicStates();
+
+  VkDescriptorSetLayout GetColorSetLayout() {
+    return descriptor_set_layout_[2];
+  }
+
+  VkPipelineLayout GetPipelineLayout() { return pipeline_layout_; }
 
  private:
   VkVertexInputBindingDescription GetVertexInputBinding();

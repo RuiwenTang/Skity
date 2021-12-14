@@ -219,4 +219,18 @@ VkDescriptorSetAllocateInfo VKUtils::DescriptorSetAllocateInfo(
   return allocate_info;
 }
 
+VkWriteDescriptorSet VKUtils::WriteDescriptorSet(
+    VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
+    VkDescriptorBufferInfo *buffer_info, uint32_t descriptor_count) {
+  VkWriteDescriptorSet write_set{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+
+  write_set.dstSet = dst_set;
+  write_set.descriptorType = type;
+  write_set.dstBinding = binding;
+  write_set.pBufferInfo = buffer_info;
+  write_set.descriptorCount = descriptor_count;
+
+  return write_set;
+}
+
 }  // namespace skity

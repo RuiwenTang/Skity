@@ -17,7 +17,7 @@ layout(set = 1, binding = 0) uniform _GlobalAlpha {
 }
 AlphaStroke;
 
-layout(set = 2, binding = 1) uniform _UserColor { vec4 color; }
+layout(set = 2, binding = 0) uniform _UserColor { vec4 color; }
 UserColor;
 
 // vertex input

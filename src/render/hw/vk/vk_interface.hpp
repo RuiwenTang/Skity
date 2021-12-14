@@ -13,9 +13,11 @@ struct VKInterface {
                                   PFN_vkGetDeviceProcAddr proc_loader);
 
   PFN_vkAllocateDescriptorSets fvkAllocateDescriptorSets = {};
+  PFN_vkCmdBindDescriptorSets fvkCmdBindDescriptorSets = {};
   PFN_vkCmdBindIndexBuffer fvkCmdBindIndexBuffer = {};
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
   PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
+  PFN_vkCmdDrawIndexed fvkCmdDrawIndexed = {};
   PFN_vkCmdPushConstants fvkCmdPushConstants = {};
   PFN_vkCmdSetScissor fvkCmdSetScissor = {};
   PFN_vkCmdSetViewport fvkCmdSetViewport = {};
@@ -30,6 +32,7 @@ struct VKInterface {
   PFN_vkDestroyPipelineLayout fvkDestroyPipelineLayout = {};
   PFN_vkDestroyShaderModule fvkDestroyShaderModule = {};
   PFN_vkResetDescriptorPool fvkResetDescriptorPool = {};
+  PFN_vkUpdateDescriptorSets fvkUpdateDescriptorSets = {};
 };
 
 }  // namespace skity

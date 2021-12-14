@@ -25,8 +25,12 @@ class VKFrameBuffer {
   // allocate VkBuffer for set 0 data binding
   AllocatedBuffer* ObtainTransformBuffer();
 
+  AllocatedBuffer* ObtainCommonSetBuffer();
+
+  AllocatedBuffer* ObtainUniformColorBuffer();
+
   // allocate descriptor set for set 0
-  VkDescriptorSet ObtainTransformDataSet(GPUVkContext* ctx,
+  VkDescriptorSet ObtainUniformBufferSet(GPUVkContext* ctx,
                                          VkDescriptorSetLayout layout);
 
  private:
@@ -39,6 +43,13 @@ class VKFrameBuffer {
 
   std::vector<AllocatedBuffer*> transform_buffer_ = {};
   int32_t current_transform_buffer_index = -1;
+
+  // global alpha stroke_width buffer
+  std::vector<AllocatedBuffer*> common_set_buffer_ = {};
+  int32_t common_set_buffer_index_ = -1;
+
+  std::vector<AllocatedBuffer*> uniform_color_buffer_ = {};
+  int32_t color_buffer_index = -1;
 };
 
 }  // namespace skity

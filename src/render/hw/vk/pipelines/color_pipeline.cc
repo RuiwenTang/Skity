@@ -4,7 +4,9 @@
 
 #include "shader.hpp"
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
@@ -54,6 +56,32 @@ VkDescriptorSetLayout StaticColorPipeline::GenerateColorSetLayout(
   auto create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
 
   return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+}
+
+void StaticColorPipeline::UploadUniformColor(ColorInfoSet const& info,
+                                             GPUVkContext* ctx,
+                                             VKFrameBuffer* frame_buffer,
+                                             VKMemoryAllocator* allocator) {
+  auto buffer = frame_buffer->ObtainUniformColorBuffer();
+
+  allocator->UploadBuffer(buffer, (void*)&info, sizeof(ColorInfoSet));
+
+  // color info is in set 2
+  auto descriptor_set =
+      frame_buffer->ObtainUniformBufferSet(ctx, GetColorSetLayout());
+
+  VkDescriptorBufferInfo buffer_info{buffer->GetBuffer(), 0, sizeof(info)};
+
+  // create VkWriteDescriptorSet to update set
+  auto write_set = VKUtils::WriteDescriptorSet(
+      descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, &buffer_info);
+
+  VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
+          VK_NULL_HANDLE);
+
+  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+          VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
+          &descriptor_set, 0, nullptr);
 }
 
 }  // namespace skity

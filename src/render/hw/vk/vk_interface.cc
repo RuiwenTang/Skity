@@ -14,9 +14,12 @@ void VKInterface::InitGlobalInterface(VkDevice device,
                                       PFN_vkGetDeviceProcAddr proc_loader) {
   g_vk_interface = new VKInterface;
 
+  GET_PROC(vkAllocateDescriptorSets);
+  GET_PROC(vkCmdBindDescriptorSets);
   GET_PROC(vkCmdBindIndexBuffer);
   GET_PROC(vkCmdBindPipeline);
   GET_PROC(vkCmdBindVertexBuffers);
+  GET_PROC(vkCmdDrawIndexed);
   GET_PROC(vkCmdPushConstants);
   GET_PROC(vkCmdSetScissor);
   GET_PROC(vkCmdSetViewport);
@@ -31,6 +34,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkDestroyPipelineLayout);
   GET_PROC(vkDestroyShaderModule);
   GET_PROC(vkResetDescriptorPool);
+  GET_PROC(vkUpdateDescriptorSets);
 }
 
 }  // namespace skity

@@ -84,6 +84,7 @@ class VKPipeline : public HWPipeline {
 
   void UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline);
   void UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline);
+  void UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline);
   void UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline);
   void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
 

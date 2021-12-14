@@ -3,7 +3,9 @@
 #include <array>
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
@@ -86,11 +88,62 @@ void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
   VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
 }
 
-void VKPipelineWrapper::PushConstant(GlobalPushConst const& push_const,
-                                     VkCommandBuffer cmd) {
+void VKPipelineWrapper::UploadPushConstant(GlobalPushConst const& push_const,
+                                           VkCommandBuffer cmd) {
   VK_CALL(vkCmdPushConstants, cmd, pipeline_layout_,
           VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT, 0,
           sizeof(GlobalPushConst), &push_const);
+}
+
+void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
+                                        GPUVkContext* ctx,
+                                        VKFrameBuffer* frame_buffer,
+                                        VKMemoryAllocator* allocator) {
+  auto buffer = frame_buffer->ObtainCommonSetBuffer();
+  allocator->UploadBuffer(buffer, (void*)&common_set,
+                          sizeof(CommonFragmentSet));
+
+  // common set is in set 1
+  auto descriptor_set =
+      frame_buffer->ObtainUniformBufferSet(ctx, descriptor_set_layout_[1]);
+
+  VkDescriptorBufferInfo buffer_info{buffer->GetBuffer(), 0,
+                                     sizeof(CommonFragmentSet)};
+
+  auto write_set = VKUtils::WriteDescriptorSet(
+      descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, &buffer_info);
+
+  VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
+          VK_NULL_HANDLE);
+
+  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+          VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 1, 1,
+          &descriptor_set, 0, nullptr);
+}
+
+void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
+                                              GPUVkContext* ctx,
+                                              VKFrameBuffer* frame_buffer,
+                                              VKMemoryAllocator* allocator) {
+  auto buffer = frame_buffer->ObtainTransformBuffer();
+  allocator->UploadBuffer(buffer, (void*)&matrix, sizeof(glm::mat4));
+
+  // transform matrix is in set 0
+  auto descriptor_set =
+      frame_buffer->ObtainUniformBufferSet(ctx, descriptor_set_layout_[0]);
+
+  VkDescriptorBufferInfo buffer_info{buffer->GetBuffer(), 0, sizeof(glm::mat4)};
+
+  // create VkWriteDescriptorSet to update set
+  auto write_set = VKUtils::WriteDescriptorSet(
+      descriptor_set, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, &buffer_info);
+
+  VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
+          VK_NULL_HANDLE);
+
+  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+          VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 0, 1,
+          &descriptor_set, 0, nullptr);
 }
 
 void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {

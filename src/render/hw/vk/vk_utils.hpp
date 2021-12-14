@@ -76,6 +76,10 @@ class VKUtils final {
   static VkDescriptorSetAllocateInfo DescriptorSetAllocateInfo(
       VkDescriptorPool pool, VkDescriptorSetLayout* p_set_layouts,
       uint32_t descriptor_set_count);
+
+  static VkWriteDescriptorSet WriteDescriptorSet(
+      VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
+      VkDescriptorBufferInfo* buffer_info, uint32_t descriptor_count = 1);
 };
 
 }  // namespace skity

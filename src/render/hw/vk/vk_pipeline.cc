@@ -74,6 +74,8 @@ void VKPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {
 
 void VKPipeline::SetStrokeWidth(float width) {
   LOG_DEBUG("vk_pipeline set stroke width");
+  common_fragment_set_.value.info.g = width;
+  common_fragment_set_.dirty = true;
 }
 
 void VKPipeline::SetUniformColor(const glm::vec4& color) {
@@ -134,7 +136,7 @@ void VKPipeline::UploadIndexBuffer(void* data, size_t data_size) {
 
 void VKPipeline::SetGlobalAlpha(float alpha) {
   LOG_DEBUG("vk_pipeline set global alpha");
-  common_fragment_set_.value.global_alpha = alpha;
+  common_fragment_set_.value.info.r = alpha;
   common_fragment_set_.dirty = true;
 }
 
@@ -205,10 +207,18 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
 
   BindPipelineIfNeed(picked_pipeline);
 
+  // push constant
   UpdatePushConstantIfNeed(picked_pipeline);
+  // set 0 for both vertex and fragment shader
   UpdateTransformMatrixIfNeed(picked_pipeline);
-  UpdateStencilConfigIfNeed(picked_pipeline);
+  // set 1 for fragment
+  UpdateCommonSetIfNeed(picked_pipeline);
+  // set 2 color for fragment
   UpdateColorInfoIfNeed(picked_pipeline);
+  // dynamic state to use stencil discard
+  UpdateStencilConfigIfNeed(picked_pipeline);
+
+  VK_CALL(vkCmdDrawIndexed, ctx_->GetCurrentCMD(), count, 1, start, 0, 0);
 }
 
 void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
@@ -267,11 +277,29 @@ void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 
   global_push_const_.dirty = false;
 
-  pipeline->PushConstant(global_push_const_.value, ctx_->GetCurrentCMD());
+  pipeline->UploadPushConstant(global_push_const_.value, ctx_->GetCurrentCMD());
 }
 
 void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
-  // TODO implement transform matrix update
+  if (!model_matrix_.dirty) {
+    return;
+  }
+
+  model_matrix_.dirty = false;
+  pipeline->UploadTransformMatrix(model_matrix_.value, ctx_,
+                                  CurrentFrameBuffer(),
+                                  vk_memory_allocator_.get());
+}
+
+void VKPipeline::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
+  if (!common_fragment_set_.dirty) {
+    return;
+  }
+
+  common_fragment_set_.dirty = false;
+
+  pipeline->UploadCommonSet(common_fragment_set_.value, ctx_,
+                            CurrentFrameBuffer(), vk_memory_allocator_.get());
 }
 
 void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
@@ -279,7 +307,12 @@ void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
-  // TODO implement color info update
+  if (color_info_set_.dirty) {
+    pipeline->UploadUniformColor(color_info_set_.value, ctx_,
+                                 CurrentFrameBuffer(),
+                                 vk_memory_allocator_.get());
+  }
+  // TODO implement image and gradient info update
 }
 
 VKFrameBuffer* VKPipeline::CurrentFrameBuffer() {

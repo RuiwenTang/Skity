@@ -42,11 +42,15 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
         800, 800, ScreenDensity(), this);
   }
   void OnUpdate(float elapsed_time) override {
+    rotate += 1.f;
     skity::Paint paint;
     paint.setStyle(skity::Paint::kFill_Style);
-    paint.setColor(skity::Color_RED);
+    paint.setColor(skity::ColorSetARGB(255, 0x42, 0x85, 0xF4));
 
+    canvas_->save();
+    canvas_->rotate(rotate, 150, 150);
     canvas_->drawRect(skity::Rect::MakeXYWH(100, 100, 200, 200), paint);
+    canvas_->restore();
 
     canvas_->flush();
   }
@@ -54,6 +58,7 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
 
  private:
   std::unique_ptr<skity::Canvas> canvas_ = {};
+  float rotate = 0.f;
 };
 
 int main(int argc, const char** argv) {

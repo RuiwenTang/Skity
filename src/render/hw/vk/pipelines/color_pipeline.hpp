@@ -11,6 +11,10 @@ class StaticColorPipeline : public StaticPipeline {
       : StaticPipeline(push_const_size) {}
   ~StaticColorPipeline() override = default;
 
+  void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
+                          VKFrameBuffer* frame_buffer,
+                          VKMemoryAllocator* allocator) override;
+
  protected:
   VkDescriptorSetLayout GenerateColorSetLayout(GPUVkContext* ctx) override;
 };

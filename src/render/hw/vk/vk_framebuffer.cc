@@ -7,6 +7,7 @@
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
+#include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
@@ -21,7 +22,19 @@ void VKFrameBuffer::Init(GPUVkContext* ctx) { AppendUniformBufferPool(ctx); }
 void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
   for (auto buffer : transform_buffer_) {
     allocator_->FreeBuffer(buffer);
+    delete buffer;
   }
+
+  for (auto buffer : common_set_buffer_) {
+    allocator_->FreeBuffer(buffer);
+    delete buffer;
+  }
+
+  for (auto buffer : uniform_color_buffer_) {
+    allocator_->FreeBuffer(buffer);
+    delete buffer;
+  }
+
   current_transform_buffer_index = -1;
 
   for (auto pool : uniform_buffer_pool_) {
@@ -34,7 +47,17 @@ void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
 }
 
 void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
-  current_uniform_pool_index = 0;
+  if (current_transform_buffer_index >= 0) {
+    current_uniform_pool_index = 0;
+  }
+
+  if (common_set_buffer_index_ >= 0) {
+    common_set_buffer_index_ = 0;
+  }
+
+  if (color_buffer_index >= 0) {
+    color_buffer_index = 0;
+  }
 
   for (auto pool : uniform_buffer_pool_) {
     VK_CALL(vkResetDescriptorPool, ctx->GetDevice(), pool, 0);
@@ -73,7 +96,31 @@ AllocatedBuffer* VKFrameBuffer::ObtainTransformBuffer() {
   return transform_buffer_.back();
 }
 
-VkDescriptorSet VKFrameBuffer::ObtainTransformDataSet(
+AllocatedBuffer* VKFrameBuffer::ObtainCommonSetBuffer() {
+  common_set_buffer_index_++;
+  if (common_set_buffer_index_ < common_set_buffer_.size()) {
+    return common_set_buffer_[common_set_buffer_index_];
+  }
+
+  common_set_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(CommonFragmentSet)));
+
+  return common_set_buffer_.back();
+}
+
+AllocatedBuffer* VKFrameBuffer::ObtainUniformColorBuffer() {
+  color_buffer_index++;
+  if (color_buffer_index < uniform_color_buffer_.size()) {
+    return uniform_color_buffer_[color_buffer_index];
+  }
+
+  uniform_color_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(ColorInfoSet)));
+
+  return uniform_color_buffer_.back();
+}
+
+VkDescriptorSet VKFrameBuffer::ObtainUniformBufferSet(
     GPUVkContext* ctx, VkDescriptorSetLayout layout) {
   VkDescriptorSet ret = VK_NULL_HANDLE;
 
@@ -81,7 +128,7 @@ VkDescriptorSet VKFrameBuffer::ObtainTransformDataSet(
       uniform_buffer_pool_[current_uniform_pool_index], &layout, 1);
 
   auto result =
-      VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), nullptr, &ret);
+      VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), &allocate_info, &ret);
 
   if (result == VK_ERROR_OUT_OF_POOL_MEMORY) {
     AppendUniformBufferPool(ctx);
@@ -89,7 +136,8 @@ VkDescriptorSet VKFrameBuffer::ObtainTransformDataSet(
     allocate_info.descriptorPool =
         uniform_buffer_pool_[current_uniform_pool_index];
 
-    result = VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), nullptr, &ret);
+    result = VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), &allocate_info,
+                     &ret);
   }
 
   if (result != VK_SUCCESS) {
