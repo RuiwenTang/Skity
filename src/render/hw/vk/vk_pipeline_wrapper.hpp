@@ -16,8 +16,8 @@ struct GlobalPushConst {
 };
 
 struct CommonFragmentSet {
-  alignas(16) float global_alpha = {};
-  alignas(16) float stroke_width = {};
+  // [global_alpha, stroke_width, TBD, TBD]
+  alignas(16) glm::vec4 info = {};
 };
 
 struct ColorInfoSet {

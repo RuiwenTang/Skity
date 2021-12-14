@@ -12,8 +12,8 @@ TransformData;
 
 // set 1 is fragment common
 layout(set = 1, binding = 0) uniform _GlobalAlpha {
-  float alpha;
-  float stroke_width;
+  // [global_alpha, stroke_width, TBD, TBD]
+  vec4 info;
 }
 AlphaStroke;
 
@@ -28,11 +28,12 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
   if (GlobalInfo.premulAlpha == 0) {
-    outColor = vec4(UserColor.color.rgb, UserColor.color.a * AlphaStroke.alpha);
+    outColor =
+        vec4(UserColor.color.rgb, UserColor.color.a * AlphaStroke.info.r);
   } else {
     vec4 color =
         vec4(UserColor.color.rgb * UserColor.color.a, UserColor.color.a);
 
-    outColor = color * AlphaStroke.alpha;
+    outColor = color * AlphaStroke.info.r;
   }
 }
