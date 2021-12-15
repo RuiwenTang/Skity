@@ -123,6 +123,7 @@ class VKPipeline : public HWPipeline {
   DirtyValueHolder<glm::mat4> model_matrix_ = {};
   DirtyValueHolder<CommonFragmentSet> common_fragment_set_ = {};
   DirtyValueHolder<ColorInfoSet> color_info_set_ = {};
+  DirtyValueHolder<GradientInfo> gradient_info_set_ = {};
 };
 
 }  // namespace skity

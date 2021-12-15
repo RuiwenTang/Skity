@@ -27,6 +27,17 @@ struct ColorInfoSet {
   alignas(16) glm::vec4 user_color = {};
 };
 
+struct GradientInfo {
+  enum {
+    MAX_COLORS = 32,
+  };
+
+  alignas(16) glm::ivec4 count = {};
+  alignas(16) glm::vec4 bounds = {};
+  alignas(16) glm::vec4 colors[MAX_COLORS];
+  alignas(16) float pos[MAX_COLORS];
+};
+
 class VKPipelineWrapper {
  public:
   VKPipelineWrapper(size_t push_const_size)

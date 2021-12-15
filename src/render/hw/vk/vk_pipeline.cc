@@ -90,18 +90,29 @@ void VKPipeline::SetUniformColor(const glm::vec4& color) {
 
 void VKPipeline::SetGradientBoundInfo(const glm::vec4& info) {
   LOG_DEBUG("vk_pipeline set gradient bounds");
+  gradient_info_set_.value.bounds = info;
+  gradient_info_set_.dirty = true;
 }
 
 void VKPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
   LOG_DEBUG("vk_pipeline set gradient color and stop count");
+  gradient_info_set_.value.count.x = color_count;
+  gradient_info_set_.value.count.y = pos_count;
+  gradient_info_set_.dirty = true;
 }
 
 void VKPipeline::SetGradientColors(const std::vector<Color4f>& colors) {
   LOG_DEBUG("vk_pipeline set gradient colors");
+  std::memcpy(gradient_info_set_.value.colors, colors.data(),
+              sizeof(float) * 4 * colors.size());
+  gradient_info_set_.dirty = true;
 }
 
 void VKPipeline::SetGradientPositions(const std::vector<float>& pos) {
   LOG_DEBUG("vk_pipeline set gradient stops");
+  std::memcpy(gradient_info_set_.value.pos, pos.data(),
+              sizeof(float) * pos.size());
+  gradient_info_set_.dirty = true;
 }
 
 void VKPipeline::UploadVertexBuffer(void* data, size_t data_size) {
