@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <skity/gpu/gpu_context.hpp>
+#include <vector>
 
 namespace skity {
 
