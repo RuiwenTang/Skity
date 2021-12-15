@@ -42,24 +42,28 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
         800, 800, ScreenDensity(), this);
   }
   void OnUpdate(float elapsed_time) override {
-    rotate += 1.f;
     skity::Paint paint;
     paint.setStyle(skity::Paint::kFill_Style);
-    paint.setColor(skity::ColorSetARGB(255, 0x42, 0x85, 0xF4));
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(4.f);
+    paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
 
-    canvas_->save();
-    canvas_->rotate(rotate, 200, 200);
-    canvas_->drawRect(skity::Rect::MakeXYWH(100, 100, 200, 200), paint);
-    canvas_->restore();
+    skity::Rect rect = skity::Rect::MakeXYWH(10, 10, 100, 160);
+    canvas_->drawRect(rect, paint);
 
-    skity::Path path;
-    path.moveTo(400, 100);
-    path.lineTo(600, 100);
-    path.lineTo(400, 300);
-    path.lineTo(600, 300);
-    path.close();
+    skity::RRect oval;
+    oval.setOval(rect);
+    oval.offset(40, 80);
+    paint.SetFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
+    canvas_->drawRRect(oval, paint);
 
-    canvas_->drawPath(path, paint);
+    paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
+    canvas_->drawCircle(180, 50, 25, paint);
+
+    rect.offset(80, 50);
+    paint.SetStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
+    paint.setStyle(skity::Paint::kStroke_Style);
+    canvas_->drawRoundRect(rect, 10, 10, paint);
 
     canvas_->flush();
   }
