@@ -164,6 +164,7 @@ void HWDraw::DoStencilBufferMove() {
   pipeline_->EnableStencilTest();
   pipeline_->UpdateStencilMask(0xFF);
   pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
+  pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
   if (clear_stencil_clip_) {
     // clear stencil clip value
     pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);

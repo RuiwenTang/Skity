@@ -22,6 +22,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkCmdDrawIndexed);
   GET_PROC(vkCmdPushConstants);
   GET_PROC(vkCmdSetScissor);
+  GET_PROC(vkCmdSetStencilReference);
   GET_PROC(vkCmdSetViewport);
   GET_PROC(vkCreateDescriptorPool);
   GET_PROC(vkCreateDescriptorSetLayout);

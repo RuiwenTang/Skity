@@ -107,10 +107,15 @@ class VKPipeline : public HWPipeline {
   // used to check if need to bind pipeline
   VKPipelineWrapper* prev_pipeline_ = nullptr;
 
+  // color pipelines
   std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_clip_color_pipeline_ = {};
+  // stencil pipelines
   std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
 
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};

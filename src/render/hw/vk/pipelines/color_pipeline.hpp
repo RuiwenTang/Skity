@@ -31,6 +31,18 @@ class StencilDiscardColorPipeline : public StaticColorPipeline {
       override;
 };
 
+class StencilClipColorPipeline : public StaticColorPipeline {
+ public:
+  StencilClipColorPipeline(size_t push_const_size)
+      : StaticColorPipeline(push_const_size) {}
+
+  ~StencilClipColorPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_COLOR_PIPELINE_HPP

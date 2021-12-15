@@ -20,6 +20,7 @@ struct VKInterface {
   PFN_vkCmdDrawIndexed fvkCmdDrawIndexed = {};
   PFN_vkCmdPushConstants fvkCmdPushConstants = {};
   PFN_vkCmdSetScissor fvkCmdSetScissor = {};
+  PFN_vkCmdSetStencilReference fvkCmdSetStencilReference = {};
   PFN_vkCmdSetViewport fvkCmdSetViewport = {};
   PFN_vkCreateDescriptorPool fvkCreateDescriptorPool = {};
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};

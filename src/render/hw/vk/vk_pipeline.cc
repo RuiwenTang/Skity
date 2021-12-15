@@ -241,8 +241,11 @@ void VKPipeline::InitFrameBuffers() {
 void VKPipeline::DestroyPipelines() {
   static_color_pipeline_->Destroy(ctx_);
   stencil_color_pipeline_->Destroy(ctx_);
+  stencil_clip_color_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
+  stencil_clip_pipeline_->Destroy(ctx_);
+  stencil_replace_pipeline_->Destroy(ctx_);
 }
 
 void VKPipeline::DestroyFrameBuffers() {
@@ -254,8 +257,13 @@ void VKPipeline::DestroyFrameBuffers() {
 void VKPipeline::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
   stencil_color_pipeline_ = VKPipelineWrapper::CreateStencilColorPipeline(ctx_);
+  stencil_clip_color_pipeline_ =
+      VKPipelineWrapper::CreateStencilClipColorPipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
+  stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
+  stencil_replace_pipeline_ =
+      VKPipelineWrapper::CreateStencilReplacePipeline(ctx_);
 }
 
 void VKPipeline::InitVertexBuffer(size_t new_size) {
@@ -271,6 +279,8 @@ VKPipelineWrapper* VKPipeline::PickColorPipeline() {
     return static_color_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
     return stencil_color_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::LESS) {
+    return stencil_clip_color_pipeline_.get();
   }
 
   return nullptr;
@@ -281,6 +291,12 @@ VKPipelineWrapper* VKPipeline::PickStencilPipeline() {
     return stencil_front_pipeline_.get();
   } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
     return stencil_back_pipeline_.get();
+  } else if (stencil_op_ == HWStencilOp::REPLACE) {
+    if (stencil_func_ == HWStencilFunc::ALWAYS) {
+      return stencil_replace_pipeline_.get();
+    } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
+      return stencil_clip_pipeline_.get();
+    }
   }
 
   return nullptr;
@@ -327,7 +343,7 @@ void VKPipeline::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
-  // TODO implement stencil info update
+  pipeline->UpdateStencilInfo(stencil_value_, ctx_);
 }
 
 void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {

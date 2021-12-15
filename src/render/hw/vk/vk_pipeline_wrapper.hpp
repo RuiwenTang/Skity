@@ -39,6 +39,8 @@ class VKPipelineWrapper {
 
   void Bind(VkCommandBuffer cmd);
 
+  virtual void UpdateStencilInfo(uint32_t reference, GPUVkContext* ctx) {}
+
   void UploadPushConstant(GlobalPushConst const& push_const,
                           VkCommandBuffer cmd);
 
@@ -63,10 +65,19 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipColorPipeline(
+      GPUVkContext* ctx);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilReplacePipeline(
       GPUVkContext* ctx);
 
  protected:

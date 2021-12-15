@@ -65,6 +65,39 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     paint.setStyle(skity::Paint::kStroke_Style);
     canvas_->drawRoundRect(rect, 10, 10, paint);
 
+    skity::Path clip_path;
+    clip_path.addRect(skity::Rect::MakeXYWH(520, 400, 100, 80));
+
+    paint.setStrokeWidth(2.f);
+    paint.setColor(skity::Color_BLUE);
+    paint.setStrokeCap(skity::Paint::kRound_Cap);
+
+    rotate += 1.f;
+    if (rotate >= 360.f) {
+      rotate = 0.f;
+    }
+
+    canvas_->save();
+    canvas_->rotate(rotate, 570, 440);
+
+    canvas_->drawPath(clip_path, paint);
+    canvas_->clipPath(clip_path);
+    canvas_->rotate(-rotate, 570, 440);
+
+    paint.setStrokeWidth(10.f);
+    paint.setColor(skity::ColorSetARGB(64, 255, 0, 0));
+    {
+      skity::Path temp_path;
+      temp_path.moveTo(500, 380);
+      temp_path.lineTo(600, 450);
+      temp_path.lineTo(600, 400);
+      canvas_->drawPath(temp_path, paint);
+    }
+    canvas_->restore();
+
+    paint.setColor(skity::Color_LTGRAY);
+    canvas_->drawLine(500, 420, 600, 470, paint);
+
     canvas_->flush();
   }
   void OnDestroy() override { canvas_ = nullptr; }

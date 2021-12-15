@@ -48,6 +48,48 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilBackPipeline(
   return pipeline;
 }
 
+std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilClipPipeline(
+    GPUVkContext* ctx) {
+  auto vertex =
+      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
+                            vk_common_vert_spv_size);
+
+  auto fragment = VKUtils::CreateShader(
+      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size);
+
+  auto pipeline =
+      std::make_unique<StencilClipPipeline>(sizeof(GlobalPushConst));
+
+  pipeline->Init(ctx, vertex, fragment);
+
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+
+  return pipeline;
+}
+
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilReplacePipeline(GPUVkContext* ctx) {
+  auto vertex =
+      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
+                            vk_common_vert_spv_size);
+
+  auto fragment = VKUtils::CreateShader(
+      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size);
+
+  auto pipeline =
+      std::make_unique<StencilReplacePipeline>(sizeof(GlobalPushConst));
+
+  pipeline->Init(ctx, vertex, fragment);
+
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+
+  return pipeline;
+}
+
 VkDescriptorSetLayout StencilPipeline::GenerateColorSetLayout(
     GPUVkContext* ctx) {
   return VK_NULL_HANDLE;
@@ -99,6 +141,54 @@ StencilBackPipeline::GetDepthStencilStateCreateInfo() {
   depth_stencil_state.front.compareMask = 0x0F;
   depth_stencil_state.front.writeMask = 0x0F;
   depth_stencil_state.front.reference = 0x01;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilClipPipeline::GetDepthStencilStateCreateInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_NOT_EQUAL;
+  depth_stencil_state.front.compareMask = 0x0F;
+  depth_stencil_state.front.writeMask = 0xFF;
+  depth_stencil_state.front.reference = 0x10;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
+}
+
+void StencilReplacePipeline::UpdateStencilInfo(uint32_t reference,
+                                               GPUVkContext* ctx) {
+  VK_CALL(vkCmdSetStencilReference, ctx->GetCurrentCMD(),
+          VK_STENCIL_FACE_FRONT_AND_BACK, reference);
+}
+
+std::vector<VkDynamicState> StencilReplacePipeline::GetDynamicStates() {
+  auto dynamic_state = StencilPipeline::GetDynamicStates();
+
+  dynamic_state.emplace_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
+
+  return dynamic_state;
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilReplacePipeline::GetDepthStencilStateCreateInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_ALWAYS;
+  depth_stencil_state.front.compareMask = 0x0F;
+  depth_stencil_state.front.writeMask = 0xFF;
+  depth_stencil_state.front.reference = 0x10;
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;
