@@ -50,6 +50,8 @@ class VKPipelineWrapper {
                        VKFrameBuffer* frame_buffer,
                        VKMemoryAllocator* allocator);
 
+  bool HasColorSet() { return descriptor_set_layout_[2] != VK_NULL_HANDLE; }
+
   // sub class implement
   virtual void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
                                   VKFrameBuffer* frame_buffer,

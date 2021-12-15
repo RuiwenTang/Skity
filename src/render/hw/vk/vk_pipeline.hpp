@@ -80,6 +80,7 @@ class VKPipeline : public HWPipeline {
   void DestroyFrameBuffers();
 
   VKPipelineWrapper* PickColorPipeline();
+  VKPipelineWrapper* PickStencilPipeline();
 
   void BindPipelineIfNeed(VKPipelineWrapper* pipeline);
 

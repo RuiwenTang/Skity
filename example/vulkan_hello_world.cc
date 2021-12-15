@@ -52,6 +52,15 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     canvas_->drawRect(skity::Rect::MakeXYWH(100, 100, 200, 200), paint);
     canvas_->restore();
 
+    skity::Path path;
+    path.moveTo(400, 100);
+    path.lineTo(600, 100);
+    path.lineTo(400, 300);
+    path.lineTo(600, 300);
+    path.close();
+
+    canvas_->drawPath(path, paint);
+
     canvas_->flush();
   }
   void OnDestroy() override { canvas_ = nullptr; }

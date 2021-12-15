@@ -34,6 +34,10 @@ void VKPipeline::Init() {
 void VKPipeline::Bind() {
   LOG_DEBUG("vk_pipeline Bind");
   prev_pipeline_ = nullptr;
+  global_push_const_.dirty = true;
+  model_matrix_.dirty = true;
+  common_fragment_set_.dirty = true;
+  color_info_set_.dirty = true;
 
   CurrentFrameBuffer()->FrameBegin(ctx_);
 
@@ -195,7 +199,7 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
 
   VKPipelineWrapper* picked_pipeline = nullptr;
   if (color_mode_ == HWPipelineColorMode::kStencil) {
-    // TODO implement pick stencil pipeline
+    picked_pipeline = PickStencilPipeline();
   } else if (color_mode_ == HWPipelineColorMode::kUniformColor) {
     picked_pipeline = PickColorPipeline();
   } else if (color_mode_ == HWPipelineColorMode::kImageTexture) {
@@ -272,6 +276,16 @@ VKPipelineWrapper* VKPipeline::PickColorPipeline() {
   return nullptr;
 }
 
+VKPipelineWrapper* VKPipeline::PickStencilPipeline() {
+  if (stencil_op_ == HWStencilOp::INCR_WRAP) {
+    return stencil_front_pipeline_.get();
+  } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
+    return stencil_back_pipeline_.get();
+  }
+
+  return nullptr;
+}
+
 void VKPipeline::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
   if (pipeline == prev_pipeline_) {
     // no need to call bind pipeline
@@ -293,22 +307,20 @@ void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
-  if (!model_matrix_.dirty) {
-    return;
-  }
-
-  model_matrix_.dirty = false;
+  // if (!model_matrix_.dirty) {
+  //   return;
+  // }
+  // model_matrix_.dirty = false;
   pipeline->UploadTransformMatrix(model_matrix_.value, ctx_,
                                   CurrentFrameBuffer(),
                                   vk_memory_allocator_.get());
 }
 
 void VKPipeline::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
-  if (!common_fragment_set_.dirty) {
-    return;
-  }
-
-  common_fragment_set_.dirty = false;
+  // if (!common_fragment_set_.dirty) {
+  //   return;
+  // }
+  // common_fragment_set_.dirty = false;
 
   pipeline->UploadCommonSet(common_fragment_set_.value, ctx_,
                             CurrentFrameBuffer(), vk_memory_allocator_.get());
@@ -319,10 +331,11 @@ void VKPipeline::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
-  if (color_info_set_.dirty) {
+  if (color_info_set_.dirty && pipeline->HasColorSet()) {
     pipeline->UploadUniformColor(color_info_set_.value, ctx_,
                                  CurrentFrameBuffer(),
                                  vk_memory_allocator_.get());
+    color_info_set_.dirty = false;
   }
   // TODO implement image and gradient info update
 }
