@@ -278,10 +278,16 @@ void VKPipeline::InitPipelines() {
 }
 
 void VKPipeline::InitVertexBuffer(size_t new_size) {
+  if (vertex_buffer_) {
+    vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
+  }
   vertex_buffer_.reset(vk_memory_allocator_->AllocateVertexBuffer(new_size));
 }
 
 void VKPipeline::InitIndexBuffer(size_t new_size) {
+  if (index_buffer_) {
+    vk_memory_allocator_->FreeBuffer(index_buffer_.get());
+  }
   index_buffer_.reset(vk_memory_allocator_->AllocateIndexBuffer(new_size));
 }
 

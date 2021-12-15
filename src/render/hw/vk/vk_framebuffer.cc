@@ -48,7 +48,7 @@ void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
 
 void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
   if (current_transform_buffer_index >= 0) {
-    current_uniform_pool_index = 0;
+    current_transform_buffer_index = 0;
   }
 
   if (common_set_buffer_index_ >= 0) {
@@ -61,6 +61,10 @@ void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
 
   for (auto pool : uniform_buffer_pool_) {
     VK_CALL(vkResetDescriptorPool, ctx->GetDevice(), pool, 0);
+  }
+
+  if (current_uniform_pool_index >= 0) {
+    current_uniform_pool_index = 0;
   }
 }
 
