@@ -9,6 +9,9 @@
 #include <skity/gpu/gpu_context.hpp>
 #include <vector>
 
+#include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_utils.hpp"
+
 namespace skity {
 
 class VKMemoryAllocator;
@@ -91,6 +94,15 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper>
+  CreateStencilDiscardGradientPipeline(GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipGradientPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepGradientPipeline(
+      GPUVkContext* ctx);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 
@@ -122,6 +134,10 @@ class VKPipelineWrapper {
 
   VkPipelineLayout GetPipelineLayout() { return pipeline_layout_; }
 
+  static VkPipelineDepthStencilStateCreateInfo StencilDiscardInfo();
+  static VkPipelineDepthStencilStateCreateInfo StencilClipDiscardInfo();
+  static VkPipelineDepthStencilStateCreateInfo StencilKeepInfo();
+
  private:
   VkVertexInputBindingDescription GetVertexInputBinding();
   std::array<VkVertexInputAttributeDescription, 2> GetVertexInputAttributes();
@@ -136,6 +152,40 @@ class VKPipelineWrapper {
   std::array<VkDescriptorSetLayout, 3> descriptor_set_layout_ = {};
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
+};
+
+template <class T>
+struct PipelineBuilder {
+  const char* vertex_src;
+  size_t vertex_size;
+  const char* fragment_src;
+  size_t fragment_size;
+  GPUVkContext* ctx;
+
+  PipelineBuilder(const char* vertex_src, size_t vertex_size,
+                  const char* fragment_src, size_t fragment_size,
+                  GPUVkContext* ctx)
+      : vertex_src(vertex_src),
+        vertex_size(vertex_size),
+        fragment_src(fragment_src),
+        fragment_size(fragment_size),
+        ctx(ctx) {}
+
+  std::unique_ptr<T> operator()() {
+    auto pipeline = std::make_unique<T>(sizeof(GlobalPushConst));
+
+    auto vertex = VKUtils::CreateShader(ctx->GetDevice(),
+                                        (const char*)vertex_src, vertex_size);
+
+    auto fragment = VKUtils::CreateShader(
+        ctx->GetDevice(), (const char*)fragment_src, fragment_size);
+    pipeline->Init(ctx, vertex, fragment);
+
+    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+
+    return pipeline;
+  }
 };
 
 }  // namespace skity

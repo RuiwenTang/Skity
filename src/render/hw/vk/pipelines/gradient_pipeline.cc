@@ -13,23 +13,46 @@ namespace skity {
 
 std::unique_ptr<VKPipelineWrapper>
 VKPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
-  auto pipeline =
-      std::make_unique<StaticGradientPipeline>(sizeof(GlobalPushConst));
+  return PipelineBuilder<StaticGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+  }();
+}
 
-  auto vertex =
-      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
-                            vk_common_vert_spv_size);
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilDiscardGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+  }();
+}
 
-  auto fragment = VKUtils::CreateShader(ctx->GetDevice(),
-                                        (const char*)vk_gradient_color_frag_spv,
-                                        vk_gradient_color_frag_spv_size);
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilClipGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+  }();
+}
 
-  pipeline->Init(ctx, vertex, fragment);
-
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
-
-  return pipeline;
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilKeepGradientPipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilKeepGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+  }();
 }
 
 void StaticGradientPipeline::UploadGradientInfo(GradientInfo const& info,
@@ -65,6 +88,21 @@ VkDescriptorSetLayout StaticGradientPipeline::GenerateColorSetLayout(
   auto create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
 
   return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilDiscardGradientPipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilDiscardInfo();
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilClipGradientPipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilClipDiscardInfo();
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilKeepGradientPipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilKeepInfo();
 }
 
 }  // namespace skity

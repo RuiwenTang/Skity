@@ -8,86 +8,46 @@ namespace skity {
 
 std::unique_ptr<VKPipelineWrapper>
 VKPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx) {
-  auto vertex =
-      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
-                            vk_common_vert_spv_size);
-
-  auto fragment = VKUtils::CreateShader(
-      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size);
-
-  auto pipeline =
-      std::make_unique<StencilFrontPipeline>(sizeof(GlobalPushConst));
-
-  pipeline->Init(ctx, vertex, fragment);
-
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
-
-  return pipeline;
+  return PipelineBuilder<StencilFrontPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+  }();
 }
 
 std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilBackPipeline(
     GPUVkContext* ctx) {
-  auto vertex =
-      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
-                            vk_common_vert_spv_size);
-
-  auto fragment = VKUtils::CreateShader(
-      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size);
-
-  auto pipeline =
-      std::make_unique<StencilBackPipeline>(sizeof(GlobalPushConst));
-
-  pipeline->Init(ctx, vertex, fragment);
-
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
-
-  return pipeline;
+  return PipelineBuilder<StencilBackPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+  }();
 }
 
 std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilClipPipeline(
     GPUVkContext* ctx) {
-  auto vertex =
-      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
-                            vk_common_vert_spv_size);
-
-  auto fragment = VKUtils::CreateShader(
-      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size);
-
-  auto pipeline =
-      std::make_unique<StencilClipPipeline>(sizeof(GlobalPushConst));
-
-  pipeline->Init(ctx, vertex, fragment);
-
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
-
-  return pipeline;
+  return PipelineBuilder<StencilClipPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+  }();
 }
 
 std::unique_ptr<VKPipelineWrapper>
 VKPipelineWrapper::CreateStencilReplacePipeline(GPUVkContext* ctx) {
-  auto vertex =
-      VKUtils::CreateShader(ctx->GetDevice(), (const char*)vk_common_vert_spv,
-                            vk_common_vert_spv_size);
-
-  auto fragment = VKUtils::CreateShader(
-      ctx->GetDevice(), (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size);
-
-  auto pipeline =
-      std::make_unique<StencilReplacePipeline>(sizeof(GlobalPushConst));
-
-  pipeline->Init(ctx, vertex, fragment);
-
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
-
-  return pipeline;
+  return PipelineBuilder<StencilReplacePipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+  }();
 }
 
 VkDescriptorSetLayout StencilPipeline::GenerateColorSetLayout(

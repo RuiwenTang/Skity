@@ -252,4 +252,53 @@ VKPipelineWrapper::GetVertexInputAttributes() {
   return input_attr;
 }
 
+VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilDiscardInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_NOT_EQUAL;
+  depth_stencil_state.front.compareMask = 0x0F;
+  depth_stencil_state.front.writeMask = 0x0F;
+  depth_stencil_state.front.reference = 0x00;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
+}
+
+VkPipelineDepthStencilStateCreateInfo
+VKPipelineWrapper::StencilClipDiscardInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_REPLACE;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_LESS;
+  depth_stencil_state.front.compareMask = 0x1F;
+  depth_stencil_state.front.writeMask = 0x0F;
+  depth_stencil_state.front.reference = 0x10;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
+}
+
+VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilKeepInfo() {
+  auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
+      VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
+
+  depth_stencil_state.stencilTestEnable = VK_TRUE;
+  depth_stencil_state.front.failOp = VK_STENCIL_OP_KEEP;
+  depth_stencil_state.front.passOp = VK_STENCIL_OP_KEEP;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_EQUAL;
+  depth_stencil_state.front.compareMask = 0x1F;
+  depth_stencil_state.front.writeMask = 0x0F;
+  depth_stencil_state.front.reference = 0x10;
+  depth_stencil_state.back = depth_stencil_state.front;
+
+  return depth_stencil_state;
+}
+
 }  // namespace skity

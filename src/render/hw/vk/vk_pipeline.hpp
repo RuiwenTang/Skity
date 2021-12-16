@@ -115,6 +115,9 @@ class VKPipeline : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_keep_color_pipeline_ = {};
   // gradient pipelines
   std::unique_ptr<VKPipelineWrapper> static_gradient_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_gradient_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_clip_gradient_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_keep_gradient_pipeline_ = {};
   // stencil pipelines
   std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
