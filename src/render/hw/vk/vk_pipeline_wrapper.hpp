@@ -71,6 +71,11 @@ class VKPipelineWrapper {
                                   VKFrameBuffer* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
+  // sub class implement
+  virtual void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
+                                  VKFrameBuffer* frame_buffer,
+                                  VKMemoryAllocator* allocator) {}
+
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 
@@ -78,6 +83,12 @@ class VKPipelineWrapper {
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipColorPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepColorPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(

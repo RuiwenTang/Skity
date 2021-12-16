@@ -217,7 +217,8 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
     // TODO implement pick image pipeline
   } else if (color_mode_ == HWPipelineColorMode::kLinearGradient ||
              color_mode_ == HWPipelineColorMode::kRadialGradient) {
-    // TODO implement pick gradient pipeline
+    gradient_info_set_.value.count.z = color_mode_;
+    picked_pipeline = PickGradientPipeline();
   }
 
   BindPipelineIfNeed(picked_pipeline);
@@ -253,6 +254,8 @@ void VKPipeline::DestroyPipelines() {
   static_color_pipeline_->Destroy(ctx_);
   stencil_color_pipeline_->Destroy(ctx_);
   stencil_clip_color_pipeline_->Destroy(ctx_);
+  stencil_keep_color_pipeline_->Destroy(ctx_);
+  static_gradient_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
   stencil_clip_pipeline_->Destroy(ctx_);
@@ -270,6 +273,10 @@ void VKPipeline::InitPipelines() {
   stencil_color_pipeline_ = VKPipelineWrapper::CreateStencilColorPipeline(ctx_);
   stencil_clip_color_pipeline_ =
       VKPipelineWrapper::CreateStencilClipColorPipeline(ctx_);
+  stencil_keep_color_pipeline_ =
+      VKPipelineWrapper::CreateStencilKeepColorPipeline(ctx_);
+  static_gradient_pipeline_ =
+      VKPipelineWrapper::CreateStaticGradientPipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
   stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
@@ -298,6 +305,8 @@ VKPipelineWrapper* VKPipeline::PickColorPipeline() {
     return stencil_color_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::LESS) {
     return stencil_clip_color_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
+    return stencil_keep_color_pipeline_.get();
   }
 
   return nullptr;
@@ -314,6 +323,14 @@ VKPipelineWrapper* VKPipeline::PickStencilPipeline() {
     } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
       return stencil_clip_pipeline_.get();
     }
+  }
+
+  return nullptr;
+}
+
+VKPipelineWrapper* VKPipeline::PickGradientPipeline() {
+  if (!enable_stencil_test_) {
+    return static_gradient_pipeline_.get();
   }
 
   return nullptr;
@@ -370,7 +387,14 @@ void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
                                  vk_memory_allocator_.get());
     color_info_set_.dirty = false;
   }
-  // TODO implement image and gradient info update
+
+  if (gradient_info_set_.dirty && pipeline->HasColorSet()) {
+    pipeline->UploadGradientInfo(gradient_info_set_.value, ctx_,
+                                 CurrentFrameBuffer(),
+                                 vk_memory_allocator_.get());
+    gradient_info_set_.dirty = false;
+  }
+  // TODO implement image info update
 }
 
 VKFrameBuffer* VKPipeline::CurrentFrameBuffer() {

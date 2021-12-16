@@ -35,6 +35,11 @@ void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
     delete buffer;
   }
 
+  for (auto buffer : gradient_info_buffer_) {
+    allocator_->FreeBuffer(buffer);
+    delete buffer;
+  }
+
   current_transform_buffer_index = -1;
 
   for (auto pool : uniform_buffer_pool_) {
@@ -57,6 +62,10 @@ void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
 
   if (color_buffer_index >= 0) {
     color_buffer_index = 0;
+  }
+
+  if (gradient_info_index >= 0) {
+    gradient_info_index = 0;
   }
 
   for (auto pool : uniform_buffer_pool_) {
@@ -122,6 +131,18 @@ AllocatedBuffer* VKFrameBuffer::ObtainUniformColorBuffer() {
       allocator_->AllocateUniformBuffer(sizeof(ColorInfoSet)));
 
   return uniform_color_buffer_.back();
+}
+
+AllocatedBuffer* VKFrameBuffer::ObtainGradientBuffer() {
+  gradient_info_index++;
+  if (gradient_info_index < gradient_info_buffer_.size()) {
+    return gradient_info_buffer_[gradient_info_index];
+  }
+
+  gradient_info_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(GradientInfo)));
+
+  return gradient_info_buffer_.back();
 }
 
 VkDescriptorSet VKFrameBuffer::ObtainUniformBufferSet(

@@ -5,25 +5,21 @@
 // Fixme to solve uniform array length
 #define MAX_COLORS 32
 
-layout(set = 2, binding = 0) uniform _GradientCount {
+layout(set = 2, binding = 0) uniform _GradientInfo {
   ivec4 count;
   vec4 bounds;
-}
-GradientInfo1;
-
-layout(set = 2, binding = 1) uniform _GradientInfo {
   vec4 GradientColors[MAX_COLORS];
   float GradientStops[MAX_COLORS];
 }
-GradientInfo2;
+GradientInfo;
 
 vec4 lerp_color(float current) {
   if (current > 1.0) {
     current = 1.0;
   }
 
-  int colorCount = GradientInfo1.count[0];
-  int stopCount = GradientInfo1.count[1];
+  int colorCount = GradientInfo.count[0];
+  int stopCount = GradientInfo.count[1];
   int premulAlpha = 0;
 
   int startIndex = 0;
@@ -34,8 +30,8 @@ vec4 lerp_color(float current) {
   float start, end;
   for (i = 0; i < colorCount - 1; i++) {
     if (stopCount > 0) {
-      start = GradientInfo2.GradientStops[i];
-      end = GradientInfo2.GradientStops[i + 1];
+      start = GradientInfo.GradientStops[i];
+      end = GradientInfo.GradientStops[i + 1];
     } else {
       start = step * i;
       end = step * (i + 1);
@@ -49,7 +45,7 @@ vec4 lerp_color(float current) {
   }
 
   if (i == colorCount - 1 && colorCount > 0) {
-    return GradientInfo2.GradientColors[colorCount - 1];
+    return GradientInfo.GradientColors[colorCount - 1];
   }
 
   float total = (end - start);
@@ -62,16 +58,16 @@ vec4 lerp_color(float current) {
 
   vec4 color;
   if (premulAlpha == 1) {
-    color = mix(vec4(GradientInfo2.GradientColors[startIndex].xyz *
-                         GradientInfo2.GradientColors[startIndex].w,
-                     GradientInfo2.GradientColors[startIndex].w),
-                vec4(GradientInfo2.GradientColors[endIndex].xyz *
-                         GradientInfo2.GradientColors[endIndex].w,
-                     GradientInfo2.GradientColors[endIndex].w),
+    color = mix(vec4(GradientInfo.GradientColors[startIndex].xyz *
+                         GradientInfo.GradientColors[startIndex].w,
+                     GradientInfo.GradientColors[startIndex].w),
+                vec4(GradientInfo.GradientColors[endIndex].xyz *
+                         GradientInfo.GradientColors[endIndex].w,
+                     GradientInfo.GradientColors[endIndex].w),
                 mixValue);
   } else {
-    color = mix(GradientInfo2.GradientColors[startIndex],
-                GradientInfo2.GradientColors[endIndex], mixValue);
+    color = mix(GradientInfo.GradientColors[startIndex],
+                GradientInfo.GradientColors[endIndex], mixValue);
   }
 
   return color;
@@ -79,18 +75,18 @@ vec4 lerp_color(float current) {
 
 vec4 calculate_radial_color() {
   vec4 mappedCenter =
-      TransformData.uMatrix * vec4(GradientInfo1.bounds.xy, 0.0, 1.0);
+      TransformData.uMatrix * vec4(GradientInfo.bounds.xy, 0.0, 1.0);
   vec4 currentPoint = TransformData.uMatrix * vec4(vPos, 0.0, 1.0);
 
   float mixValue = distance(mappedCenter.xy, currentPoint.xy);
-  return lerp_color(mixValue / GradientInfo1.bounds.z);
+  return lerp_color(mixValue / GradientInfo.bounds.z);
 }
 
 vec4 calculate_linear_color() {
   vec4 startPointMaped =
-      TransformData.uMatrix * vec4(GradientInfo1.bounds.xy, 0.0, 1.0);
+      TransformData.uMatrix * vec4(GradientInfo.bounds.xy, 0.0, 1.0);
   vec4 endPointMapped =
-      TransformData.uMatrix * vec4(GradientInfo1.bounds.zw, 0.0, 1.0);
+      TransformData.uMatrix * vec4(GradientInfo.bounds.zw, 0.0, 1.0);
   vec4 currentPoint = TransformData.uMatrix * vec4(vPos, 0.0, 1.0);
 
   vec2 sc = vec2(currentPoint.x - startPointMaped.x,
@@ -107,7 +103,7 @@ vec4 calculate_linear_color() {
 }
 
 vec4 calculate_gradient_color() {
-  int ColorType = GradientInfo1.count.z;
+  int ColorType = GradientInfo.count.z;
   if (ColorType == PIPELINE_MODE_LINEAR_GRADIENT) {
     return calculate_linear_color();
   } else if (ColorType == PIPELINE_MODE_RADIAL_GRADIENT) {

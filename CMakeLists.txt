@@ -128,6 +128,8 @@ if (${VULKAN_BACKEND})
     set(HW_VK_RENDER
         src/render/hw/vk/pipelines/color_pipeline.cc
         src/render/hw/vk/pipelines/color_pipeline.hpp
+        src/render/hw/vk/pipelines/gradient_pipeline.cc
+        src/render/hw/vk/pipelines/gradient_pipeline.hpp
         src/render/hw/vk/pipelines/static_pipeline.cc
         src/render/hw/vk/pipelines/static_pipeline.hpp
         src/render/hw/vk/pipelines/stencil_pipeline.cc

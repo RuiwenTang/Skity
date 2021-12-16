@@ -98,6 +98,21 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     paint.setColor(skity::Color_LTGRAY);
     canvas_->drawLine(500, 420, 600, 470, paint);
 
+    {
+      skity::Point center{400, 400, 0, 1.f};
+      skity::Vec4 radialColors[] = {skity::Vec4{1.f, 1.f, 1.f, 1.f},
+                                    skity::Vec4{0.f, 0.f, 0.f, 1.f}};
+      float pts[] = {0.f, 1.f};
+      auto rgs =
+          skity::Shader::MakeRadial(center, 120.f, radialColors, nullptr, 2);
+      paint.setShader(rgs);
+    }
+
+    paint.setStyle(skity::Paint::kFill_Style);
+    canvas_->drawCircle(400, 400, 100, paint);
+
+    paint.setShader(nullptr);
+
     canvas_->flush();
   }
   void OnDestroy() override { canvas_ = nullptr; }

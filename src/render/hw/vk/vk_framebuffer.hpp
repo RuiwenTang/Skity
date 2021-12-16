@@ -29,6 +29,8 @@ class VKFrameBuffer {
 
   AllocatedBuffer* ObtainUniformColorBuffer();
 
+  AllocatedBuffer* ObtainGradientBuffer();
+
   // allocate descriptor set for set 0
   VkDescriptorSet ObtainUniformBufferSet(GPUVkContext* ctx,
                                          VkDescriptorSetLayout layout);
@@ -50,6 +52,9 @@ class VKFrameBuffer {
 
   std::vector<AllocatedBuffer*> uniform_color_buffer_ = {};
   int32_t color_buffer_index = -1;
+
+  std::vector<AllocatedBuffer*> gradient_info_buffer_ = {};
+  int32_t gradient_info_index = -1;
 };
 
 }  // namespace skity
