@@ -144,7 +144,6 @@ void HWDraw::DoColorFill() {
     }
   } else if (pipeline_mode_ == kImageTexture) {
     pipeline_->SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
-    texture_->Bind();
     // slot 0 is image texture
     // slot 1 is font texture
     pipeline_->BindTexture(texture_, 0);
