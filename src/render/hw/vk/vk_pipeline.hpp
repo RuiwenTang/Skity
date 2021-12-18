@@ -70,6 +70,9 @@ class VKPipeline : public HWPipeline {
 
   void BindTexture(HWTexture* texture, uint32_t slot) override;
 
+  // internal vulkan helper functions
+  VKMemoryAllocator* Allocator() const { return vk_memory_allocator_.get(); }
+
  private:
   void InitFrameBuffers();
   void InitPipelines();

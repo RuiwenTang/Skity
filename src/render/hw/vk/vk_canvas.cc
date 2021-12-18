@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_texture.hpp"
 
 namespace skity {
 
@@ -23,7 +24,8 @@ void VKCanvas::OnInit(GPUContext* ctx) {
 HWPipeline* VKCanvas::GetPipeline() { return vk_pipeline_.get(); }
 
 std::unique_ptr<HWTexture> VKCanvas::GenerateTexture() {
-  return std::unique_ptr<HWTexture>();
+  return std::make_unique<VKTexture>(vk_pipeline_->Allocator(),
+                                     vk_pipeline_.get());
 }
 
 std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(

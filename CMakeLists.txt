@@ -146,6 +146,8 @@ if (${VULKAN_BACKEND})
         src/render/hw/vk/vk_pipeline.hpp
         src/render/hw/vk/vk_pipeline_wrapper.cc
         src/render/hw/vk/vk_pipeline_wrapper.hpp
+        src/render/hw/vk/vk_texture.cc
+        src/render/hw/vk/vk_texture.hpp
         src/render/hw/vk/vk_utils.cc
         src/render/hw/vk/vk_utils.hpp
     )

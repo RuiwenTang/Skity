@@ -80,6 +80,10 @@ class VKUtils final {
   static VkWriteDescriptorSet WriteDescriptorSet(
       VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
       VkDescriptorBufferInfo* buffer_info, uint32_t descriptor_count = 1);
+
+  static VkImageCreateInfo ImageCreateInfo(VkFormat format,
+                                           VkImageUsageFlags flags,
+                                           VkExtent3D extent);
 };
 
 }  // namespace skity

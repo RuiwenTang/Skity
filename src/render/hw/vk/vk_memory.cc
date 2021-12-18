@@ -8,6 +8,7 @@
 #include <vk_mem_alloc.h>
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
 
@@ -16,8 +17,27 @@ struct AllocatedBufferImpl : public AllocatedBuffer {
   VkBuffer buffer = {};
   VmaAllocation vma_allocation = {};
 
+  AllocatedBufferImpl() = default;
+  ~AllocatedBufferImpl() override = default;
+
   VkBuffer GetBuffer() override { return buffer; }
   size_t BufferSize() override { return buffer_size; }
+};
+
+struct AllocatedImageImpl : public AllocatedImage {
+  VkImage image = {};
+  VkImageLayout layout = {};
+  VkFormat format = {};
+  VkExtent3D extent = {};
+  VmaAllocation vma_allocation = {};
+
+  AllocatedImageImpl() = default;
+  ~AllocatedImageImpl() override = default;
+
+  VkImage GetImage() override { return image; }
+  VkImageLayout GetCurrentLayout() override { return layout; }
+  VkFormat GetImageFormat() override { return format; }
+  VkExtent3D GetImageExtent() override { return extent; }
 };
 
 class VKMemoryAllocatorImpl : public VKMemoryAllocator {
@@ -65,9 +85,38 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
     return AllocateBufferInternal(buffer_info, vma_info);
   }
 
+  AllocatedBuffer* AllocateStageBuffer(size_t buffer_size) override {
+    VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    buffer_info.size = buffer_size;
+    buffer_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    VmaAllocationCreateInfo vma_info{};
+    vma_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    vma_info.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    return AllocateBufferInternal(buffer_info, vma_info);
+  }
+
+  AllocatedImage* AllocateImage(VkFormat format, VkExtent3D extent,
+                                VkImageAspectFlags flags) override {
+    VkImageCreateInfo image_info =
+        VKUtils::ImageCreateInfo(format, flags, extent);
+
+    VmaAllocationCreateInfo vma_info{};
+    vma_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    vma_info.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    return AllocateImageInternal(image_info, vma_info);
+  }
+
   void FreeBuffer(AllocatedBuffer* allocated_buffer) override {
     AllocatedBufferImpl* impl = (AllocatedBufferImpl*)allocated_buffer;
     vmaDestroyBuffer(vma_allocator_, impl->buffer, impl->vma_allocation);
+  }
+
+  void FreeImage(AllocatedImage* allocated_image) override {
+    AllocatedImageImpl* impl = (AllocatedImageImpl*)allocated_image;
+    vmaDestroyImage(vma_allocator_, impl->image, impl->vma_allocation);
   }
 
   void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,
@@ -79,6 +128,10 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
   AllocatedBuffer* AllocateBufferInternal(
       VkBufferCreateInfo const& buffer_info,
+      VmaAllocationCreateInfo const& vma_info);
+
+  AllocatedImage* AllocateImageInternal(
+      VkImageCreateInfo const& image_info,
       VmaAllocationCreateInfo const& vma_info);
 
  private:
@@ -135,6 +188,27 @@ AllocatedBuffer* VKMemoryAllocatorImpl::AllocateBufferInternal(
     return nullptr;
   }
   impl->buffer_size = buffer_info.size;
+  return impl;
+}
+
+AllocatedImage* VKMemoryAllocatorImpl::AllocateImageInternal(
+    VkImageCreateInfo const& image_info,
+    VmaAllocationCreateInfo const& vma_info) {
+  AllocatedImageImpl* impl = new AllocatedImageImpl;
+
+  if (vmaCreateImage(vma_allocator_, &image_info, &vma_info, &impl->image,
+                     &impl->vma_allocation, nullptr) != VK_SUCCESS) {
+    LOG_ERROR("Failed allocate image with format {} and extent: [{}, {}]",
+              image_info.format, image_info.extent.width,
+              image_info.extent.height);
+    delete impl;
+    return nullptr;
+  }
+
+  impl->format = image_info.format;
+  impl->extent = image_info.extent;
+  impl->layout = VK_IMAGE_LAYOUT_UNDEFINED;
+
   return impl;
 }
 

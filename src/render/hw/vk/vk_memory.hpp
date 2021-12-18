@@ -17,6 +17,16 @@ struct AllocatedBuffer {
   virtual size_t BufferSize() = 0;
 };
 
+struct AllocatedImage {
+  AllocatedImage() = default;
+  virtual ~AllocatedImage() = default;
+
+  virtual VkImage GetImage() = 0;
+  virtual VkImageLayout GetCurrentLayout() = 0;
+  virtual VkFormat GetImageFormat() = 0;
+  virtual VkExtent3D GetImageExtent() = 0;
+};
+
 class VKMemoryAllocator {
  public:
   VKMemoryAllocator() = default;
@@ -32,7 +42,14 @@ class VKMemoryAllocator {
 
   virtual AllocatedBuffer* AllocateUniformBuffer(size_t buffer_size) = 0;
 
+  virtual AllocatedBuffer* AllocateStageBuffer(size_t buffer_size) = 0;
+
+  virtual AllocatedImage* AllocateImage(VkFormat format, VkExtent3D extent,
+                                        VkImageAspectFlags flags) = 0;
+
   virtual void FreeBuffer(AllocatedBuffer* allocated_buffer) = 0;
+
+  virtual void FreeImage(AllocatedImage* allocated_image) = 0;
 
   virtual void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,
                             size_t data_size) = 0;
