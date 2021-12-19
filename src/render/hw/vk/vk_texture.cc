@@ -94,7 +94,8 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
   copy_region.imageExtent = image_->GetImageExtent();
 
   // copy the buffer into the image
-  allocator_->CopyBufferToImage(cmd, stage_buffer.get(), image_.get(), copy_region);
+  allocator_->CopyBufferToImage(cmd, stage_buffer.get(), image_.get(),
+                                copy_region);
 
   pipeline_->SubmitCMD(cmd);
 

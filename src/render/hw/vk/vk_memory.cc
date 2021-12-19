@@ -8,6 +8,7 @@
 #include <vk_mem_alloc.h>
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
@@ -190,11 +191,22 @@ void VKMemoryAllocatorImpl::TransferImageLayout(VkCommandBuffer cmd,
                                                 AllocatedImage* image,
                                                 VkImageSubresourceRange range,
                                                 VkImageLayout old_layout,
-                                                VkImageLayout new_layout) {}
+                                                VkImageLayout new_layout) {
+  AllocatedImageImpl* impl = (AllocatedImageImpl*)image;
+  VKUtils::SetImageLayout(cmd, impl->image, range.aspectMask, old_layout,
+                          new_layout, range);
+  impl->layout = new_layout;
+}
 
 void VKMemoryAllocatorImpl::CopyBufferToImage(
     VkCommandBuffer cmd, AllocatedBuffer* buffer, AllocatedImage* image,
-    VkBufferImageCopy const& copy_region) {}
+    VkBufferImageCopy const& copy_region) {
+  AllocatedBufferImpl* buffer_impl = (AllocatedBufferImpl*)buffer;
+  AllocatedImageImpl* image_impl = (AllocatedImageImpl*)image;
+
+  VK_CALL(vkCmdCopyBufferToImage, cmd, buffer_impl->buffer, image_impl->image,
+          image_impl->layout, 1, &copy_region);
+}
 
 AllocatedBuffer* VKMemoryAllocatorImpl::AllocateBufferInternal(
     VkBufferCreateInfo const& buffer_info,
