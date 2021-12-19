@@ -37,6 +37,8 @@ struct GPUVkContext : public GPUContext {
   virtual PFN_vkGetInstanceProcAddr GetInstanceProcAddr() = 0;
   virtual uint32_t GetSwapchainBufferCount() = 0;
   virtual uint32_t GetCurrentBufferIndex() = 0;
+  virtual VkQueue GetGraphicQueue() = 0;
+  virtual uint32_t GetGraphicQueueIndex() = 0;
 };
 
 #endif

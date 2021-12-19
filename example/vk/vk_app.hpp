@@ -45,6 +45,8 @@ class VkApp {
 
   uint32_t SwapchinImageCount() const { return swap_chain_image_views.size(); }
   uint32_t CurrentFrameIndex() const { return current_frame_; }
+  VkQueue GraphicQueue() const { return vk_graphic_queue_; }
+  uint32_t GraphicQueueIndex() const { return graphic_queue_index_; }
 
  private:
   void SetupVkContext();

@@ -32,6 +32,14 @@ VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline)
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->format_ = hw_texture_format_to_vk_format(format);
+  this->bpp_ = vk_format_comp(this->format_);
+  this->range_.aspectMask = type == HWTexture::Type::kColorTexture
+                                ? VK_IMAGE_ASPECT_COLOR_BIT
+                                : VK_IMAGE_ASPECT_DEPTH_BIT;
+  this->range_.baseMipLevel = 0;
+  this->range_.levelCount = 1;
+  this->range_.baseArrayLayer = 0;
+  this->range_.layerCount = 1;
 }
 
 void VKTexture::Bind() {}
@@ -49,10 +57,6 @@ void VKTexture::Resize(uint32_t width, uint32_t height) {
   height_ = height;
 
   if (need_create) {
-    if (stage_buffer_) {
-      allocator_->FreeBuffer(stage_buffer_.get());
-    }
-
     if (image_) {
       allocator_->FreeImage(image_.get());
     }
@@ -62,21 +66,54 @@ void VKTexture::Resize(uint32_t width, uint32_t height) {
 }
 
 void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
-                           uint32_t height, void* data) {}
+                           uint32_t height, void* data) {
+  size_t buffer_size = width * height * bpp_;
+  // step 1 upload data to stage buffer
+  std::unique_ptr<AllocatedBuffer> stage_buffer{
+      allocator_->AllocateStageBuffer(buffer_size)};
+
+  allocator_->UploadBuffer(stage_buffer.get(), data, buffer_size);
+
+  VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
+  // step 2 set vk_image layout for
+  if (image_->GetCurrentLayout() != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+    allocator_->TransferImageLayout(cmd, image_.get(), range_,
+                                    image_->GetCurrentLayout(),
+                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+  }
+  // step 3 transfer image data from stage buffer to image buffer
+  VkBufferImageCopy copy_region = {};
+  copy_region.bufferOffset = 0;
+  copy_region.bufferRowLength = width * bpp_;
+  copy_region.bufferImageHeight = height;
+
+  copy_region.imageSubresource.aspectMask = range_.aspectMask;
+  copy_region.imageSubresource.mipLevel = 0;
+  copy_region.imageSubresource.baseArrayLayer = 0;
+  copy_region.imageSubresource.layerCount = 1;
+  copy_region.imageExtent = image_->GetImageExtent();
+
+  // copy the buffer into the image
+  allocator_->CopyBufferToImage(cmd, stage_buffer.get(), image_.get(), copy_region);
+
+  pipeline_->SubmitCMD(cmd);
+
+  allocator_->FreeBuffer(stage_buffer.get());
+}
 
 void VKTexture::CreateBufferAndImage() {
-  size_t total_size = width_ * height_ * vk_format_comp(format_);
+  size_t total_size = width_ * height_ * bpp_;
 
   if (total_size == 0) {
     LOG_ERROR("Create Image buffer failed, the image size is zero!");
     return;
   }
 
-  stage_buffer_.reset(allocator_->AllocateStageBuffer(total_size));
-
   image_.reset(allocator_->AllocateImage(
       format_, {width_, height_, 1},
       VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
 }
+
+uint32_t VKTexture::BytesPerRow() const { return bpp_ * width_; }
 
 }  // namespace skity

@@ -37,14 +37,16 @@ class VKTexture : public HWTexture {
  private:
   void CreateBufferAndImage();
 
+  uint32_t BytesPerRow() const;
+
  private:
   VKMemoryAllocator* allocator_ = {};
   VKPipeline* pipeline_ = {};
   VkFormat format_ = {};
+  VkImageSubresourceRange range_ = {};
+  uint32_t bpp_ = {};
   uint32_t width_ = {};
   uint32_t height_ = {};
-  // stage buffer used to hold raw texture data
-  std::unique_ptr<AllocatedBuffer> stage_buffer_;
   // allocated vulkan image handler
   std::unique_ptr<AllocatedImage> image_;
 };

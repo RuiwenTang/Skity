@@ -52,7 +52,16 @@ class VKMemoryAllocator {
   virtual void FreeImage(AllocatedImage* allocated_image) = 0;
 
   virtual void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,
-                            size_t data_size) = 0;
+                            size_t data_size, size_t offset = 0) = 0;
+
+  virtual void TransferImageLayout(VkCommandBuffer cmd, AllocatedImage* image,
+                                   VkImageSubresourceRange range,
+                                   VkImageLayout old_layout,
+                                   VkImageLayout new_layout) = 0;
+
+  virtual void CopyBufferToImage(VkCommandBuffer cmd, AllocatedBuffer* buffer,
+                                 AllocatedImage* image,
+                                 VkBufferImageCopy const& copy_region) = 0;
 
   static std::unique_ptr<VKMemoryAllocator> CreateMemoryAllocator();
 };

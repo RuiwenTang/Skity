@@ -73,12 +73,26 @@ class VKPipeline : public HWPipeline {
   // internal vulkan helper functions
   VKMemoryAllocator* Allocator() const { return vk_memory_allocator_.get(); }
 
+  VkCommandBuffer ObtainInternalCMD();
+
+  void SubmitCMD(VkCommandBuffer cmd);
+
+  void WaitForFence();
+
+  void ResetFence();
+
+  VkFence PipelineFence() const { return vk_fence_; }
+
  private:
+  void InitCMDPool();
+  void InitFence();
   void InitFrameBuffers();
   void InitPipelines();
   void InitVertexBuffer(size_t new_size);
   void InitIndexBuffer(size_t new_size);
 
+  void DestroyCMDPool();
+  void DestroyFence();
   void DestroyPipelines();
   void DestroyFrameBuffers();
 
@@ -97,7 +111,9 @@ class VKPipeline : public HWPipeline {
   VKFrameBuffer* CurrentFrameBuffer();
 
  private:
-  GPUVkContext* ctx_;
+  GPUVkContext* ctx_ = {};
+  VkCommandPool vk_cmd_pool_ = {};
+  VkFence vk_fence_ = {};
   HWPipelineColorMode color_mode_ = HWPipelineColorMode::kUniformColor;
   HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
   HWStencilOp stencil_op_ = HWStencilOp::KEEP;

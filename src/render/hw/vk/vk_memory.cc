@@ -120,7 +120,16 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
   }
 
   void UploadBuffer(AllocatedBuffer* allocated_buffer, void* data,
-                    size_t data_size) override;
+                    size_t data_size, size_t offset) override;
+
+  void TransferImageLayout(VkCommandBuffer cmd, AllocatedImage* image,
+                           VkImageSubresourceRange range,
+                           VkImageLayout old_layout,
+                           VkImageLayout new_layout) override;
+
+  void CopyBufferToImage(VkCommandBuffer cmd, AllocatedBuffer* buffer,
+                         AllocatedImage* image,
+                         VkBufferImageCopy const& copy_region) override;
 
  private:
   void InitVMA(GPUVkContext* ctx);
@@ -161,7 +170,8 @@ void VKMemoryAllocatorImpl::DestroyVMA(GPUVkContext* ctx) {
 }
 
 void VKMemoryAllocatorImpl::UploadBuffer(AllocatedBuffer* allocated_buffer,
-                                         void* data, size_t data_size) {
+                                         void* data, size_t data_size,
+                                         size_t offset) {
   auto impl = (AllocatedBufferImpl*)allocated_buffer;
 
   void* vma_buffer_pointer = nullptr;
@@ -170,11 +180,21 @@ void VKMemoryAllocatorImpl::UploadBuffer(AllocatedBuffer* allocated_buffer,
     LOG_ERROR("Failed to map vma memory");
     return;
   }
-
-  std::memcpy(vma_buffer_pointer, data, data_size);
+  void* p = ((char*)vma_buffer_pointer + offset);
+  std::memcpy(p, data, data_size);
 
   vmaUnmapMemory(vma_allocator_, impl->vma_allocation);
 }
+
+void VKMemoryAllocatorImpl::TransferImageLayout(VkCommandBuffer cmd,
+                                                AllocatedImage* image,
+                                                VkImageSubresourceRange range,
+                                                VkImageLayout old_layout,
+                                                VkImageLayout new_layout) {}
+
+void VKMemoryAllocatorImpl::CopyBufferToImage(
+    VkCommandBuffer cmd, AllocatedBuffer* buffer, AllocatedImage* image,
+    VkBufferImageCopy const& copy_region) {}
 
 AllocatedBuffer* VKMemoryAllocatorImpl::AllocateBufferInternal(
     VkBufferCreateInfo const& buffer_info,

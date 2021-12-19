@@ -36,6 +36,12 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     return example::VkApp::CurrentFrameIndex();
   }
 
+  VkQueue GetGraphicQueue() override { return VkApp::GraphicQueue(); }
+
+  uint32_t GetGraphicQueueIndex() override {
+    return VkApp::GraphicQueueIndex();
+  }
+
  protected:
   void OnStart() override {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(

@@ -16,6 +16,8 @@ VKPipeline::~VKPipeline() {
   vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
   vk_memory_allocator_->FreeBuffer(index_buffer_.get());
 
+  DestroyFence();
+  DestroyCMDPool();
   DestroyPipelines();
   DestroyFrameBuffers();
   vk_memory_allocator_->Destroy(ctx_);
@@ -29,6 +31,8 @@ void VKPipeline::Init() {
   vk_memory_allocator_->Init(ctx_);
   InitFrameBuffers();
   InitPipelines();
+  InitCMDPool();
+  InitFence();
 }
 
 void VKPipeline::Bind() {
@@ -241,6 +245,74 @@ void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
   LOG_DEBUG("vk_pipeline bind to {}", slot);
 }
 
+VkCommandBuffer VKPipeline::ObtainInternalCMD() {
+  VkCommandBufferAllocateInfo buffer_info{
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+  buffer_info.commandBufferCount = 1;
+  buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+  VkCommandBuffer cmd;
+
+  if (VK_CALL(vkAllocateCommandBuffers, ctx_->GetDevice(), &buffer_info,
+              &cmd) != VK_SUCCESS) {
+    LOG_ERROR("Faled allocate internal command buffer!");
+    return VK_NULL_HANDLE;
+  }
+
+  VkCommandBufferBeginInfo begin_info{
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+  begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  VK_CALL(vkBeginCommandBuffer, cmd, &begin_info);
+
+  return cmd;
+}
+
+void VKPipeline::SubmitCMD(VkCommandBuffer cmd) {
+  VK_CALL(vkEndCommandBuffer, cmd);
+
+  VkSubmitInfo submit_info{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+  submit_info.commandBufferCount = 1;
+  submit_info.pCommandBuffers = &cmd;
+
+  VK_CALL(vkQueueSubmit, ctx_->GetGraphicQueue(), 1, &submit_info, vk_fence_);
+  
+  WaitForFence();
+  ResetFence();
+}
+
+void VKPipeline::WaitForFence() {
+  VK_CALL(vkWaitForFences, ctx_->GetDevice(), 1, &vk_fence_, VK_TRUE,
+          1000000000);
+}
+
+void VKPipeline::ResetFence() {
+  VK_CALL(vkResetFences, ctx_->GetDevice(), 1, &vk_fence_);
+}
+
+void VKPipeline::InitCMDPool() {
+  // create a command pool for internal use
+  VkCommandPoolCreateInfo create_info{
+      VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+  create_info.queueFamilyIndex = ctx_->GetGraphicQueueIndex();
+  create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+  if (VK_CALL(vkCreateCommandPool, ctx_->GetDevice(), &create_info, nullptr,
+              &vk_cmd_pool_) != VK_SUCCESS) {
+    LOG_ERROR("Failed create internal command pool!");
+  }
+}
+
+void VKPipeline::InitFence() {
+  VkFenceCreateInfo create_info{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+  create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+  if (VK_CALL(vkCreateFence, ctx_->GetDevice(), &create_info, nullptr,
+              &vk_fence_) != VK_SUCCESS) {
+    LOG_ERROR("Failed create internal fence object!");
+  }
+}
+
 void VKPipeline::InitFrameBuffers() {
   frame_buffer_.resize(ctx_->GetSwapchainBufferCount());
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
@@ -248,6 +320,15 @@ void VKPipeline::InitFrameBuffers() {
         std::make_unique<VKFrameBuffer>(vk_memory_allocator_.get());
     frame_buffer_[i]->Init(ctx_);
   }
+}
+
+void VKPipeline::DestroyCMDPool() {
+  VK_CALL(vkResetCommandPool, ctx_->GetDevice(), vk_cmd_pool_, 0);
+  VK_CALL(vkDestroyCommandPool, ctx_->GetDevice(), vk_cmd_pool_, nullptr);
+}
+
+void VKPipeline::DestroyFence() {
+  VK_CALL(vkDestroyFence, ctx_->GetDevice(), vk_fence_, nullptr);
 }
 
 void VKPipeline::DestroyPipelines() {

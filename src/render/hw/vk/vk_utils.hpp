@@ -84,6 +84,13 @@ class VKUtils final {
   static VkImageCreateInfo ImageCreateInfo(VkFormat format,
                                            VkImageUsageFlags flags,
                                            VkExtent3D extent);
+
+  static void SetImageLayout(
+      VkCommandBuffer cmd, VkImage image, VkImageAspectFlags aspect_mask,
+      VkImageLayout old_layout, VkImageLayout new_layout,
+      VkImageSubresourceRange range,
+      VkPipelineStageFlags src_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+      VkPipelineStageFlags dst_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 };
 
 }  // namespace skity
