@@ -78,9 +78,11 @@ void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
 }
 
 void VKFrameBuffer::AppendUniformBufferPool(GPUVkContext* ctx) {
-  std::array<VkDescriptorPoolSize, 1> pool_size{};
+  std::array<VkDescriptorPoolSize, 2> pool_size{};
   pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   pool_size[0].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
+  pool_size[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  pool_size[1].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
 
   auto create_info = VKUtils::DescriptorPoolCreateInfo(
       pool_size.size(), pool_size.data(), DEFAULT_UNIFORM_SIZE_PER_POOL);

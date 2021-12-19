@@ -17,7 +17,8 @@ void VKCanvas::OnInit(GPUContext* ctx) {
     return;
   }
 
-  vk_pipeline_ = std::make_unique<VKPipeline>((GPUVkContext*)ctx);
+  ctx_ = (GPUVkContext*)ctx;
+  vk_pipeline_ = std::make_unique<VKPipeline>(ctx_);
   vk_pipeline_->Init();
 }
 
@@ -25,7 +26,7 @@ HWPipeline* VKCanvas::GetPipeline() { return vk_pipeline_.get(); }
 
 std::unique_ptr<HWTexture> VKCanvas::GenerateTexture() {
   return std::make_unique<VKTexture>(vk_pipeline_->Allocator(),
-                                     vk_pipeline_.get());
+                                     vk_pipeline_.get(), ctx_);
 }
 
 std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(

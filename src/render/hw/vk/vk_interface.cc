@@ -33,7 +33,9 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkCreateDescriptorSetLayout);
   GET_PROC(vkCreateFence);
   GET_PROC(vkCreateGraphicsPipelines);
+  GET_PROC(vkCreateImageView);
   GET_PROC(vkCreatePipelineLayout);
+  GET_PROC(vkCreateSampler);
   GET_PROC(vkCreateShaderModule);
   GET_PROC(vkDestroyCommandPool);
   GET_PROC(vkDestroyDescriptorPool);

@@ -109,6 +109,9 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepGradientPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticImagePipeline(
+      GPUVkContext* ctx);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 

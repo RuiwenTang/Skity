@@ -31,7 +31,9 @@ struct VKInterface {
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateFence fvkCreateFence = {};
   PFN_vkCreateGraphicsPipelines fvkCreateGraphicsPipelines = {};
+  PFN_vkCreateImageView fvkCreateImageView = {};
   PFN_vkCreatePipelineLayout fvkCreatePipelineLayout = {};
+  PFN_vkCreateSampler fvkCreateSampler = {};
   PFN_vkCreateShaderModule fvkCreateShaderModule = {};
   PFN_vkDestroyCommandPool fvkDestroyCommandPool = {};
   PFN_vkDestroyDescriptorPool fvkDestroyDescriptorPool = {};

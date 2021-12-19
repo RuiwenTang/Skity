@@ -27,8 +27,9 @@ static uint32_t vk_format_comp(VkFormat format) {
   }
 }
 
-VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline)
-    : HWTexture(), allocator_(allocator), pipeline_(pipeline) {}
+VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline,
+                     GPUVkContext* ctx)
+    : HWTexture(), allocator_(allocator), pipeline_(pipeline), ctx_(ctx) {}
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->format_ = hw_texture_format_to_vk_format(format);
@@ -118,6 +119,10 @@ void VKTexture::PrepareForDraw() {
   pipeline_->SubmitCMD(cmd);
 }
 
+VkImageLayout VKTexture::GetImageLayout() const {
+  return image_->GetCurrentLayout();
+}
+
 void VKTexture::CreateBufferAndImage() {
   size_t total_size = width_ * height_ * bpp_;
 
@@ -129,6 +134,23 @@ void VKTexture::CreateBufferAndImage() {
   image_.reset(allocator_->AllocateImage(
       format_, {width_, height_, 1},
       VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+
+  // create sampler
+  if (!vk_sampler_) {
+    auto sampler_create_info = VKUtils::SamplerCreateInfo();
+
+    VK_CALL(vkCreateSampler, ctx_->GetDevice(), &sampler_create_info, nullptr,
+            &vk_sampler_);
+  }
+
+  // create image view
+  if (!vk_image_view_) {
+    auto imageview_create_info = VKUtils::ImageViewCreateInfo(
+        image_->GetImageFormat(), image_->GetImage(), range_);
+
+    VK_CALL(vkCreateImageView, ctx_->GetDevice(), &imageview_create_info,
+            nullptr, &vk_image_view_);
+  }
 }
 
 uint32_t VKTexture::BytesPerRow() const { return bpp_ * width_; }

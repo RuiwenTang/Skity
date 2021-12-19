@@ -23,6 +23,7 @@ class VKCanvas : public HWCanvas {
 
  private:
   std::unique_ptr<VKPipeline> vk_pipeline_ = {};
+  GPUVkContext* ctx_ = {};
 };
 
 }  // namespace skity

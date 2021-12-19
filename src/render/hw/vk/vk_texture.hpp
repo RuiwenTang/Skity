@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 
 #include <memory>
+#include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/hw_texture.hpp"
 
@@ -17,7 +18,8 @@ class VKPipeline;
 
 class VKTexture : public HWTexture {
  public:
-  VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline);
+  VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline,
+            GPUVkContext* ctx);
 
   ~VKTexture() override = default;
 
@@ -36,6 +38,12 @@ class VKTexture : public HWTexture {
 
   void PrepareForDraw();
 
+  VkSampler GetSampler() const { return vk_sampler_; }
+
+  VkImageView GetImageView() const { return vk_image_view_; }
+
+  VkImageLayout GetImageLayout() const;
+
  private:
   void CreateBufferAndImage();
 
@@ -44,8 +52,11 @@ class VKTexture : public HWTexture {
  private:
   VKMemoryAllocator* allocator_ = {};
   VKPipeline* pipeline_ = {};
+  GPUVkContext* ctx_ = {};
   VkFormat format_ = {};
   VkImageSubresourceRange range_ = {};
+  VkSampler vk_sampler_ = {};
+  VkImageView vk_image_view_ = {};
   uint32_t bpp_ = {};
   uint32_t width_ = {};
   uint32_t height_ = {};

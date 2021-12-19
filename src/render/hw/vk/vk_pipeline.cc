@@ -219,7 +219,7 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
   } else if (color_mode_ == HWPipelineColorMode::kUniformColor) {
     picked_pipeline = PickColorPipeline();
   } else if (color_mode_ == HWPipelineColorMode::kImageTexture) {
-    // TODO implement pick image pipeline
+    picked_pipeline = PickImagePipeline();
   } else if (color_mode_ == HWPipelineColorMode::kLinearGradient ||
              color_mode_ == HWPipelineColorMode::kRadialGradient) {
     gradient_info_set_.value.count.z = color_mode_;
@@ -256,6 +256,7 @@ VkCommandBuffer VKPipeline::ObtainInternalCMD() {
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
   buffer_info.commandBufferCount = 1;
   buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  buffer_info.commandPool = vk_cmd_pool_;
 
   VkCommandBuffer cmd;
 
@@ -346,6 +347,7 @@ void VKPipeline::DestroyPipelines() {
   stencil_gradient_pipeline_->Destroy(ctx_);
   stencil_clip_gradient_pipeline_->Destroy(ctx_);
   stencil_keep_gradient_pipeline_->Destroy(ctx_);
+  static_image_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
   stencil_clip_pipeline_->Destroy(ctx_);
@@ -373,6 +375,7 @@ void VKPipeline::InitPipelines() {
       VKPipelineWrapper::CreateStencilClipGradientPipeline(ctx_);
   stencil_keep_gradient_pipeline_ =
       VKPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
+  static_image_pipeline_ = VKPipelineWrapper::CreateStaticImagePipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
   stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
@@ -433,6 +436,14 @@ VKPipelineWrapper* VKPipeline::PickGradientPipeline() {
     return stencil_clip_gradient_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::EQUAL) {
     return stencil_keep_gradient_pipeline_.get();
+  }
+
+  return nullptr;
+}
+
+VKPipelineWrapper* VKPipeline::PickImagePipeline() {
+  if (!enable_stencil_test_) {
+    return static_image_pipeline_.get();
   }
 
   return nullptr;

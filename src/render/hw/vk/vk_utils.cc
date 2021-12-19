@@ -233,6 +233,41 @@ VkWriteDescriptorSet VKUtils::WriteDescriptorSet(
   return write_set;
 }
 
+VkWriteDescriptorSet VKUtils::WriteDescriptorSet(
+    VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
+    VkDescriptorImageInfo *image_info, uint32_t descriptor_count) {
+  VkWriteDescriptorSet write_set{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+
+  write_set.dstSet = dst_set;
+  write_set.descriptorType = type;
+  write_set.dstBinding = binding;
+  write_set.pImageInfo = image_info;
+  write_set.descriptorCount = descriptor_count;
+
+  return write_set;
+}
+
+VkDescriptorImageInfo VKUtils::DescriptorImageInfo(VkSampler sampler,
+                                                   VkImageView image_view,
+                                                   VkImageLayout layout) {
+  VkDescriptorImageInfo info{};
+
+  info.sampler = sampler;
+  info.imageView = image_view;
+  info.imageLayout = layout;
+
+  return info;
+}
+
+VkSamplerCreateInfo VKUtils::SamplerCreateInfo() {
+  VkSamplerCreateInfo create_info{};
+
+  create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  create_info.maxAnisotropy = 1.0f;
+
+  return create_info;
+}
+
 VkImageCreateInfo VKUtils::ImageCreateInfo(VkFormat format,
                                            VkImageUsageFlags flags,
                                            VkExtent3D extent) {
@@ -245,6 +280,19 @@ VkImageCreateInfo VKUtils::ImageCreateInfo(VkFormat format,
   create_info.samples = VK_SAMPLE_COUNT_1_BIT;
   create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
   create_info.usage = flags;
+  create_info.format = format;
+
+  return create_info;
+}
+
+VkImageViewCreateInfo VKUtils::ImageViewCreateInfo(
+    VkFormat format, VkImage image, VkImageSubresourceRange const &range) {
+  VkImageViewCreateInfo create_info{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+
+  create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  create_info.format = format;
+  create_info.image = image;
+  create_info.subresourceRange = range;
 
   return create_info;
 }
