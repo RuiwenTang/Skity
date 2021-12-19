@@ -34,6 +34,8 @@ class VKTexture : public HWTexture {
   void UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                   uint32_t height, void* data) override;
 
+  void PrepareForDraw();
+
  private:
   void CreateBufferAndImage();
 

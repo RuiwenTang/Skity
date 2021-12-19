@@ -16,6 +16,7 @@ namespace skity {
 
 class VKMemoryAllocator;
 class VKFrameBuffer;
+class VKTexture;
 
 struct GlobalPushConst {
   alignas(16) glm::mat4 mvp = {};
@@ -76,6 +77,11 @@ class VKPipelineWrapper {
 
   // sub class implement
   virtual void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
+                                  VKFrameBuffer* frame_buffer,
+                                  VKMemoryAllocator* allocator) {}
+
+  // sub class implement
+  virtual void UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
                                   VKFrameBuffer* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 

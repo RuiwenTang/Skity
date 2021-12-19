@@ -2,6 +2,7 @@
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_texture.hpp"
 
 #define SKITY_DEFAULT_BUFFER_SIZE 512
 
@@ -243,6 +244,11 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
 
 void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
   LOG_DEBUG("vk_pipeline bind to {}", slot);
+  VKTexture* vk_texture = (VKTexture*)texture;
+
+  vk_texture->PrepareForDraw();
+
+  image_texture_ = vk_texture;
 }
 
 VkCommandBuffer VKPipeline::ObtainInternalCMD() {
@@ -276,7 +282,7 @@ void VKPipeline::SubmitCMD(VkCommandBuffer cmd) {
   submit_info.pCommandBuffers = &cmd;
 
   VK_CALL(vkQueueSubmit, ctx_->GetGraphicQueue(), 1, &submit_info, vk_fence_);
-  
+
   WaitForFence();
   ResetFence();
 }
@@ -490,7 +496,13 @@ void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
                                  vk_memory_allocator_.get());
     gradient_info_set_.dirty = false;
   }
-  // TODO implement image info update
+
+  if (image_texture_) {
+    pipeline->UploadImageTexture(image_texture_, ctx_, CurrentFrameBuffer(),
+                                 vk_memory_allocator_.get());
+    image_texture_ = nullptr;
+  }
+  // TODO implement font info update
 }
 
 VKFrameBuffer* VKPipeline::CurrentFrameBuffer() {

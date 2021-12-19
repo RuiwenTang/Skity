@@ -102,6 +102,22 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
   allocator_->FreeBuffer(stage_buffer.get());
 }
 
+void VKTexture::PrepareForDraw() {
+  if (image_->GetCurrentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    // Texture is ready to draw nothing need todo
+    return;
+  }
+
+  // transfer image layout to `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`
+  VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
+
+  allocator_->TransferImageLayout(cmd, image_.get(), range_,
+                                  image_->GetCurrentLayout(),
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+  pipeline_->SubmitCMD(cmd);
+}
+
 void VKTexture::CreateBufferAndImage() {
   size_t total_size = width_ * height_ * bpp_;
 

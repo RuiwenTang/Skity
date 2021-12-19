@@ -10,6 +10,8 @@
 
 namespace skity {
 
+class VKTexture;
+
 template <class T>
 struct DirtyValueHolder {
   T value = {};
@@ -150,6 +152,8 @@ class VKPipeline : public HWPipeline {
   DirtyValueHolder<CommonFragmentSet> common_fragment_set_ = {};
   DirtyValueHolder<ColorInfoSet> color_info_set_ = {};
   DirtyValueHolder<GradientInfo> gradient_info_set_ = {};
+
+  VKTexture* image_texture_ = nullptr;
 };
 
 }  // namespace skity
