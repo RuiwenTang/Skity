@@ -9,18 +9,18 @@ namespace skity {
 static VkFormat hw_texture_format_to_vk_format(HWTexture::Format format) {
   switch (format) {
     case HWTexture::Format::kRGB:
-      return VK_FORMAT_R8G8B8_SRGB;
+      return VK_FORMAT_R8G8B8_UNORM;
     case HWTexture::Format::kRGBA:
-      return VK_FORMAT_R8G8B8A8_SRGB;
+      return VK_FORMAT_R8G8B8A8_UNORM;
     case HWTexture::Format::kR:
-      return VK_FORMAT_R8_UINT;
+      return VK_FORMAT_R8_UNORM;
   }
 }
 
 static uint32_t vk_format_comp(VkFormat format) {
-  if (format == VK_FORMAT_R8G8B8_SRGB) {
+  if (format == VK_FORMAT_R8G8B8_UNORM) {
     return 3;
-  } else if (format == VK_FORMAT_R8G8B8A8_SRGB) {
+  } else if (format == VK_FORMAT_R8G8B8A8_UNORM) {
     return 4;
   } else {
     return 1;

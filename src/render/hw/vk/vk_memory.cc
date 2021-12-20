@@ -93,7 +93,8 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
     VmaAllocationCreateInfo vma_info{};
     vma_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-    vma_info.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    vma_info.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
     return AllocateBufferInternal(buffer_info, vma_info);
   }
