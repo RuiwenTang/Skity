@@ -12,6 +12,8 @@ class GLTexture : public HWTexture {
 
   void Init(HWTexture::Type type, HWTexture::Format format) override;
 
+  void Destroy() override;
+
   void Bind() override;
   void UnBind() override;
 

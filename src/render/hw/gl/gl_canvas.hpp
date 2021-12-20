@@ -15,13 +15,14 @@ class GLCanvas : public HWCanvas {
 
  protected:
   void OnInit(GPUContext* ctx) override;
-  HWPipeline* GetPipeline() override;
+  std::unique_ptr<HWPipeline> CreatePipeline() override;
   std::unique_ptr<HWTexture> GenerateTexture() override;
   std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) override;
 
  private:
-  std::unique_ptr<GLPipeline> pipeline_;
+  GPUContext* ctx_;
+  GLPipeline* pipeline_;
 };
 
 }  // namespace skity

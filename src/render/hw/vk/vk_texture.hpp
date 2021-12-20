@@ -25,6 +25,8 @@ class VKTexture : public HWTexture {
 
   void Init(HWTexture::Type type, HWTexture::Format format) override;
 
+  void Destroy() override;
+
   void Bind() override;
   void UnBind() override;
 
@@ -38,7 +40,7 @@ class VKTexture : public HWTexture {
 
   void PrepareForDraw();
 
-  VkSampler GetSampler() const { return vk_sampler_; }
+  VkSampler GetSampler() const;
 
   VkImageView GetImageView() const { return vk_image_view_; }
 
@@ -55,7 +57,6 @@ class VKTexture : public HWTexture {
   GPUVkContext* ctx_ = {};
   VkFormat format_ = {};
   VkImageSubresourceRange range_ = {};
-  VkSampler vk_sampler_ = {};
   VkImageView vk_image_view_ = {};
   uint32_t bpp_ = {};
   uint32_t width_ = {};

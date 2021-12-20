@@ -35,7 +35,7 @@ class HWCanvas : public Canvas {
  protected:
   virtual void OnInit(GPUContext* ctx) = 0;
 
-  virtual HWPipeline* GetPipeline() = 0;
+  virtual std::unique_ptr<HWPipeline> CreatePipeline() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
   virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) = 0;
@@ -86,6 +86,7 @@ class HWCanvas : public Canvas {
                                           bool stroke = false,
                                           Rect const& = {});
 
+  HWPipeline* GetPipeline() { return pipeline_.get(); }
   HWTexture* QueryTexture(Pixmap* pixmap);
   HWFontTexture* QueryFontTexture(Typeface* typeface);
 
@@ -97,6 +98,7 @@ class HWCanvas : public Canvas {
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   Lazy<float> global_alpha_ = {};
+  std::unique_ptr<HWPipeline> pipeline_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
   std::map<Typeface*, std::unique_ptr<HWFontTexture>> font_texture_store_ = {};

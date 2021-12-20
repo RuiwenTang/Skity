@@ -13,16 +13,7 @@ VKPipeline::VKPipeline(GPUVkContext* ctx)
       ctx_(ctx),
       vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
-VKPipeline::~VKPipeline() {
-  vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
-  vk_memory_allocator_->FreeBuffer(index_buffer_.get());
-
-  DestroyFence();
-  DestroyCMDPool();
-  DestroyPipelines();
-  DestroyFrameBuffers();
-  vk_memory_allocator_->Destroy(ctx_);
-}
+VKPipeline::~VKPipeline() = default;
 
 void VKPipeline::Init() {
   if (!VKInterface::GlobalInterface()) {
@@ -34,6 +25,19 @@ void VKPipeline::Init() {
   InitPipelines();
   InitCMDPool();
   InitFence();
+  InitSampler();
+}
+
+void VKPipeline::Destroy() {
+  vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
+  vk_memory_allocator_->FreeBuffer(index_buffer_.get());
+
+  DestroySampler();
+  DestroyFence();
+  DestroyCMDPool();
+  DestroyPipelines();
+  DestroyFrameBuffers();
+  vk_memory_allocator_->Destroy(ctx_);
 }
 
 void VKPipeline::Bind() {
@@ -320,6 +324,14 @@ void VKPipeline::InitFence() {
   }
 }
 
+void VKPipeline::InitSampler() {
+  // create sampler
+  auto sampler_create_info = VKUtils::SamplerCreateInfo();
+
+  VK_CALL(vkCreateSampler, ctx_->GetDevice(), &sampler_create_info, nullptr,
+          &vk_sampler_);
+}
+
 void VKPipeline::InitFrameBuffers() {
   frame_buffer_.resize(ctx_->GetSwapchainBufferCount());
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
@@ -336,6 +348,10 @@ void VKPipeline::DestroyCMDPool() {
 
 void VKPipeline::DestroyFence() {
   VK_CALL(vkDestroyFence, ctx_->GetDevice(), vk_fence_, nullptr);
+}
+
+void VKPipeline::DestroySampler() {
+  VK_CALL(vkDestroySampler, ctx_->GetDevice(), vk_sampler_, nullptr);
 }
 
 void VKPipeline::DestroyPipelines() {

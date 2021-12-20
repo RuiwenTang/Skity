@@ -59,9 +59,21 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
       density_(density <= 1.f ? 2.f : density),
       mesh_(std::make_unique<HWMesh>()) {}
 
-HWCanvas::~HWCanvas() = default;
+HWCanvas::~HWCanvas() {
+  for (auto const& it : image_texture_store_) {
+    it.second->Destroy();
+  }
 
-void HWCanvas::Init(GPUContext* ctx) { this->OnInit(ctx); }
+  for (auto const& it : font_texture_store_) {
+    it.second->Destroy();
+  }
+  GetPipeline()->Destroy();
+}
+
+void HWCanvas::Init(GPUContext* ctx) {
+  this->OnInit(ctx);
+  pipeline_ = CreatePipeline();
+}
 
 uint32_t HWCanvas::onGetWidth() const { return width_; }
 

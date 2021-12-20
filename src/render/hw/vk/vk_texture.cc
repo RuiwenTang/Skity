@@ -43,6 +43,16 @@ void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->range_.layerCount = 1;
 }
 
+void VKTexture::Destroy() {
+  if (image_) {
+    allocator_->FreeImage(image_.get());
+  }
+
+  if (vk_image_view_) {
+    VK_CALL(vkDestroyImageView, ctx_->GetDevice(), vk_image_view_, nullptr);
+  }
+}
+
 void VKTexture::Bind() {}
 
 void VKTexture::UnBind() {}
@@ -119,6 +129,8 @@ void VKTexture::PrepareForDraw() {
   pipeline_->SubmitCMD(cmd);
 }
 
+VkSampler VKTexture::GetSampler() const { return pipeline_->PipelineSampler(); }
+
 VkImageLayout VKTexture::GetImageLayout() const {
   return image_->GetCurrentLayout();
 }
@@ -134,14 +146,6 @@ void VKTexture::CreateBufferAndImage() {
   image_.reset(allocator_->AllocateImage(
       format_, {width_, height_, 1},
       VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
-
-  // create sampler
-  if (!vk_sampler_) {
-    auto sampler_create_info = VKUtils::SamplerCreateInfo();
-
-    VK_CALL(vkCreateSampler, ctx_->GetDevice(), &sampler_create_info, nullptr,
-            &vk_sampler_);
-  }
 
   // create image view
   if (!vk_image_view_) {

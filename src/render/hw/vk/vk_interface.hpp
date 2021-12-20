@@ -39,9 +39,11 @@ struct VKInterface {
   PFN_vkDestroyDescriptorPool fvkDestroyDescriptorPool = {};
   PFN_vkDestroyDescriptorSetLayout fvkDestroyDescriptorSetLayout = {};
   PFN_vkDestroyFence fvkDestroyFence = {};
+  PFN_vkDestroyImageView fvkDestroyImageView = {};
   PFN_vkDestroyPipeline fvkDestroyPipeline = {};
   PFN_vkDestroyPipelineLayout fvkDestroyPipelineLayout = {};
   PFN_vkDestroyShaderModule fvkDestroyShaderModule = {};
+  PFN_vkDestroySampler fvkDestroySampler = {};
   PFN_vkEndCommandBuffer fvkEndCommandBuffer = {};
   PFN_vkQueueSubmit fvkQueueSubmit = {};
   PFN_vkResetCommandPool fvkResetCommandPool = {};

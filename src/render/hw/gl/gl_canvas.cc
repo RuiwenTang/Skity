@@ -8,12 +8,16 @@ namespace skity {
 GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
     : HWCanvas(mvp, width, height, density) {}
 
-void GLCanvas::OnInit(GPUContext* ctx) {
-  pipeline_ = std::make_unique<GLPipeline>(ctx);
-  pipeline_->Init();
-}
+void GLCanvas::OnInit(GPUContext* ctx) { ctx_ = ctx; }
 
-HWPipeline* GLCanvas::GetPipeline() { return pipeline_.get(); }
+std::unique_ptr<HWPipeline> GLCanvas::CreatePipeline() {
+  auto pipeline = std::make_unique<GLPipeline>(ctx_);
+  pipeline->Init();
+
+  pipeline_ = pipeline.get();
+
+  return pipeline;
+}
 
 std::unique_ptr<HWTexture> GLCanvas::GenerateTexture() {
   return std::make_unique<GLTexture>();
