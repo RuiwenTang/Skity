@@ -17,6 +17,8 @@ class GLPipeline : public HWPipeline {
 
   void Init() override;
 
+  void Destroy() override;
+
   void Bind() override;
 
   void UnBind() override;

@@ -13,6 +13,8 @@ class GLFontTexture : public HWFontTexture, public GLTexture {
 
   void Init() override;
 
+  void Destroy() override;
+
   HWTexture* GetHWTexture() override;
 
  protected:

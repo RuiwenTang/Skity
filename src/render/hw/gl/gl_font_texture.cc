@@ -14,6 +14,8 @@ void GLFontTexture::Init() {
   this->UnBind();
 }
 
+void GLFontTexture::Destroy() { GLTexture::Destroy(); }
+
 HWTexture* GLFontTexture::GetHWTexture() { return this; }
 
 void GLFontTexture::OnUploadRegion(uint32_t x, uint32_t y, uint32_t width,

@@ -13,6 +13,7 @@ class HWFontTexture : public FontTexture {
   ~HWFontTexture() override = default;
 
   virtual void Init() = 0;
+  virtual void Destroy() = 0;
 
   virtual HWTexture* GetHWTexture() = 0;
 };

@@ -25,6 +25,8 @@ class VKPipeline : public HWPipeline {
 
   void Init() override;
 
+  void Destroy() override;
+
   void Bind() override;
 
   void UnBind() override;
@@ -84,10 +86,12 @@ class VKPipeline : public HWPipeline {
   void ResetFence();
 
   VkFence PipelineFence() const { return vk_fence_; }
+  VkSampler PipelineSampler() const { return vk_sampler_; }
 
  private:
   void InitCMDPool();
   void InitFence();
+  void InitSampler();
   void InitFrameBuffers();
   void InitPipelines();
   void InitVertexBuffer(size_t new_size);
@@ -95,12 +99,14 @@ class VKPipeline : public HWPipeline {
 
   void DestroyCMDPool();
   void DestroyFence();
+  void DestroySampler();
   void DestroyPipelines();
   void DestroyFrameBuffers();
 
   VKPipelineWrapper* PickColorPipeline();
   VKPipelineWrapper* PickStencilPipeline();
   VKPipelineWrapper* PickGradientPipeline();
+  VKPipelineWrapper* PickImagePipeline();
 
   void BindPipelineIfNeed(VKPipelineWrapper* pipeline);
 
@@ -116,6 +122,7 @@ class VKPipeline : public HWPipeline {
   GPUVkContext* ctx_ = {};
   VkCommandPool vk_cmd_pool_ = {};
   VkFence vk_fence_ = {};
+  VkSampler vk_sampler_ = {};
   HWPipelineColorMode color_mode_ = HWPipelineColorMode::kUniformColor;
   HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
   HWStencilOp stencil_op_ = HWStencilOp::KEEP;
@@ -139,6 +146,8 @@ class VKPipeline : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_gradient_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_clip_gradient_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_keep_gradient_pipeline_ = {};
+  // image pipelines
+  std::unique_ptr<VKPipelineWrapper> static_image_pipeline_ = {};
   // stencil pipelines
   std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};

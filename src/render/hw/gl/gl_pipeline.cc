@@ -58,6 +58,8 @@ void GLPipeline::Init() {
   InitBufferObject();
 }
 
+void GLPipeline::Destroy() {}
+
 void GLPipeline::Bind() {
   shader_->Bind();
   shader_->SetUserTexture(0);

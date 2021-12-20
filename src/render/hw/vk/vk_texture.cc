@@ -27,8 +27,9 @@ static uint32_t vk_format_comp(VkFormat format) {
   }
 }
 
-VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline)
-    : HWTexture(), allocator_(allocator), pipeline_(pipeline) {}
+VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline,
+                     GPUVkContext* ctx)
+    : HWTexture(), allocator_(allocator), pipeline_(pipeline), ctx_(ctx) {}
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->format_ = hw_texture_format_to_vk_format(format);
@@ -40,6 +41,16 @@ void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->range_.levelCount = 1;
   this->range_.baseArrayLayer = 0;
   this->range_.layerCount = 1;
+}
+
+void VKTexture::Destroy() {
+  if (image_) {
+    allocator_->FreeImage(image_.get());
+  }
+
+  if (vk_image_view_) {
+    VK_CALL(vkDestroyImageView, ctx_->GetDevice(), vk_image_view_, nullptr);
+  }
 }
 
 void VKTexture::Bind() {}
@@ -59,6 +70,11 @@ void VKTexture::Resize(uint32_t width, uint32_t height) {
   if (need_create) {
     if (image_) {
       allocator_->FreeImage(image_.get());
+    }
+
+    if (vk_image_view_) {
+      VK_CALL(vkDestroyImageView, ctx_->GetDevice(), vk_image_view_, nullptr);
+      vk_image_view_ = VK_NULL_HANDLE;
     }
 
     CreateBufferAndImage();
@@ -84,13 +100,14 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
   // step 3 transfer image data from stage buffer to image buffer
   VkBufferImageCopy copy_region = {};
   copy_region.bufferOffset = 0;
-  copy_region.bufferRowLength = width * bpp_;
+  copy_region.bufferRowLength = width;
   copy_region.bufferImageHeight = height;
 
   copy_region.imageSubresource.aspectMask = range_.aspectMask;
   copy_region.imageSubresource.mipLevel = 0;
   copy_region.imageSubresource.baseArrayLayer = 0;
   copy_region.imageSubresource.layerCount = 1;
+  copy_region.imageOffset = {(int32_t)offset_x, (int32_t)offset_y, 0};
   copy_region.imageExtent = image_->GetImageExtent();
 
   // copy the buffer into the image
@@ -118,6 +135,12 @@ void VKTexture::PrepareForDraw() {
   pipeline_->SubmitCMD(cmd);
 }
 
+VkSampler VKTexture::GetSampler() const { return pipeline_->PipelineSampler(); }
+
+VkImageLayout VKTexture::GetImageLayout() const {
+  return image_->GetCurrentLayout();
+}
+
 void VKTexture::CreateBufferAndImage() {
   size_t total_size = width_ * height_ * bpp_;
 
@@ -129,6 +152,15 @@ void VKTexture::CreateBufferAndImage() {
   image_.reset(allocator_->AllocateImage(
       format_, {width_, height_, 1},
       VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+
+  // create image view
+  if (!vk_image_view_) {
+    auto imageview_create_info = VKUtils::ImageViewCreateInfo(
+        image_->GetImageFormat(), image_->GetImage(), range_);
+
+    VK_CALL(vkCreateImageView, ctx_->GetDevice(), &imageview_create_info,
+            nullptr, &vk_image_view_);
+  }
 }
 
 uint32_t VKTexture::BytesPerRow() const { return bpp_ * width_; }

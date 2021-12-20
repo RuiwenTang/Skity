@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <cstring>
 #include <example_config.hpp>
 #include <glm/glm.hpp>
@@ -5,6 +7,7 @@
 #include <skity/skity.hpp>
 #include <vector>
 
+#include "example_config.hpp"
 #include "vk/vk_app.hpp"
 
 class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
@@ -46,6 +49,22 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
   void OnStart() override {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
         800, 800, ScreenDensity(), this);
+
+    auto data = skity::Data::MakeFromFileName(EXAMPLE_IMAGE_ROOT "/image1.jpg");
+
+    auto codec = skity::Codec::MakeFromData(data);
+
+    if (!codec) {
+      spdlog::error("Failed create codec for example jpg image!");
+      return;
+    }
+    codec->SetData(data);
+    pixmap_ = codec->Decode();
+
+    if (!pixmap_ || pixmap_->RowBytes() == 0) {
+      spdlog::error("Failed to decode example jpg image!");
+      pixmap_ = nullptr;
+    }
   }
   void OnUpdate(float elapsed_time) override {
     skity::Paint paint;
@@ -118,6 +137,11 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     canvas_->drawCircle(400, 400, 100, paint);
 
     paint.setShader(nullptr);
+    if (pixmap_) {
+      paint.setShader(skity::Shader::MakeShader(pixmap_));
+
+      canvas_->drawRect(skity::Rect::MakeXYWH(300, 100, 150, 150), paint);
+    }
 
     canvas_->flush();
   }
@@ -125,6 +149,7 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
 
  private:
   std::unique_ptr<skity::Canvas> canvas_ = {};
+  std::shared_ptr<skity::Pixmap> pixmap_ = {};
   float rotate = 0.f;
 };
 

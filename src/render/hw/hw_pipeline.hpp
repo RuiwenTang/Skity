@@ -37,6 +37,8 @@ class HWPipeline {
 
   virtual void Init() = 0;
 
+  virtual void Destroy() = 0;
+
   virtual void Bind() = 0;
 
   virtual void UnBind() = 0;

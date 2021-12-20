@@ -81,9 +81,22 @@ class VKUtils final {
       VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
       VkDescriptorBufferInfo* buffer_info, uint32_t descriptor_count = 1);
 
+  static VkWriteDescriptorSet WriteDescriptorSet(
+      VkDescriptorSet dst_set, VkDescriptorType type, uint32_t binding,
+      VkDescriptorImageInfo* image_info, uint32_t descriptor_count = 1);
+
+  static VkDescriptorImageInfo DescriptorImageInfo(VkSampler sampler,
+                                                   VkImageView image_view,
+                                                   VkImageLayout layout);
+
+  static VkSamplerCreateInfo SamplerCreateInfo();
+
   static VkImageCreateInfo ImageCreateInfo(VkFormat format,
                                            VkImageUsageFlags flags,
                                            VkExtent3D extent);
+
+  static VkImageViewCreateInfo ImageViewCreateInfo(
+      VkFormat format, VkImage image, VkImageSubresourceRange const& range);
 
   static void SetImageLayout(
       VkCommandBuffer cmd, VkImage image, VkImageAspectFlags aspect_mask,

@@ -14,7 +14,7 @@ class VKCanvas : public HWCanvas {
  protected:
   void OnInit(GPUContext* ctx) override;
 
-  HWPipeline* GetPipeline() override;
+  std::unique_ptr<HWPipeline> CreatePipeline() override;
 
   std::unique_ptr<HWTexture> GenerateTexture() override;
 
@@ -22,7 +22,8 @@ class VKCanvas : public HWCanvas {
       Typeface* typeface) override;
 
  private:
-  std::unique_ptr<VKPipeline> vk_pipeline_ = {};
+  VKPipeline* vk_pipeline_ = {};
+  GPUVkContext* ctx_ = {};
 };
 
 }  // namespace skity

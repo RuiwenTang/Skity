@@ -13,16 +13,7 @@ VKPipeline::VKPipeline(GPUVkContext* ctx)
       ctx_(ctx),
       vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
-VKPipeline::~VKPipeline() {
-  vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
-  vk_memory_allocator_->FreeBuffer(index_buffer_.get());
-
-  DestroyFence();
-  DestroyCMDPool();
-  DestroyPipelines();
-  DestroyFrameBuffers();
-  vk_memory_allocator_->Destroy(ctx_);
-}
+VKPipeline::~VKPipeline() = default;
 
 void VKPipeline::Init() {
   if (!VKInterface::GlobalInterface()) {
@@ -34,6 +25,19 @@ void VKPipeline::Init() {
   InitPipelines();
   InitCMDPool();
   InitFence();
+  InitSampler();
+}
+
+void VKPipeline::Destroy() {
+  vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
+  vk_memory_allocator_->FreeBuffer(index_buffer_.get());
+
+  DestroySampler();
+  DestroyFence();
+  DestroyCMDPool();
+  DestroyPipelines();
+  DestroyFrameBuffers();
+  vk_memory_allocator_->Destroy(ctx_);
 }
 
 void VKPipeline::Bind() {
@@ -219,7 +223,7 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
   } else if (color_mode_ == HWPipelineColorMode::kUniformColor) {
     picked_pipeline = PickColorPipeline();
   } else if (color_mode_ == HWPipelineColorMode::kImageTexture) {
-    // TODO implement pick image pipeline
+    picked_pipeline = PickImagePipeline();
   } else if (color_mode_ == HWPipelineColorMode::kLinearGradient ||
              color_mode_ == HWPipelineColorMode::kRadialGradient) {
     gradient_info_set_.value.count.z = color_mode_;
@@ -256,6 +260,7 @@ VkCommandBuffer VKPipeline::ObtainInternalCMD() {
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
   buffer_info.commandBufferCount = 1;
   buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  buffer_info.commandPool = vk_cmd_pool_;
 
   VkCommandBuffer cmd;
 
@@ -317,6 +322,16 @@ void VKPipeline::InitFence() {
               &vk_fence_) != VK_SUCCESS) {
     LOG_ERROR("Failed create internal fence object!");
   }
+
+  ResetFence();
+}
+
+void VKPipeline::InitSampler() {
+  // create sampler
+  auto sampler_create_info = VKUtils::SamplerCreateInfo();
+
+  VK_CALL(vkCreateSampler, ctx_->GetDevice(), &sampler_create_info, nullptr,
+          &vk_sampler_);
 }
 
 void VKPipeline::InitFrameBuffers() {
@@ -337,6 +352,10 @@ void VKPipeline::DestroyFence() {
   VK_CALL(vkDestroyFence, ctx_->GetDevice(), vk_fence_, nullptr);
 }
 
+void VKPipeline::DestroySampler() {
+  VK_CALL(vkDestroySampler, ctx_->GetDevice(), vk_sampler_, nullptr);
+}
+
 void VKPipeline::DestroyPipelines() {
   static_color_pipeline_->Destroy(ctx_);
   stencil_color_pipeline_->Destroy(ctx_);
@@ -346,6 +365,7 @@ void VKPipeline::DestroyPipelines() {
   stencil_gradient_pipeline_->Destroy(ctx_);
   stencil_clip_gradient_pipeline_->Destroy(ctx_);
   stencil_keep_gradient_pipeline_->Destroy(ctx_);
+  static_image_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
   stencil_clip_pipeline_->Destroy(ctx_);
@@ -373,6 +393,7 @@ void VKPipeline::InitPipelines() {
       VKPipelineWrapper::CreateStencilClipGradientPipeline(ctx_);
   stencil_keep_gradient_pipeline_ =
       VKPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
+  static_image_pipeline_ = VKPipelineWrapper::CreateStaticImagePipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
   stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
@@ -433,6 +454,14 @@ VKPipelineWrapper* VKPipeline::PickGradientPipeline() {
     return stencil_clip_gradient_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::EQUAL) {
     return stencil_keep_gradient_pipeline_.get();
+  }
+
+  return nullptr;
+}
+
+VKPipelineWrapper* VKPipeline::PickImagePipeline() {
+  if (!enable_stencil_test_) {
+    return static_image_pipeline_.get();
   }
 
   return nullptr;

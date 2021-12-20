@@ -43,6 +43,8 @@ void GLTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   UnBind();
 }
 
+void GLTexture::Destroy() { GL_CALL(DeleteTextures, 1, &texture_id_); }
+
 void GLTexture::Bind() { GL_CALL(BindTexture, GL_TEXTURE_2D, texture_id_); }
 
 void GLTexture::UnBind() { GL_CALL(BindTexture, GL_TEXTURE_2D, 0); }
