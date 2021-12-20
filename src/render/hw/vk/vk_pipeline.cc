@@ -322,6 +322,8 @@ void VKPipeline::InitFence() {
               &vk_fence_) != VK_SUCCESS) {
     LOG_ERROR("Failed create internal fence object!");
   }
+
+  ResetFence();
 }
 
 void VKPipeline::InitSampler() {

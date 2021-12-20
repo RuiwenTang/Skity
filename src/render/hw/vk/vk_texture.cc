@@ -72,6 +72,11 @@ void VKTexture::Resize(uint32_t width, uint32_t height) {
       allocator_->FreeImage(image_.get());
     }
 
+    if (vk_image_view_) {
+      VK_CALL(vkDestroyImageView, ctx_->GetDevice(), vk_image_view_, nullptr);
+      vk_image_view_ = VK_NULL_HANDLE;
+    }
+
     CreateBufferAndImage();
   }
 }
@@ -95,13 +100,14 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
   // step 3 transfer image data from stage buffer to image buffer
   VkBufferImageCopy copy_region = {};
   copy_region.bufferOffset = 0;
-  copy_region.bufferRowLength = width * bpp_;
+  copy_region.bufferRowLength = width;
   copy_region.bufferImageHeight = height;
 
   copy_region.imageSubresource.aspectMask = range_.aspectMask;
   copy_region.imageSubresource.mipLevel = 0;
   copy_region.imageSubresource.baseArrayLayer = 0;
   copy_region.imageSubresource.layerCount = 1;
+  copy_region.imageOffset = {(int32_t)offset_x, (int32_t)offset_y, 0};
   copy_region.imageExtent = image_->GetImageExtent();
 
   // copy the buffer into the image
