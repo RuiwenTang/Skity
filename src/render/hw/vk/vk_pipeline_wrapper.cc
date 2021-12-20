@@ -121,6 +121,16 @@ void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
           &descriptor_set, 0, nullptr);
 }
 
+void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
+  if (GetFontSetLayout() == VK_NULL_HANDLE) {
+    return;
+  }
+
+  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+          VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 3, 1, &set, 0,
+          nullptr);
+}
+
 void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
                                               GPUVkContext* ctx,
                                               VKFrameBuffer* frame_buffer,
@@ -171,6 +181,21 @@ void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
   // create set 2
   // set 2 is create by sub class implementation
   descriptor_set_layout_[2] = GenerateColorSetLayout(ctx);
+
+  // if subclass dose not create color set, then no need to create font set
+  if (descriptor_set_layout_[2] == VK_NULL_HANDLE) {
+    return;
+  }
+
+  auto set3_binding = VKUtils::DescriptorSetLayoutBinding(
+      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT,
+      0);
+
+  auto set3_create_info =
+      VKUtils::DescriptorSetLayoutCreateInfo(&set3_binding, 1);
+
+  descriptor_set_layout_[3] =
+      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set3_create_info);
 }
 
 void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
@@ -184,7 +209,7 @@ void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
   uint32_t descriptor_set_count = descriptor_set_layout_.size();
   // stencil pipeline not use set 2
   if (descriptor_set_layout_[2] == VK_NULL_HANDLE) {
-    descriptor_set_count -= 1;
+    descriptor_set_count -= 2;
   }
 
   create_info.setLayoutCount = descriptor_set_count;

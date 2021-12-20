@@ -138,6 +138,8 @@ if (${VULKAN_BACKEND})
         src/render/hw/vk/pipelines/stencil_pipeline.hpp
         src/render/hw/vk/vk_canvas.cc
         src/render/hw/vk/vk_canvas.hpp
+        src/render/hw/vk/vk_font_texture.cc
+        src/render/hw/vk/vk_font_texture.hpp
         src/render/hw/vk/vk_framebuffer.cc
         src/render/hw/vk/vk_framebuffer.hpp
         src/render/hw/vk/vk_interface.cc

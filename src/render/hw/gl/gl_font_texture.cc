@@ -26,7 +26,7 @@ void GLFontTexture::OnUploadRegion(uint32_t x, uint32_t y, uint32_t width,
 
 void GLFontTexture::OnResize(uint32_t new_width, uint32_t new_height) {
   this->Bind();
-  this->GLTexture::Resize(new_height, new_height);
+  this->GLTexture::Resize(new_width, new_height);
 }
 
 }  // namespace skity

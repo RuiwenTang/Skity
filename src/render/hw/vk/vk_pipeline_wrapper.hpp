@@ -68,7 +68,11 @@ class VKPipelineWrapper {
                        VKFrameBuffer* frame_buffer,
                        VKMemoryAllocator* allocator);
 
+  void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx);
+
   bool HasColorSet() { return descriptor_set_layout_[2] != VK_NULL_HANDLE; }
+
+  VkDescriptorSetLayout GetFontSetLayout() { return descriptor_set_layout_[3]; }
 
   // sub class implement
   virtual void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
@@ -166,8 +170,9 @@ class VKPipelineWrapper {
    * set 0: common transform matrix info
    * set 1: common fragment color info, [global alpha, stroke width]
    * set 2: fragment color info
+   * set 3: fragment font info
    */
-  std::array<VkDescriptorSetLayout, 3> descriptor_set_layout_ = {};
+  std::array<VkDescriptorSetLayout, 4> descriptor_set_layout_ = {};
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
 };

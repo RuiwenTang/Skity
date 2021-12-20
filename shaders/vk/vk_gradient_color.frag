@@ -1,6 +1,7 @@
 #version 450
 
 #include <vk_common.glsl>
+#include <vk_font_common.glsl>
 
 // Fixme to solve uniform array length
 #define MAX_COLORS 32
@@ -124,4 +125,6 @@ void main() {
 
     outColor = color * AlphaStroke.info.r;
   }
+
+  calculate_font_discard();
 }

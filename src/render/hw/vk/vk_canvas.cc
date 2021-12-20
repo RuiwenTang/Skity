@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_texture.hpp"
 
 namespace skity {
@@ -36,7 +37,8 @@ std::unique_ptr<HWTexture> VKCanvas::GenerateTexture() {
 
 std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
     Typeface* typeface) {
-  return std::unique_ptr<HWFontTexture>();
+  return std::make_unique<VKFontTexture>(typeface, vk_pipeline_->Allocator(),
+                                         vk_pipeline_, ctx_);
 }
 
 }  // namespace skity

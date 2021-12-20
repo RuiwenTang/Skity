@@ -1,6 +1,7 @@
 #include "src/render/hw/vk/vk_pipeline.hpp"
 
 #include "src/logging.hpp"
+#include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_texture.hpp"
 
@@ -26,11 +27,19 @@ void VKPipeline::Init() {
   InitCMDPool();
   InitFence();
   InitSampler();
+
+  empty_font_texture_ = std::make_unique<VKFontTexture>(
+      nullptr, vk_memory_allocator_.get(), this, ctx_);
+
+  empty_font_texture_->Init();
+  empty_font_texture_->PrepareForDraw();
 }
 
 void VKPipeline::Destroy() {
   vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
   vk_memory_allocator_->FreeBuffer(index_buffer_.get());
+
+  empty_font_texture_->Destroy();
 
   DestroySampler();
   DestroyFence();
@@ -48,6 +57,9 @@ void VKPipeline::Bind() {
   common_fragment_set_.dirty = true;
   color_info_set_.dirty = true;
 
+  used_font_and_set_.clear();
+  empty_font_set_ = VK_NULL_HANDLE;
+
   CurrentFrameBuffer()->FrameBegin(ctx_);
 
   // view port
@@ -61,6 +73,22 @@ void VKPipeline::Bind() {
   // scissor
   VkRect2D scissor{{0, 0}, ctx_->GetFrameExtent()};
   VK_CALL(vkCmdSetScissor, ctx_->GetCurrentCMD(), 0, 1, &scissor);
+
+  // update empty_font_set_
+  empty_font_set_ = CurrentFrameBuffer()->ObtainUniformBufferSet(
+      ctx_, static_color_pipeline_->GetFontSetLayout());
+
+  // update this empty_font_set_ for future usage
+  auto image_info = VKUtils::DescriptorImageInfo(
+      empty_font_texture_->GetSampler(), empty_font_texture_->GetImageView(),
+      empty_font_texture_->GetImageLayout());
+
+  auto write_set = VKUtils::WriteDescriptorSet(
+      empty_font_set_, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
+      &image_info);
+
+  VK_CALL(vkUpdateDescriptorSets, ctx_->GetDevice(), 1, &write_set, 0,
+          VK_NULL_HANDLE);
 }
 
 void VKPipeline::UnBind() {
@@ -240,6 +268,8 @@ void VKPipeline::DrawIndex(uint32_t start, uint32_t count) {
   UpdateCommonSetIfNeed(picked_pipeline);
   // set 2 color for fragment
   UpdateColorInfoIfNeed(picked_pipeline);
+  // set 3 font for fragment
+  UpdateFontInfoIfNeed(picked_pipeline);
   // dynamic state to use stencil discard
   UpdateStencilConfigIfNeed(picked_pipeline);
 
@@ -251,8 +281,11 @@ void VKPipeline::BindTexture(HWTexture* texture, uint32_t slot) {
   VKTexture* vk_texture = (VKTexture*)texture;
 
   vk_texture->PrepareForDraw();
-
-  image_texture_ = vk_texture;
+  if (slot == 0) {
+    image_texture_ = vk_texture;
+  } else {
+    font_texture_ = vk_texture;
+  }
 }
 
 VkCommandBuffer VKPipeline::ObtainInternalCMD() {
@@ -547,6 +580,37 @@ void VKPipeline::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
     image_texture_ = nullptr;
   }
   // TODO implement font info update
+}
+
+void VKPipeline::UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline) {
+  if (font_texture_) {
+    auto it = used_font_and_set_.find(font_texture_);
+    if (it != used_font_and_set_.end()) {
+      pipeline->UploadFontSet(it->second, ctx_);
+    } else {
+      auto font_set = CurrentFrameBuffer()->ObtainUniformBufferSet(
+          ctx_, pipeline->GetFontSetLayout());
+
+      // update this empty_font_set_ for future usage
+      auto image_info = VKUtils::DescriptorImageInfo(
+          font_texture_->GetSampler(), font_texture_->GetImageView(),
+          font_texture_->GetImageLayout());
+
+      auto write_set = VKUtils::WriteDescriptorSet(
+          font_set, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, &image_info);
+
+      VK_CALL(vkUpdateDescriptorSets, ctx_->GetDevice(), 1, &write_set, 0,
+              VK_NULL_HANDLE);
+
+      pipeline->UploadFontSet(font_set, ctx_);
+
+      used_font_and_set_.insert(std::make_pair(font_texture_, font_set));
+    }
+
+    font_texture_ = nullptr;
+  } else {
+    pipeline->UploadFontSet(empty_font_set_, ctx_);
+  }
 }
 
 VKFrameBuffer* VKPipeline::CurrentFrameBuffer() {

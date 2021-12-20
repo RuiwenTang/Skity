@@ -1,6 +1,7 @@
 #version 450
 
 #include <vk_common.glsl>
+#include <vk_font_common.glsl>
 
 layout(set = 2, binding = 0) uniform _UserColor { vec4 color; }
 UserColor;
@@ -17,4 +18,6 @@ void main() {
 
     outColor = color * AlphaStroke.info.r;
   }
+
+  calculate_font_discard();
 }

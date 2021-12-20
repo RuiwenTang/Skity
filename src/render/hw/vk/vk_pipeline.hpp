@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_HW_VK_VK_PIPELINE_HPP
 #define SKITY_SRC_RENDER_HW_VK_VK_PIPELINE_HPP
 
+#include <map>
 #include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/hw_pipeline.hpp"
@@ -11,6 +12,7 @@
 namespace skity {
 
 class VKTexture;
+class VKFontTexture;
 
 template <class T>
 struct DirtyValueHolder {
@@ -115,6 +117,7 @@ class VKPipeline : public HWPipeline {
   void UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline);
   void UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline);
   void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
+  void UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline);
 
   VKFrameBuffer* CurrentFrameBuffer();
 
@@ -166,6 +169,10 @@ class VKPipeline : public HWPipeline {
   DirtyValueHolder<GradientInfo> gradient_info_set_ = {};
 
   VKTexture* image_texture_ = nullptr;
+  VKTexture* font_texture_ = nullptr;
+  VkDescriptorSet empty_font_set_ = VK_NULL_HANDLE;
+  std::unique_ptr<VKFontTexture> empty_font_texture_ = {};
+  std::map<VKTexture*, VkDescriptorSet> used_font_and_set_ = {};
 };
 
 }  // namespace skity

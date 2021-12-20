@@ -143,6 +143,11 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
       canvas_->drawRect(skity::Rect::MakeXYWH(300, 100, 150, 150), paint);
     }
 
+    paint.setShader(nullptr);
+    paint.setStyle(skity::Paint::kFill_Style);
+    paint.setTextSize(20.f);
+    canvas_->drawSimpleText2("12ATx", 500, 300, paint);
+
     canvas_->flush();
   }
   void OnDestroy() override { canvas_ = nullptr; }

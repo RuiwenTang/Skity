@@ -1,6 +1,7 @@
 #version 450
 
 #include <vk_common.glsl>
+#include <vk_font_common.glsl>
 
 // set 2 binding 0 is image bounds info
 layout(set = 2, binding = 0) uniform _ImageBounds { vec4 info; }
@@ -41,4 +42,6 @@ void main() {
 
     outColor = color * AlphaStroke.info.r;
   }
+
+  calculate_font_discard();
 }
