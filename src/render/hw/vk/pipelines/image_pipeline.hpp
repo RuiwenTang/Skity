@@ -26,6 +26,39 @@ class StaticImagePipeline : public StaticPipeline {
   glm::vec4 bounds_info_ = {};
 };
 
+class StencilDiscardImagePipeline : public StaticImagePipeline {
+ public:
+  StencilDiscardImagePipeline(size_t push_const_size)
+      : StaticImagePipeline(push_const_size) {}
+  ~StencilDiscardImagePipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
+class StencilClipImagePipeline : public StaticImagePipeline {
+ public:
+  StencilClipImagePipeline(size_t push_const_size)
+      : StaticImagePipeline(push_const_size) {}
+  ~StencilClipImagePipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
+class StencilKeepImagePipeline : public StaticImagePipeline {
+ public:
+  StencilKeepImagePipeline(size_t push_const_size)
+      : StaticImagePipeline(push_const_size) {}
+  ~StencilKeepImagePipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_IMAGE_PIPELINE_HPP

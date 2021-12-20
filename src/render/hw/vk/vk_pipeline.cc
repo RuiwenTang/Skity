@@ -366,6 +366,9 @@ void VKPipeline::DestroyPipelines() {
   stencil_clip_gradient_pipeline_->Destroy(ctx_);
   stencil_keep_gradient_pipeline_->Destroy(ctx_);
   static_image_pipeline_->Destroy(ctx_);
+  stencil_image_pipeline_->Destroy(ctx_);
+  stencil_clip_image_pipeline_->Destroy(ctx_);
+  stencil_keep_image_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
   stencil_clip_pipeline_->Destroy(ctx_);
@@ -394,6 +397,12 @@ void VKPipeline::InitPipelines() {
   stencil_keep_gradient_pipeline_ =
       VKPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
   static_image_pipeline_ = VKPipelineWrapper::CreateStaticImagePipeline(ctx_);
+  stencil_image_pipeline_ =
+      VKPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
+  stencil_clip_image_pipeline_ =
+      VKPipelineWrapper::CreateStencilClipImagePipeline(ctx_);
+  stencil_keep_image_pipeline_ =
+      VKPipelineWrapper::CreateStencilKeepImagePipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
   stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
@@ -462,6 +471,12 @@ VKPipelineWrapper* VKPipeline::PickGradientPipeline() {
 VKPipelineWrapper* VKPipeline::PickImagePipeline() {
   if (!enable_stencil_test_) {
     return static_image_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
+    return stencil_image_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::LESS) {
+    return stencil_clip_image_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
+    return stencil_keep_image_pipeline_.get();
   }
 
   return nullptr;

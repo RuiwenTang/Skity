@@ -20,6 +20,39 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticImagePipeline(
   }();
 }
 
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilDiscardImagePipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_image_color_frag_spv,
+      vk_image_color_frag_spv_size,
+      ctx,
+  }();
+}
+
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilClipImagePipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_image_color_frag_spv,
+      vk_image_color_frag_spv_size,
+      ctx,
+  }();
+}
+
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilKeepImagePipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilKeepImagePipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_image_color_frag_spv,
+      vk_image_color_frag_spv_size,
+      ctx,
+  }();
+}
+
 void StaticImagePipeline::UploadGradientInfo(GradientInfo const& info,
                                              GPUVkContext* ctx,
                                              VKFrameBuffer* frame_buffer,
@@ -75,6 +108,21 @@ VkDescriptorSetLayout StaticImagePipeline::GenerateColorSetLayout(
       VKUtils::DescriptorSetLayoutCreateInfo(binding.data(), binding.size());
 
   return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilDiscardImagePipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilDiscardInfo();
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilClipImagePipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilClipDiscardInfo();
+}
+
+VkPipelineDepthStencilStateCreateInfo
+StencilKeepImagePipeline::GetDepthStencilStateCreateInfo() {
+  return VKPipelineWrapper::StencilKeepInfo();
 }
 
 }  // namespace skity
