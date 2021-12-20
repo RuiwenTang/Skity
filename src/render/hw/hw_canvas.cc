@@ -134,13 +134,13 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
 
       glm::vec2 p1{};
       glm::vec2 p2{};
-      float x = bounds.left() + (bounds.width() - width) / 2.f;
-      float y = bounds.top() + (bounds.height() - height) / 2.f;
+      float x = bounds.left();
+      float y = bounds.top();
 
       p1.x = x;
       p1.y = y;
-      p2.x = x + width;
-      p2.y = y + height;
+      p2.x = x + std::max(width, bounds.width());
+      p2.y = y + std::max(height, bounds.height());
 
       draw->SetGradientBounds(p1, p2);
     } else {
