@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <limits>
 #include <set>
-#include <shader.hpp>
 #include <vector>
 
 #include "spdlog/spdlog.h"

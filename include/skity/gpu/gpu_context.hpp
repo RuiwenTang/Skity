@@ -10,9 +10,7 @@ namespace skity {
 enum class GPUBackendType {
   kNone,
   kOpenGL,
-#ifdef SKITY_VULKAN
   kVulkan,
-#endif
 };
 
 struct GPUContext {

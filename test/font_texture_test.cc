@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include "test_config.hpp"
+
 template <class T>
 void print_region(T const& region) {
   std::cout << "region = {" << region.x << ", " << region.y << " ," << region.z
@@ -11,7 +13,7 @@ void print_region(T const& region) {
 }
 
 int main(int argc, const char** argv) {
-  auto typeface = skity::Typeface::MakeFromFile(BUILD_IN_FONT_FILE);
+  auto typeface = skity::Typeface::MakeFromFile(TEST_BUILD_IN_FONT);
 
   skity::FontTexture font_texture{typeface.get()};
 
