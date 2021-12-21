@@ -40,13 +40,6 @@ class SK_API Typeface {
   ~Typeface();
 
   /**
-   * Returns the default typeface, if compile without font_library, this will
-   * return nullptr
-   * @return default build in typeface instance.
-   */
-  static std::shared_ptr<Typeface> MakeDefault();
-
-  /**
    * Create a new typeface given a file. If the file does not exist, or is not a
    * valid font file, returns nullptr.
    * @param path path to font file.

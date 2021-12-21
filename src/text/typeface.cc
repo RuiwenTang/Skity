@@ -2,7 +2,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <locale>
 #include <skity/text/typeface.hpp>
-#include <skity_config.hpp>
 #include <unordered_map>
 #ifdef ENABLE_TEXT_RENDER
 #include "src/text/ft_library_wrap.hpp"
@@ -123,23 +122,6 @@ class Typeface::Impl {
  private:
 };
 #endif
-
-std::shared_ptr<Typeface> Typeface::MakeDefault() {
-#ifdef ENABLE_TEXT_RENDER
-  std::unique_ptr<Typeface::Impl> impl{new Typeface::Impl};
-  impl->SetFTLibrary(GlobalFTLibrary());
-
-  if (!impl->LoadTypefaceFromFile(BUILD_IN_FONT_FILE)) {
-    return nullptr;
-  }
-
-  std::shared_ptr<Typeface> typeface{new Typeface};
-  typeface->impl_ = std::move(impl);
-  return typeface;
-#else
-  return nullptr;
-#endif
-}
 
 Typeface::~Typeface() = default;
 

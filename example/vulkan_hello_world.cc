@@ -50,6 +50,9 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
         800, 800, ScreenDensity(), this);
 
+    canvas_->setDefaultTypeface(
+        skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
+
     auto data = skity::Data::MakeFromFileName(EXAMPLE_IMAGE_ROOT "/image1.jpg");
 
     auto codec = skity::Codec::MakeFromData(data);

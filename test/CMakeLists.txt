@@ -3,6 +3,13 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/../)
+
+#config file
+set(TEST_BUILD_IN_FONT "${CMAKE_CURRENT_SOURCE_DIR}/../resources/Avenir.ttf")
+set(TEST_BUILD_IN_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/../resources/wall.png")
+configure_file(test_config.h.in test_config.hpp @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 # glad
 include_directories(../third_party/glad/include)
 add_library(glad OBJECT ../third_party/glad/src/glad.c)

@@ -132,6 +132,9 @@ int main(int argc, const char** argv) {
   auto canvas =
       skity::Canvas::MakeHardwareAccelationCanvas(width, height, density, &ctx);
 
+  canvas->setDefaultTypeface(
+      skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
+
   std::vector<std::shared_ptr<skity::Pixmap>> images{};
   load_images(images);
   // load svg;

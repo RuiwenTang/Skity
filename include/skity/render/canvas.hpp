@@ -172,6 +172,15 @@ class SK_API Canvas {
   void flush();
 
   /**
+   * @brief Set the Default Typeface object
+   *        If no Typeface is profide by Paint, then the default Typeface is
+   *        used for drawing text.
+   *
+   * @param typeface the default Typeface for draw text
+   */
+  void setDefaultTypeface(std::shared_ptr<Typeface> typeface);
+
+  /**
    * @deprecated  use drawSimpleText2 if need.
    */
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
@@ -237,7 +246,7 @@ class SK_API Canvas {
  private:
   uint32_t save_count_ = 0;
   bool draw_debug_line_ = false;
-  std::shared_ptr<Typeface> default_typeface_;
+  std::shared_ptr<Typeface> default_typeface_ = {};
 };
 
 }  // namespace skity

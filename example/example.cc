@@ -8,6 +8,8 @@
 #include <skity/skity.hpp>
 #include <string>
 
+#include "example_config.hpp"
+
 GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
                              const char* title) {
   glfwInit();
@@ -272,6 +274,9 @@ int main(int argc, const char** argv) {
 
   auto canvas =
       skity::Canvas::MakeHardwareAccelationCanvas(800, 800, density, &ctx);
+
+  canvas->setDefaultTypeface(
+      skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
 
   std::shared_ptr<skity::Pixmap> pixmap;
   if (argc >= 2) {

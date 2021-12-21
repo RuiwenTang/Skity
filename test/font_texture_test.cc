@@ -4,8 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "skity_config.hpp"
-
 template <class T>
 void print_region(T const& region) {
   std::cout << "region = {" << region.x << ", " << region.y << " ," << region.z

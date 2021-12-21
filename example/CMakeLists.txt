@@ -31,6 +31,7 @@ endif()
 #example_config.h
 set(EXAMPLE_IMAGE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/images/")
 set(EXAMPLE_VK_SHADER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vk_shaders/binary/")
+set(EXAMPLE_DEFAULT_FONT "${CMAKE_CURRENT_SOURCE_DIR}/../resources/Roboto Mono Nerd Font Complete.ttf")
 configure_file(example_config.h.in example_config.hpp @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

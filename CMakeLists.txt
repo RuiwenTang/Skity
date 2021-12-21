@@ -264,7 +264,7 @@ if (${FREETYPE_FOUND})
             src/text/ft_library_wrap.hpp
             )
 
-    set(ENABLE_TEXT_RENDER ON CACHE BOOL "")
+    add_definitions(-DENABLE_TEXT_RENDER=1)
     set(SKITY_DEP_LIBRARIES ${SKITY_DEP_LIBRARIES} ${FREETYPE_LIBRARIES})
 else()
   message(WARNING "Freetype2 not found, text rendering will not enable")
@@ -333,9 +333,6 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 
 # source group for XCode and Visual Studio
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Skity_header} ${Skity_src})
-
-#config file
-configure_file(skity_config.h.in skity_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

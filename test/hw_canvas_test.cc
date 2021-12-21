@@ -6,8 +6,8 @@
 #include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
 
-#include "skity_config.hpp"
 #include "test/common/test_common.hpp"
+#include "test_config.hpp"
 
 class HWCanvasTest : public test::TestApp {
  public:
@@ -30,7 +30,10 @@ class HWCanvasTest : public test::TestApp {
     canvas_ =
         skity::Canvas::MakeHardwareAccelationCanvas(800, 600, Density(), &ctx);
 
-    auto skity_data = skity::Data::MakeFromFileName(BUILD_IN_IMAGE_FILE);
+    canvas_->setDefaultTypeface(
+        skity::Typeface::MakeFromFile(TEST_BUILD_IN_FONT));
+
+    auto skity_data = skity::Data::MakeFromFileName(TEST_BUILD_IN_IMAGE);
 
     if (skity_data) {
       auto codec = skity::Codec::MakeFromData(skity_data);

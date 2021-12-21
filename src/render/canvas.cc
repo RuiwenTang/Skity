@@ -4,7 +4,7 @@
 
 namespace skity {
 
-Canvas::Canvas() { default_typeface_ = Typeface::MakeDefault(); }
+Canvas::Canvas() = default;
 
 Canvas::~Canvas() = default;
 
@@ -96,6 +96,10 @@ void Canvas::drawPath(const Path &path, const Paint &paint) {
 }
 
 void Canvas::flush() { this->onFlush(); }
+
+void Canvas::setDefaultTypeface(std::shared_ptr<Typeface> typeface) {
+  default_typeface_ = std::move(typeface);
+}
 
 void Canvas::drawSimpleText(const char *text, float x, float y,
                             Paint const &paint) {
