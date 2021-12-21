@@ -10,9 +10,19 @@ layout(set = 2, binding = 0) uniform _GradientInfo {
   ivec4 count;
   vec4 bounds;
   vec4 GradientColors[MAX_COLORS];
-  float GradientStops[MAX_COLORS];
+  vec4 GradientStops[MAX_COLORS / 4];
 }
 GradientInfo;
+
+float get_gradient_stop(int index) {
+  int i = index / 4;
+  int j = index % 4;
+
+  vec4 num = GradientInfo.GradientStops[i];
+  float stop = num[j];
+
+  return stop;
+}
 
 vec4 lerp_color(float current) {
   if (current > 1.0) {
@@ -31,8 +41,8 @@ vec4 lerp_color(float current) {
   float start, end;
   for (i = 0; i < colorCount - 1; i++) {
     if (stopCount > 0) {
-      start = GradientInfo.GradientStops[i];
-      end = GradientInfo.GradientStops[i + 1];
+      start = get_gradient_stop(i);
+      end = get_gradient_stop(i + 1);
     } else {
       start = step * i;
       end = step * (i + 1);
