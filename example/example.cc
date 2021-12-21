@@ -9,31 +9,7 @@
 #include <string>
 
 #include "example_config.hpp"
-
-GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
-                             const char* title) {
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  // multisample
-  glfwWindowHint(GLFW_SAMPLES, 16);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-  GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-
-  if (window == nullptr) {
-    exit(-2);
-  }
-
-  glfwMakeContextCurrent(window);
-
-  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-    exit(-3);
-  }
-
-  return window;
-}
+#include "gl/gl_app.hpp"
 
 // same as https://fiddle.skia.org/c/@shapes
 static void draw_basic_example(skity::Canvas* canvas) {
@@ -203,23 +179,7 @@ void draw_simple_text(skity::Canvas* canvas) {
   canvas->restore();
 }
 
-void draw_image(skity::Canvas* canvas,
-                std::shared_ptr<skity::Pixmap> const& pixmap) {
-  canvas->save();
-  skity::RRect rrect;
-  rrect.setRectXY(skity::Rect::MakeXYWH(10, 10, 100, 100), 20, 20);
-  skity::Paint paint;
-  paint.setAntiAlias(true);
-  paint.setStyle(skity::Paint::kFill_Style);
-  paint.setShader(skity::Shader::MakeShader(pixmap));
-
-  canvas->drawRRect(rrect, paint);
-
-  canvas->restore();
-}
-
-void draw_canvas(skity::Canvas* canvas,
-                 std::shared_ptr<skity::Pixmap> const& pixmap) {
+void draw_canvas(skity::Canvas* canvas) {
   draw_basic_example(canvas);
 
   canvas->save();
@@ -241,70 +201,24 @@ void draw_canvas(skity::Canvas* canvas,
   canvas->translate(400, 300);
   draw_linear_gradient_example(canvas);
   canvas->restore();
-
-  if (pixmap) {
-    canvas->save();
-    canvas->translate(300, 600);
-    draw_image(canvas, pixmap);
-    canvas->restore();
-  }
 }
 
+class ExampleApp : public example::GLApp {
+ public:
+  ExampleApp() : example::GLApp(800, 800, "GL Example") {}
+
+  ~ExampleApp() override = default;
+
+ protected:
+  void OnUpdate(float time) override {
+    draw_canvas(GetCanvas());
+    GetCanvas()->flush();
+  }
+};
+
 int main(int argc, const char** argv) {
-  int32_t width = 800;
-  int32_t height = 800;
-  GLFWwindow* window = init_glfw_window(width, height, "SKITY render example");
+  ExampleApp app;
 
-  glClearColor(1.f, 1.f, 1.f, 1.f);
-  glClearStencil(0x0);
-  glStencilMask(0xFF);
-  // blend is need for anti-alias
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_STENCIL_TEST);
-
-  int32_t pp_width, pp_height;
-  glfwGetFramebufferSize(window, &pp_width, &pp_height);
-
-  float density = (float)(pp_width * pp_width + pp_height * pp_height) /
-                  (float)(width * width + height * height);
-
-  skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
-                        (void*)glfwGetProcAddress};
-
-  auto canvas =
-      skity::Canvas::MakeHardwareAccelationCanvas(800, 800, density, &ctx);
-
-  canvas->setDefaultTypeface(
-      skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
-
-  std::shared_ptr<skity::Pixmap> pixmap;
-  if (argc >= 2) {
-    auto skity_data = skity::Data::MakeFromFileName(argv[1]);
-
-    if (skity_data) {
-      auto codec = skity::Codec::MakeFromData(skity_data);
-
-      if (codec) {
-        codec->SetData(skity_data);
-        pixmap = codec->Decode();
-      }
-    }
-  }
-
-  while (!glfwWindowShouldClose(window)) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    draw_canvas(canvas.get(), pixmap);
-
-    canvas->flush();
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
-
-  glfwDestroyWindow(window);
-  glfwTerminate();
-
+  app.Run();
   return 0;
 }

@@ -40,14 +40,19 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # glad
 include_directories(../third_party/glad/include)
 
-add_executable(example example.cc $<TARGET_OBJECTS:glad>)
+add_library(gl_app OBJECT 
+  gl/gl_app.cc
+  gl/gl_app.hpp
+)
+
+add_executable(example example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 
 target_link_libraries(example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(frame_example frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad>)
+add_executable(frame_example frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad>)
+add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # vulkan examples
