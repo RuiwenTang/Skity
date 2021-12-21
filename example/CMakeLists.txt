@@ -45,9 +45,9 @@ add_library(gl_app OBJECT
   gl/gl_app.hpp
 )
 
-add_executable(example example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
+add_executable(gl_example gl_example.cc example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 
-target_link_libraries(example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(frame_example frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -69,6 +69,9 @@ if (VULKAN_BACKEND)
   find_package(Vulkan REQUIRED)
 
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+  add_executable(vk_example vk_example.cc example.cc $<TARGET_OBJECTS:vk_app>)
+  target_link_libraries(vk_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES} Vulkan::Vulkan)

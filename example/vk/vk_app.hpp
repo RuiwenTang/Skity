@@ -21,7 +21,8 @@ struct ImageWrapper {
 
 class VkApp : public skity::GPUVkContext {
  public:
-  VkApp(int32_t width, int32_t height, std::string name);
+  VkApp(int32_t width, int32_t height, std::string name,
+        glm::vec4 const& clear_color = {0.3f, 0.4f, 0.5f, 1.f});
   virtual ~VkApp();
 
   void Run();
@@ -94,6 +95,7 @@ class VkApp : public skity::GPUVkContext {
   int32_t height_ = 0;
   float density_ = 1.f;
   std::string window_name_ = {};
+  glm::vec4 clear_color_ = {};
   GLFWwindow* window_ = {};
   VkInstance vk_instance_ = {};
   VkSurfaceKHR vk_surface_ = {};

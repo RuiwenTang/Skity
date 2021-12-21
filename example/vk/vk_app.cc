@@ -165,11 +165,13 @@ static bool get_support_depth_format(VkPhysicalDevice phy_devce,
   return false;
 }
 
-VkApp::VkApp(int32_t width, int32_t height, std::string name)
+VkApp::VkApp(int32_t width, int32_t height, std::string name,
+             glm::vec4 const& clear_color)
     : skity::GPUVkContext((void*)vkGetDeviceProcAddr),
       width_(width),
       height_(height),
-      window_name_(name) {}
+      window_name_(name),
+      clear_color_(clear_color) {}
 
 VkApp::~VkApp() = default;
 
@@ -260,7 +262,8 @@ void VkApp::Loop() {
     }
 
     std::vector<VkClearValue> clear_values{2};
-    clear_values[0].color = {0.3f, 0.4f, 0.5f, 1.0f};
+    clear_values[0].color = {clear_color_.x, clear_color_.y, clear_color_.z,
+                             clear_color_.w};
     clear_values[1].depthStencil = {0.f, 0};
 
     VkRenderPassBeginInfo render_pass_begin_info{
