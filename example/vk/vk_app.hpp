@@ -8,6 +8,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <skity/skity.hpp>
+
 namespace example {
 
 struct ImageWrapper {
@@ -17,7 +19,7 @@ struct ImageWrapper {
   VkFormat format = {};
 };
 
-class VkApp {
+class VkApp : public skity::GPUVkContext {
  public:
   VkApp(int32_t width, int32_t height, std::string name);
   virtual ~VkApp();
@@ -27,10 +29,30 @@ class VkApp {
   int32_t ScreenWidth() const { return width_; }
   int32_t ScreenHeight() const { return height_; }
 
+  VkInstance GetInstance() override { return Instance(); }
+  VkPhysicalDevice GetPhysicalDevice() override { return PhysicalDevice(); }
+  VkDevice GetDevice() override { return Device(); }
+  VkExtent2D GetFrameExtent() override { return FrameExtent(); }
+  VkCommandBuffer GetCurrentCMD() override { return CurrentCMDBuffer(); }
+  VkRenderPass GetRenderPass() override { return RenderPass(); }
+  PFN_vkGetInstanceProcAddr GetInstanceProcAddr() override {
+    return &vkGetInstanceProcAddr;
+  }
+
+  uint32_t GetSwapchainBufferCount() override { return SwapchinImageCount(); }
+
+  uint32_t GetCurrentBufferIndex() override { return CurrentFrameIndex(); }
+
+  VkQueue GetGraphicQueue() override { return GraphicQueue(); }
+
+  uint32_t GetGraphicQueueIndex() override { return GraphicQueueIndex(); }
+
  protected:
-  virtual void OnStart() {}
+  virtual void OnStart();
   virtual void OnUpdate(float elapsed_time) {}
-  virtual void OnDestroy() {}
+  virtual void OnDestroy();
+
+  skity::Canvas* GetCanvas() const { return canvas_.get(); }
 
   float ScreenDensity() const { return density_; }
 
@@ -95,6 +117,8 @@ class VkApp {
   VkSemaphore render_semaphore_ = {};
   VkRenderPass render_pass_ = {};
   uint32_t current_frame_ = {};
+
+  std::unique_ptr<skity::Canvas> canvas_ = {};
 };
 
 }  // namespace example

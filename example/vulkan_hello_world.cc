@@ -10,48 +10,14 @@
 #include "example_config.hpp"
 #include "vk/vk_app.hpp"
 
-class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
+class HelloVulkanApp : public example::VkApp {
  public:
-  HelloVulkanApp()
-      : VkApp(800, 800, "Hello Vulkan"),
-        skity::GPUVkContext((void*)vkGetDeviceProcAddr) {}
+  HelloVulkanApp() : VkApp(800, 800, "Hello Vulkan") {}
   ~HelloVulkanApp() override = default;
-
-  VkInstance GetInstance() override { return example::VkApp::Instance(); }
-  VkPhysicalDevice GetPhysicalDevice() override {
-    return example::VkApp::PhysicalDevice();
-  }
-  VkDevice GetDevice() override { return example::VkApp::Device(); }
-  VkExtent2D GetFrameExtent() override { return example::VkApp::FrameExtent(); }
-  VkCommandBuffer GetCurrentCMD() override {
-    return example::VkApp::CurrentCMDBuffer();
-  }
-  VkRenderPass GetRenderPass() override { return example::VkApp::RenderPass(); }
-  PFN_vkGetInstanceProcAddr GetInstanceProcAddr() override {
-    return &vkGetInstanceProcAddr;
-  }
-
-  uint32_t GetSwapchainBufferCount() override {
-    return example::VkApp::SwapchinImageCount();
-  }
-
-  uint32_t GetCurrentBufferIndex() override {
-    return example::VkApp::CurrentFrameIndex();
-  }
-
-  VkQueue GetGraphicQueue() override { return VkApp::GraphicQueue(); }
-
-  uint32_t GetGraphicQueueIndex() override {
-    return VkApp::GraphicQueueIndex();
-  }
 
  protected:
   void OnStart() override {
-    canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(
-        800, 800, ScreenDensity(), this);
-
-    canvas_->setDefaultTypeface(
-        skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
+    example::VkApp::OnStart();
 
     auto data = skity::Data::MakeFromFileName(EXAMPLE_IMAGE_ROOT "/image1.jpg");
 
@@ -77,21 +43,21 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
 
     skity::Rect rect = skity::Rect::MakeXYWH(10, 10, 100, 160);
-    canvas_->drawRect(rect, paint);
+    GetCanvas()->drawRect(rect, paint);
 
     skity::RRect oval;
     oval.setOval(rect);
     oval.offset(40, 80);
     paint.SetFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
-    canvas_->drawRRect(oval, paint);
+    GetCanvas()->drawRRect(oval, paint);
 
     paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
-    canvas_->drawCircle(180, 50, 25, paint);
+    GetCanvas()->drawCircle(180, 50, 25, paint);
 
     rect.offset(80, 50);
     paint.SetStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
     paint.setStyle(skity::Paint::kStroke_Style);
-    canvas_->drawRoundRect(rect, 10, 10, paint);
+    GetCanvas()->drawRoundRect(rect, 10, 10, paint);
 
     skity::Path clip_path;
     clip_path.addRect(skity::Rect::MakeXYWH(520, 400, 100, 80));
@@ -105,12 +71,12 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
       rotate = 0.f;
     }
 
-    canvas_->save();
-    canvas_->rotate(rotate, 570, 440);
+    GetCanvas()->save();
+    GetCanvas()->rotate(rotate, 570, 440);
 
-    canvas_->drawPath(clip_path, paint);
-    canvas_->clipPath(clip_path);
-    canvas_->rotate(-rotate, 570, 440);
+    GetCanvas()->drawPath(clip_path, paint);
+    GetCanvas()->clipPath(clip_path);
+    GetCanvas()->rotate(-rotate, 570, 440);
 
     paint.setStrokeWidth(10.f);
     paint.setColor(skity::ColorSetARGB(64, 255, 0, 0));
@@ -119,12 +85,12 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
       temp_path.moveTo(500, 380);
       temp_path.lineTo(600, 450);
       temp_path.lineTo(600, 400);
-      canvas_->drawPath(temp_path, paint);
+      GetCanvas()->drawPath(temp_path, paint);
     }
-    canvas_->restore();
+    GetCanvas()->restore();
 
     paint.setColor(skity::Color_LTGRAY);
-    canvas_->drawLine(500, 420, 600, 470, paint);
+    GetCanvas()->drawLine(500, 420, 600, 470, paint);
 
     {
       skity::Point center{400, 400, 0, 1.f};
@@ -137,26 +103,24 @@ class HelloVulkanApp : public example::VkApp, public skity::GPUVkContext {
     }
 
     paint.setStyle(skity::Paint::kFill_Style);
-    canvas_->drawCircle(400, 400, 100, paint);
+    GetCanvas()->drawCircle(400, 400, 100, paint);
 
     paint.setShader(nullptr);
     if (pixmap_) {
       paint.setShader(skity::Shader::MakeShader(pixmap_));
 
-      canvas_->drawRect(skity::Rect::MakeXYWH(300, 100, 150, 150), paint);
+      GetCanvas()->drawRect(skity::Rect::MakeXYWH(300, 100, 150, 150), paint);
     }
 
     paint.setShader(nullptr);
     paint.setStyle(skity::Paint::kFill_Style);
     paint.setTextSize(20.f);
-    canvas_->drawSimpleText2("12ATx", 500, 300, paint);
+    GetCanvas()->drawSimpleText2("12ATx", 500, 300, paint);
 
-    canvas_->flush();
+    GetCanvas()->flush();
   }
-  void OnDestroy() override { canvas_ = nullptr; }
 
  private:
-  std::unique_ptr<skity::Canvas> canvas_ = {};
   std::shared_ptr<skity::Pixmap> pixmap_ = {};
   float rotate = 0.f;
 };

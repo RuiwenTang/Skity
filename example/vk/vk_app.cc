@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 
+#include "example_config.hpp"
 #include "spdlog/spdlog.h"
 
 namespace example {
@@ -165,7 +166,10 @@ static bool get_support_depth_format(VkPhysicalDevice phy_devce,
 }
 
 VkApp::VkApp(int32_t width, int32_t height, std::string name)
-    : width_(width), height_(height), window_name_(name) {}
+    : skity::GPUVkContext((void*)vkGetDeviceProcAddr),
+      width_(width),
+      height_(height),
+      window_name_(name) {}
 
 VkApp::~VkApp() = default;
 
@@ -213,6 +217,16 @@ void VkApp::SetupVkContext() {
 
   OnStart();
 }
+
+void VkApp::OnStart() {
+  canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(width_, height_,
+                                                        ScreenDensity(), this);
+
+  canvas_->setDefaultTypeface(
+      skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
+}
+
+void VkApp::OnDestroy() { canvas_.reset(); }
 
 void VkApp::Loop() {
   while (!glfwWindowShouldClose(window_)) {

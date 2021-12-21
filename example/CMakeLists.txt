@@ -4,6 +4,8 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
   add_library(glad OBJECT ../third_party/glad/src/glad.c)
 endif()
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
 #GLFW
 if (WIN32)
   set(glfw3_DIR "C:/Program Files (x86)/GLFW")
