@@ -1,11 +1,11 @@
 # OpenGL Vector Graphics
 
-`Skity` is an open-source 2D graphics library written in `c++` using [OpenGL](https://www.opengl.org) and [Vulkan (WIP)](https://www.vulkan.org/) as backend.
+`Skity` is an open-source 2D graphics library written in `c++` using [OpenGL](https://www.opengl.org) and [Vulkan (Experimental)](https://www.vulkan.org/) as backend.
 Its **API** follows the same pattern as [Skia](https://skia.org/) and implements the rendering by myself. <br/>
 
 ## Example
 
-Working in progress nanovg demo <br/>
+Working in progress nanovg demo code is [frame_example.cc](./example/frame_example.cc) <br/>
 
 ![nanovg](./resources/nanovg_demo.png)
 
