@@ -53,6 +53,8 @@ class VkApp : public skity::GPUVkContext {
   virtual void OnUpdate(float elapsed_time) {}
   virtual void OnDestroy();
 
+  void GetCursorPos(double& x, double& y);
+
   skity::Canvas* GetCanvas() const { return canvas_.get(); }
 
   float ScreenDensity() const { return density_; }
@@ -110,15 +112,16 @@ class VkApp : public skity::GPUVkContext {
   VkFormat swap_chain_format_ = {};
   VkExtent2D swap_chain_extend_ = {};
   std::vector<VkImageView> swap_chain_image_views = {};
-  ImageWrapper stencil_image_ = {};
+  std::vector<ImageWrapper> stencil_image_ = {};
   std::vector<VkFramebuffer> swap_chain_frame_buffers_ = {};
   VkCommandPool cmd_pool_ = {};
   std::vector<VkCommandBuffer> cmd_buffers_ = {};
   std::vector<VkFence> cmd_fences_ = {};
-  VkSemaphore present_semaphore_ = {};
-  VkSemaphore render_semaphore_ = {};
+  std::vector<VkSemaphore> present_semaphore_ = {};
+  std::vector<VkSemaphore> render_semaphore_ = {};
   VkRenderPass render_pass_ = {};
   uint32_t current_frame_ = {};
+  uint32_t frame_index_ = 0;
 
   std::unique_ptr<skity::Canvas> canvas_ = {};
 };

@@ -106,7 +106,9 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
           "\t Object [{}]  \t\t objectType <{}> handle [{:X}] name : <{}>",
           i + 1, pCallbackData->pObjects[i].objectType,
           pCallbackData->pObjects[i].objectHandle,
-          pCallbackData->pObjects[i].pObjectName);
+          pCallbackData->pObjects[i].pObjectName
+              ? pCallbackData->pObjects[i].pObjectName
+              : "unknown");
     }
   }
 
@@ -234,27 +236,31 @@ void VkApp::Loop() {
   while (!glfwWindowShouldClose(window_)) {
     glfwPollEvents();
 
+    if (vkWaitForFences(vk_device_, 1, &cmd_fences_[frame_index_], VK_TRUE,
+                        std::numeric_limits<uint64_t>::max()) != VK_SUCCESS) {
+      spdlog::error("Error in wait fences");
+      break;
+    }
+
+    vkResetFences(vk_device_, 1, &cmd_fences_[frame_index_]);
+
     VkResult result = vkAcquireNextImageKHR(
         vk_device_, vk_swap_chain_, std::numeric_limits<uint64_t>::max(),
-        present_semaphore_, nullptr, &current_frame_);
+        present_semaphore_[frame_index_], nullptr, &current_frame_);
+
+    assert(frame_index_ == current_frame_);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
       spdlog::error("need to handle window resize of recreate swap chain!");
       break;
     }
 
-    if (vkWaitForFences(vk_device_, 1, &cmd_fences_[current_frame_], VK_TRUE,
-                        std::numeric_limits<uint64_t>::max()) != VK_SUCCESS) {
-      spdlog::error("Error in wait fences");
-      break;
-    }
-
-    vkResetFences(vk_device_, 1, &cmd_fences_[current_frame_]);
-
-    VkCommandBuffer current_cmd = cmd_buffers_[current_frame_];
+    VkCommandBuffer current_cmd = cmd_buffers_[frame_index_];
+    vkResetCommandBuffer(current_cmd, 0);
 
     VkCommandBufferBeginInfo cmd_begin_info{
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    cmd_begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     if (vkBeginCommandBuffer(current_cmd, &cmd_begin_info) != VK_SUCCESS) {
       spdlog::error("Failed to begin cmd buffer at index : {}", current_frame_);
@@ -284,23 +290,24 @@ void VkApp::Loop() {
     vkCmdEndRenderPass(current_cmd);
 
     if (vkEndCommandBuffer(current_cmd) != VK_SUCCESS) {
-      spdlog::error("Failed to end cmd buffer at index : {}", current_frame_);
+      spdlog::error("Failed to end cmd buffer at index : {}", frame_index_);
       break;
     }
     VkPipelineStageFlags submit_pipeline_stages =
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+        VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
 
     VkSubmitInfo submit_info{VK_STRUCTURE_TYPE_SUBMIT_INFO};
     submit_info.pWaitDstStageMask = &submit_pipeline_stages;
     submit_info.waitSemaphoreCount = 1;
-    submit_info.pWaitSemaphores = &present_semaphore_;
+    submit_info.pWaitSemaphores = &present_semaphore_[frame_index_];
     submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores = &render_semaphore_;
+    submit_info.pSignalSemaphores = &render_semaphore_[frame_index_];
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &current_cmd;
 
     if (vkQueueSubmit(vk_present_queue_, 1, &submit_info,
-                      cmd_fences_[current_frame_]) != VK_SUCCESS) {
+                      cmd_fences_[frame_index_]) != VK_SUCCESS) {
       spdlog::error("Failed to submit command buffer!");
       break;
     }
@@ -309,7 +316,7 @@ void VkApp::Loop() {
     present_info.swapchainCount = 1;
     present_info.pSwapchains = &vk_swap_chain_;
     present_info.pImageIndices = &current_frame_;
-    present_info.pWaitSemaphores = &render_semaphore_;
+    present_info.pWaitSemaphores = &render_semaphore_[frame_index_];
     present_info.waitSemaphoreCount = 1;
 
     result = vkQueuePresentKHR(vk_present_queue_, &present_info);
@@ -317,6 +324,10 @@ void VkApp::Loop() {
       spdlog::error("need to handle window resize of recreate swap chain!");
       break;
     }
+
+    frame_index_++;
+    frame_index_ = frame_index_ % swap_chain_image_views.size();
+    vkDeviceWaitIdle(vk_device_);
   }
 
   vkDeviceWaitIdle(vk_device_);
@@ -330,12 +341,18 @@ void VkApp::CleanUp() {
     vkDestroyFramebuffer(vk_device_, fb, nullptr);
   }
 
-  vkDestroyImageView(vk_device_, stencil_image_.image_view, nullptr);
-  vkDestroyImage(vk_device_, stencil_image_.image, nullptr);
-  vkFreeMemory(vk_device_, stencil_image_.memory, nullptr);
+  for (auto const& st : stencil_image_) {
+    vkDestroyImageView(vk_device_, st.image_view, nullptr);
+    vkDestroyImage(vk_device_, st.image, nullptr);
+    vkFreeMemory(vk_device_, st.memory, nullptr);
+  }
 
-  vkDestroySemaphore(vk_device_, present_semaphore_, nullptr);
-  vkDestroySemaphore(vk_device_, render_semaphore_, nullptr);
+  for (auto semp : present_semaphore_) {
+    vkDestroySemaphore(vk_device_, semp, nullptr);
+  }
+  for (auto semp : render_semaphore_) {
+    vkDestroySemaphore(vk_device_, semp, nullptr);
+  }
   for (auto fence : cmd_fences_) {
     vkDestroyFence(vk_device_, fence, nullptr);
   }
@@ -625,7 +642,7 @@ void VkApp::CreateSwapChain() {
   create_info.pQueueFamilyIndices = &present_queue_index_;
   create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
   create_info.compositeAlpha = surface_composite;
-  create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+  create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
   create_info.oldSwapchain = nullptr;
 
   if (vkCreateSwapchainKHR(vk_device_, &create_info, nullptr,
@@ -682,49 +699,54 @@ void VkApp::CreateSwapChainImageViews() {
   image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
   image_create_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-  if (vkCreateImage(vk_device_, &image_create_info, nullptr,
-                    &stencil_image_.image) != VK_SUCCESS) {
-    spdlog::error("Failed to create stencil buffer");
-    exit(-1);
+  stencil_image_.resize(image_count);
+
+  for (size_t i = 0; i < stencil_image_.size(); i++) {
+    if (vkCreateImage(vk_device_, &image_create_info, nullptr,
+                      &stencil_image_[i].image) != VK_SUCCESS) {
+      spdlog::error("Failed to create stencil buffer");
+      exit(-1);
+    }
+
+    VkMemoryRequirements mem_reqs{};
+    vkGetImageMemoryRequirements(vk_device_, stencil_image_[i].image,
+                                 &mem_reqs);
+
+    VkMemoryAllocateInfo mem_alloc{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
+    mem_alloc.allocationSize = mem_reqs.size;
+    mem_alloc.memoryTypeIndex = GetMemoryType(
+        mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (vkAllocateMemory(vk_device_, &mem_alloc, nullptr,
+                         &stencil_image_[i].memory) != VK_SUCCESS) {
+      spdlog::error("Failed to allocate stencil buffer memory");
+      exit(-1);
+    }
+    if (vkBindImageMemory(vk_device_, stencil_image_[i].image,
+                          stencil_image_[i].memory, 0) != VK_SUCCESS) {
+      spdlog::error("Failed to bind stencil buffer memory");
+      exit(-1);
+    }
+
+    VkImageViewCreateInfo image_view_create_info{
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+    image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    image_view_create_info.image = stencil_image_[i].image;
+    image_view_create_info.format = depth_format;
+    image_view_create_info.subresourceRange.baseMipLevel = 0;
+    image_view_create_info.subresourceRange.levelCount = 1;
+    image_view_create_info.subresourceRange.baseArrayLayer = 0;
+    image_view_create_info.subresourceRange.layerCount = 1;
+    image_view_create_info.subresourceRange.aspectMask =
+        VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+    if (vkCreateImageView(vk_device_, &image_view_create_info, nullptr,
+                          &stencil_image_[i].image_view) != VK_SUCCESS) {
+      spdlog::error("Failed to create image view for stencil buffer");
+      exit(-1);
+    }
+
+    stencil_image_[i].format = depth_format;
   }
-
-  VkMemoryRequirements mem_reqs{};
-  vkGetImageMemoryRequirements(vk_device_, stencil_image_.image, &mem_reqs);
-
-  VkMemoryAllocateInfo mem_alloc{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
-  mem_alloc.allocationSize = mem_reqs.size;
-  mem_alloc.memoryTypeIndex = GetMemoryType(
-      mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-  if (vkAllocateMemory(vk_device_, &mem_alloc, nullptr,
-                       &stencil_image_.memory) != VK_SUCCESS) {
-    spdlog::error("Failed to allocate stencil buffer memory");
-    exit(-1);
-  }
-  if (vkBindImageMemory(vk_device_, stencil_image_.image, stencil_image_.memory,
-                        0) != VK_SUCCESS) {
-    spdlog::error("Failed to bind stencil buffer memory");
-    exit(-1);
-  }
-
-  VkImageViewCreateInfo image_view_create_info{
-      VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-  image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  image_view_create_info.image = stencil_image_.image;
-  image_view_create_info.format = depth_format;
-  image_view_create_info.subresourceRange.baseMipLevel = 0;
-  image_view_create_info.subresourceRange.levelCount = 1;
-  image_view_create_info.subresourceRange.baseArrayLayer = 0;
-  image_view_create_info.subresourceRange.layerCount = 1;
-  image_view_create_info.subresourceRange.aspectMask =
-      VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-
-  if (vkCreateImageView(vk_device_, &image_view_create_info, nullptr,
-                        &stencil_image_.image_view) != VK_SUCCESS) {
-    spdlog::error("Failed to create image view for stencil buffer");
-    exit(-1);
-  }
-
-  stencil_image_.format = depth_format;
 }
 
 void VkApp::CreateCommandPool() {
@@ -768,17 +790,24 @@ void VkApp::CreateSyncObjects() {
     }
   }
 
+  present_semaphore_.resize(cmd_buffers_.size());
+  render_semaphore_.resize(cmd_buffers_.size());
+
   VkSemaphoreCreateInfo semaphore_create_info{
       VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-  if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
-                        &present_semaphore_) != VK_SUCCESS) {
-    spdlog::error("Failed to create present semaphore");
-    exit(-1);
+  for (size_t i = 0; i < present_semaphore_.size(); i++) {
+    if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
+                          &present_semaphore_[i]) != VK_SUCCESS) {
+      spdlog::error("Failed to create present semaphore");
+      exit(-1);
+    }
   }
-  if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
-                        &render_semaphore_) != VK_SUCCESS) {
-    spdlog::error("Failed to create render semaphore");
-    exit(-1);
+  for (size_t i = 0; i < render_semaphore_.size(); i++) {
+    if (vkCreateSemaphore(vk_device_, &semaphore_create_info, nullptr,
+                          &render_semaphore_[i]) != VK_SUCCESS) {
+      spdlog::error("Failed to create render semaphore");
+      exit(-1);
+    }
   }
 }
 
@@ -795,7 +824,7 @@ void VkApp::CreateRenderPass() {
   attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
   // depth stencil attachment
-  attachments[1].format = stencil_image_.format;
+  attachments[1].format = stencil_image_[0].format;
   attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
   attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -836,9 +865,9 @@ void VkApp::CreateFramebuffers() {
   swap_chain_frame_buffers_.resize(swap_chain_image_views.size());
 
   std::array<VkImageView, 2> attachments = {};
-  attachments[1] = stencil_image_.image_view;
   for (size_t i = 0; i < swap_chain_frame_buffers_.size(); i++) {
     attachments[0] = swap_chain_image_views[i];
+    attachments[1] = stencil_image_[i].image_view;
     VkFramebufferCreateInfo create_info{
         VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
     create_info.renderPass = render_pass_;
@@ -873,6 +902,14 @@ uint32_t VkApp::GetMemoryType(uint32_t type_bits,
   }
 
   return 0;
+}
+
+void VkApp::GetCursorPos(double& x, double& y) {
+  double mx, my;
+  glfwGetCursorPos(window_, &mx, &my);
+
+  x = mx;
+  y = my;
 }
 
 }  // namespace example

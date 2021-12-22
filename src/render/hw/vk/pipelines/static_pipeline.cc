@@ -14,6 +14,7 @@ StaticPipeline::GetDepthStencilStateCreateInfo() {
   depth_stencil_state.front.failOp = VK_STENCIL_OP_KEEP;
   depth_stencil_state.front.passOp = VK_STENCIL_OP_KEEP;
   depth_stencil_state.front.compareOp = VK_COMPARE_OP_ALWAYS;
+  depth_stencil_state.front.writeMask = 0;
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;

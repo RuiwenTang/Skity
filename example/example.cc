@@ -1,6 +1,3 @@
-#include <glad/glad.h>
-// should after glad.h
-#include <GLFW/glfw3.h>
 
 #include <cmath>
 #include <glm/glm.hpp>

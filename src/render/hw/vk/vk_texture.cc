@@ -84,6 +84,10 @@ void VKTexture::Resize(uint32_t width, uint32_t height) {
 void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                            uint32_t height, void* data) {
   size_t buffer_size = width * height * bpp_;
+  if (buffer_size == 0) {
+    LOG_WARN("VkTexture try upload zero buffer data");
+    return;
+  }
   // step 1 upload data to stage buffer
   std::unique_ptr<AllocatedBuffer> stage_buffer{
       allocator_->AllocateStageBuffer(buffer_size)};

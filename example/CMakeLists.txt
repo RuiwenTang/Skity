@@ -49,8 +49,8 @@ add_executable(gl_example gl_example.cc example.cc $<TARGET_OBJECTS:glad> $<TARG
 
 target_link_libraries(gl_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
-add_executable(frame_example frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(gl_frame_example gl_frame_example.cc frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
+target_link_libraries(gl_frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(svg_example svg_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -72,6 +72,9 @@ if (VULKAN_BACKEND)
 
   add_executable(vk_example vk_example.cc example.cc $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vk_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
+
+  add_executable(vk_frame_example vk_frame_example.cc perf.cc frame_example.cc $<TARGET_OBJECTS:vk_app>)
+  target_link_libraries(vk_frame_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES} Vulkan::Vulkan)

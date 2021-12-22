@@ -5,7 +5,7 @@ void draw_canvas(skity::Canvas* canvas);
 
 class ExampleApp : public example::GLApp {
  public:
-  ExampleApp() : example::GLApp(800, 800, "GL Example") {}
+  ExampleApp() : example::GLApp(800, 800, "GL Example", {1.f, 1.f, 1.f, 1.f}) {}
 
   ~ExampleApp() override = default;
 

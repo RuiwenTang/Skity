@@ -1,5 +1,9 @@
 #include "src/render/hw/vk/vk_pipeline.hpp"
 
+#ifdef SKITY_LOG
+#undef SKITY_LOG
+#endif
+
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
@@ -586,6 +590,10 @@ void VKPipeline::UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline) {
   if (font_texture_) {
     auto it = used_font_and_set_.find(font_texture_);
     if (it != used_font_and_set_.end()) {
+      if (font_texture_->GetImageLayout() !=
+          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+        assert(false);
+      }
       pipeline->UploadFontSet(it->second, ctx_);
     } else {
       auto font_set = CurrentFrameBuffer()->ObtainUniformBufferSet(

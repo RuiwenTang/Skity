@@ -29,8 +29,9 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
   return window;
 }
 
-GLApp::GLApp(int32_t width, int32_t height, std::string name)
-    : width_(width), height_(height), name_(name) {}
+GLApp::GLApp(int32_t width, int32_t height, std::string name,
+             const glm::vec4& clear_color)
+    : width_(width), height_(height), name_(name), clear_color_(clear_color) {}
 
 GLApp::~GLApp() = default;
 
@@ -43,7 +44,7 @@ void GLApp::Run() {
 void GLApp::Init() {
   window_ = init_glfw_window(width_, height_, name_.c_str());
 
-  glClearColor(1.f, 1.f, 1.f, 1.f);
+  glClearColor(clear_color_.x, clear_color_.y, clear_color_.z, clear_color_.w);
   glClearStencil(0x0);
   glStencilMask(0xFF);
   // blend is need for anti-alias
@@ -60,8 +61,8 @@ void GLApp::Init() {
   skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
                         (void*)glfwGetProcAddress};
 
-  canvas_ =
-      skity::Canvas::MakeHardwareAccelationCanvas(800, 800, density, &ctx);
+  canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(width_, height_,
+                                                        density, &ctx);
 
   canvas_->setDefaultTypeface(
       skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));
@@ -85,6 +86,14 @@ void GLApp::Destroy() {
   OnDestroy();
 
   canvas_.reset();
+}
+
+void GLApp::GetCursorPos(double& x, double& y) {
+  double mx, my;
+  glfwGetCursorPos(window_, &mx, &my);
+
+  x = mx;
+  y = my;
 }
 
 }  // namespace example
