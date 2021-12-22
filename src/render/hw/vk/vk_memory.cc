@@ -17,6 +17,7 @@ struct AllocatedBufferImpl : public AllocatedBuffer {
   size_t buffer_size = 0;
   VkBuffer buffer = {};
   VmaAllocation vma_allocation = {};
+  VmaAllocationInfo vma_allocation_info = {};
 
   AllocatedBufferImpl() = default;
   ~AllocatedBufferImpl() override = default;
@@ -81,6 +82,7 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
     VmaAllocationCreateInfo vma_info{};
     vma_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    vma_info.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
     vma_info.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
     return AllocateBufferInternal(buffer_info, vma_info);
@@ -176,6 +178,12 @@ void VKMemoryAllocatorImpl::UploadBuffer(AllocatedBuffer* allocated_buffer,
                                          size_t offset) {
   auto impl = (AllocatedBufferImpl*)allocated_buffer;
 
+  if (impl->vma_allocation_info.pMappedData) {
+    void* p = ((char*)impl->vma_allocation_info.pMappedData + offset);
+    std::memcpy(p, data, data_size);
+    return;
+  }
+
   void* vma_buffer_pointer = nullptr;
   if (vmaMapMemory(vma_allocator_, impl->vma_allocation, &vma_buffer_pointer) !=
       VK_SUCCESS) {
@@ -215,7 +223,8 @@ AllocatedBuffer* VKMemoryAllocatorImpl::AllocateBufferInternal(
   AllocatedBufferImpl* impl = new AllocatedBufferImpl;
 
   if (vmaCreateBuffer(vma_allocator_, &buffer_info, &vma_info, &impl->buffer,
-                      &impl->vma_allocation, nullptr) != VK_SUCCESS) {
+                      &impl->vma_allocation,
+                      &impl->vma_allocation_info) != VK_SUCCESS) {
     LOG_ERROR("Failed to create buffer with size {}", buffer_info.size);
     delete impl;
     return nullptr;

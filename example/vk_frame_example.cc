@@ -44,11 +44,11 @@ class VkFrameApp : public example::VkApp {
     render_frame_demo(GetCanvas(), images_, nullptr, typeface_, mx, my,
                       ScreenWidth(), ScreenHeight(), time_);
 
-    cpu_time_ = glfwGetTime() - time_;
     fpsGraph.RenderGraph(GetCanvas(), 5, 5);
     cpuGraph.RenderGraph(GetCanvas(), 5 + 200 + 5, 5);
 
     GetCanvas()->flush();
+    cpu_time_ = glfwGetTime() - time_;
     fpsGraph.UpdateGraph(dt);
     cpuGraph.UpdateGraph(cpu_time_);
   }
