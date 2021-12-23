@@ -49,7 +49,7 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   auto view_port_state = VKUtils::PipelineViewportStateCreateInfo(1, 1);
   // TODO support multisample for vulkan
   auto multisample_state =
-      VKUtils::PipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
+      VKUtils::PipelineMultisampleStateCreateInfo(ctx->GetSampleCount());
   auto dynamic_states_value = GetDynamicStates();
   auto dynamic_state =
       VKUtils::PipelineDynamicStateCreateInfo(dynamic_states_value);

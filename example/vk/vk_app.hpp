@@ -48,6 +48,8 @@ class VkApp : public skity::GPUVkContext {
 
   uint32_t GetGraphicQueueIndex() override { return GraphicQueueIndex(); }
 
+  VkSampleCountFlagBits GetSampleCount() override { return vk_sample_count_; }
+
  protected:
   virtual void OnStart();
   virtual void OnUpdate(float elapsed_time) {}
@@ -103,6 +105,7 @@ class VkApp : public skity::GPUVkContext {
   VkSurfaceKHR vk_surface_ = {};
   VkDebugUtilsMessengerEXT vk_debug_messenger_ = {};
   VkPhysicalDevice vk_phy_device_ = {};
+  VkSampleCountFlagBits vk_sample_count_ = VK_SAMPLE_COUNT_1_BIT;
   VkDevice vk_device_ = {};
   uint32_t graphic_queue_index_ = {};
   uint32_t present_queue_index_ = {};
@@ -113,6 +116,7 @@ class VkApp : public skity::GPUVkContext {
   VkExtent2D swap_chain_extend_ = {};
   std::vector<VkImageView> swap_chain_image_views = {};
   std::vector<ImageWrapper> stencil_image_ = {};
+  std::vector<ImageWrapper> sampler_image_ = {};
   std::vector<VkFramebuffer> swap_chain_frame_buffers_ = {};
   VkCommandPool cmd_pool_ = {};
   std::vector<VkCommandBuffer> cmd_buffers_ = {};

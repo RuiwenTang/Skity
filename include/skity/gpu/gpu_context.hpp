@@ -134,6 +134,13 @@ struct GPUVkContext : public GPUContext {
    * @return uint32_t
    */
   virtual uint32_t GetGraphicQueueIndex() = 0;
+
+  /**
+   * @brief Get the Sample Count of current Vulkan context
+   *
+   * @return VkSampleCountFlagBits
+   */
+  virtual VkSampleCountFlagBits GetSampleCount() = 0;
 };
 
 #endif
