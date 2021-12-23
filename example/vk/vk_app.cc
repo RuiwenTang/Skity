@@ -362,6 +362,12 @@ void VkApp::CleanUp() {
     vkFreeMemory(vk_device_, st.memory, nullptr);
   }
 
+  for (auto const& si : sampler_image_) {
+    vkDestroyImageView(vk_device_, si.image_view, nullptr);
+    vkDestroyImage(vk_device_, si.image, nullptr);
+    vkFreeMemory(vk_device_, si.memory, nullptr);
+  }
+
   for (auto semp : present_semaphore_) {
     vkDestroySemaphore(vk_device_, semp, nullptr);
   }
