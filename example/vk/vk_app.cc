@@ -251,14 +251,6 @@ void VkApp::Loop() {
   while (!glfwWindowShouldClose(window_)) {
     glfwPollEvents();
 
-    if (vkWaitForFences(vk_device_, 1, &cmd_fences_[frame_index_], VK_TRUE,
-                        std::numeric_limits<uint64_t>::max()) != VK_SUCCESS) {
-      spdlog::error("Error in wait fences");
-      break;
-    }
-
-    vkResetFences(vk_device_, 1, &cmd_fences_[frame_index_]);
-
     VkResult result = vkAcquireNextImageKHR(
         vk_device_, vk_swap_chain_, std::numeric_limits<uint64_t>::max(),
         present_semaphore_[frame_index_], nullptr, &current_frame_);
@@ -321,9 +313,17 @@ void VkApp::Loop() {
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &current_cmd;
 
+    vkResetFences(vk_device_, 1, &cmd_fences_[frame_index_]);
+
     if (vkQueueSubmit(vk_present_queue_, 1, &submit_info,
                       cmd_fences_[frame_index_]) != VK_SUCCESS) {
       spdlog::error("Failed to submit command buffer!");
+      break;
+    }
+
+    if (vkWaitForFences(vk_device_, 1, &cmd_fences_[frame_index_], VK_TRUE,
+                        std::numeric_limits<uint64_t>::max()) != VK_SUCCESS) {
+      spdlog::error("Error in wait fences");
       break;
     }
 
@@ -342,7 +342,6 @@ void VkApp::Loop() {
 
     frame_index_++;
     frame_index_ = frame_index_ % swap_chain_image_views.size();
-    vkDeviceWaitIdle(vk_device_);
   }
 
   vkDeviceWaitIdle(vk_device_);
