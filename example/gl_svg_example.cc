@@ -1,3 +1,5 @@
+#include <skity/svg/svg_dom.hpp>
+
 #include "gl/gl_app.hpp"
 
 std::unique_ptr<skity::SVGDom> init_simple_svg();

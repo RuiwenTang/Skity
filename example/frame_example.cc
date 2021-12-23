@@ -1,6 +1,3 @@
-#include <glad/glad.h>
-// should after glad.h
-#include <GLFW/glfw3.h>
 
 #include <array>
 #include <cmath>
@@ -15,8 +12,8 @@
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    skity::SVGDom* svg, std::shared_ptr<skity::Typeface> const& typeface,
-    float mx, float my, float width, float height, float t);
+    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    float width, float height, float t);
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
                float mx, float my, float t);
@@ -74,9 +71,6 @@ void draw_thumbnails(skity::Canvas* canvas,
 
 void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
 
-void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
-                    float w, float h, float t);
-
 void draw_paragraph(skity::Canvas* canvas,
                     std::shared_ptr<skity::Typeface> const& typeface, float x,
                     float y, float width, float height);
@@ -84,15 +78,14 @@ void draw_paragraph(skity::Canvas* canvas,
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    skity::SVGDom* svg, std::shared_ptr<skity::Typeface> const& typeface,
-    float mx, float my, float width, float height, float t) {
+    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    float width, float height, float t) {
   float x, y, popy;
 
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
   draw_paragraph(canvas, typeface, width - 450, 180, 150, 100);
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
   // this make some performance issue
-  // draw_tiger_svg(canvas, svg, width / 2.f + 50, 100.f, 200.f, 200.f, t);
   draw_color_wheel(canvas, width - 300, height - 300, 250.f, 250.f, t);
 
   // Line joints
@@ -1198,20 +1191,6 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
   }
 
   canvas->drawPath(path, paint);
-}
-
-void draw_tiger_svg(skity::Canvas* canvas, skity::SVGDom* svg, float x, float y,
-                    float w, float h, float t) {
-  canvas->save();
-
-  canvas->translate(x, y);
-  canvas->rotate(glm::degrees(t), 100, 100);
-  float sx = w / 900.f;
-  float sy = h / 900.f;
-  canvas->scale(sx, sy);
-  svg->Render(canvas);
-
-  canvas->restore();
 }
 
 void draw_paragraph(skity::Canvas* canvas,

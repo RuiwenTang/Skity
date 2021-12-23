@@ -42,31 +42,9 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_attribute.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_attribute.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_attribute_parser.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_attribute_parser.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_container.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_container.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_dom.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_node.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_node.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_path.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_path.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_render_context.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_render_context.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_root.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_root.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_shape.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_shape.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_transformable_node.cc
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_transformable_node.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/svg/svg_types.hpp
         ${CMAKE_CURRENT_LIST_DIR}/text/typeface.cc
         ${CMAKE_CURRENT_LIST_DIR}/text/utf.cc
         ${CMAKE_CURRENT_LIST_DIR}/utils/lazy.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/xml/xml_parser.cc
-        ${CMAKE_CURRENT_LIST_DIR}/xml/xml_parser.hpp
 )
 
 # codec backends

@@ -19,8 +19,11 @@ else()
     endif()
 endif()
 
+set(SKITY_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
 option(BUILD_EXAMPLE "option for building example" ON)
 option(BUILD_TEST "option for building test" ON)
+option(BUILD_SVG_MODULE "option for build svg module" ON)
 # logging option
 option(ENABLE_LOG "option for logging" ON)
 # backend option
@@ -63,9 +66,6 @@ if (${ENABLE_LOG})
     include_directories(third_party/spdlog/include)
 endif()
 
-# xml
-include_directories(third_party/pugixml/src)
-add_subdirectory(third_party/pugixml)
 
 if (${VULKAN_BACKEND})
     add_definitions(-DSKITY_VULKAN=1)
@@ -85,6 +85,12 @@ target_include_directories(skity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 add_library(skity::skity ALIAS skity)
+
+# svg module
+if (${BUILD_SVG_MODULE})
+    add_subdirectory(third_party/pugixml)
+    add_subdirectory(module/svg)
+endif()
 
 if (WIN32)
    # specify dll outpu directory
@@ -178,9 +184,6 @@ add_subdirectory(src)
 get_target_property(SKITY_SRC skity SOURCES)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SKITY_SRC})
-
-# TODO move xml and svg code to module directory
-target_link_libraries(skity PRIVATE pugixml)
 
 
 if (${BUILD_TEST} AND CMAKE_BUILD_TYPE STREQUAL "Debug")

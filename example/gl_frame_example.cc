@@ -9,8 +9,8 @@ void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images);
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    skity::SVGDom* svg, std::shared_ptr<skity::Typeface> const& typeface,
-    float mx, float my, float width, float height, float t);
+    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    float width, float height, float t);
 
 class GLFrameApp : public example::GLApp {
  public:
@@ -39,8 +39,8 @@ class GLFrameApp : public example::GLApp {
     double dt = time_ - prev_time_;
     prev_time_ = time_;
 
-    render_frame_demo(GetCanvas(), images_, nullptr, typeface_, mx, my,
-                      ScreenWidth(), ScreenHeight(), time_);
+    render_frame_demo(GetCanvas(), images_, typeface_, mx, my, ScreenWidth(),
+                      ScreenHeight(), time_);
 
     GetCanvas()->flush();
 

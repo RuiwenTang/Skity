@@ -61,7 +61,8 @@ add_executable(hw_canvas_test hw_canvas_test.cc $<TARGET_OBJECTS:test_common> $<
 target_link_libraries(hw_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(svg_parser_test svg_parser_test.cc)
-target_link_libraries(svg_parser_test skity)
+target_include_directories(svg_parser_test PRIVATE ${SKITY_ROOT}/module/svg/include)
+target_link_libraries(svg_parser_test skity skity::svg)
 
 add_executable(texture_atlas_test texture_atlas_test.cc)
 target_link_libraries(texture_atlas_test skity)

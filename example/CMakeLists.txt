@@ -5,7 +5,9 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
-include_directories(${CMAKE_CURRENT_SRC_DIR})
+# xml
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../module/svg/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 #GLFW
 if (WIN32)
@@ -54,7 +56,7 @@ add_executable(gl_frame_example gl_frame_example.cc frame_example.cc perf.cc per
 target_link_libraries(gl_frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(gl_svg_example gl_svg_example.cc svg_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(gl_svg_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_svg_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # vulkan examples
 if (VULKAN_BACKEND)
@@ -78,7 +80,7 @@ if (VULKAN_BACKEND)
   target_link_libraries(vk_frame_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
   add_executable(vk_svg_example vk_svg_example.cc svg_example.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_svg_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_svg_example skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES} Vulkan::Vulkan)

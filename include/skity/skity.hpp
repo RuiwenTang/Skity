@@ -22,8 +22,6 @@
 #include <skity/graphic/path.hpp>
 // render
 #include <skity/render/canvas.hpp>
-// svg
-#include <skity/svg/svg_dom.hpp>
 // text
 #include <skity/text/typeface.hpp>
 #include <skity/text/utf.hpp>
