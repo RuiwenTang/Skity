@@ -36,6 +36,7 @@ endif()
 if (ANDROID)
   # TODO support android build
   message("build for Android")
+  add_definitions(-DSKITY_ANDROID=1)
 else()
   # Fixme to solve path issue
   include(cmake/CommonDep.cmake)

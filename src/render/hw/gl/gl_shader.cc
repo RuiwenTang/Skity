@@ -10,11 +10,19 @@
 
 namespace skity {
 
+#ifdef SKITY_ANDROID
+#define SHADER_HEADER "#version 300 es"
+#else
+#define SHADER_HEADER "#version 330 core"
+#endif
+
 GLuint create_shader(const char* source, GLenum type) {
   GLuint shader = GL_CALL(CreateShader, type);
 
+  std::array<const char*, 2> shaders{SHADER_HEADER, source};
+
   GLint success;
-  GL_CALL(ShaderSource, shader, 1, &source, nullptr);
+  GL_CALL(ShaderSource, shader, shaders.size(), shaders.data(), nullptr);
   GL_CALL(CompileShader, shader);
   GL_CALL(GetShaderiv, shader, GL_COMPILE_STATUS, &success);
   if (!success) {

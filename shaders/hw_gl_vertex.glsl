@@ -1,4 +1,3 @@
-#version 330 core
 
 // [x, y]
 layout(location = 0) in vec2 aPos;

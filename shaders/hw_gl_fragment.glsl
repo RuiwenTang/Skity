@@ -1,4 +1,3 @@
-#version 330 core
 
 #define M_PI 3.1415926535897932384626433832795
 // Fixme to solve uniform array length
