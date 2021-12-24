@@ -14,8 +14,6 @@ if (WIN32)
   )
 
 else()
-  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-o2")
-  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-o2")
 
   target_compile_options(skity 
         PUBLIC
@@ -37,6 +35,7 @@ endif()
 # dependencies
 if (ANDROID)
   # TODO support android build
+  message("build for Android")
 else()
   # Fixme to solve path issue
   include(cmake/CommonDep.cmake)

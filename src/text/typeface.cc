@@ -187,12 +187,20 @@ void Typeface::getGlyphInfo(const std::vector<GlyphID>& glyph_id,
 
 GlyphInfo Typeface::getGlyphInfo(GlyphID glyph_id, float font_size,
                                  bool load_path) {
+#ifdef ENABLE_TEXT_RENDER
   return impl_->GetGlyphInfo(glyph_id, font_size, load_path);
+#else
+  return {};
+#endif
 }
 
 GlyphBitmapInfo Typeface::getGlyphBitmapInfo(GlyphID glyph_id,
                                              float font_size) {
+#ifdef ENABLE_TEXT_RENDER
   return impl_->getGlyphBitmapInfo(glyph_id, font_size);
+#else
+  return {};
+#endif
 }
 
 }  // namespace skity
