@@ -68,7 +68,7 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   pipeline_create_info.stageCount = shaders.size();
   pipeline_create_info.pStages = shaders.data();
 
-  if (VK_CALL(vkCreateGraphicsPipelines, ctx->GetDevice(), nullptr, 1,
+  if (VK_CALL(vkCreateGraphicsPipelines, ctx->GetDevice(), VK_NULL_HANDLE, 1,
               &pipeline_create_info, nullptr, &pipeline_) != VK_SUCCESS) {
     LOG_ERROR("Failed to create Graphic Pipeline");
   }

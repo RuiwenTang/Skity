@@ -35,7 +35,7 @@ VkShaderModule VKUtils::CreateShader(VkDevice device, const char *data,
 #ifndef SKITY_RELEASE
     assert(false);
 #endif
-    return nullptr;
+    return VK_NULL_HANDLE;
   }
 
   return shader_module;
