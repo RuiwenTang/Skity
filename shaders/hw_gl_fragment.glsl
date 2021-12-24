@@ -58,7 +58,7 @@ vec4 lerp_color(float current) {
   int startIndex = 0;
   int endIndex = 1;
 
-  float step = 1.0 / (colorCount - 1);
+  float step = 1.0 / float(colorCount - 1);
   int i = 0;
   float start, end;
   for (i = 0; i < colorCount - 1; i++) {
@@ -66,8 +66,8 @@ vec4 lerp_color(float current) {
       start = GradientStops[i];
       end = GradientStops[i + 1];
     } else {
-      start = step * i;
-      end = step * (i + 1);
+      start = step * float(i);
+      end = step * float(i + 1);
     }
 
     if (current >= start && current <= end) {
@@ -85,7 +85,7 @@ vec4 lerp_color(float current) {
   float value = (current - start);
 
   float mixValue = 0.5;
-  if (total > 0) {
+  if (total > 0.0) {
     mixValue = value / total;
   }
 
@@ -121,7 +121,7 @@ vec4 calculate_linear_color() {
                  currentPoint.y - startPointMaped.y);
   vec2 se = (endPointMapped - startPointMaped).xy;
 
-  if (sc.x * se.x + sc.y * se.y < 0) {
+  if (sc.x * se.x + sc.y * se.y < 0.0) {
     return lerp_color(0.0);
   }
 
