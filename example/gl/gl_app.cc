@@ -1,6 +1,7 @@
 #include "gl/gl_app.hpp"
 
 #include "example_config.hpp"
+#include <chrono>
 
 namespace example {
 

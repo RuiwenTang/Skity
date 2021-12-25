@@ -274,10 +274,12 @@ void VkApp::Loop() {
       break;
     }
 
-    std::vector<VkClearValue> clear_values{2};
+    std::vector<VkClearValue> clear_values{3};
     clear_values[0].color = {clear_color_.x, clear_color_.y, clear_color_.z,
                              clear_color_.w};
     clear_values[1].depthStencil = {0.f, 0};
+    clear_values[2].color = {clear_color_.x, clear_color_.y, clear_color_.z,
+                             clear_color_.w};
 
     VkRenderPassBeginInfo render_pass_begin_info{
         VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
@@ -938,7 +940,7 @@ void VkApp::CreateRenderPass() {
 
   VkAttachmentReference resolve_reference{};
   resolve_reference.attachment = 2;
-  resolve_reference.attachment = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  resolve_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;

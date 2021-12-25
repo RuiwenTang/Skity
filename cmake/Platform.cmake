@@ -1,9 +1,6 @@
 if (WIN32)
   add_definitions(-DSKITY_WIN)
-  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    set(BUILD_SHARED_LIBS TRUE)
-  endif()
+  set(BUILD_SHARED_LIBS TRUE)
 
   # specify dll outpu directory
   set(SKITY_DLL_DIR ${CMAKE_CURRENT_BINARY_DIR})

@@ -540,20 +540,20 @@ void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
-  // if (!model_matrix_.dirty) {
-  //   return;
-  // }
-  // model_matrix_.dirty = false;
+  if (!model_matrix_.dirty) {
+    return;
+  }
+  model_matrix_.dirty = false;
   pipeline->UploadTransformMatrix(model_matrix_.value, ctx_,
                                   CurrentFrameBuffer(),
                                   vk_memory_allocator_.get());
 }
 
 void VKPipeline::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
-  // if (!common_fragment_set_.dirty) {
-  //   return;
-  // }
-  // common_fragment_set_.dirty = false;
+  if (!common_fragment_set_.dirty) {
+    return;
+  }
+  common_fragment_set_.dirty = false;
 
   pipeline->UploadCommonSet(common_fragment_set_.value, ctx_,
                             CurrentFrameBuffer(), vk_memory_allocator_.get());
