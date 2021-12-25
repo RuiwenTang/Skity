@@ -57,8 +57,14 @@ void GLTexture::Resize(uint32_t width, uint32_t height) {
   width_ = width;
   height_ = height;
 
+  // OpenGL es is different from OpenGL about glTexImage2D internal format
+#ifdef SKITY_ANDROID
+  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, GL_R8, width, height, 0, format_,
+          GL_UNSIGNED_BYTE, nullptr);
+#else
   GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_, width, height, 0, format_,
           GL_UNSIGNED_BYTE, nullptr);
+#endif
 }
 
 void GLTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,

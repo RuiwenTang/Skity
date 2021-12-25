@@ -25,7 +25,7 @@ TextureAtlas::~TextureAtlas() {
 }
 
 glm::ivec4 TextureAtlas::AllocateRegion(uint32_t width, uint32_t height) {
-  glm::ivec4 region = {0, 0, width, height};
+  glm::ivec4 region = {0, 0, (int32_t)width, (int32_t)height};
 
   int32_t best_index = -1;
   int32_t best_height = std::numeric_limits<int32_t>::max();

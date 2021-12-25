@@ -75,7 +75,7 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const char* file_path) {
     LOG_ERROR("Couldn't load the font file: FT_New_Face() failed");
     return nullptr;
   }
-
+  FT_Select_Charmap(ft_face, FT_ENCODING_UNICODE);
   return std::make_unique<FTTypeFace>(this, ft_face);
 }
 
