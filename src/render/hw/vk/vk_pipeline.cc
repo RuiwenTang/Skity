@@ -540,20 +540,28 @@ void VKPipeline::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void VKPipeline::UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline) {
+// Fixme to solve Uniform set not working
+// it seems MoltenVK DescriptorSet has bug
+#ifndef __APPLE__
   if (!model_matrix_.dirty) {
     return;
   }
   model_matrix_.dirty = false;
+#endif
   pipeline->UploadTransformMatrix(model_matrix_.value, ctx_,
                                   CurrentFrameBuffer(),
                                   vk_memory_allocator_.get());
 }
 
 void VKPipeline::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
+// Fixme to solve Uniform set not working
+// it seems MoltenVK DescriptorSet has bug
+#ifndef __APPLE__
   if (!common_fragment_set_.dirty) {
     return;
   }
   common_fragment_set_.dirty = false;
+#endif
 
   pipeline->UploadCommonSet(common_fragment_set_.value, ctx_,
                             CurrentFrameBuffer(), vk_memory_allocator_.get());
