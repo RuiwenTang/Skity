@@ -25,8 +25,6 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/geometry/point_priv.hpp
         ${CMAKE_CURRENT_LIST_DIR}/geometry/rect.cc
         ${CMAKE_CURRENT_LIST_DIR}/geometry/rrect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/tesselator/mesh.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/tesselator/mesh.hpp
         ${CMAKE_CURRENT_LIST_DIR}/graphic/color.cc
         ${CMAKE_CURRENT_LIST_DIR}/graphic/color_parser.cc
         ${CMAKE_CURRENT_LIST_DIR}/graphic/color_parser.hpp

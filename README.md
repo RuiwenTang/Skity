@@ -17,9 +17,11 @@ code is [example.cc](./example/example.cc)
 <br/>
 <img src="./resources/skia_demo.png" width="800" height="800">
 
-## Simple Demo
+## Android Demo
 
-![demo](./resources/gl_canvas_test.png)
+code is in [Skity-Android](https://github.com/RuiwenTang/Skity-Android)
+
+![Android Demo](https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/screen_shot.png?raw=true)
 
 ## Build
 
