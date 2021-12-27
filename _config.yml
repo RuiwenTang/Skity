@@ -1,1 +1,8 @@
 theme: jekyll-theme-slate
+
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - update_boostrap.sh
