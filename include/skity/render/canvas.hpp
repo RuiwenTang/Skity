@@ -169,6 +169,18 @@ class SK_API Canvas {
 
   void drawPath(Path const& path, Paint const& paint);
 
+  /**
+   * @brief Flush the internal draw commands.
+   * @note this function must be called if Canvas is create with GPU backend.
+   *         After this funcion called on OpenGL backends:
+   *                the stencil buffer maybe dirty and need clean
+   *                the stencil mask、stencil func and stencil op is changed
+   *                the color mask need reset.
+   *         After this function called on Vulkan backends:
+   *                the current VkCommandBuffer is filled with draw commands
+   *                the binded VkPipeline is changed
+   *
+   */
   void flush();
 
   /**
@@ -194,6 +206,17 @@ class SK_API Canvas {
   uint32_t width() const;
   uint32_t height() const;
 
+  /**
+   * Create a Canvas instance with GPU backend.
+   * For all GPU backends, Skity need to enable stencil test and color blend.
+   *
+   * @param width   the total width of the render target
+   * @param height  the total height of the render target
+   * @param density pixel density for the current physical device
+   * @param ctx     GPUContext pointer, if build for Vulkan, this need to be a
+   *                GPUVkContext pointer
+   * @return Canvas instance
+   */
   static std::unique_ptr<Canvas> MakeHardwareAccelationCanvas(uint32_t width,
                                                               uint32_t height,
                                                               float density,
