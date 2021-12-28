@@ -163,9 +163,7 @@ void GLPipeline::InitShader() { shader_ = GLShader::CreatePipelineShader(); }
 void GLPipeline::InitBufferObject() {
   GL_CALL(GenVertexArrays, 1, &vao_);
   GL_CALL(GenBuffers, 2, buffers_.data());
-}
 
-void GLPipeline::BindBuffers() {
   GL_CALL(BindVertexArray, vao_);
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
 
@@ -177,7 +175,11 @@ void GLPipeline::BindBuffers() {
           (void*)(2 * sizeof(float)));
 
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
+
+  GL_CALL(BindVertexArray, 0);
 }
+
+void GLPipeline::BindBuffers() { GL_CALL(BindVertexArray, vao_); }
 
 void GLPipeline::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
 
