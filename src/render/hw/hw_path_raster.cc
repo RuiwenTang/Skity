@@ -120,6 +120,13 @@ void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
 
 void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                                 glm::vec2 const& p3) {
+  if (p1 == first_pt_) {
+    // first point
+    prev_pt_ = first_pt_;
+    curr_pt_ = p2;
+    first_pt_dir_ = glm::normalize(p2 - p1);
+  }
+
   Orientation orientation = CalculateOrientation(p1, p2, p3);
   if (orientation == Orientation::kLinear) {
     StrokeLineTo(p1, p3);
@@ -144,14 +151,14 @@ void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
   glm::vec2 outerStart = start_pt1;
   glm::vec2 outerStartControl = start_pt1 + start_dir;
   glm::vec2 outerControl;
-  IntersectLineLine(outerStart, outerStartControl, p2,
-                    p2 + control_vertical_line, outerControl);
+  IntersectLineLine(outerStart, outerStartControl, end_pt1, end_pt1 - end_dir,
+                    outerControl);
 
   glm::vec2 innerStart = start_pt2;
   glm::vec2 innerStartControl = start_pt2 + start_dir;
   glm::vec2 innerControl;
-  IntersectLineLine(innerStart, innerStartControl, p2,
-                    p2 - control_vertical_line, innerControl);
+  IntersectLineLine(innerStart, innerStartControl, end_pt2, end_pt2 - end_dir,
+                    innerControl);
 
   glm::vec2 control_pt1 = outerControl;
   glm::vec2 control_pt2 = innerControl;
