@@ -1,0 +1,14 @@
+<nav class="navbar justify-content-end navbar-expand-lg navbar-dark">
+	<ul class="navbar-nav">
+		{% assign links = site.data.navigation %}
+		{% for link in links %}
+			{% assign class = 'nav-item' %}
+			{% if page.url contains link.url %}
+                {% assign class = 'active' %}
+            {% endif %}
+			 <li class="{{ class }}">
+                <a class="nav-link btn btn-dark" href="{{ link.url }}">{{ link.title }}</a>
+            </li>
+		{% endfor %}
+	</ul>
+</nav>

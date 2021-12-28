@@ -1,5 +1,8 @@
 theme: jekyll-theme-slate
 
+highlighter: rouge
+
+repository: "RuiwenTang/Skity"
 
 exclude:
   - Gemfile
