@@ -1,8 +1,8 @@
 
+#include "perf.hpp"
+
 #include <cstdio>
 #include <skity/graphic/paint.hpp>
-
-#include "perf.hpp"
 
 #ifndef GL_ARB_timer_query
 #define GL_TIME_ELAPSED 0x88BF
