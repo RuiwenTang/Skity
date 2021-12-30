@@ -89,6 +89,7 @@ std::unique_ptr<FTTypeFace> FTLibrary::LoadTypeface(const Data* data) {
     return nullptr;
   }
 
+  FT_Select_Charmap(ft_face, FT_ENCODING_UNICODE);
   return std::make_unique<FTTypeFace>(this, ft_face);
 }
 

@@ -59,7 +59,7 @@ void GLTexture::Resize(uint32_t width, uint32_t height) {
 
   // OpenGL es is different from OpenGL about glTexImage2D internal format
 #ifdef SKITY_ANDROID
-  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_ == GL_RED ? GL_R8 : format_, width, height, 0, format_,
+  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_ == GL_RED ? GL_R8 : GL_RGBA8, width, height, 0, format_,
           GL_UNSIGNED_BYTE, nullptr);
 #else
   GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_, width, height, 0, format_,

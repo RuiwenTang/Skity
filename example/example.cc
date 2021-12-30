@@ -5,9 +5,6 @@
 #include <skity/skity.hpp>
 #include <string>
 
-#include "example_config.hpp"
-#include "gl/gl_app.hpp"
-
 // same as https://fiddle.skia.org/c/@shapes
 static void draw_basic_example(skity::Canvas* canvas) {
   skity::Paint paint;

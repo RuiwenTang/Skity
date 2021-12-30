@@ -2,7 +2,9 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#ifndef SKITY_ANDROID
 #include <example_config.hpp>
+#endif
 #include <glm/glm.hpp>
 #include <skity/skity.hpp>
 #include <string>
@@ -1002,6 +1004,7 @@ void draw_slider(skity::Canvas* canvas, float pos, float x, float y, float w,
   canvas->drawPath(circle, paint);
 }
 
+#ifndef SKITY_ANDROID
 void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images) {
   for (int32_t i = 0; i < 12; i++) {
     char buffer[128];
@@ -1025,6 +1028,7 @@ void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images) {
     images.emplace_back(pixmap);
   }
 }
+#endif
 
 void draw_thumbnails(skity::Canvas* canvas,
                      std::vector<std::shared_ptr<skity::Pixmap>> const& images,
