@@ -160,6 +160,14 @@ void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
   IntersectLineLine(innerStart, innerStartControl, end_pt2, end_pt2 - end_dir,
                     innerControl);
 
+  if (glm::length(outerControl - (outerStart + end_pt1) * 0.5f) >=
+      stroke_radius * 10.f) {
+    // Fixme to solve cubic stroke bad case
+    prev_pt_ = p2;
+    curr_pt_ = p3;
+    return;
+  }
+
   glm::vec2 control_pt1 = outerControl;
   glm::vec2 control_pt2 = innerControl;
 
