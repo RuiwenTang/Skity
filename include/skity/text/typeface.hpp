@@ -74,6 +74,7 @@ class SK_API Typeface {
 
  private:
   std::unique_ptr<Impl, std::function<void(Impl*)>> impl_;
+  std::shared_ptr<skity::Data> data_ = {};
 };
 
 }  // namespace skity

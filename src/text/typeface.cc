@@ -152,6 +152,7 @@ std::shared_ptr<Typeface> Typeface::MakeFromData(
 
   std::shared_ptr<Typeface> typeface{new Typeface};
   typeface->impl_ = std::move(impl);
+  typeface->data_ = data;
   return typeface;
 #else
   return nullptr;
