@@ -156,7 +156,9 @@ class VKPipeline : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_keep_image_pipeline_ = {};
   // stencil pipelines
   std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_clip_front_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_clip_back_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
 

@@ -407,7 +407,9 @@ void VKPipeline::DestroyPipelines() {
   stencil_clip_image_pipeline_->Destroy(ctx_);
   stencil_keep_image_pipeline_->Destroy(ctx_);
   stencil_front_pipeline_->Destroy(ctx_);
+  stencil_clip_front_pipeline_->Destroy(ctx_);
   stencil_back_pipeline_->Destroy(ctx_);
+  stencil_clip_back_pipeline_->Destroy(ctx_);
   stencil_clip_pipeline_->Destroy(ctx_);
   stencil_replace_pipeline_->Destroy(ctx_);
 }
@@ -441,7 +443,11 @@ void VKPipeline::InitPipelines() {
   stencil_keep_image_pipeline_ =
       VKPipelineWrapper::CreateStencilKeepImagePipeline(ctx_);
   stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
+  stencil_clip_front_pipeline_ =
+      VKPipelineWrapper::CreateStencilClipFrontPipeline(ctx_);
   stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
+  stencil_clip_back_pipeline_ =
+      VKPipelineWrapper::CreateStencilClipBackPipeline(ctx_);
   stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
   stencil_replace_pipeline_ =
       VKPipelineWrapper::CreateStencilReplacePipeline(ctx_);
@@ -477,9 +483,17 @@ VKPipelineWrapper* VKPipeline::PickColorPipeline() {
 
 VKPipelineWrapper* VKPipeline::PickStencilPipeline() {
   if (stencil_op_ == HWStencilOp::INCR_WRAP) {
-    return stencil_front_pipeline_.get();
+    if (stencil_func_ == HWStencilFunc::ALWAYS) {
+      return stencil_front_pipeline_.get();
+    } else {
+      return stencil_clip_front_pipeline_.get();
+    }
   } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
-    return stencil_back_pipeline_.get();
+    if (stencil_func_ == HWStencilFunc::ALWAYS) {
+      return stencil_back_pipeline_.get();
+    } else {
+      return stencil_clip_back_pipeline_.get();
+    }
   } else if (stencil_op_ == HWStencilOp::REPLACE) {
     if (stencil_func_ == HWStencilFunc::ALWAYS) {
       return stencil_replace_pipeline_.get();

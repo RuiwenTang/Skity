@@ -82,7 +82,11 @@ void HWDraw::DoStencilIfNeed() {
   pipeline_->EnableStencilTest();
   pipeline_->UpdateStencilMask(0x0F);
   pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
-  pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
+  if (has_clip_) {
+    pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x10);
+  } else {
+    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
+  }
 
   if (stencil_front_range_.count > 0) {
     pipeline_->UpdateStencilOp(HWStencilOp::INCR_WRAP);

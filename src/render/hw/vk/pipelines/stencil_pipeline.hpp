@@ -27,11 +27,35 @@ class StencilFrontPipeline : public StencilPipeline {
       override;
 };
 
+class StencilClipFrontPipeline : public StencilPipeline {
+ public:
+  StencilClipFrontPipeline(size_t push_const_size)
+      : StencilPipeline(push_const_size) {}
+
+  ~StencilClipFrontPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
 class StencilBackPipeline : public StencilPipeline {
  public:
   StencilBackPipeline(size_t push_const_size)
       : StencilPipeline(push_const_size) {}
   ~StencilBackPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
+class StencilClipBackPipeline : public StencilPipeline {
+ public:
+  StencilClipBackPipeline(size_t push_const_size)
+      : StencilPipeline(push_const_size) {}
+
+  ~StencilClipBackPipeline() override = default;
 
  protected:
   VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()

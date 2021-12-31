@@ -128,7 +128,13 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipFrontPipeline(
+      GPUVkContext* ctx);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipBackPipeline(
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipPipeline(
