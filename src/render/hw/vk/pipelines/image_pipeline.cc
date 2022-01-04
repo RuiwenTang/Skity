@@ -55,14 +55,14 @@ VKPipelineWrapper::CreateStencilKeepImagePipeline(GPUVkContext* ctx) {
 
 void StaticImagePipeline::UploadGradientInfo(GradientInfo const& info,
                                              GPUVkContext* ctx,
-                                             VKFrameBuffer* frame_buffer,
+                                             SKVkFrameBufferData* frame_buffer,
                                              VKMemoryAllocator* allocator) {
   bounds_info_ = info.bounds;
 }
 
 void StaticImagePipeline::UploadImageTexture(VKTexture* texture,
                                              GPUVkContext* ctx,
-                                             VKFrameBuffer* frame_buffer,
+                                             SKVkFrameBufferData* frame_buffer,
                                              VKMemoryAllocator* allocator) {
   // reuse common set info struct
   // since image bounds is the same size as common set info

@@ -27,7 +27,7 @@ static uint32_t vk_format_comp(VkFormat format) {
   }
 }
 
-VKTexture::VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline,
+VKTexture::VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
                      GPUVkContext* ctx)
     : HWTexture(), allocator_(allocator), pipeline_(pipeline), ctx_(ctx) {}
 

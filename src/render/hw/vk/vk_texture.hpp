@@ -14,11 +14,11 @@ struct AllocatedBuffer;
 struct AllocatedImage;
 
 class VKMemoryAllocator;
-class VKPipeline;
+class SKVkPipelineImpl;
 
 class VKTexture : public HWTexture {
  public:
-  VKTexture(VKMemoryAllocator* allocator, VKPipeline* pipeline,
+  VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
             GPUVkContext* ctx);
 
   ~VKTexture() override = default;
@@ -53,7 +53,7 @@ class VKTexture : public HWTexture {
 
  private:
   VKMemoryAllocator* allocator_ = {};
-  VKPipeline* pipeline_ = {};
+  SKVkPipelineImpl* pipeline_ = {};
   GPUVkContext* ctx_ = {};
   VkFormat format_ = {};
   VkImageSubresourceRange range_ = {};

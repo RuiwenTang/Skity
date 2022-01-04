@@ -55,10 +55,9 @@ VKPipelineWrapper::CreateStencilKeepGradientPipeline(GPUVkContext* ctx) {
   }();
 }
 
-void StaticGradientPipeline::UploadGradientInfo(GradientInfo const& info,
-                                                GPUVkContext* ctx,
-                                                VKFrameBuffer* frame_buffer,
-                                                VKMemoryAllocator* allocator) {
+void StaticGradientPipeline::UploadGradientInfo(
+    GradientInfo const& info, GPUVkContext* ctx,
+    SKVkFrameBufferData* frame_buffer, VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainGradientBuffer();
   allocator->UploadBuffer(buffer, (void*)&info, sizeof(GradientInfo));
 

@@ -12,11 +12,11 @@ class StaticImagePipeline : public StaticPipeline {
   ~StaticImagePipeline() override = default;
 
   void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
-                          VKFrameBuffer* frame_buffer,
+                          SKVkFrameBufferData* frame_buffer,
                           VKMemoryAllocator* allocator) override;
 
   void UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
-                          VKFrameBuffer* frame_buffer,
+                          SKVkFrameBufferData* frame_buffer,
                           VKMemoryAllocator* allocator) override;
 
  protected:

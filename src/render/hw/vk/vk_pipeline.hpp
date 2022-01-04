@@ -20,10 +20,10 @@ struct DirtyValueHolder {
   bool dirty = true;
 };
 
-class VKPipeline : public HWPipeline {
+class SKVkPipelineImpl : public HWPipeline {
  public:
-  VKPipeline(GPUVkContext* ctx);
-  ~VKPipeline() override;
+  SKVkPipelineImpl(GPUVkContext* ctx);
+  ~SKVkPipelineImpl() override;
 
   void Init() override;
 
@@ -119,7 +119,7 @@ class VKPipeline : public HWPipeline {
   void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
   void UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline);
 
-  VKFrameBuffer* CurrentFrameBuffer();
+  SKVkFrameBufferData* CurrentFrameBuffer();
 
  private:
   GPUVkContext* ctx_ = {};
@@ -135,7 +135,7 @@ class VKPipeline : public HWPipeline {
   uint8_t stencil_compare_mask_ = 0xFF;
   uint8_t stencil_value_ = 0;
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
-  std::vector<std::unique_ptr<VKFrameBuffer>> frame_buffer_ = {};
+  std::vector<std::unique_ptr<SKVkFrameBufferData>> frame_buffer_ = {};
   // used to check if need to bind pipeline
   VKPipelineWrapper* prev_pipeline_ = nullptr;
 

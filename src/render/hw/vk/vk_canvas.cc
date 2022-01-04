@@ -22,7 +22,7 @@ void VKCanvas::OnInit(GPUContext* ctx) {
 }
 
 std::unique_ptr<HWPipeline> VKCanvas::CreatePipeline() {
-  auto pipeline = std::make_unique<VKPipeline>(ctx_);
+  auto pipeline = std::make_unique<SKVkPipelineImpl>(ctx_);
   pipeline->Init();
 
   vk_pipeline_ = pipeline.get();

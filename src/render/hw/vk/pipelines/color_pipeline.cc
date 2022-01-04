@@ -67,7 +67,7 @@ VkDescriptorSetLayout StaticColorPipeline::GenerateColorSetLayout(
 
 void StaticColorPipeline::UploadUniformColor(ColorInfoSet const& info,
                                              GPUVkContext* ctx,
-                                             VKFrameBuffer* frame_buffer,
+                                             SKVkFrameBufferData* frame_buffer,
                                              VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainUniformColorBuffer();
 

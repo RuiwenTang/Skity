@@ -12,10 +12,10 @@ class VKMemoryAllocator;
 struct AllocatedBuffer;
 
 // helper class to hold descriptor set buffer using per frame
-class VKFrameBuffer {
+class SKVkFrameBufferData {
  public:
-  VKFrameBuffer(VKMemoryAllocator* allocator);
-  ~VKFrameBuffer() = default;
+  SKVkFrameBufferData(VKMemoryAllocator* allocator);
+  ~SKVkFrameBufferData() = default;
 
   void Init(GPUVkContext* ctx);
   void Destroy(GPUVkContext* ctx);

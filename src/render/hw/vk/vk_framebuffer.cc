@@ -14,12 +14,14 @@ namespace skity {
 
 #define DEFAULT_UNIFORM_SIZE_PER_POOL 1000
 
-VKFrameBuffer::VKFrameBuffer(VKMemoryAllocator* allocator)
+SKVkFrameBufferData::SKVkFrameBufferData(VKMemoryAllocator* allocator)
     : allocator_(allocator) {}
 
-void VKFrameBuffer::Init(GPUVkContext* ctx) { AppendUniformBufferPool(ctx); }
+void SKVkFrameBufferData::Init(GPUVkContext* ctx) {
+  AppendUniformBufferPool(ctx);
+}
 
-void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
+void SKVkFrameBufferData::Destroy(GPUVkContext* ctx) {
   for (auto buffer : transform_buffer_) {
     allocator_->FreeBuffer(buffer);
     delete buffer;
@@ -51,7 +53,7 @@ void VKFrameBuffer::Destroy(GPUVkContext* ctx) {
   current_uniform_pool_index = -1;
 }
 
-void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
+void SKVkFrameBufferData::FrameBegin(GPUVkContext* ctx) {
   if (current_transform_buffer_index >= 0) {
     current_transform_buffer_index = 0;
   }
@@ -77,7 +79,7 @@ void VKFrameBuffer::FrameBegin(GPUVkContext* ctx) {
   }
 }
 
-void VKFrameBuffer::AppendUniformBufferPool(GPUVkContext* ctx) {
+void SKVkFrameBufferData::AppendUniformBufferPool(GPUVkContext* ctx) {
   std::array<VkDescriptorPoolSize, 2> pool_size{};
   pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   pool_size[0].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
@@ -99,7 +101,7 @@ void VKFrameBuffer::AppendUniformBufferPool(GPUVkContext* ctx) {
   current_uniform_pool_index += 1;
 }
 
-AllocatedBuffer* VKFrameBuffer::ObtainTransformBuffer() {
+AllocatedBuffer* SKVkFrameBufferData::ObtainTransformBuffer() {
   current_transform_buffer_index++;
   if (current_transform_buffer_index < transform_buffer_.size()) {
     return transform_buffer_[current_transform_buffer_index];
@@ -111,7 +113,7 @@ AllocatedBuffer* VKFrameBuffer::ObtainTransformBuffer() {
   return transform_buffer_.back();
 }
 
-AllocatedBuffer* VKFrameBuffer::ObtainCommonSetBuffer() {
+AllocatedBuffer* SKVkFrameBufferData::ObtainCommonSetBuffer() {
   common_set_buffer_index_++;
   if (common_set_buffer_index_ < common_set_buffer_.size()) {
     return common_set_buffer_[common_set_buffer_index_];
@@ -123,7 +125,7 @@ AllocatedBuffer* VKFrameBuffer::ObtainCommonSetBuffer() {
   return common_set_buffer_.back();
 }
 
-AllocatedBuffer* VKFrameBuffer::ObtainUniformColorBuffer() {
+AllocatedBuffer* SKVkFrameBufferData::ObtainUniformColorBuffer() {
   color_buffer_index++;
   if (color_buffer_index < uniform_color_buffer_.size()) {
     return uniform_color_buffer_[color_buffer_index];
@@ -135,7 +137,7 @@ AllocatedBuffer* VKFrameBuffer::ObtainUniformColorBuffer() {
   return uniform_color_buffer_.back();
 }
 
-AllocatedBuffer* VKFrameBuffer::ObtainGradientBuffer() {
+AllocatedBuffer* SKVkFrameBufferData::ObtainGradientBuffer() {
   gradient_info_index++;
   if (gradient_info_index < gradient_info_buffer_.size()) {
     return gradient_info_buffer_[gradient_info_index];
@@ -147,7 +149,7 @@ AllocatedBuffer* VKFrameBuffer::ObtainGradientBuffer() {
   return gradient_info_buffer_.back();
 }
 
-VkDescriptorSet VKFrameBuffer::ObtainUniformBufferSet(
+VkDescriptorSet SKVkFrameBufferData::ObtainUniformBufferSet(
     GPUVkContext* ctx, VkDescriptorSetLayout layout) {
   VkDescriptorSet ret = VK_NULL_HANDLE;
 

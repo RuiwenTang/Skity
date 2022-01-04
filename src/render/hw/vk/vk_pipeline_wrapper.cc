@@ -97,7 +97,7 @@ void VKPipelineWrapper::UploadPushConstant(GlobalPushConst const& push_const,
 
 void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
                                         GPUVkContext* ctx,
-                                        VKFrameBuffer* frame_buffer,
+                                        SKVkFrameBufferData* frame_buffer,
                                         VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainCommonSetBuffer();
   allocator->UploadBuffer(buffer, (void*)&common_set,
@@ -133,7 +133,7 @@ void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
 
 void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
                                               GPUVkContext* ctx,
-                                              VKFrameBuffer* frame_buffer,
+                                              SKVkFrameBufferData* frame_buffer,
                                               VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainTransformBuffer();
   allocator->UploadBuffer(buffer, (void*)&matrix, sizeof(glm::mat4));

@@ -15,7 +15,7 @@
 namespace skity {
 
 class VKMemoryAllocator;
-class VKFrameBuffer;
+class SKVkFrameBufferData;
 class VKTexture;
 
 struct GlobalPushConst {
@@ -61,11 +61,11 @@ class VKPipelineWrapper {
                           VkCommandBuffer cmd);
 
   void UploadTransformMatrix(glm::mat4 const& matrix, GPUVkContext* ctx,
-                             VKFrameBuffer* frame_buffer,
+                             SKVkFrameBufferData* frame_buffer,
                              VKMemoryAllocator* allocator);
 
   void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
-                       VKFrameBuffer* frame_buffer,
+                       SKVkFrameBufferData* frame_buffer,
                        VKMemoryAllocator* allocator);
 
   void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx);
@@ -76,17 +76,17 @@ class VKPipelineWrapper {
 
   // sub class implement
   virtual void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
-                                  VKFrameBuffer* frame_buffer,
+                                  SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
   // sub class implement
   virtual void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
-                                  VKFrameBuffer* frame_buffer,
+                                  SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
   // sub class implement
   virtual void UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
-                                  VKFrameBuffer* frame_buffer,
+                                  SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(

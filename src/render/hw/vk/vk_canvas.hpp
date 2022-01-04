@@ -22,7 +22,7 @@ class VKCanvas : public HWCanvas {
       Typeface* typeface) override;
 
  private:
-  VKPipeline* vk_pipeline_ = {};
+  SKVkPipelineImpl* vk_pipeline_ = {};
   GPUVkContext* ctx_ = {};
 };
 
