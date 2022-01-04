@@ -21,7 +21,7 @@ code is [example.cc](./example/example.cc)
 
 code is in [Skity-Android](https://github.com/RuiwenTang/Skity-Android)
 
-![Android Demo](https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/screen_shot.png?raw=true)
+![Android Demo](https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/gl_frame_example_android.png?raw=true)
 
 ## Build
 
