@@ -77,6 +77,7 @@ void GLPipeline::SetViewProjectionMatrix(glm::mat4 const& mvp) {
 }
 
 void GLPipeline::SetModelMatrix(glm::mat4 const& matrix) {
+  HWPipeline::SetModelMatrix(matrix);
   shader_->SetTransformMatrix(matrix);
 }
 

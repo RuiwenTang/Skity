@@ -55,7 +55,11 @@ class HWPipeline {
    *
    * @param matrix
    */
-  virtual void SetModelMatrix(glm::mat4 const& matrix) = 0;
+  virtual void SetModelMatrix(glm::mat4 const& matrix) {
+    model_matrix_ = matrix;
+  }
+
+  glm::mat4 GetModelMatrix() const { return model_matrix_; }
 
   /**
    * @brief Upload PipelineMode to GPU shader
@@ -132,6 +136,9 @@ class HWPipeline {
   virtual void DrawIndex(uint32_t start, uint32_t count) = 0;
 
   virtual void BindTexture(HWTexture* texture, uint32_t slot) = 0;
+
+ private:
+  glm::mat4 model_matrix_ = {};
 };
 
 }  // namespace skity

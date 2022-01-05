@@ -107,6 +107,7 @@ void SKVkPipelineImpl::SetViewProjectionMatrix(const glm::mat4& mvp) {
 }
 
 void SKVkPipelineImpl::SetModelMatrix(const glm::mat4& matrix) {
+  HWPipeline::SetModelMatrix(matrix);
   LOG_DEBUG("vk_pipeline upload transform matrix");
   model_matrix_.value = matrix;
   model_matrix_.dirty = true;
