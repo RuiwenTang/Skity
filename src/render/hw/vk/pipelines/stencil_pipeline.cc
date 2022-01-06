@@ -119,10 +119,10 @@ StencilClipFrontPipeline::GetDepthStencilStateCreateInfo() {
   depth_stencil_state.stencilTestEnable = VK_TRUE;
   depth_stencil_state.front.failOp = VK_STENCIL_OP_KEEP;
   depth_stencil_state.front.passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP;
-  depth_stencil_state.front.compareOp = VK_COMPARE_OP_EQUAL;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
   depth_stencil_state.front.compareMask = 0x10;
   depth_stencil_state.front.writeMask = 0x0F;
-  depth_stencil_state.front.reference = 0x10;
+  depth_stencil_state.front.reference = 0x1F;
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;
@@ -153,10 +153,10 @@ StencilClipBackPipeline::GetDepthStencilStateCreateInfo() {
   depth_stencil_state.stencilTestEnable = VK_TRUE;
   depth_stencil_state.front.failOp = VK_STENCIL_OP_KEEP;
   depth_stencil_state.front.passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP;
-  depth_stencil_state.front.compareOp = VK_COMPARE_OP_EQUAL;
+  depth_stencil_state.front.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
   depth_stencil_state.front.compareMask = 0x10;
   depth_stencil_state.front.writeMask = 0x0F;
-  depth_stencil_state.front.reference = 0x10;
+  depth_stencil_state.front.reference = 0x1F;
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;

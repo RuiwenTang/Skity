@@ -86,7 +86,7 @@ void HWDraw::DoStencilIfNeed() {
   pipeline_->UpdateStencilMask(0x0F);
   pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
   if (has_clip_) {
-    pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x10);
+    pipeline_->UpdateStencilFunc(HWStencilFunc::LESS_OR_EQUAL, 0x10, 0x1F);
   } else {
     pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
   }

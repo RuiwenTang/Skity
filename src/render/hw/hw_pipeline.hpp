@@ -26,6 +26,7 @@ enum class HWStencilFunc {
   EQUAL,
   NOT_EQUAL,
   LESS,
+  LESS_OR_EQUAL,
   ALWAYS,
 };
 
