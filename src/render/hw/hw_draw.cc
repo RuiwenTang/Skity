@@ -1,5 +1,8 @@
 #include "src/render/hw/hw_draw.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "src/logging.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
 #include "src/render/hw/hw_texture.hpp"
 
@@ -181,17 +184,21 @@ void HWDraw::DoStencilBufferMove() {
     }
   }
 
-  if (stencil_front_range_.count > 0) {
-    pipeline_->DrawIndex(stencil_front_range_.start,
-                         stencil_front_range_.count);
-  }
+  auto current_matrix = pipeline_->GetModelMatrix();
+  bool need_reset = current_matrix != glm::identity<glm::mat4>();
 
-  if (stencil_back_range_.count > 0) {
-    pipeline_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
+  if (need_reset) {
+    pipeline_->SetModelMatrix(glm::identity<glm::mat4>());
   }
 
   if (color_range_.count > 0) {
     pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  } else {
+    LOG_ERROR("Clip stencil movement error no color range is set");
+  }
+
+  if (need_reset) {
+    pipeline_->SetModelMatrix(current_matrix);
   }
 
   pipeline_->UpdateStencilMask(0x0F);

@@ -94,6 +94,8 @@ class HWCanvas : public Canvas {
   Matrix mvp_;
   uint32_t width_;
   uint32_t height_;
+  int32_t full_rect_start_ = -1;
+  int32_t full_rect_count_ = -1;
   float density_ = 2.f;
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;

@@ -178,10 +178,33 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
 
   raster.FlushRaster();
 
-  state_.SaveClipPath({raster.StencilFrontStart(), raster.StencilFrontCount()},
-                      {raster.StencilBackStart(), raster.StencilBackCount()},
-                      {raster.ColorStart(), raster.ColorCount()},
-                      state_.CurrentMatrix());
+  if (full_rect_start_ == -1) {
+    // For recursive clip path, need to do full scene check
+    // to make stencil buffer right
+    // this may cause some performance issues and need optimization
+    HWPathRaster tmp_raster{GetMesh(), working_paint};
+    tmp_raster.RasterRect(Rect::MakeXYWH(0, 0, width_, height_));
+
+    tmp_raster.FlushRaster();
+
+    full_rect_start_ = tmp_raster.ColorStart();
+    full_rect_count_ = tmp_raster.ColorCount();
+  }
+
+  if (raster.StencilFrontCount() == 0 && raster.StencilBackCount() == 0) {
+    // convex polygon save
+    state_.SaveClipPath(
+        {raster.ColorStart(), raster.ColorCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()},
+        {(uint32_t)full_rect_start_, (uint32_t)full_rect_count_},
+        state_.CurrentMatrix());
+  } else {
+    state_.SaveClipPath(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()},
+        {(uint32_t)full_rect_start_, (uint32_t)full_rect_count_},
+        state_.CurrentMatrix());
+  }
 
   auto draw = std::make_unique<HWDraw>(GetPipeline(),
                                        false,  // no need to handle clip mask
@@ -190,12 +213,14 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
   if (raster.StencilBackCount() == 0 && raster.StencilFrontCount() == 0) {
     // this is a convexity polygon
 
-    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+    draw->SetStencilRange({raster.ColorStart(), raster.ColorCount()}, {0, 0});
   } else {
     draw->SetStencilRange(
         {raster.StencilFrontStart(), raster.StencilFrontCount()},
         {raster.StencilBackStart(), raster.StencilBackCount()});
   }
+
+  draw->SetColorRange({(uint32_t)full_rect_start_, (uint32_t)full_rect_count_});
 
   draw->SetTransformMatrix(state_.CurrentMatrix());
 
@@ -504,6 +529,7 @@ void HWCanvas::onFlush() {
   draw_ops_.clear();
   mesh_->ResetMesh();
   global_alpha_.Reset();
+  full_rect_start_ = full_rect_count_ = -1;
 }
 
 HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {
