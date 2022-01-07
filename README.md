@@ -3,6 +3,11 @@
 `Skity` is an open-source 2D graphics library written in `c++` using [OpenGL](https://www.opengl.org) and [Vulkan (Experimental)](https://www.vulkan.org/) as backend.
 Its **API** follows the same pattern as [Skia](https://skia.org/) and implements the rendering by myself. <br/>
 
+![MacOS|build](https://github.com/RuiwenTang/Skity/actions/workflows/macos.yml/badge.svg)
+![Windows|build](https://github.com/RuiwenTang/Skity/actions/workflows/windows.yml/badge.svg)
+![Android|build](https://github.com/RuiwenTang/Skity/actions/workflows/android.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Example
 
 Working in progress nanovg demo code is [frame_example.cc](./example/frame_example.cc) <br/>
