@@ -60,6 +60,8 @@ class HWDraw {
   void DoColorFill();
   void DoStencilBufferMove();
 
+  void DoStencilBufferMoveInternal();
+
  private:
   HWPipeline* pipeline_;
   bool has_clip_;

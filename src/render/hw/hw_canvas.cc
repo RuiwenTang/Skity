@@ -178,6 +178,8 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
 
   raster.FlushRaster();
 
+  bool has_clip = state_.HasClip();
+
   if (full_rect_start_ == -1) {
     // For recursive clip path, need to do full scene check
     // to make stencil buffer right
@@ -207,7 +209,7 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
   }
 
   auto draw = std::make_unique<HWDraw>(GetPipeline(),
-                                       false,  // no need to handle clip mask
+                                       has_clip,  // no need to handle clip mask
                                        true);
 
   if (raster.StencilBackCount() == 0 && raster.StencilFrontCount() == 0) {

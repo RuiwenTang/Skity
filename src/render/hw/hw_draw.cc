@@ -171,18 +171,6 @@ void HWDraw::DoStencilBufferMove() {
   pipeline_->UpdateStencilMask(0xFF);
   pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
   pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
-  if (clear_stencil_clip_) {
-    // clear stencil clip value
-    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);
-  } else {
-    if (stencil_front_range_.count == 0 && stencil_back_range_.count == 0) {
-      // this is a convexity polygon clip and no stencil discard
-      pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x10, 0x0F);
-    } else {
-      // mark bit 9 if lower 8 bit is not zero
-      pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x10, 0x0F);
-    }
-  }
 
   auto current_matrix = pipeline_->GetModelMatrix();
   bool need_reset = current_matrix != glm::identity<glm::mat4>();
@@ -191,11 +179,7 @@ void HWDraw::DoStencilBufferMove() {
     pipeline_->SetModelMatrix(glm::identity<glm::mat4>());
   }
 
-  if (color_range_.count > 0) {
-    pipeline_->DrawIndex(color_range_.start, color_range_.count);
-  } else {
-    LOG_ERROR("Clip stencil movement error no color range is set");
-  }
+  DoStencilBufferMoveInternal();
 
   if (need_reset) {
     pipeline_->SetModelMatrix(current_matrix);
@@ -205,6 +189,37 @@ void HWDraw::DoStencilBufferMove() {
   pipeline_->UpdateStencilOp(HWStencilOp::KEEP);
   pipeline_->DisableStencilTest();
   pipeline_->EnableColorOutput();
+}
+
+void HWDraw::DoStencilBufferMoveInternal() {
+  if (color_range_.count == 0) {
+    return;
+  }
+
+  if (clear_stencil_clip_) {
+    // clear stencil clip value
+    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);
+    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  } else if (!has_clip_) {
+    // mark bit 9 if lower 8 bit is not zero
+    pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x10, 0x0F);
+
+    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  } else {
+    // recursive clip path
+
+    // step 1 clear all 0x10 value
+    pipeline_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
+    pipeline_->UpdateStencilMask(0xFF);
+    pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
+    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+
+    // step 2 replace all great than 0x10 to 0x10
+    pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
+    pipeline_->UpdateStencilMask(0x0F);
+    pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x00, 0x0F);
+    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  }
 }
 
 }  // namespace skity

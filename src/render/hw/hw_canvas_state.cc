@@ -68,10 +68,9 @@ void HWCanvasState::Concat(const Matrix &matrix) {
 }
 
 void HWCanvasState::SaveClipPath(HWDrawRange const &front_range,
-                             HWDrawRange const &back_range,
-                             HWDrawRange const &bound_range,
-                             Matrix const &matrix) {
-
+                                 HWDrawRange const &back_range,
+                                 HWDrawRange const &bound_range,
+                                 Matrix const &matrix) {
   ClipStackValue value{};
   value.stack_depth = matrix_state_.size();
   value.front_range = front_range;
@@ -79,7 +78,12 @@ void HWCanvasState::SaveClipPath(HWDrawRange const &front_range,
   value.bound_range = bound_range;
   value.stack_matrix = matrix;
 
-  clip_stack_.emplace_back(value);
+  if (clip_stack_.empty() ||
+      clip_stack_.back().stack_depth < value.stack_depth) {
+    clip_stack_.emplace_back(value);
+  } else {
+    clip_stack_.back() = value;
+  }
 }
 
 bool HWCanvasState::ClipStackEmpty() { return clip_stack_.empty(); }

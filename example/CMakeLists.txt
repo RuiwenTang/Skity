@@ -59,6 +59,9 @@ target_link_libraries(gl_frame_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(gl_svg_example gl_svg_example.cc svg_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(gl_svg_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+add_executable(gl_clip_example gl_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
+target_link_libraries(gl_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
 # vulkan examples
 if (VULKAN_BACKEND)
 
@@ -85,4 +88,7 @@ if (VULKAN_BACKEND)
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vulkan_hello_world skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
+
+  add_executable(vk_clip_example vk_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:vk_app>)
+  target_link_libraries(vk_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
 endif()

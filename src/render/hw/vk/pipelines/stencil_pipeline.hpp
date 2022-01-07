@@ -62,12 +62,35 @@ class StencilClipBackPipeline : public StencilPipeline {
       override;
 };
 
+class StencilRecursiveClipBackPipeline : public StencilPipeline {
+ public:
+  StencilRecursiveClipBackPipeline(size_t push_const_size)
+      : StencilPipeline(push_const_size) {}
+
+  ~StencilRecursiveClipBackPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
 // Used for move stencil buffer for clip
 class StencilClipPipeline : public StencilPipeline {
  public:
   StencilClipPipeline(size_t push_const_size)
       : StencilPipeline(push_const_size) {}
   ~StencilClipPipeline() override = default;
+
+ protected:
+  VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
+      override;
+};
+
+class StencilRecursiveClipPipeline : public StencilPipeline {
+ public:
+  StencilRecursiveClipPipeline(size_t push_const_size)
+      : StencilPipeline(push_const_size) {}
+  ~StencilRecursiveClipPipeline() override = default;
 
  protected:
   VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()

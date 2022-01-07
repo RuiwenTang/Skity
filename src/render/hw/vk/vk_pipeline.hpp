@@ -159,7 +159,9 @@ class SKVkPipelineImpl : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_clip_front_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_clip_back_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_back_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
 
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
