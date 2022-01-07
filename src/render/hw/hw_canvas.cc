@@ -208,9 +208,7 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
         state_.CurrentMatrix());
   }
 
-  auto draw = std::make_unique<HWDraw>(GetPipeline(),
-                                       has_clip,  // no need to handle clip mask
-                                       true);
+  auto draw = std::make_unique<HWDraw>(GetPipeline(), has_clip, true);
 
   if (raster.StencilBackCount() == 0 && raster.StencilFrontCount() == 0) {
     // this is a convexity polygon
