@@ -6,7 +6,8 @@ if (WIN32)
   set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
 endif()
 
-include(FindPNG)
+# include(FindPNG)
+find_package(PNG 1.6.0)
 
 if (WIN32)
   include(FindJPEG)
