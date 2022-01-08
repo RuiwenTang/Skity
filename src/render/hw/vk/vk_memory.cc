@@ -153,7 +153,7 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
 
 void VKMemoryAllocatorImpl::InitVMA(GPUVkContext* ctx) {
   VmaAllocatorCreateInfo create_info{};
-  create_info.vulkanApiVersion = VK_API_VERSION_1_2;
+  create_info.vulkanApiVersion = VK_API_VERSION_1_0;
   create_info.physicalDevice = ctx->GetPhysicalDevice();
   create_info.device = ctx->GetDevice();
   create_info.instance = ctx->GetInstance();
