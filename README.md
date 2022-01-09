@@ -108,10 +108,10 @@ make
 
 ## TODO
 
-- [x] Vulkan backend support (working in progress)
+- [x] Vulkan backend support (Experimental done)
 
-- [] CPU backend support (planning)
+- [ ] CPU backend support (planning)
 
-- [] Support [lottie](https://airbnb.design/lottie/) anmiation.
+- [ ] Support [lottie](https://airbnb.design/lottie/) anmiation.
 
-- [] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
+- [ ] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
