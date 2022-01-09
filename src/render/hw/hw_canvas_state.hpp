@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_HW_HW_CANVAS_STATE_HPP
 #define SKITY_SRC_RENDER_HW_HW_CANVAS_STATE_HPP
 
+#include <functional>
 #include <skity/graphic/path.hpp>
 #include <vector>
 
@@ -37,10 +38,10 @@ class HWCanvasState {
 
   bool NeedRevertClipStencil();
 
-  bool NeedDoForwardClip() { return forward_clip_; }
-  void ClearForawardClipFlag() { forward_clip_ = false; }
-
   ClipStackValue CurrentClipStackValue();
+
+  void ForEachClipStackValue(
+      std::function<void(ClipStackValue const&, size_t)> const& func);
 
   Matrix CurrentMatrix();
 
@@ -58,7 +59,6 @@ class HWCanvasState {
   std::vector<Matrix> matrix_state_ = {};
   std::vector<ClipStackValue> clip_stack_ = {};
   bool matrix_dirty_ = true;
-  bool forward_clip_ = false;
 };
 
 }  // namespace skity

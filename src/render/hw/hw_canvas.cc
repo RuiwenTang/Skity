@@ -482,22 +482,17 @@ void HWCanvas::onRestore() {
   // step 2 restore state
   state_.Restore();
   // step 3 check if there is clip path need to apply
-  if (state_.NeedDoForwardClip()) {
-    auto clip_value = state_.CurrentClipStackValue();
-    auto draw = std::make_unique<HWDraw>(GetPipeline(),
-                                         false,  // no need to handle clip mask
-                                         true);
+  state_.ForEachClipStackValue(
+      [this](HWCanvasState::ClipStackValue const& clip_value, size_t i) {
+        bool has_clip = i != 0;
+        auto draw = std::make_unique<HWDraw>(GetPipeline(), has_clip, true);
 
-    draw->SetTransformMatrix(clip_value.stack_matrix);
-    if (clip_value.front_range.count == 0 && clip_value.back_range.count == 0) {
-      draw->SetColorRange(clip_value.bound_range);
-    } else {
-      draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
-    }
+        draw->SetTransformMatrix(clip_value.stack_matrix);
+        draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
+        draw->SetColorRange(clip_value.bound_range);
 
-    draw_ops_.emplace_back(std::move(draw));
-    state_.ClearForawardClipFlag();
-  }
+        draw_ops_.emplace_back(std::move(draw));
+      });
 }
 
 void HWCanvas::onTranslate(float dx, float dy) { state_.Translate(dx, dy); }

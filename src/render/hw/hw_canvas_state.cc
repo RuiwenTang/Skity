@@ -101,6 +101,13 @@ HWCanvasState::ClipStackValue HWCanvasState::CurrentClipStackValue() {
   }
 }
 
+void HWCanvasState::ForEachClipStackValue(
+    std::function<void(ClipStackValue const &, size_t)> const &func) {
+  for (size_t i = 0; i < clip_stack_.size(); i++) {
+    func(clip_stack_[i], i);
+  }
+}
+
 Matrix HWCanvasState::CurrentMatrix() { return matrix_state_.back(); }
 
 bool HWCanvasState::HasClip() { return !clip_stack_.empty(); }

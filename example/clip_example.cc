@@ -25,6 +25,8 @@ void draw_clip_demo(skity::Canvas* canvas) {
 
   canvas->clipRect(rect1);
 
+  canvas->save();
+
   canvas->drawLine(100, 170, 400, 200, stroke_paint);
 
   canvas->rotate(degree, 170.f, 170.f);
@@ -38,6 +40,10 @@ void draw_clip_demo(skity::Canvas* canvas) {
   canvas->rotate(-degree, 170.f, 170.f);
 
   canvas->drawLine(100, 180, 400, 230, stroke_paint);
+
+  canvas->restore();
+
+  canvas->drawLine(80, 250, 400, 330, stroke_paint);
 
   canvas->restore();
 }
