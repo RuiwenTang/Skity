@@ -26,8 +26,6 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/geometry/rect.cc
         ${CMAKE_CURRENT_LIST_DIR}/geometry/rrect.cc
         ${CMAKE_CURRENT_LIST_DIR}/graphic/color.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/color_parser.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/color_parser.hpp
         ${CMAKE_CURRENT_LIST_DIR}/graphic/paint.cc
         ${CMAKE_CURRENT_LIST_DIR}/graphic/path.cc
         ${CMAKE_CURRENT_LIST_DIR}/graphic/path_measure.cc

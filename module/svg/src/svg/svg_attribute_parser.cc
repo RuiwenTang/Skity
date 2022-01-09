@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/graphic/path.hpp>
 
-#include "src/graphic/color_parser.hpp"
+#include "src/svg/svg_color_parser.hpp"
 
 namespace skity {
 
@@ -185,7 +185,7 @@ static const char *find_color(const char *str, Color *color) {
       return nullptr;
     }
   } else {
-    return ColorParser::FindNamedColor(str, std::strlen(str), color);
+    return SVGColorParser::FindNamedColor(str, std::strlen(str), color);
   }
 }
 
@@ -300,7 +300,7 @@ bool SVGAttributeParser::ParseLengthUnitToken(SVGLength::Unit *value) {
 
 bool SVGAttributeParser::ParseNamedColorToken(Color *c) {
   if (const char *next =
-          ColorParser::FindNamedColor(cur_pos, std::strlen(cur_pos), c)) {
+          SVGColorParser::FindNamedColor(cur_pos, std::strlen(cur_pos), c)) {
     cur_pos = next;
     return true;
   }
