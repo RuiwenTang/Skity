@@ -1,5 +1,5 @@
 
-#include "color_parser.hpp"
+#include "src/svg/svg_color_parser.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -294,8 +294,8 @@ static constexpr struct ColorRec {
     {0x9a, 0xcd, 0x32},  // yellowgreen
 };
 
-const char *ColorParser::FindNamedColor(const char *str, size_t len,
-                                        Color *color) {
+const char *SVGColorParser::FindNamedColor(const char *str, size_t len,
+                                           Color *color) {
   const auto rec =
       std::lower_bound(std::begin(gColorNames), std::end(gColorNames), str,
                        [](const char *name, const char *key) {
@@ -313,7 +313,5 @@ const char *ColorParser::FindNamedColor(const char *str, size_t len,
 
   return str + std::strlen(*rec);
 }
-
-
 
 }  // namespace skity

@@ -19,6 +19,8 @@ target_sources(skity-svg
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_attribute.hpp
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_attribute_parser.cc
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_attribute_parser.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_color_parser.cc
+        ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_color_parser.hpp
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_container.cc
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_container.hpp
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_dom.cc
