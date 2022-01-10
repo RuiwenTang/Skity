@@ -6,6 +6,7 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 ![MacOS|build](https://github.com/RuiwenTang/Skity/actions/workflows/macos.yml/badge.svg)
 ![Windows|build](https://github.com/RuiwenTang/Skity/actions/workflows/windows.yml/badge.svg)
 ![Android|build](https://github.com/RuiwenTang/Skity/actions/workflows/android.yml/badge.svg)
+[![CodeFactor](https://www.codefactor.io/repository/github/ruiwentang/skity/badge)](https://www.codefactor.io/repository/github/ruiwentang/skity)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Example
