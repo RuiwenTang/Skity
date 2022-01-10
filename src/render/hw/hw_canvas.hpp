@@ -59,6 +59,8 @@ class HWCanvas : public Canvas {
 
   void onRestore() override;
 
+  void onRestoreToCount(int saveCount) override;
+
   void onTranslate(float dx, float dy) override;
 
   void onScale(float sx, float sy) override;
@@ -89,6 +91,9 @@ class HWCanvas : public Canvas {
   HWPipeline* GetPipeline() { return pipeline_.get(); }
   HWTexture* QueryTexture(Pixmap* pixmap);
   HWFontTexture* QueryFontTexture(Typeface* typeface);
+
+  void ClearClipMask();
+  void ForwardFillClipMask();
 
  private:
   Matrix mvp_;

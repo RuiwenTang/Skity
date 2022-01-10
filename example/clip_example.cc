@@ -25,7 +25,7 @@ void draw_clip_demo(skity::Canvas* canvas) {
 
   canvas->clipRect(rect1);
 
-  canvas->save();
+  int save_count = canvas->save();
 
   canvas->drawLine(100, 170, 400, 200, stroke_paint);
 
@@ -41,7 +41,7 @@ void draw_clip_demo(skity::Canvas* canvas) {
 
   canvas->drawLine(100, 180, 400, 230, stroke_paint);
 
-  canvas->restore();
+  canvas->restoreToCount(save_count);
 
   canvas->drawLine(80, 250, 400, 330, stroke_paint);
 

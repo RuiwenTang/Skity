@@ -1,5 +1,6 @@
 #include "src/render/hw/hw_canvas_state.hpp"
 
+#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace skity {
@@ -12,12 +13,22 @@ HWCanvasState::HWCanvasState() {
 void HWCanvasState::Save() { PushMatrixStack(); }
 
 void HWCanvasState::Restore() {
-  Matrix prev_matrix = CurrentMatrix();
   PopMatrixStack();
   PopClipStack();
 
   // matrix_dirty_ = CurrentMatrix() != prev_matrix;
   matrix_dirty_ = true;
+}
+
+void HWCanvasState::RestoreToCount(int save_count) {
+  matrix_state_.erase(matrix_state_.begin() + save_count, matrix_state_.end());
+
+  auto pend = std::remove_if(clip_stack_.begin(), clip_stack_.end(),
+                             [save_count](ClipStackValue const &value) {
+                               return value.stack_depth > save_count;
+                             });
+
+  clip_stack_.erase(pend, clip_stack_.end());
 }
 
 void HWCanvasState::Translate(float dx, float dy) {

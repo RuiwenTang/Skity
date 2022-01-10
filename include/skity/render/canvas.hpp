@@ -248,6 +248,7 @@ class SK_API Canvas {
                             Typeface* typeface, Paint const& paint) = 0;
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
+  virtual void onRestoreToCount(int saveCount) = 0;
   virtual void onTranslate(float dx, float dy) = 0;
   virtual void onScale(float sx, float sy) = 0;
   virtual void onRotate(float degree) = 0;

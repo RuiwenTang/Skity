@@ -28,11 +28,8 @@ void Canvas::restoreToCount(int saveCount) {
     return;
   }
 
-  for (int32_t i = save_count_; i > saveCount; i--) {
-    this->restore();
-  }
-
-  assert(save_count_ == saveCount);
+  save_count_ = saveCount;
+  this->onRestoreToCount(saveCount);
 }
 
 void Canvas::translate(float dx, float dy) { onTranslate(dx, dy); }

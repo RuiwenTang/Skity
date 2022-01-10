@@ -24,6 +24,7 @@ class HWCanvasState {
 
   void Save();
   void Restore();
+  void RestoreToCount(int save_count);
   void Translate(float dx, float dy);
   void Scale(float dx, float dy);
   void Rotate(float degree);

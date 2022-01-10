@@ -463,36 +463,19 @@ void HWCanvas::onSave() { state_.Save(); }
 
 void HWCanvas::onRestore() {
   // step 1 check if there is clip path need clean
-  if (state_.NeedRevertClipStencil()) {
-    auto clip_info = state_.CurrentClipStackValue();
-    auto draw = std::make_unique<HWDraw>(GetPipeline(),
-                                         false,  // no need to handle clip mask
-                                         true);
-    draw->SetClearStencilClip(true);
-    draw->SetTransformMatrix(clip_info.stack_matrix);
-
-    if (clip_info.bound_range.count > 0) {
-      draw->SetColorRange(clip_info.bound_range);
-    } else {
-      draw->SetStencilRange(clip_info.front_range, clip_info.back_range);
-    }
-
-    draw_ops_.emplace_back(std::move(draw));
-  }
+  ClearClipMask();
   // step 2 restore state
   state_.Restore();
   // step 3 check if there is clip path need to apply
-  state_.ForEachClipStackValue(
-      [this](HWCanvasState::ClipStackValue const& clip_value, size_t i) {
-        bool has_clip = i != 0;
-        auto draw = std::make_unique<HWDraw>(GetPipeline(), has_clip, true);
+  ForwardFillClipMask();
+}
 
-        draw->SetTransformMatrix(clip_value.stack_matrix);
-        draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
-        draw->SetColorRange(clip_value.bound_range);
+void HWCanvas::onRestoreToCount(int saveCount) {
+  ClearClipMask();
 
-        draw_ops_.emplace_back(std::move(draw));
-      });
+  state_.RestoreToCount(saveCount + 1);
+  // step 3 check if there is clip path need to apply
+  ForwardFillClipMask();
 }
 
 void HWCanvas::onTranslate(float dx, float dy) { state_.Translate(dx, dy); }
@@ -566,6 +549,41 @@ HWFontTexture* HWCanvas::QueryFontTexture(Typeface* typeface) {
   font_texture_store_[typeface] = std::move(texture);
 
   return font_texture_store_[typeface].get();
+}
+
+void HWCanvas::ClearClipMask() {
+  if (!state_.NeedRevertClipStencil()) {
+    return;
+  }
+
+  auto clip_info = state_.CurrentClipStackValue();
+  auto draw = std::make_unique<HWDraw>(GetPipeline(),
+                                       false,  // no need to handle clip mask
+                                       true);
+  draw->SetClearStencilClip(true);
+  draw->SetTransformMatrix(clip_info.stack_matrix);
+
+  if (clip_info.bound_range.count > 0) {
+    draw->SetColorRange(clip_info.bound_range);
+  } else {
+    draw->SetStencilRange(clip_info.front_range, clip_info.back_range);
+  }
+
+  draw_ops_.emplace_back(std::move(draw));
+}
+
+void HWCanvas::ForwardFillClipMask() {
+  state_.ForEachClipStackValue(
+      [this](HWCanvasState::ClipStackValue const& clip_value, size_t i) {
+        bool has_clip = i != 0;
+        auto draw = std::make_unique<HWDraw>(GetPipeline(), has_clip, true);
+
+        draw->SetTransformMatrix(clip_value.stack_matrix);
+        draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
+        draw->SetColorRange(clip_value.bound_range);
+
+        draw_ops_.emplace_back(std::move(draw));
+      });
 }
 
 }  // namespace skity
