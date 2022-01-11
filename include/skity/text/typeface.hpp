@@ -5,31 +5,11 @@
 #include <memory>
 #include <skity/graphic/path.hpp>
 #include <skity/macros.hpp>
+#include <skity/text/text_run.hpp>
 
 namespace skity {
 
 class Data;
-
-using GlyphID = uint32_t;
-
-struct SK_API GlyphInfo {
-  GlyphID id;
-  Path path;
-  float advance_x;
-  float advance_y;
-  float ascent;
-  float descent;
-  float width;
-  float height;
-  float font_size;
-  float bearing_x;
-};
-
-struct SK_API GlyphBitmapInfo {
-  float width = {};
-  float height = {};
-  uint8_t* buffer = {};
-};
 
 /**
  * @class Typeface
@@ -67,6 +47,8 @@ class SK_API Typeface {
                          bool load_path = false);
 
   GlyphBitmapInfo getGlyphBitmapInfo(GlyphID glyph_id, float font_size);
+
+  bool containGlyph(GlyphID glyph_id);
 
  private:
   class Impl;

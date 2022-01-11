@@ -38,6 +38,8 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/text/text_blob.cc
+        ${CMAKE_CURRENT_LIST_DIR}/text/text_run.cc
         ${CMAKE_CURRENT_LIST_DIR}/text/typeface.cc
         ${CMAKE_CURRENT_LIST_DIR}/text/utf.cc
         ${CMAKE_CURRENT_LIST_DIR}/utils/lazy.hpp

@@ -23,6 +23,8 @@
 // render
 #include <skity/render/canvas.hpp>
 // text
+#include <skity/text/text_blob.hpp>
+#include <skity/text/text_run.hpp>
 #include <skity/text/typeface.hpp>
 #include <skity/text/utf.hpp>
 

@@ -55,6 +55,8 @@ class FTTypeFace final {
   FTGlyphInfo LoadGlyph(GlyphID glyph_id, float font_size, bool load_path);
   FTGlyphBitmapInfo LoadGlyphBitmap(GlyphID glyph_id, float font_size);
 
+  bool containGlyph(GlyphID glyph_id);
+
  private:
   void FilpOutline();
   Path ExtractOutLine();
