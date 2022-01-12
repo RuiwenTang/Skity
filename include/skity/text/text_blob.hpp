@@ -21,6 +21,8 @@ class SK_API TextBlob final {
 
   std::vector<TextRun> const& getTextRun() const { return text_run_; }
 
+  Vec2 getBoundSize() const;
+
  private:
   std::vector<TextRun> text_run_ = {};
 };

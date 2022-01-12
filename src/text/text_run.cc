@@ -11,6 +11,10 @@ TextRun::TextRun(std::shared_ptr<Typeface> const& typeface,
 
 TextRun::~TextRun() = default;
 
+std::vector<GlyphInfo> const& TextRun::getGlyphInfo() const {
+  return glyph_info_;
+}
+
 GlyphBitmapInfo TextRun::queryBitmapInfo(GlyphID glyph_id) {
   auto typeface = LockTypeface();
 

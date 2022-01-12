@@ -1,8 +1,24 @@
+#include <cmath>
 #include <skity/text/text_blob.hpp>
 #include <skity/text/text_run.hpp>
 #include <skity/text/typeface.hpp>
 
 namespace skity {
+
+Vec2 TextBlob::getBoundSize() const {
+  float height = 0.f;
+  float width = 0.f;
+
+  for (auto const &run : text_run_) {
+    auto const &glyphs = run.getGlyphInfo();
+    for (auto const &glyph : glyphs) {
+      height = std::max(glyph.ascent - glyph.descent, height);
+      width += glyph.advance_x;
+    }
+  }
+
+  return Vec2{width, height};
+}
 
 class SimpleDelegate : public TypefaceDelegate {
  public:
@@ -23,11 +39,7 @@ class SimpleDelegate : public TypefaceDelegate {
   }
 
   std::vector<std::vector<GlyphID>> breakTextRun(const char *text) override {
-    std::vector<GlyphID> glyph_ids = {};
-
-    typefaces_[0]->textToGlyphId(text, glyph_ids);
-
-    return {glyph_ids};
+    return {};
   }
 
  private:
@@ -120,36 +132,36 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
 
   std::vector<GlyphInfo> infos = {};
   for (auto glyph_id : glyphs) {
-    auto info = current_typeface->getGlyphInfo(glyph_id, font_size, true);
-    if (info.id == 0) {
-      // need to create a new TextRun
-      runs.emplace_back(TextRun(current_typeface, std::move(infos), font_size));
-
-      // check if prev_typeface contains this glyph
-      if (prev_typeface != current_typeface) {
-        info = prev_typeface->getGlyphInfo(glyph_id, font_size, true);
-      }
-
-      // fallback to base typeface
-      if (info.id != 0) {
-        infos.emplace_back(info);
-        current_typeface = prev_typeface;
-        continue;
-      }
-
-      auto fallback_typeface = delegate->fallback(glyph_id, paint);
-      if (!fallback_typeface) {
-        // failed fallback
-        continue;
-      }
-
-      prev_typeface = current_typeface;
-      current_typeface = fallback_typeface;
-
-      info = current_typeface->getGlyphInfo(glyph_id, font_size, true);
+    if (current_typeface->containGlyph(glyph_id)) {
+      infos.emplace_back(
+          current_typeface->getGlyphInfo(glyph_id, font_size, true));
+      continue;
     }
 
-    infos.emplace_back(info);
+    // need to create a new TextRun
+    runs.emplace_back(TextRun(current_typeface, std::move(infos), font_size));
+
+    // check if prev_typeface contains this glyph
+    if (prev_typeface != current_typeface &&
+        prev_typeface->containGlyph(glyph_id)) {
+      infos.emplace_back(
+          prev_typeface->getGlyphInfo(glyph_id, font_size, true));
+      current_typeface = prev_typeface;
+      continue;
+    }
+
+    // fallback to base typeface
+
+    auto fallback_typeface = delegate->fallback(glyph_id, paint);
+    if (!fallback_typeface) {
+      // failed fallback
+      continue;
+    }
+
+    prev_typeface = current_typeface;
+    current_typeface = fallback_typeface;
+    infos.emplace_back(
+        current_typeface->getGlyphInfo(glyph_id, font_size, true));
   }
 
   if (!infos.empty()) {
