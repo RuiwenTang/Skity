@@ -16,7 +16,7 @@ std::vector<GlyphInfo> const& TextRun::getGlyphInfo() const {
 }
 
 GlyphBitmapInfo TextRun::queryBitmapInfo(GlyphID glyph_id) {
-  auto typeface = LockTypeface();
+  auto typeface = lockTypeface();
 
   if (!typeface) {
     return {};

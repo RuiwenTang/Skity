@@ -492,7 +492,7 @@ HWFontTexture* HWCanvas::QueryFontTexture(Typeface* typeface) {
 
 float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
                             Paint const& paint) {
-  auto typeface = run.LockTypeface();
+  auto typeface = run.lockTypeface();
 
   if (typeface == nullptr) {
     return 0.f;
@@ -544,7 +544,7 @@ float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
 
 float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
                               Paint const& paint) {
-  auto typeface = run.LockTypeface();
+  auto typeface = run.lockTypeface();
 
   if (typeface == nullptr) {
     return 0.f;

@@ -47,7 +47,7 @@ class SK_API TextRun final {
 
   GlyphBitmapInfo queryBitmapInfo(GlyphID glyph_id);
 
-  std::shared_ptr<Typeface> LockTypeface() const { return typeface_.lock(); }
+  std::shared_ptr<Typeface> lockTypeface() const { return typeface_.lock(); }
 
  private:
   std::weak_ptr<Typeface> typeface_ = {};
