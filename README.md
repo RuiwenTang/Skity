@@ -1,4 +1,4 @@
-# OpenGL Vector Graphics
+# Skity
 
 `Skity` is an open-source 2D graphics library written in `c++` using [OpenGL](https://www.opengl.org) and [Vulkan (Experimental)](https://www.vulkan.org/) as backend.
 Its **API** follows the same pattern as [Skia](https://skia.org/) and implements the rendering by myself. <br/>
