@@ -561,6 +561,11 @@ float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
     Path path = info.path.copyWithMatrix(transform);
 
     if (path.isEmpty()) {
+      // Solve reused TextBlob without path info
+      path = typeface->getGlyphInfo(info.id, paint.getTextSize(), true).path;
+    }
+
+    if (path.isEmpty()) {
       continue;
     }
 
