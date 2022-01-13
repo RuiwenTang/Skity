@@ -14,7 +14,8 @@
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    std::shared_ptr<skity::Typeface> const& typeface,
+    std::shared_ptr<skity::Typeface> const& emoji, float mx, float my,
     float width, float height, float t);
 
 void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
@@ -74,18 +75,20 @@ void draw_thumbnails(skity::Canvas* canvas,
 void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t);
 
 void draw_paragraph(skity::Canvas* canvas,
-                    std::shared_ptr<skity::Typeface> const& typeface, float x,
+                    std::shared_ptr<skity::Typeface> const& typeface,
+                    std::shared_ptr<skity::Typeface> const& emoji, float x,
                     float y, float width, float height);
 
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    std::shared_ptr<skity::Typeface> const& typeface,
+    std::shared_ptr<skity::Typeface> const& emoji, float mx, float my,
     float width, float height, float t) {
   float x, y, popy;
 
   draw_eyes(canvas, width - 250, 50, 150, 100, mx, my, t);
-  draw_paragraph(canvas, typeface, width - 450, 180, 150, 100);
+  draw_paragraph(canvas, typeface, emoji, width - 450, 180, 150, 100);
   draw_graph(canvas, 0, height / 2.f, width, height / 2.f, t);
   // this make some performance issue
   draw_color_wheel(canvas, width - 300, height - 300, 250.f, 250.f, t);
@@ -1198,12 +1201,18 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
 }
 
 void draw_paragraph(skity::Canvas* canvas,
-                    std::shared_ptr<skity::Typeface> const& typeface, float x,
+                    std::shared_ptr<skity::Typeface> const& typeface,
+                    std::shared_ptr<skity::Typeface> const& emoji, float x,
                     float y, float width, float height) {
   skity::Paint paint;
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setTextSize(15.f);
   paint.setTypeface(typeface);
+
+  auto delegate =
+      skity::TypefaceDelegate::CreateSimpleFallbackDelegate({emoji});
+
+  skity::TextBlobBuilder builder;
 
   const char* text1 = "This is longer chunk of text.";
   const char* text2 = "Would have used lorem ipsum.";
@@ -1212,29 +1221,36 @@ void draw_paragraph(skity::Canvas* canvas,
   const char* text5 = "and all the men who came to";
   const char* text6 = "the aid of the party.🎉";
 
-  skity::Vec2 text1_bounds = canvas->simpleTextBounds(text1, paint);
-  skity::Vec2 text2_bounds = canvas->simpleTextBounds(text2, paint);
-  skity::Vec2 text3_bounds = canvas->simpleTextBounds(text3, paint);
-  skity::Vec2 text4_bounds = canvas->simpleTextBounds(text4, paint);
-  skity::Vec2 text5_bounds = canvas->simpleTextBounds(text5, paint);
-  skity::Vec2 text6_bounds = canvas->simpleTextBounds(text6, paint);
+  auto blob1 = builder.buildTextBlob(text1, paint, delegate.get());
+  auto blob2 = builder.buildTextBlob(text2, paint, delegate.get());
+  auto blob3 = builder.buildTextBlob(text3, paint, delegate.get());
+  auto blob4 = builder.buildTextBlob(text4, paint, delegate.get());
+  auto blob5 = builder.buildTextBlob(text5, paint, delegate.get());
+  auto blob6 = builder.buildTextBlob(text6, paint, delegate.get());
+
+  skity::Vec2 text1_bounds = blob1->getBoundSize();
+  skity::Vec2 text2_bounds = blob2->getBoundSize();
+  skity::Vec2 text3_bounds = blob3->getBoundSize();
+  skity::Vec2 text4_bounds = blob4->getBoundSize();
+  skity::Vec2 text5_bounds = blob5->getBoundSize();
+  skity::Vec2 text6_bounds = blob6->getBoundSize();
 
   float y_offset = y;
   // line 1
-  canvas->drawSimpleText2(text1, x, y_offset, paint);
+  canvas->drawTextBlob(blob1.get(), x, y_offset, paint);
   // line 2
   y_offset += text1_bounds.y;
-  canvas->drawSimpleText2(text2, x, y_offset, paint);
+  canvas->drawTextBlob(blob2.get(), x, y_offset, paint);
   // line 3
   y_offset += text2_bounds.y;
-  canvas->drawSimpleText2(text3, x, y_offset, paint);
+  canvas->drawTextBlob(blob3.get(), x, y_offset, paint);
   // line 4
   y_offset += text3_bounds.y;
-  canvas->drawSimpleText2(text4, x, y_offset, paint);
+  canvas->drawTextBlob(blob4.get(), x, y_offset, paint);
   // line 5
   y_offset += text4_bounds.y;
-  canvas->drawSimpleText2(text5, x, y_offset, paint);
+  canvas->drawTextBlob(blob5.get(), x, y_offset, paint);
   // line 6
   y_offset += text5_bounds.y;
-  canvas->drawSimpleText2(text6, x, y_offset, paint);
+  canvas->drawTextBlob(blob6.get(), x, y_offset, paint);
 }

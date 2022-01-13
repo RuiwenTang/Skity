@@ -27,7 +27,7 @@ class SK_API TextBlob final {
   std::vector<TextRun> text_run_ = {};
 };
 
-class TypefaceDelegate {
+class SK_API TypefaceDelegate {
  public:
   virtual ~TypefaceDelegate() = default;
 
@@ -66,7 +66,7 @@ class SK_API TextBlobBuilder final {
 
   TextRun GenerateTextRun(std::vector<GlyphID> const& glyphs,
                           std::shared_ptr<Typeface> const& typeface,
-                          float font_size);
+                          float font_size, bool need_path);
 };
 
 }  // namespace skity

@@ -101,7 +101,8 @@ std::shared_ptr<TextBlob> TextBlobBuilder::GenerateBlobWithoutDelegate(
 
   std::vector<TextRun> runs = {};
 
-  runs.emplace_back(GenerateTextRun(glyph_id, typeface, paint.getTextSize()));
+  runs.emplace_back(GenerateTextRun(glyph_id, typeface, paint.getTextSize(),
+                                    paint.getStyle() != Paint::kFill_Style));
 
   return std::make_shared<TextBlob>(runs);
 }
@@ -130,11 +131,13 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
   auto prev_typeface = typeface;
   auto current_typeface = typeface;
 
+  bool need_path = paint.getStyle() != Paint::kFill_Style;
+
   std::vector<GlyphInfo> infos = {};
   for (auto glyph_id : glyphs) {
     if (current_typeface->containGlyph(glyph_id)) {
       infos.emplace_back(
-          current_typeface->getGlyphInfo(glyph_id, font_size, true));
+          current_typeface->getGlyphInfo(glyph_id, font_size, need_path));
       continue;
     }
 
@@ -145,7 +148,7 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
     if (prev_typeface != current_typeface &&
         prev_typeface->containGlyph(glyph_id)) {
       infos.emplace_back(
-          prev_typeface->getGlyphInfo(glyph_id, font_size, true));
+          prev_typeface->getGlyphInfo(glyph_id, font_size, need_path));
       current_typeface = prev_typeface;
       continue;
     }
@@ -161,7 +164,7 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
     prev_typeface = current_typeface;
     current_typeface = fallback_typeface;
     infos.emplace_back(
-        current_typeface->getGlyphInfo(glyph_id, font_size, true));
+        current_typeface->getGlyphInfo(glyph_id, font_size, need_path));
   }
 
   if (!infos.empty()) {
@@ -173,12 +176,13 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
 
 TextRun TextBlobBuilder::GenerateTextRun(
     std::vector<GlyphID> const &glyphs,
-    std::shared_ptr<Typeface> const &typeface, float font_size) {
+    std::shared_ptr<Typeface> const &typeface, float font_size,
+    bool need_path) {
   std::vector<GlyphInfo> infos = {};
 
   for (GlyphID id : glyphs) {
     // TODO maybe check if need glyph path
-    GlyphInfo info = typeface->getGlyphInfo(id, font_size, true);
+    GlyphInfo info = typeface->getGlyphInfo(id, font_size, need_path);
     if (info.id == 0) {
       continue;
     }

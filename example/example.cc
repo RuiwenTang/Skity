@@ -144,12 +144,17 @@ void draw_simple_text(skity::Canvas* canvas) {
   paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
   paint.setStyle(skity::Paint::kFill_Style);
 
-  canvas->drawSimpleText2("Skity", 20.f, 64.f, paint);
+  skity::TextBlobBuilder builder;
+  paint.setTypeface(canvas->getDefaultTypeface());
+  auto blob = builder.buildTextBlob("Skity", paint);
+
+  canvas->drawTextBlob(blob.get(), 20.f, 64.f, paint);
 
   paint.setStyle(skity::Paint::kStroke_Style);
   paint.SetStrokeColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
   paint.setStrokeWidth(2.f);
-  canvas->drawSimpleText2("Skity", 20.f, 144.f, paint);
+
+  canvas->drawTextBlob(blob.get(), 20.f, 144.f, paint);
 
   paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
   paint.setStyle(skity::Paint::kFill_Style);
@@ -169,7 +174,8 @@ void draw_simple_text(skity::Canvas* canvas) {
 
   auto lgs = skity::Shader::MakeLinear(pts.data(), colors, nullptr, 3);
   paint.setShader(lgs);
-  canvas->drawSimpleText2("Skity", 20.f, 224.f, paint);
+
+  canvas->drawTextBlob(blob.get(), 20.f, 224.f, paint);
   canvas->restore();
 }
 

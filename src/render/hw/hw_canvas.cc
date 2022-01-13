@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/codec/pixmap.hpp>
 #include <skity/effect/path_effect.hpp>
+#include <skity/text/text_blob.hpp>
+#include <skity/text/text_run.hpp>
 
 #include "src/geometry/math.hpp"
 #include "src/render/hw/hw_mesh.hpp"
@@ -370,91 +372,28 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
   }
 }
 
-void HWCanvas::onDrawGlyphs(const std::vector<GlyphInfo>& glyphs,
-                            Typeface* typeface, const Paint& paint) {
+void HWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
+                          Paint const& paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
 
-  float offset_x = 0.f;
-  float max_height = 0.f;
   if (need_fill) {
     Paint working_paint{paint};
     working_paint.setStyle(Paint::kFill_Style);
 
-    auto font_texture = QueryFontTexture(typeface);
-    HWPathRaster raster{GetMesh(), working_paint};
-
-    for (auto const& info : glyphs) {
-      auto region =
-          font_texture->GetGlyphRegion(info.id, info.font_size * density_);
-      float x = offset_x + info.bearing_x;
-      float y = -info.ascent;
-      float w = region.z / density_;
-      float h = region.w / density_;
-
-      max_height = std::max(h, max_height);
-
-      offset_x += info.advance_x;
-
-      if (h == 0) {
-        continue;
-      }
-
-      glm::vec4 bounds = {x, y, x + w, y + h};
-      glm::vec2 uv_lt = font_texture->CalculateUV(region.x, region.y);
-      glm::vec2 uv_rb =
-          font_texture->CalculateUV(region.x + region.z, region.y + region.w);
-
-      raster.FillTextRect(bounds, uv_lt, uv_rb);
+    float offset_x = 0.f;
+    for (auto const& run : blob->getTextRun()) {
+      offset_x += FillTextRun(x + offset_x, y, run, working_paint);
     }
-
-    raster.FlushRaster();
-
-    auto draw =
-        GenerateColorOp(working_paint, false,
-                        skity::Rect::MakeXYWH(0.f, 0.f, offset_x, max_height));
-
-    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
-    draw->SetFontTexture(font_texture->GetHWTexture());
-
-    draw_ops_.emplace_back(std::move(draw));
   }
-
-  offset_x = 0.f;
-  max_height = 0.f;
 
   if (need_stroke) {
     Paint working_paint{paint};
     working_paint.setStyle(Paint::kStroke_Style);
 
-    for (auto const& info : glyphs) {
-      HWPathRaster raster{GetMesh(), working_paint};
-      glm::mat4 transform =
-          glm::translate(glm::identity<glm::mat4>(), {offset_x, 0.f, 0.f});
-
-      Path path = info.path.copyWithMatrix(transform);
-
-      offset_x += info.advance_x;
-
-      if (path.isEmpty()) {
-        continue;
-      }
-
-      Rect bounds = path.getBounds();
-      max_height = std::max(max_height, bounds.height());
-
-      raster.StrokePath(path);
-      raster.FlushRaster();
-
-      auto draw = GenerateColorOp(working_paint, true,
-                                  Rect::MakeXYWH(0, 0, offset_x, max_height));
-
-      draw->SetStencilRange(
-          {raster.StencilFrontStart(), raster.StencilFrontCount()},
-          {raster.StencilBackStart(), raster.StencilBackCount()});
-      draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
-
-      draw_ops_.emplace_back(std::move(draw));
+    float offset_x = 0.f;
+    for (auto const& run : blob->getTextRun()) {
+      offset_x += StrokeTextRun(x + offset_x, y, run, working_paint);
     }
   }
 }
@@ -549,6 +488,102 @@ HWFontTexture* HWCanvas::QueryFontTexture(Typeface* typeface) {
   font_texture_store_[typeface] = std::move(texture);
 
   return font_texture_store_[typeface].get();
+}
+
+float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
+                            Paint const& paint) {
+  auto typeface = run.LockTypeface();
+
+  if (typeface == nullptr) {
+    return 0.f;
+  }
+
+  float offset_x = x;
+  float max_height = 0.f;
+
+  HWPathRaster raster{GetMesh(), paint};
+
+  auto font_texture = QueryFontTexture(typeface.get());
+
+  for (auto const& info : run.getGlyphInfo()) {
+    auto region =
+        font_texture->GetGlyphRegion(info.id, info.font_size * density_);
+    float rx = offset_x + info.bearing_x;
+    float ry = y - info.ascent;
+    float rw = region.z / density_;
+    float rh = region.w / density_;
+
+    max_height = std::max(rh, max_height);
+
+    offset_x += info.advance_x;
+
+    if (rh == 0) {
+      continue;
+    }
+
+    glm::vec4 bounds = {rx, ry, rx + rw, ry + rh};
+    glm::vec2 uv_lt = font_texture->CalculateUV(region.x, region.y);
+    glm::vec2 uv_rb =
+        font_texture->CalculateUV(region.x + region.z, region.y + region.w);
+
+    raster.FillTextRect(bounds, uv_lt, uv_rb);
+  }
+
+  raster.FlushRaster();
+
+  auto draw = GenerateColorOp(
+      paint, false, skity::Rect::MakeXYWH(x, y, offset_x, max_height));
+
+  draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+  draw->SetFontTexture(font_texture->GetHWTexture());
+
+  draw_ops_.emplace_back(std::move(draw));
+
+  return offset_x - x;
+}
+
+float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
+                              Paint const& paint) {
+  auto typeface = run.LockTypeface();
+
+  if (typeface == nullptr) {
+    return 0.f;
+  }
+
+  float offset_x = x;
+  float max_height = 0.f;
+
+  for (auto const& info : run.getGlyphInfo()) {
+    HWPathRaster raster{GetMesh(), paint};
+    glm::mat4 transform =
+        glm::translate(glm::identity<glm::mat4>(), {offset_x, y, 0.f});
+
+    Path path = info.path.copyWithMatrix(transform);
+
+    if (path.isEmpty()) {
+      continue;
+    }
+
+    Rect bounds = path.getBounds();
+    max_height = std::max(max_height, bounds.height());
+
+    raster.StrokePath(path);
+    raster.FlushRaster();
+
+    auto draw = GenerateColorOp(
+        paint, true, Rect::MakeXYWH(offset_x, y, info.advance_x, max_height));
+
+    offset_x += info.advance_x;
+
+    draw->SetStencilRange(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()});
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+
+    draw_ops_.emplace_back(std::move(draw));
+  }
+
+  return offset_x - x;
 }
 
 void HWCanvas::ClearClipMask() {
