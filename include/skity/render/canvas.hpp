@@ -12,6 +12,8 @@
 
 namespace skity {
 
+class TextBlob;
+
 /**
  * @class Canvas
  * Provide an interface for drawing.
@@ -192,13 +194,25 @@ class SK_API Canvas {
    */
   void setDefaultTypeface(std::shared_ptr<Typeface> typeface);
 
+  std::shared_ptr<Typeface> const& getDefaultTypeface() const {
+    return default_typeface_;
+  }
+
   /**
    * @deprecated  use drawSimpleText2 if need.
    */
   void drawSimpleText(const char* text, float x, float y, Paint const& paint);
-  // just draw text not a usable interface
+
+  /**
+   * @deprecated  use drawTextBlob instead
+   * @brief       this function is fallback to use drawTextBlob internal.
+   *
+   */
   void drawSimpleText2(const char* text, float x, float y, Paint const& paint);
+
   Vec2 simpleTextBounds(const char* text, Paint const& paint);
+
+  void drawTextBlob(const TextBlob* blob, float x, float y, Paint const& paint);
 
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 
@@ -244,8 +258,10 @@ class SK_API Canvas {
                                Paint const& paint);
 
   virtual void onDrawPath(Path const& path, Paint const& paint) = 0;
-  virtual void onDrawGlyphs(std::vector<GlyphInfo> const& glyphs,
-                            Typeface* typeface, Paint const& paint) = 0;
+
+  virtual void onDrawBlob(const TextBlob* blob, float x, float y,
+                          Paint const& paint) = 0;
+
   virtual void onSave() = 0;
   virtual void onRestore() = 0;
   virtual void onRestoreToCount(int saveCount) = 0;

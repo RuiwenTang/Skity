@@ -20,6 +20,7 @@ class Typeface;
 
 class HWMesh;
 class HWPipeline;
+class HWPathRaster;
 
 /**
  * @class HWCanvas
@@ -52,8 +53,8 @@ class HWCanvas : public Canvas {
 
   void onDrawPath(const Path& path, const Paint& paint) override;
 
-  void onDrawGlyphs(const std::vector<GlyphInfo>& glyphs, Typeface* typeface,
-                    const Paint& paint) override;
+  void onDrawBlob(const TextBlob* blob, float x, float y,
+                  Paint const& paint) override;
 
   void onSave() override;
 
@@ -91,6 +92,9 @@ class HWCanvas : public Canvas {
   HWPipeline* GetPipeline() { return pipeline_.get(); }
   HWTexture* QueryTexture(Pixmap* pixmap);
   HWFontTexture* QueryFontTexture(Typeface* typeface);
+
+  float FillTextRun(float x, float y, TextRun const& run, Paint const& paint);
+  float StrokeTextRun(float x, float y, TextRun const& run, Paint const& paint);
 
   void ClearClipMask();
   void ForwardFillClipMask();

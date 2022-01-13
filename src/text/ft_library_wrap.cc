@@ -237,4 +237,10 @@ FTGlyphBitmapInfo FTTypeFace::LoadGlyphBitmap(GlyphID glyph_id,
   return info;
 }
 
+bool FTTypeFace::containGlyph(GlyphID glyph_id) {
+  FT_UInt c_index = FT_Get_Char_Index(ft_face_, glyph_id);
+
+  return c_index != 0;
+}
+
 }  // namespace skity

@@ -23,6 +23,8 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/skity/macros.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/render/canvas.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/skity.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/skity/text/text_blob.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/skity/text/text_run.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/text/typeface.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/text/utf.hpp
 )

@@ -64,6 +64,10 @@ class Typeface::Impl {
     return {info.width, info.height, info.buffer};
   }
 
+  bool containGlyph(GlyphID glyph_id) {
+    return ft_typeface_->containGlyph(glyph_id);
+  }
+
  private:
   GlyphInfo ScaleInfo(GlyphInfo const& base_info, float target_font_size,
                       bool load_path) {
@@ -201,6 +205,14 @@ GlyphBitmapInfo Typeface::getGlyphBitmapInfo(GlyphID glyph_id,
   return impl_->getGlyphBitmapInfo(glyph_id, font_size);
 #else
   return {};
+#endif
+}
+
+bool Typeface::containGlyph(GlyphID glyph_id) {
+#ifdef ENABLE_TEXT_RENDER
+  return impl_->containGlyph(glyph_id);
+#else
+  return false;
 #endif
 }
 

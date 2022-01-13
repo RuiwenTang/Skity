@@ -7,6 +7,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/../)
 #config file
 set(TEST_BUILD_IN_FONT "${CMAKE_CURRENT_SOURCE_DIR}/../resources/Avenir.ttf")
 set(TEST_BUILD_IN_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/../resources/wall.png")
+set(TEST_BUILD_IN_EMOJI_FONT "${CMAKE_CURRENT_SOURCE_DIR}/../example/images/NotoEmoji-Regular.ttf")
 configure_file(test_config.h.in test_config.hpp @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -25,6 +26,9 @@ target_link_libraries(path_test gtest skity)
 
 add_executable(path_measure_test path_measure_test.cc)
 target_link_libraries(path_measure_test gtest skity)
+
+add_executable(textblob_test textblob_test.cc)
+target_link_libraries(textblob_test gtest skity)
 
 message("test cmake")
 

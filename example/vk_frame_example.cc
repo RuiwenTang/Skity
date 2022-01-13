@@ -9,7 +9,8 @@ void load_images(std::vector<std::shared_ptr<skity::Pixmap>>& images);
 void render_frame_demo(
     skity::Canvas* canvas,
     std::vector<std::shared_ptr<skity::Pixmap>> const& images,
-    std::shared_ptr<skity::Typeface> const& typeface, float mx, float my,
+    std::shared_ptr<skity::Typeface> const& typeface,
+    std::shared_ptr<skity::Typeface> const& emoji, float mx, float my,
     float width, float height, float t);
 
 class VkFrameApp : public example::VkApp {
@@ -28,6 +29,8 @@ class VkFrameApp : public example::VkApp {
     load_images(images_);
     typeface_ =
         skity::Typeface::MakeFromFile(EXAMPLE_IMAGE_ROOT "/Roboto-Regular.ttf");
+    emoji_typeface_ = skity::Typeface::MakeFromFile(EXAMPLE_IMAGE_ROOT
+                                                    "/NotoEmoji-Regular.ttf");
 
     time_ = prev_time_ = glfwGetTime();
   }
@@ -41,8 +44,8 @@ class VkFrameApp : public example::VkApp {
     double dt = time_ - prev_time_;
     prev_time_ = time_;
 
-    render_frame_demo(GetCanvas(), images_, typeface_, mx, my, ScreenWidth(),
-                      ScreenHeight(), time_);
+    render_frame_demo(GetCanvas(), images_, typeface_, emoji_typeface_, mx, my,
+                      ScreenWidth(), ScreenHeight(), time_);
 
     fpsGraph.RenderGraph(GetCanvas(), 5, 5);
     cpuGraph.RenderGraph(GetCanvas(), 5 + 200 + 5, 5);
@@ -56,6 +59,7 @@ class VkFrameApp : public example::VkApp {
  private:
   std::vector<std::shared_ptr<skity::Pixmap>> images_ = {};
   std::shared_ptr<skity::Typeface> typeface_ = {};
+  std::shared_ptr<skity::Typeface> emoji_typeface_ = {};
   double time_ = 0;
   double prev_time_ = 0;
   double cpu_time_ = 0;

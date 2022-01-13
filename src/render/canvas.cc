@@ -1,5 +1,6 @@
 #include "skity/render/canvas.hpp"
 
+#include <skity/text/text_blob.hpp>
 #include <skity/text/utf.hpp>
 
 namespace skity {
@@ -100,31 +101,7 @@ void Canvas::setDefaultTypeface(std::shared_ptr<Typeface> typeface) {
 
 void Canvas::drawSimpleText(const char *text, float x, float y,
                             Paint const &paint) {
-#if 0
-  if (!default_typeface_) {
-    return;
-  }
-  this->save();
-
-  this->translate(x, y);
-
-  std::vector<GlyphInfo> glyphs;
-  std::vector<GlyphID> glyph_id;
-  default_typeface_->textToGlyphId(text, glyph_id);
-  default_typeface_->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs);
-
-  uint32_t index = 0;
-  for (; index < glyphs.size(); index++) {
-    auto const &info = glyphs[index];
-    if (index > 0) {
-      this->translate(glyphs[index - 1].advance_x, 0);
-    }
-
-    this->drawPath(info.path, paint);
-  }
-
-  this->restore();
-#endif
+  this->drawSimpleText2(text, x, y, paint);
 }
 
 void Canvas::drawSimpleText2(const char *text, float x, float y,
@@ -139,22 +116,20 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
     return;
   }
 
-  this->save();
-
-  this->translate(x, y);
-
-  auto typeface = default_typeface_.get();
+  auto typeface = default_typeface_;
 
   if (paint.getTypeface()) {
-    typeface = paint.getTypeface().get();
+    typeface = paint.getTypeface();
   }
 
-  typeface->getGlyphInfo(glyph_id, paint.getTextSize(), glyphs,
-                         needGlyphPath(paint));
+  Paint work_paint{paint};
+  work_paint.setTypeface(typeface);
 
-  this->onDrawGlyphs(glyphs, typeface, paint);
+  skity::TextBlobBuilder builder;
 
-  this->restore();
+  auto blob = builder.buildTextBlob(text, work_paint);
+
+  this->drawTextBlob(blob.get(), x, y, work_paint);
 }
 
 Vec2 Canvas::simpleTextBounds(const char *text, const Paint &paint) {
@@ -178,6 +153,11 @@ Vec2 Canvas::simpleTextBounds(const char *text, const Paint &paint) {
     max_height = std::max(max_height, glyph.ascent - glyph.descent);
   }
   return {total_width, max_height};
+}
+
+void Canvas::drawTextBlob(const TextBlob *blob, float x, float y,
+                          const Paint &paint) {
+  this->onDrawBlob(blob, x, y, paint);
 }
 
 void Canvas::updateViewport(uint32_t width, uint32_t height) {
