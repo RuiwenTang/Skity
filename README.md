@@ -54,7 +54,7 @@ code is in [Skity-Android](https://github.com/RuiwenTang/Skity-Android)
 | **VULKAN_BACKEND**   | OFF           | Enable [Vulkan](https://www.vulkan.org/) backend. If turn on, the [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git) dependence is needed. |
 | **OPENGL_BACKEND**   | ON            | Enable [OpenGL](https://www.opengl.org) backend                                                                                                                                        |
 | **BUILD_SVG_MODULE** | ON            | Build SVG module. If turn off the [pugixml](https://github.com/zeux/pugixml.git) is no longer needed.                                                                                  |
-| **BUILD_EXAMPLE**    | ON            | Build [example code](./example/)                                                                                                                                                       |
+| **BUILD_EXAMPLE**    | ON            | Build [example code](./example/). Need [GLFW](https://www.glfw.org/) .                                                                                                                 |
 | **BUILD_TEST**       | ON            | Build [test code](./test)                                                                                                                                                              |
 
 ### Requirements
@@ -103,7 +103,7 @@ make
   - png image decode (need install [libpng](http://www.libpng.org/pub/png/libpng.html))
   - jpg image decode (need install [libjpeg-turbo](https://www.libjpeg-turbo.org/))
 
-- SVG (in progress)
+- SVG (done)
   - basic svg tag parser
     - `<svg>` `<g>` `<path>` `<circle>` `<rect>`
 
