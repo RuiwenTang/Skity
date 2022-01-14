@@ -9,25 +9,62 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 [![CodeFactor](https://www.codefactor.io/repository/github/ruiwentang/skity/badge)](https://www.codefactor.io/repository/github/ruiwentang/skity)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Example
+## Screen Shots
 
-Working in progress nanovg demo code is [frame_example.cc](./example/frame_example.cc) <br/>
+| [Just like nanovg](./example/frame_example.cc)       | [SVG render](./example/svg_example.cc)          | [Basic Example](./example/example.cc)             | [Android Porting](https://github.com/RuiwenTang/Skity-Android)                                                                   |
+| ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="./resources/nanovg_demo.png" width="200" > | <img src="./resources/tiger.png" width="150" /> | <img src="./resources/skia_demo.png" width="150"> | <img src="https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/gl_frame_example_android.png?raw=true" width="200"> |
 
-![nanovg](./resources/nanovg_demo.png)
+## Quick Start
 
-Parse and render svg file: [tiger.svg](./example/images/tiger.svg)
-![tiger.svg](./resources/tiger.png)
+### Initialization
 
-same as [skia demo](https://fiddle.skia.org/c/66a829e00c752fe96e2ef4195cdc5454)<br/>
-code is [example.cc](./example/example.cc)
-<br/>
-<img src="./resources/skia_demo.png" width="800" height="800">
+The code below shows how to create a `skity::Canvas` instance using [GLFW](https://www.glfw.org/) with OpenGL backend. The full code can look at [gl_app.cc](./example/gl/gl_app.cc)
 
-## Android Demo
+```c++
+GLFWwindow* window = glfwCreateWindow(800, 600, "Demo", nullptr, nullptr);
 
-code is in [Skity-Android](https://github.com/RuiwenTang/Skity-Android)
+int32_t pp_width, pp_height;
+glfwGetFramebufferSize(window_, &pp_width, &pp_height);
 
-![Android Demo](https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/gl_frame_example_android.png?raw=true)
+float density = (float)(pp_width * pp_width + pp_height * pp_height) /
+                  (float)(800 * 800 + 600 * 600);
+
+skity::GPUContext ctx{skity::GPUBackendType::kOpenGL, (void*) glfwGetProcAddress};
+
+auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(800, 600, density, &ctx);
+```
+
+### Drawing Path
+
+```c++
+// paint controls the color and style when geometry is rendered
+skity::Paint paint;
+paint.setStyle(skity::Paint::kFill_Style);
+paint.setColor(skity::ColorSetRGB(0x42, 0x85, 0xF4));
+
+// create path
+skity::Path path;
+path.moveTo(199, 34);
+path.lineTo(253, 143);
+path.lineTo(374, 160);
+path.lineTo(287, 244);
+path.lineTo(307, 365);
+path.lineTo(199, 309);
+path.lineTo(97, 365);
+path.lineTo(112, 245);
+path.lineTo(26, 161);
+path.lineTo(146, 143);
+path.close();
+
+canvas->drawPath(path, paint);
+```
+
+The code generates the following result:
+
+<p align="center">
+  <img src="https://github.com/RuiwenTang/Skity/blob/gh-pages/images/fill_star.png?raw=true" width="300" />
+</p>
 
 ## Build
 
