@@ -48,19 +48,24 @@ code is in [Skity-Android](https://github.com/RuiwenTang/Skity-Android)
 
 ### CMake options
 
-- `ENABLE_LOG` enable logging for this library, default value is `ON`. If turn off the [spdlog](https://github.com/gabime/spdlog.git) is no longer needed.
-- `VULKAN_BACKEND` enable [Vulkan](https://www.vulkan.org/) backend, default value is `OFF`. If turn on, the [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git) dependence is needed.
-- `OPENGL_BACKEND` enable [OpenGL](https://www.opengl.org) backend, default value is `ON`.
+| CMake Option         | Default Value | Description                                                                                                                                                                            |
+| -------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ENABLE_LOG**       | ON            | Enable logging. If turn off the [spdlog](https://github.com/gabime/spdlog.git) is no longer needed.                                                                                    |
+| **VULKAN_BACKEND**   | OFF           | Enable [Vulkan](https://www.vulkan.org/) backend. If turn on, the [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git) dependence is needed. |
+| **OPENGL_BACKEND**   | ON            | Enable [OpenGL](https://www.opengl.org) backend                                                                                                                                        |
+| **BUILD_SVG_MODULE** | ON            | Build SVG module. If turn off the [pugixml](https://github.com/zeux/pugixml.git) is no longer needed.                                                                                  |
+| **BUILD_EXAMPLE**    | ON            | Build [example code](./example/)                                                                                                                                                       |
+| **BUILD_TEST**       | ON            | Build [test code](./test)                                                                                                                                                              |
 
 ### Requirements
 
 - CMake
-- [Freetype](https://www.freetype.org/)
+- [Freetype](https://www.freetype.org/): If not present, font rendering will not working
 - [GLFW](https://www.glfw.org/): for build test and example
 - optional
   - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
   - [libjpeg-turbo](https://www.libjpeg-turbo.org/): for jpg file decode
-  - on windows ,need to set `JPEG_PREFIX=path to libjpeg installed directory` environment value
+  - on windows ,need to set environment value: `JPEG_PREFIX=path to libjpeg installed directory`
 
 ```shell
 # fetch sources from github
@@ -81,13 +86,13 @@ make
 
 - Clip (stencil)
 
-- Font (in progress)
+- Font (basic drawing api)
 
   - draw simple text, no glyph cache, no text layout
 
 - Line caps and joins (done)
 
-- PathEffect dash (in progress, fill with aa is not working)
+- PathEffect dash
 
   - implement a simple discrete path effect
   - implement a path measure algorithm and dash path effect
