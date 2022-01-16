@@ -110,12 +110,6 @@ void Canvas::drawSimpleText2(const char *text, float x, float y,
     return;
   }
 
-  std::vector<GlyphInfo> glyphs;
-  std::vector<GlyphID> glyph_id;
-  if (!UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id)) {
-    return;
-  }
-
   auto typeface = default_typeface_;
 
   if (paint.getTypeface()) {
