@@ -35,11 +35,6 @@ class SK_API Typeface {
   static std::shared_ptr<Typeface> MakeFromData(
       std::shared_ptr<Data> const& data);
 
-  void textToGlyphId(const char* text, std::vector<GlyphID>& glyphs);
-
-  void textToGlyphInfo(const char* text, float font_size,
-                       std::vector<GlyphInfo>& info);
-
   void getGlyphInfo(std::vector<GlyphID> const& glyph_id, float font_size,
                     std::vector<GlyphInfo>& info, bool load_path = false);
 

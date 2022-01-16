@@ -2,6 +2,7 @@
 #include <skity/text/text_blob.hpp>
 #include <skity/text/text_run.hpp>
 #include <skity/text/typeface.hpp>
+#include <skity/text/utf.hpp>
 
 namespace skity {
 
@@ -77,7 +78,7 @@ std::shared_ptr<TextBlob> TextBlobBuilder::GenerateBlobWithDelegate(
 
   if (break_result.empty()) {
     std::vector<GlyphID> glyph_id = {};
-    typeface->textToGlyphId(text, glyph_id);
+    UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id);
 
     auto runs = GenerateTextRuns(glyph_id, typeface, paint, delegate);
 
@@ -93,7 +94,7 @@ std::shared_ptr<TextBlob> TextBlobBuilder::GenerateBlobWithoutDelegate(
 
   std::vector<GlyphID> glyph_id = {};
 
-  typeface->textToGlyphId(text, glyph_id);
+  UTF::UTF8ToCodePoint(text, std::strlen(text), glyph_id);
 
   if (glyph_id.empty()) {
     return nullptr;

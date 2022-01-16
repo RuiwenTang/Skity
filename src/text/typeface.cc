@@ -163,25 +163,6 @@ std::shared_ptr<Typeface> Typeface::MakeFromData(
 #endif
 }
 
-void Typeface::textToGlyphId(const char* text, std::vector<GlyphID>& glyphs) {
-  std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> utf32_conv;
-
-  auto utf32 = utf32_conv.from_bytes(text);
-  for (auto c : utf32) {
-    glyphs.emplace_back(c);
-  }
-}
-
-void Typeface::textToGlyphInfo(const char* text, float font_size,
-                               std::vector<GlyphInfo>& info) {
-  std::vector<GlyphID> glyph_id;
-  textToGlyphId(text, glyph_id);
-
-  for (auto id : glyph_id) {
-    info.emplace_back(getGlyphInfo(id, font_size));
-  }
-}
-
 void Typeface::getGlyphInfo(const std::vector<GlyphID>& glyph_id,
                             float font_size, std::vector<GlyphInfo>& info,
                             bool load_path) {
