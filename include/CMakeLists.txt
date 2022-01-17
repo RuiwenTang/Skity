@@ -11,6 +11,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/skity/codec/codec.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/codec/data.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/codec/pixmap.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/skity/effect/mask_filter.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/effect/path_effect.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/effect/shader.hpp
   ${CMAKE_CURRENT_LIST_DIR}/skity/geometry/point.hpp

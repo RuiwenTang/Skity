@@ -1,3 +1,4 @@
+#include <skity/effect/mask_filter.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/text/typeface.hpp>
 

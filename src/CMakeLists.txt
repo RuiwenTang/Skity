@@ -11,6 +11,7 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.hpp
         ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/effect/mask_filter.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/path_effect.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.hpp

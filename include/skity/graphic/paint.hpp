@@ -10,6 +10,7 @@
 
 namespace skity {
 
+class MaskFilter;
 class PathEffect;
 class Shader;
 class Typeface;
@@ -170,6 +171,12 @@ class SK_API Paint {
 
   std::shared_ptr<Typeface> getTypeface() const { return typeface_; }
 
+  void setMaskFilter(std::shared_ptr<MaskFilter> maskFilter) {
+    mask_filter_ = std::move(maskFilter);
+  }
+
+  std::shared_ptr<MaskFilter> getMaskFilter() const { return mask_filter_; }
+
  private:
   void updateMiterLimit();
 
@@ -187,6 +194,7 @@ class SK_API Paint {
   std::shared_ptr<PathEffect> path_effect_;
   std::shared_ptr<Shader> shader_;
   std::shared_ptr<Typeface> typeface_;
+  std::shared_ptr<MaskFilter> mask_filter_;
 };
 
 }  // namespace skity

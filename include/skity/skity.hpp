@@ -8,6 +8,7 @@
 #include <skity/codec/data.hpp>
 #include <skity/codec/pixmap.hpp>
 // effect
+#include <skity/effect/mask_filter.hpp>
 #include <skity/effect/path_effect.hpp>
 #include <skity/effect/shader.hpp>
 // geometry
