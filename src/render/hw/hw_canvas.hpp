@@ -27,6 +27,8 @@ class HWPathRaster;
  *  Base class for all hardware canvas implementation, use MSAA for anti-alias
  */
 class HWCanvas : public Canvas {
+  using DrawList = std::vector<std::unique_ptr<HWDraw>>;
+
  public:
   HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density);
   ~HWCanvas() override;
@@ -99,6 +101,22 @@ class HWCanvas : public Canvas {
   void ClearClipMask();
   void ForwardFillClipMask();
 
+  DrawList& CurrentDrawList();
+
+  void PushDrawList();
+
+  DrawList PopDrawList();
+
+  void ClearDrawList();
+
+  void EnqueueDrawOp(std::unique_ptr<HWDraw> draw);
+
+  void EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
+                     std::shared_ptr<MaskFilter> const& mask_filter);
+
+  void HandleMaskFilter(DrawList draw_list, Rect const& bounds,
+                        std::shared_ptr<MaskFilter> const& mask_filter);
+
  private:
   Matrix mvp_;
   uint32_t width_;
@@ -110,7 +128,7 @@ class HWCanvas : public Canvas {
   std::unique_ptr<HWMesh> mesh_;
   Lazy<float> global_alpha_ = {};
   std::unique_ptr<HWPipeline> pipeline_ = {};
-  std::vector<std::unique_ptr<HWDraw>> draw_ops_ = {};
+  std::vector<DrawList> draw_list_stack_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
   std::map<Typeface*, std::unique_ptr<HWFontTexture>> font_texture_store_ = {};
 };

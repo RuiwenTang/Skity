@@ -75,6 +75,9 @@ HWCanvas::~HWCanvas() {
 void HWCanvas::Init(GPUContext* ctx) {
   this->OnInit(ctx);
   pipeline_ = CreatePipeline();
+  if (draw_list_stack_.empty()) {
+    draw_list_stack_.emplace_back(DrawList());
+  }
 }
 
 uint32_t HWCanvas::onGetWidth() const { return width_; }
@@ -226,7 +229,7 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
 
   draw->SetTransformMatrix(state_.CurrentMatrix());
 
-  draw_ops_.emplace_back(std::move(draw));
+  EnqueueDrawOp(std::move(draw));
 }
 
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
@@ -247,7 +250,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
   draw->SetStrokeWidth(paint.getStrokeWidth());
   draw->SetColorRange(range);
 
-  draw_ops_.emplace_back(std::move(draw));
+  EnqueueDrawOp(std::move(draw), raster.RasterBounds(), paint.getMaskFilter());
 }
 
 void HWCanvas::onDrawCircle(float cx, float cy, float radius,
@@ -271,18 +274,26 @@ void HWCanvas::onDrawCircle(float cx, float cy, float radius,
   draw->SetColorRange(range);
   draw->SetStrokeWidth(radius * 2.f);
 
-  draw_ops_.emplace_back(std::move(draw));
+  EnqueueDrawOp(std::move(draw), raster.RasterBounds(), paint.getMaskFilter());
 }
 
 void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
 
+  bool stroke_and_fill = need_fill && need_stroke;
+
   if (FloatNearlyZero(paint.getAlphaF())) {
     return;
   }
 
+  if (stroke_and_fill) {
+    PushDrawList();
+  }
+
   Paint working_paint{paint};
+  Rect bounds;
+
   if (need_fill) {
     working_paint.setStyle(Paint::kFill_Style);
 
@@ -303,7 +314,13 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
         {raster.StencilBackStart(), raster.StencilBackCount()});
     draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
 
-    draw_ops_.emplace_back(std::move(draw));
+    if (stroke_and_fill) {
+      bounds = raster.RasterBounds();
+      EnqueueDrawOp(std::move(draw));
+    } else {
+      EnqueueDrawOp(std::move(draw), raster.RasterBounds(),
+                    paint.getMaskFilter());
+    }
   }
 
   if (need_stroke) {
@@ -330,14 +347,34 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
         {raster.StencilBackStart(), raster.StencilBackCount()});
     draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
 
-    draw_ops_.emplace_back(std::move(draw));
+    if (stroke_and_fill) {
+      bounds.join(raster.RasterBounds());
+      EnqueueDrawOp(std::move(draw));
+    } else {
+      EnqueueDrawOp(std::move(draw), raster.RasterBounds(),
+                    paint.getMaskFilter());
+    }
+  }
+
+  if (stroke_and_fill) {
+    HandleMaskFilter(PopDrawList(), bounds, paint.getMaskFilter());
   }
 }
 
 void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
+  if (rect.isEmpty()) {
+    return;
+  }
+
   Paint work_paint{paint};
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+  bool stroke_and_fill = need_fill && need_stroke;
+  Rect bounds = rect;
+
+  if (stroke_and_fill) {
+    PushDrawList();
+  }
 
   if (need_fill) {
     HWPathRaster raster(GetMesh(), paint);
@@ -351,7 +388,13 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
     auto draw = GenerateColorOp(work_paint, false, raster.RasterBounds());
     draw->SetColorRange(range);
 
-    draw_ops_.emplace_back(std::move(draw));
+    if (stroke_and_fill) {
+      bounds.join(raster.RasterBounds());
+      EnqueueDrawOp(std::move(draw));
+    } else {
+      EnqueueDrawOp(std::move(draw), raster.RasterBounds(),
+                    paint.getMaskFilter());
+    }
   }
 
   if (need_stroke) {
@@ -368,7 +411,17 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
     draw->SetStrokeWidth(work_paint.getStrokeWidth());
     draw->SetColorRange(range);
 
-    draw_ops_.emplace_back(std::move(draw));
+    if (stroke_and_fill) {
+      bounds.join(raster.RasterBounds());
+      EnqueueDrawOp(std::move(draw));
+    } else {
+      EnqueueDrawOp(std::move(draw), raster.RasterBounds(),
+                    paint.getMaskFilter());
+    }
+  }
+
+  if (stroke_and_fill) {
+    HandleMaskFilter(PopDrawList(), bounds, paint.getMaskFilter());
   }
 }
 
@@ -376,6 +429,17 @@ void HWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
                           Paint const& paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  PushDrawList();
+  auto blob_size = blob->getBoundSize();
+  Rect bounds;
+  if (need_stroke) {
+    bounds.setXYWH(x - paint.getStrokeWidth(), y - paint.getStrokeWidth(),
+                   blob_size.x + paint.getStrokeWidth(),
+                   blob_size.y + paint.getStrokeWidth());
+  } else {
+    bounds.setXYWH(x, y, blob_size.x, blob_size.y);
+  }
 
   if (need_fill) {
     Paint working_paint{paint};
@@ -396,6 +460,8 @@ void HWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
       offset_x += StrokeTextRun(x + offset_x, y, run, working_paint);
     }
   }
+
+  HandleMaskFilter(PopDrawList(), bounds, paint.getMaskFilter());
 }
 
 void HWCanvas::onSave() { state_.Save(); }
@@ -437,13 +503,13 @@ void HWCanvas::onFlush() {
   // global props set to pipeline
   GetPipeline()->SetViewProjectionMatrix(mvp_);
 
-  for (const auto& op : draw_ops_) {
+  for (const auto& op : CurrentDrawList()) {
     op->Draw();
   }
 
   GetPipeline()->UnBind();
 
-  draw_ops_.clear();
+  ClearDrawList();
   mesh_->ResetMesh();
   global_alpha_.Reset();
   full_rect_start_ = full_rect_count_ = -1;
@@ -537,7 +603,7 @@ float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
   draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
   draw->SetFontTexture(font_texture->GetHWTexture());
 
-  draw_ops_.emplace_back(std::move(draw));
+  EnqueueDrawOp(std::move(draw));
 
   return offset_x - x;
 }
@@ -585,7 +651,7 @@ float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
         {raster.StencilBackStart(), raster.StencilBackCount()});
     draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
 
-    draw_ops_.emplace_back(std::move(draw));
+    EnqueueDrawOp(std::move(draw));
   }
 
   return offset_x - x;
@@ -609,7 +675,7 @@ void HWCanvas::ClearClipMask() {
     draw->SetStencilRange(clip_info.front_range, clip_info.back_range);
   }
 
-  draw_ops_.emplace_back(std::move(draw));
+  EnqueueDrawOp(std::move(draw));
 }
 
 void HWCanvas::ForwardFillClipMask() {
@@ -622,8 +688,50 @@ void HWCanvas::ForwardFillClipMask() {
         draw->SetStencilRange(clip_value.front_range, clip_value.back_range);
         draw->SetColorRange(clip_value.bound_range);
 
-        draw_ops_.emplace_back(std::move(draw));
+        EnqueueDrawOp(std::move(draw));
       });
+}
+
+HWCanvas::DrawList& HWCanvas::CurrentDrawList() {
+  return draw_list_stack_.back();
+}
+
+void HWCanvas::PushDrawList() { draw_list_stack_.emplace_back(DrawList()); }
+
+HWCanvas::DrawList HWCanvas::PopDrawList() {
+  auto draw_list = std::move(draw_list_stack_.back());
+
+  draw_list_stack_.pop_back();
+
+  return draw_list;
+}
+
+void HWCanvas::ClearDrawList() {
+  while (draw_list_stack_.size() > 1) {
+    draw_list_stack_.pop_back();
+  }
+
+  draw_list_stack_.back().clear();
+}
+
+void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw) {
+  CurrentDrawList().emplace_back(std::move(draw));
+}
+
+void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
+                             std::shared_ptr<MaskFilter> const& mask_filter) {
+  // TODO handle mask filter or other post processing effect
+  EnqueueDrawOp(std::move(draw));
+}
+
+void HWCanvas::HandleMaskFilter(
+    DrawList draw_list, Rect const& bounds,
+    std::shared_ptr<MaskFilter> const& mask_filter) {
+  // TODO handle mask filter or other post processing effect
+
+  for (auto& op : draw_list) {
+    CurrentDrawList().emplace_back(std::move(op));
+  }
 }
 
 }  // namespace skity
