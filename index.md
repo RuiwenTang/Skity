@@ -14,11 +14,24 @@ To use Skity just include the header file in sources code.
 
 #### Initialization
 
-The first thing need to do is crerating a `skity::Canvas` instance.
+The first thing need to do is crerating a `skity::Canvas` instance.The code below shows how to do it using [GLFW](https://www.glfw.org/) with OpenGL backend. The full code can look at [gl_app.cc](https://github.com/RuiwenTang/Skity/blob/main/example/gl/gl_app.cc)
 
 ```c++
-auto canvas =
-        skity::Canvas::MakeHardwareAccelationCanvas(width, height, density, ctx);
+GLFWwindow* window = glfwCreateWindow(800, 600, "Demo", nullptr, nullptr);
+
+int32_t pp_width, pp_height;
+glfwGetFramebufferSize(window_, &pp_width, &pp_height);
+
+float density = (float)(pp_width * pp_width + pp_height * pp_height) /
+                  (float)(800 * 800 + 600 * 600);
+
+skity::GPUContext ctx{
+    skity::GPUBackendType::kOpenGL,
+    (void*) glfwGetProcAddress,
+  };
+
+auto canvas = skity::Canvas::MakeHardwareAccelationCanvas(800, 600,
+                                                        density, &ctx);
 ```
 
 - The first two parameters `width` and `height` are the size information for target which is canvas will render into.
