@@ -73,10 +73,10 @@ void SKVkPipelineImpl::Bind() {
                        static_cast<float>(ctx_->GetFrameExtent().height),
                        0.f,
                        1.f};
-  VK_CALL(vkCmdSetViewport, ctx_->GetCurrentCMD(), 0, 1, &view_port);
+  VK_CALL(vkCmdSetViewport, GetCurrentCMD(), 0, 1, &view_port);
   // scissor
   VkRect2D scissor{{0, 0}, ctx_->GetFrameExtent()};
-  VK_CALL(vkCmdSetScissor, ctx_->GetCurrentCMD(), 0, 1, &scissor);
+  VK_CALL(vkCmdSetScissor, GetCurrentCMD(), 0, 1, &scissor);
 
   // update empty_font_set_
   empty_font_set_ = CurrentFrameBuffer()->ObtainUniformBufferSet(
@@ -172,8 +172,7 @@ void SKVkPipelineImpl::UploadVertexBuffer(void* data, size_t data_size) {
 
   uint64_t offset = 0;
   VkBuffer buffer = vertex_buffer_->GetBuffer();
-  VK_CALL(vkCmdBindVertexBuffers, ctx_->GetCurrentCMD(), 0, 1, &buffer,
-          &offset);
+  VK_CALL(vkCmdBindVertexBuffers, GetCurrentCMD(), 0, 1, &buffer, &offset);
 }
 
 void SKVkPipelineImpl::UploadIndexBuffer(void* data, size_t data_size) {
@@ -188,8 +187,8 @@ void SKVkPipelineImpl::UploadIndexBuffer(void* data, size_t data_size) {
 
   vk_memory_allocator_->UploadBuffer(index_buffer_.get(), data, data_size);
 
-  VK_CALL(vkCmdBindIndexBuffer, ctx_->GetCurrentCMD(),
-          index_buffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+  VK_CALL(vkCmdBindIndexBuffer, GetCurrentCMD(), index_buffer_->GetBuffer(), 0,
+          VK_INDEX_TYPE_UINT32);
 }
 
 void SKVkPipelineImpl::SetGlobalAlpha(float alpha) {
@@ -279,7 +278,7 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
   // dynamic state to use stencil discard
   UpdateStencilConfigIfNeed(picked_pipeline);
 
-  VK_CALL(vkCmdDrawIndexed, ctx_->GetCurrentCMD(), count, 1, start, 0, 0);
+  VK_CALL(vkCmdDrawIndexed, GetCurrentCMD(), count, 1, start, 0, 0);
 }
 
 void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
@@ -424,6 +423,10 @@ void SKVkPipelineImpl::DestroyFrameBuffers() {
   }
 }
 
+VkCommandBuffer SKVkPipelineImpl::GetCurrentCMD() {
+  return ctx_->GetCurrentCMD();
+}
+
 void SKVkPipelineImpl::InitPipelines() {
   static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
   stencil_color_pipeline_ = VKPipelineWrapper::CreateStencilColorPipeline(ctx_);
@@ -555,7 +558,7 @@ void SKVkPipelineImpl::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
     return;
   }
 
-  pipeline->Bind(ctx_->GetCurrentCMD());
+  pipeline->Bind(GetCurrentCMD());
   prev_pipeline_ = pipeline;
 }
 
@@ -566,7 +569,7 @@ void SKVkPipelineImpl::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 
   global_push_const_.dirty = false;
 
-  pipeline->UploadPushConstant(global_push_const_.value, ctx_->GetCurrentCMD());
+  pipeline->UploadPushConstant(global_push_const_.value, GetCurrentCMD());
 }
 
 void SKVkPipelineImpl::UpdateTransformMatrixIfNeed(

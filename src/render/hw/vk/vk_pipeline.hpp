@@ -105,6 +105,8 @@ class SKVkPipelineImpl : public HWPipeline {
   void DestroyPipelines();
   void DestroyFrameBuffers();
 
+  VkCommandBuffer GetCurrentCMD();
+
   VKPipelineWrapper* PickColorPipeline();
   VKPipelineWrapper* PickStencilPipeline();
   VKPipelineWrapper* PickGradientPipeline();
