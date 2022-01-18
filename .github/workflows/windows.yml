@@ -4,21 +4,23 @@ on:
   push:
     branches: [main]
     paths:
-      - 'include/*'
-      - 'src/*'
-      - 'CMakeLists.txt'
-      - 'cmake/*'
-      - 'module/*'
-      - 'shaders/*'
+      - ".github/workflows/**"
+      - "include/**"
+      - "src/**"
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - "module/**"
+      - "shaders/**"
   pull_request:
     branches: [main]
     paths:
-      - 'include/*'
-      - 'src/*'
-      - 'CMakeLists.txt'
-      - 'cmake/*'
-      - 'module/*'
-      - 'shaders/*'
+      - ".github/workflows/**"
+      - "include/**"
+      - "src/**"
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - "module/**"
+      - "shaders/**"
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
