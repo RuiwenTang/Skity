@@ -161,7 +161,7 @@ void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                     innerControl);
 
   if (glm::length(outerControl - (outerStart + end_pt1) * 0.5f) >=
-      stroke_radius * 10.f) {
+      stroke_radius * 50.f) {
     // Fixme to solve cubic stroke bad case
     prev_pt_ = p2;
     curr_pt_ = p3;

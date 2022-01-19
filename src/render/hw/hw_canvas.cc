@@ -720,17 +720,30 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw) {
 
 void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
                              std::shared_ptr<MaskFilter> const& mask_filter) {
-  // TODO handle mask filter or other post processing effect
-  EnqueueDrawOp(std::move(draw));
+  if (mask_filter) {
+    auto op = std::make_unique<PostProcessDraw>(
+        std::move(draw), bounds, mask_filter, GetPipeline(), state_.HasClip());
+
+    op->SetTransformMatrix(state_.CurrentMatrix());
+    EnqueueDrawOp(std::move(op));
+  } else {
+    EnqueueDrawOp(std::move(draw));
+  }
 }
 
 void HWCanvas::HandleMaskFilter(
     DrawList draw_list, Rect const& bounds,
     std::shared_ptr<MaskFilter> const& mask_filter) {
-  // TODO handle mask filter or other post processing effect
-
-  for (auto& op : draw_list) {
-    CurrentDrawList().emplace_back(std::move(op));
+  if (mask_filter) {
+    auto op = std::make_unique<PostProcessDraw>(std::move(draw_list), bounds,
+                                                mask_filter, GetPipeline(),
+                                                state_.HasClip());
+    op->SetTransformMatrix(state_.CurrentMatrix());
+    EnqueueDrawOp(std::move(op));
+  } else {
+    for (auto& op : draw_list) {
+      CurrentDrawList().emplace_back(std::move(op));
+    }
   }
 }
 

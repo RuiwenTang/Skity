@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <skity/effect/mask_filter.hpp>
+#include <skity/geometry/rect.hpp>
 #include <src/utils/lazy.hpp>
 #include <vector>
 
@@ -22,7 +24,7 @@ class HWDraw {
       : pipeline_(pipeline), has_clip_(has_clip), clip_stencil_(clip_stencil) {}
   virtual ~HWDraw() = default;
 
-  void Draw();
+  virtual void Draw();
 
   void SetPipelineColorMode(uint32_t mode);
 
@@ -81,6 +83,27 @@ class HWDraw {
   std::vector<float> gradient_stops_ = {};
   HWTexture* texture_ = {};
   HWTexture* font_texture_ = {};
+};
+
+class PostProcessDraw : public HWDraw {
+ public:
+  PostProcessDraw(std::vector<std::unique_ptr<HWDraw>> draw_list,
+                  Rect const& bounds, std::shared_ptr<MaskFilter> mask_filter,
+                  HWPipeline* pipeline, bool has_clip,
+                  bool clip_stencil = false);
+
+  PostProcessDraw(std::unique_ptr<HWDraw> op, Rect const& bounds,
+                  std::shared_ptr<MaskFilter> mask_filter, HWPipeline* pipeline,
+                  bool has_clip, bool clip_stencil = false);
+
+  ~PostProcessDraw() override = default;
+
+  void Draw() override;
+
+ private:
+  std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
+  Rect bounds_ = {};
+  std::shared_ptr<MaskFilter> filter_ = {};
 };
 
 }  // namespace skity

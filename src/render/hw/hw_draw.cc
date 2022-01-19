@@ -222,4 +222,30 @@ void HWDraw::DoStencilBufferMoveInternal() {
   }
 }
 
+PostProcessDraw::PostProcessDraw(std::vector<std::unique_ptr<HWDraw>> draw_list,
+                                 Rect const& bounds,
+                                 std::shared_ptr<MaskFilter> mask_filter,
+                                 HWPipeline* pipeline, bool has_clip,
+                                 bool clip_stencil)
+    : HWDraw(pipeline, has_clip, clip_stencil),
+      draw_list_(std::move(draw_list)),
+      bounds_(bounds),
+      filter_(std::move(mask_filter)) {}
+
+PostProcessDraw::PostProcessDraw(std::unique_ptr<HWDraw> op, Rect const& bounds,
+                                 std::shared_ptr<MaskFilter> mask_filter,
+                                 HWPipeline* pipeline, bool has_clip,
+                                 bool clip_stencil)
+    : HWDraw(pipeline, has_clip, clip_stencil),
+      bounds_(bounds),
+      filter_(std::move(mask_filter)) {
+  draw_list_.emplace_back(std::move(op));
+}
+
+void PostProcessDraw::Draw() {
+  for (const auto& op : draw_list_) {
+    op->Draw();
+  }
+}
+
 }  // namespace skity

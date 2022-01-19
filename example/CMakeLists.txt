@@ -62,6 +62,9 @@ target_link_libraries(gl_svg_example skity::skity skity::svg ${GLFW_LIBRARIES} $
 add_executable(gl_clip_example gl_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 target_link_libraries(gl_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+add_executable(gl_filter_example gl_filter_example.cc filter_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
+target_link_libraries(gl_filter_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
 # vulkan examples
 if (VULKAN_BACKEND)
 
