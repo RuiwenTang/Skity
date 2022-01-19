@@ -77,7 +77,7 @@ The code generates the following result:
 - [gtest](https://github.com/google/googletest.git)
   Used in test for some unit test only used when build for debug
 - [pugixml](https://github.com/zeux/pugixml.git)
-  Used in this library for xml parse when drawing svg image. It will removed to a module directory in future
+  Used in this library for xml parse when drawing svg image.
 - [spdlog](https://github.com/gabime/spdlog.git)
   Used in this library for logging. (Optional can trun off by setting `ENABLE_LOG=OFF`)
 - [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git)
