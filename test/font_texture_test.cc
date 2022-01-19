@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 #include <iostream>
+#include <skity/text/utf.hpp>
+#include <string>
 #include <vector>
 
 #include "test_config.hpp"
@@ -19,7 +21,9 @@ int main(int argc, const char** argv) {
 
   std::vector<skity::GlyphID> glyphs{};
 
-  typeface->textToGlyphId("Hello world", glyphs);
+  std::string str = "Hello World";
+
+  skity::UTF::UTF8ToCodePoint(str.c_str(), str.size(), glyphs);
 
   std::vector<glm::ivec4> regions{};
 
