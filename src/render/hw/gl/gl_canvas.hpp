@@ -19,6 +19,9 @@ class GLCanvas : public HWCanvas {
   std::unique_ptr<HWTexture> GenerateTexture() override;
   std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) override;
+  std::unique_ptr<HWRenderTarget> CreateBackendRenderTarget(
+      std::unique_ptr<HWTexture> color_buffer,
+      std::unique_ptr<HWTexture> stencil_buffer) override;
 
  private:
   GPUContext* ctx_;

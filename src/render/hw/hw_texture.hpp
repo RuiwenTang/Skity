@@ -21,6 +21,7 @@ class HWTexture {
   enum class Type {
     kColorTexture,
     kDepthTexture,
+    kStencilTexture,
   };
 
   virtual ~HWTexture() = default;

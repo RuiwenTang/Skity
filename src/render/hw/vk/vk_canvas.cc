@@ -41,4 +41,10 @@ std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
                                          vk_pipeline_, ctx_);
 }
 
+std::unique_ptr<HWRenderTarget> VKCanvas::CreateBackendRenderTarget(
+    std::unique_ptr<HWTexture> color_buffer,
+    std::unique_ptr<HWTexture> stencil_buffer) {
+  return std::unique_ptr<HWRenderTarget>();
+}
+
 }  // namespace skity

@@ -28,4 +28,10 @@ std::unique_ptr<HWFontTexture> GLCanvas::GenerateFontTexture(
   return std::make_unique<GLFontTexture>(typeface);
 }
 
+std::unique_ptr<HWRenderTarget> GLCanvas::CreateBackendRenderTarget(
+    std::unique_ptr<HWTexture> color_buffer,
+    std::unique_ptr<HWTexture> stencil_buffer) {
+  return std::unique_ptr<HWRenderTarget>();
+}
+
 }  // namespace skity

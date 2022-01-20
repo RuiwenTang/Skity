@@ -10,6 +10,7 @@
 #include "src/render/hw/hw_canvas_state.hpp"
 #include "src/render/hw/hw_draw.hpp"
 #include "src/render/hw/hw_font_texture.hpp"
+#include "src/render/hw/hw_render_target.hpp"
 #include "src/render/hw/hw_texture.hpp"
 #include "src/utils/lazy.hpp"
 
@@ -42,6 +43,12 @@ class HWCanvas : public Canvas {
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
   virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) = 0;
+  virtual std::unique_ptr<HWRenderTarget> CreateBackendRenderTarget(
+      std::unique_ptr<HWTexture> color_buffer,
+      std::unique_ptr<HWTexture> stencil_buffer) = 0;
+
+  std::unique_ptr<HWRenderTarget> GenerateRenderTarget(uint32_t width,
+                                                       uint32_t height);
 
   void onDrawLine(float x0, float y0, float x1, float y1,
                   Paint const& paint) override;

@@ -232,6 +232,23 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
   EnqueueDrawOp(std::move(draw));
 }
 
+std::unique_ptr<HWRenderTarget> HWCanvas::GenerateRenderTarget(
+    uint32_t width, uint32_t height) {
+  auto color_texture = GenerateTexture();
+  color_texture->Init(HWTexture::Type::kColorTexture, HWTexture::Format::kRGBA);
+  color_texture->Resize(width, height);
+
+  auto stencil_texture = GenerateTexture();
+  stencil_texture->Init(HWTexture::Type::kStencilTexture,
+                        HWTexture::Format::kS);
+  stencil_texture->Resize(width, height);
+
+  auto render_target = CreateBackendRenderTarget(std::move(color_texture),
+                                                 std::move(stencil_texture));
+  // TODO implement and init render target
+  return render_target;
+}
+
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {
   if (paint.getPathEffect()) {
