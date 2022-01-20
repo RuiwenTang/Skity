@@ -29,6 +29,8 @@ class GLTexture : public HWTexture {
 
   int32_t GetInternalFormat() const;
 
+  uint32_t GetTextureID() const { return texture_id_; }
+
  private:
   uint32_t texture_id_ = 0;
   uint32_t format_ = 0;

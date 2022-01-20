@@ -110,6 +110,8 @@ if (${ENABLE_HW_RENDER})
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_pipeline.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_pipeline.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.cc
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.cc

@@ -7,7 +7,7 @@ std::shared_ptr<MaskFilter> MaskFilter::MakeBlur(BlurStyle style, float sigma) {
 }
 
 Rect MaskFilter::approximateFilteredBounds(const Rect &src) const {
-  return Rect();
+  return src;
 }
 
 }  // namespace skity

@@ -17,6 +17,7 @@ struct HWDrawRange {
 
 class HWPipeline;
 class HWTexture;
+class HWRenderTarget;
 
 class HWDraw {
  public:
@@ -87,23 +88,30 @@ class HWDraw {
 
 class PostProcessDraw : public HWDraw {
  public:
-  PostProcessDraw(std::vector<std::unique_ptr<HWDraw>> draw_list,
-                  Rect const& bounds, std::shared_ptr<MaskFilter> mask_filter,
+  PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
+                  std::vector<std::unique_ptr<HWDraw>> draw_list,
+                  Rect const& bounds, HWPipeline* pipeline, bool has_clip,
+                  bool clip_stencil = false);
+
+  PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
+                  std::unique_ptr<HWDraw> op, Rect const& bounds,
                   HWPipeline* pipeline, bool has_clip,
                   bool clip_stencil = false);
 
-  PostProcessDraw(std::unique_ptr<HWDraw> op, Rect const& bounds,
-                  std::shared_ptr<MaskFilter> mask_filter, HWPipeline* pipeline,
-                  bool has_clip, bool clip_stencil = false);
+  ~PostProcessDraw() override;
 
-  ~PostProcessDraw() override = default;
+  void SetBlurStyle(BlurStyle style) { blur_style_ = style; }
+
+  void SetBlurSigma(float sigma) { blur_sigma_ = sigma; }
 
   void Draw() override;
 
  private:
+  std::unique_ptr<HWRenderTarget> render_target_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
   Rect bounds_ = {};
-  std::shared_ptr<MaskFilter> filter_ = {};
+  BlurStyle blur_style_ = BlurStyle::kNormal;
+  float blur_sigma_ = 0.f;
 };
 
 }  // namespace skity

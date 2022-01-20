@@ -32,14 +32,15 @@ void GLTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   format_ = hw_texture_format_to_gl(format);
 
   Bind();
-
-  // texture common config
-  GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  if (format == HWTexture::Format::kR) {
-    GL_CALL(PixelStorei, GL_UNPACK_ALIGNMENT, 1);
+  if (format_ != GL_DEPTH_STENCIL) {
+    // texture common config
+    GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    if (format == HWTexture::Format::kR) {
+      GL_CALL(PixelStorei, GL_UNPACK_ALIGNMENT, 1);
+    }
   }
 
   UnBind();
@@ -80,6 +81,8 @@ uint32_t GLTexture::GetInternalType() const {
 int32_t GLTexture::GetInternalFormat() const {
   if (format_ == GL_RED) {
     return GL_R8;
+  } else if (format_ == GL_RGB) {
+    return GL_RGB;
   } else if (format_ == GL_RGBA) {
     return GL_RGBA8;
   } else if (format_ == GL_DEPTH_STENCIL) {

@@ -236,16 +236,21 @@ std::unique_ptr<HWRenderTarget> HWCanvas::GenerateRenderTarget(
     uint32_t width, uint32_t height) {
   auto color_texture = GenerateTexture();
   color_texture->Init(HWTexture::Type::kColorTexture, HWTexture::Format::kRGBA);
+  color_texture->Bind();
   color_texture->Resize(width, height);
+  color_texture->UnBind();
 
   auto stencil_texture = GenerateTexture();
   stencil_texture->Init(HWTexture::Type::kStencilTexture,
                         HWTexture::Format::kS);
+  stencil_texture->Bind();
   stencil_texture->Resize(width, height);
+  stencil_texture->UnBind();
 
   auto render_target = CreateBackendRenderTarget(std::move(color_texture),
                                                  std::move(stencil_texture));
-  // TODO implement and init render target
+  render_target->Init();
+
   return render_target;
 }
 
@@ -738,9 +743,16 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw) {
 void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
                              std::shared_ptr<MaskFilter> const& mask_filter) {
   if (mask_filter) {
-    auto op = std::make_unique<PostProcessDraw>(
-        std::move(draw), bounds, mask_filter, GetPipeline(), state_.HasClip());
+    Rect filter_bounds = mask_filter->approximateFilteredBounds(bounds);
 
+    auto fbo =
+        GenerateRenderTarget(filter_bounds.width(), filter_bounds.height());
+
+    auto op = std::make_unique<PostProcessDraw>(std::move(fbo), std::move(draw),
+                                                filter_bounds, GetPipeline(),
+                                                state_.HasClip());
+    op->SetBlurStyle(mask_filter->blurStyle());
+    op->SetBlurSigma(mask_filter->blurSigma());
     op->SetTransformMatrix(state_.CurrentMatrix());
     EnqueueDrawOp(std::move(op));
   } else {
@@ -752,9 +764,17 @@ void HWCanvas::HandleMaskFilter(
     DrawList draw_list, Rect const& bounds,
     std::shared_ptr<MaskFilter> const& mask_filter) {
   if (mask_filter) {
-    auto op = std::make_unique<PostProcessDraw>(std::move(draw_list), bounds,
-                                                mask_filter, GetPipeline(),
-                                                state_.HasClip());
+    Rect filter_bounds = mask_filter->approximateFilteredBounds(bounds);
+
+    auto fbo =
+        GenerateRenderTarget(filter_bounds.width(), filter_bounds.height());
+
+    auto op = std::make_unique<PostProcessDraw>(
+        std::move(fbo), std::move(draw_list), bounds, GetPipeline(),
+        state_.HasClip());
+
+    op->SetBlurStyle(mask_filter->blurStyle());
+    op->SetBlurSigma(mask_filter->blurSigma());
     op->SetTransformMatrix(state_.CurrentMatrix());
     EnqueueDrawOp(std::move(op));
   } else {

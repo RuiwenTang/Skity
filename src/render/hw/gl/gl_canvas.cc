@@ -1,6 +1,7 @@
 #include "src/render/hw/gl/gl_canvas.hpp"
 
 #include "src/render/hw/gl/gl_font_texture.hpp"
+#include "src/render/hw/gl/gl_render_target.hpp"
 #include "src/render/hw/gl/gl_texture.hpp"
 
 namespace skity {
@@ -31,7 +32,8 @@ std::unique_ptr<HWFontTexture> GLCanvas::GenerateFontTexture(
 std::unique_ptr<HWRenderTarget> GLCanvas::CreateBackendRenderTarget(
     std::unique_ptr<HWTexture> color_buffer,
     std::unique_ptr<HWTexture> stencil_buffer) {
-  return std::unique_ptr<HWRenderTarget>();
+  return std::make_unique<GLRenderTarget>(std::move(color_buffer),
+                                          std::move(stencil_buffer));
 }
 
 }  // namespace skity

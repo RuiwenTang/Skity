@@ -4,6 +4,7 @@
 
 #include "src/logging.hpp"
 #include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_render_target.hpp"
 #include "src/render/hw/hw_texture.hpp"
 
 namespace skity {
@@ -222,25 +223,26 @@ void HWDraw::DoStencilBufferMoveInternal() {
   }
 }
 
-PostProcessDraw::PostProcessDraw(std::vector<std::unique_ptr<HWDraw>> draw_list,
-                                 Rect const& bounds,
-                                 std::shared_ptr<MaskFilter> mask_filter,
-                                 HWPipeline* pipeline, bool has_clip,
-                                 bool clip_stencil)
+PostProcessDraw::PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
+                                 std::vector<std::unique_ptr<HWDraw>> draw_list,
+                                 Rect const& bounds, HWPipeline* pipeline,
+                                 bool has_clip, bool clip_stencil)
     : HWDraw(pipeline, has_clip, clip_stencil),
+      render_target_(std::move(render_target)),
       draw_list_(std::move(draw_list)),
-      bounds_(bounds),
-      filter_(std::move(mask_filter)) {}
+      bounds_(bounds) {}
 
-PostProcessDraw::PostProcessDraw(std::unique_ptr<HWDraw> op, Rect const& bounds,
-                                 std::shared_ptr<MaskFilter> mask_filter,
+PostProcessDraw::PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
+                                 std::unique_ptr<HWDraw> op, Rect const& bounds,
                                  HWPipeline* pipeline, bool has_clip,
                                  bool clip_stencil)
     : HWDraw(pipeline, has_clip, clip_stencil),
-      bounds_(bounds),
-      filter_(std::move(mask_filter)) {
+      render_target_(std::move(render_target)),
+      bounds_(bounds) {
   draw_list_.emplace_back(std::move(op));
 }
+
+PostProcessDraw::~PostProcessDraw() { render_target_->Destroy(); }
 
 void PostProcessDraw::Draw() {
   for (const auto& op : draw_list_) {
