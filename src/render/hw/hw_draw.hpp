@@ -102,7 +102,7 @@ class PostProcessDraw : public HWDraw {
 
   void SetBlurStyle(BlurStyle style) { blur_style_ = style; }
 
-  void SetBlurSigma(float sigma) { blur_sigma_ = sigma; }
+  void SetBlurRadius(float sigma) { blur_radius_ = sigma; }
 
   void Draw() override;
 
@@ -111,7 +111,7 @@ class PostProcessDraw : public HWDraw {
   std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
   Rect bounds_ = {};
   BlurStyle blur_style_ = BlurStyle::kNormal;
-  float blur_sigma_ = 0.f;
+  float blur_radius_ = 0.f;
 };
 
 }  // namespace skity

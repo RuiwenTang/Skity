@@ -752,7 +752,7 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
                                                 filter_bounds, GetPipeline(),
                                                 state_.HasClip());
     op->SetBlurStyle(mask_filter->blurStyle());
-    op->SetBlurSigma(mask_filter->blurSigma());
+    op->SetBlurRadius(mask_filter->blurRadius());
     op->SetTransformMatrix(state_.CurrentMatrix());
     EnqueueDrawOp(std::move(op));
   } else {
@@ -774,7 +774,7 @@ void HWCanvas::HandleMaskFilter(
         state_.HasClip());
 
     op->SetBlurStyle(mask_filter->blurStyle());
-    op->SetBlurSigma(mask_filter->blurSigma());
+    op->SetBlurRadius(mask_filter->blurRadius());
     op->SetTransformMatrix(state_.CurrentMatrix());
     EnqueueDrawOp(std::move(op));
   } else {

@@ -21,7 +21,7 @@ class SK_API MaskFilter {
 
   BlurStyle blurStyle() const { return style_; }
 
-  float blurSigma() const { return sigma_; }
+  float blurRadius() const { return radius_; }
 
   /**
    * @brief
@@ -35,15 +35,15 @@ class SK_API MaskFilter {
    * Create a blur mask filter
    *
    * @param style BlurStyle to use
-   * @param sigma Standard deviation of the Gaussian blur to apply. Must be > 0.
+   * @param radius Radius of the Gaussian blur to apply. Must be > 0.
    *
    * @return blur mask instance
    */
-  static std::shared_ptr<MaskFilter> MakeBlur(BlurStyle style, float sigma);
+  static std::shared_ptr<MaskFilter> MakeBlur(BlurStyle style, float radius);
 
  private:
   BlurStyle style_ = {};
-  float sigma_ = {};
+  float radius_ = {};
 };
 
 }  // namespace skity
