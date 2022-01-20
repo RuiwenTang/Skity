@@ -15,6 +15,7 @@ class HWTexture {
     kR,
     kRGB,
     kRGBA,
+    kS,
   };
 
   enum class Type {

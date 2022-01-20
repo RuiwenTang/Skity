@@ -25,6 +25,10 @@ class GLTexture : public HWTexture {
   void UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                   uint32_t height, void* data) override;
 
+  uint32_t GetInternalType() const;
+
+  int32_t GetInternalFormat() const;
+
  private:
   uint32_t texture_id_ = 0;
   uint32_t format_ = 0;

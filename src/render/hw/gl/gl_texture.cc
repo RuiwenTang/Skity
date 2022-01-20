@@ -12,6 +12,8 @@ static GLenum hw_texture_format_to_gl(HWTexture::Format format) {
       return GL_RGB;
     case HWTexture::Format::kRGBA:
       return GL_RGBA;
+    case HWTexture::Format::kS:
+      return GL_DEPTH_STENCIL;
   }
 
   return GL_RGBA;
@@ -57,20 +59,34 @@ void GLTexture::Resize(uint32_t width, uint32_t height) {
   width_ = width;
   height_ = height;
 
-  // OpenGL es is different from OpenGL about glTexImage2D internal format
-#ifdef SKITY_ANDROID
-  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_ == GL_RED ? GL_R8 : GL_RGBA8,
-          width, height, 0, format_, GL_UNSIGNED_BYTE, nullptr);
-#else
-  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, format_, width, height, 0, format_,
-          GL_UNSIGNED_BYTE, nullptr);
-#endif
+  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, GetInternalFormat(), width, height, 0,
+          format_, GetInternalType(), nullptr);
 }
 
 void GLTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                            uint32_t height, void *data) {
   GL_CALL(TexSubImage2D, GL_TEXTURE_2D, 0, offset_x, offset_y, width, height,
-          format_, GL_UNSIGNED_BYTE, data);
+          format_, GetInternalType(), data);
+}
+
+uint32_t GLTexture::GetInternalType() const {
+  if (format_ == GL_DEPTH_STENCIL) {
+    return GL_UNSIGNED_INT_24_8;
+  } else {
+    return GL_UNSIGNED_BYTE;
+  }
+}
+
+int32_t GLTexture::GetInternalFormat() const {
+  if (format_ == GL_RED) {
+    return GL_R8;
+  } else if (format_ == GL_RGBA) {
+    return GL_RGBA8;
+  } else if (format_ == GL_DEPTH_STENCIL) {
+    return GL_DEPTH24_STENCIL8;
+  }
+
+  return GL_RGBA8;
 }
 
 }  // namespace skity

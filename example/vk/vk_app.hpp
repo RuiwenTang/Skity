@@ -50,6 +50,8 @@ class VkApp : public skity::GPUVkContext {
 
   VkSampleCountFlagBits GetSampleCount() override { return vk_sample_count_; }
 
+  VkFormat GetDepthStencilFormat() override { return depth_stencil_format_; }
+
  protected:
   virtual void OnStart();
   virtual void OnUpdate(float elapsed_time) {}
@@ -113,6 +115,7 @@ class VkApp : public skity::GPUVkContext {
   VkQueue vk_present_queue_ = {};
   VkSwapchainKHR vk_swap_chain_ = {};
   VkFormat swap_chain_format_ = {};
+  VkFormat depth_stencil_format_ = {};
   VkExtent2D swap_chain_extend_ = {};
   std::vector<VkImageView> swap_chain_image_views = {};
   std::vector<ImageWrapper> stencil_image_ = {};

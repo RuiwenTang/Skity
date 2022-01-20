@@ -6,7 +6,8 @@
 
 namespace skity {
 
-static VkFormat hw_texture_format_to_vk_format(HWTexture::Format format) {
+static VkFormat hw_texture_format_to_vk_format(HWTexture::Format format,
+                                               VkFormat depth_stencil_format) {
   switch (format) {
     case HWTexture::Format::kRGB:
       return VK_FORMAT_R8G8B8_UNORM;
@@ -14,6 +15,8 @@ static VkFormat hw_texture_format_to_vk_format(HWTexture::Format format) {
       return VK_FORMAT_R8G8B8A8_UNORM;
     case HWTexture::Format::kR:
       return VK_FORMAT_R8_UNORM;
+    case HWTexture::Format::kS:
+      return depth_stencil_format;
   }
 }
 
@@ -22,6 +25,12 @@ static uint32_t vk_format_comp(VkFormat format) {
     return 3;
   } else if (format == VK_FORMAT_R8G8B8A8_UNORM) {
     return 4;
+  } else if (format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
+    return 8;
+  } else if (format == VK_FORMAT_D24_UNORM_S8_UINT) {
+    return 4;
+  } else if (format == VK_FORMAT_D16_UNORM_S8_UINT) {
+    return 3;
   } else {
     return 1;
   }
@@ -32,7 +41,8 @@ VKTexture::VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
     : HWTexture(), allocator_(allocator), pipeline_(pipeline), ctx_(ctx) {}
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
-  this->format_ = hw_texture_format_to_vk_format(format);
+  this->format_ =
+      hw_texture_format_to_vk_format(format, ctx_->GetDepthStencilFormat());
   this->bpp_ = vk_format_comp(this->format_);
   this->range_.aspectMask = type == HWTexture::Type::kColorTexture
                                 ? VK_IMAGE_ASPECT_COLOR_BIT

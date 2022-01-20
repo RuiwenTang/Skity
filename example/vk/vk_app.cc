@@ -770,15 +770,14 @@ void VkApp::CreateSwapChainImageViews() {
       exit(-1);
     }
   }
-  VkFormat depth_format;
-  if (!get_support_depth_format(vk_phy_device_, &depth_format)) {
+  if (!get_support_depth_format(vk_phy_device_, &depth_stencil_format_)) {
     spdlog::error("can not find format support depth and stencil buffer");
     exit(-1);
   }
   // create image and image-view for stencil buffer
   VkImageCreateInfo image_create_info{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
   image_create_info.imageType = VK_IMAGE_TYPE_2D;
-  image_create_info.format = depth_format;
+  image_create_info.format = depth_stencil_format_;
   image_create_info.extent = {swap_chain_extend_.width,
                               swap_chain_extend_.height, 1};
   image_create_info.mipLevels = 1;
@@ -819,7 +818,7 @@ void VkApp::CreateSwapChainImageViews() {
         VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
     image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
     image_view_create_info.image = stencil_image_[i].image;
-    image_view_create_info.format = depth_format;
+    image_view_create_info.format = depth_stencil_format_;
     image_view_create_info.subresourceRange.baseMipLevel = 0;
     image_view_create_info.subresourceRange.levelCount = 1;
     image_view_create_info.subresourceRange.baseArrayLayer = 0;
@@ -833,7 +832,7 @@ void VkApp::CreateSwapChainImageViews() {
       exit(-1);
     }
 
-    stencil_image_[i].format = depth_format;
+    stencil_image_[i].format = depth_stencil_format_;
   }
 }
 

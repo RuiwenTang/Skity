@@ -141,6 +141,13 @@ struct GPUVkContext : public GPUContext {
    * @return VkSampleCountFlagBits
    */
   virtual VkSampleCountFlagBits GetSampleCount() = 0;
+
+  /**
+   * @brief Get the Depth Stencil Format which current Vulkan context supported
+   *
+   * @return VkFormat
+   */
+  virtual VkFormat GetDepthStencilFormat() = 0;
 };
 
 #endif
