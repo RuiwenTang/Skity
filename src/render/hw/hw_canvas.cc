@@ -234,11 +234,19 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
 
 std::unique_ptr<HWRenderTarget> HWCanvas::GenerateRenderTarget(
     uint32_t width, uint32_t height) {
-  auto color_texture = GenerateTexture();
-  color_texture->Init(HWTexture::Type::kColorTexture, HWTexture::Format::kRGBA);
-  color_texture->Bind();
-  color_texture->Resize(width, height);
-  color_texture->UnBind();
+  auto hcolor_texture = GenerateTexture();
+  hcolor_texture->Init(HWTexture::Type::kColorTexture,
+                       HWTexture::Format::kRGBA);
+  hcolor_texture->Bind();
+  hcolor_texture->Resize(width, height);
+  hcolor_texture->UnBind();
+
+  auto vcolor_texture = GenerateTexture();
+  vcolor_texture->Init(HWTexture::Type::kColorTexture,
+                       HWTexture::Format::kRGBA);
+  vcolor_texture->Bind();
+  vcolor_texture->Resize(width, height);
+  vcolor_texture->UnBind();
 
   auto stencil_texture = GenerateTexture();
   stencil_texture->Init(HWTexture::Type::kStencilTexture,
@@ -247,7 +255,8 @@ std::unique_ptr<HWRenderTarget> HWCanvas::GenerateRenderTarget(
   stencil_texture->Resize(width, height);
   stencil_texture->UnBind();
 
-  auto render_target = CreateBackendRenderTarget(std::move(color_texture),
+  auto render_target = CreateBackendRenderTarget(std::move(hcolor_texture),
+                                                 std::move(vcolor_texture),
                                                  std::move(stencil_texture));
   render_target->Init();
 

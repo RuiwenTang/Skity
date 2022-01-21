@@ -30,9 +30,11 @@ std::unique_ptr<HWFontTexture> GLCanvas::GenerateFontTexture(
 }
 
 std::unique_ptr<HWRenderTarget> GLCanvas::CreateBackendRenderTarget(
-    std::unique_ptr<HWTexture> color_buffer,
+    std::unique_ptr<HWTexture> hcolor_buffer,
+    std::unique_ptr<HWTexture> vcolor_buffer,
     std::unique_ptr<HWTexture> stencil_buffer) {
-  return std::make_unique<GLRenderTarget>(std::move(color_buffer),
+  return std::make_unique<GLRenderTarget>(std::move(hcolor_buffer),
+                                          std::move(vcolor_buffer),
                                           std::move(stencil_buffer));
 }
 

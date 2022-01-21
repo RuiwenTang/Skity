@@ -42,7 +42,8 @@ std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
 }
 
 std::unique_ptr<HWRenderTarget> VKCanvas::CreateBackendRenderTarget(
-    std::unique_ptr<HWTexture> color_buffer,
+    std::unique_ptr<HWTexture> hcolor_buffer,
+    std::unique_ptr<HWTexture> vcolor_buffer,
     std::unique_ptr<HWTexture> stencil_buffer) {
   return std::unique_ptr<HWRenderTarget>();
 }

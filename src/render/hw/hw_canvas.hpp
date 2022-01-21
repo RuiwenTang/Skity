@@ -44,7 +44,8 @@ class HWCanvas : public Canvas {
   virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) = 0;
   virtual std::unique_ptr<HWRenderTarget> CreateBackendRenderTarget(
-      std::unique_ptr<HWTexture> color_buffer,
+      std::unique_ptr<HWTexture> hcolor_buffer,
+      std::unique_ptr<HWTexture> vcolor_buffer,
       std::unique_ptr<HWTexture> stencil_buffer) = 0;
 
   std::unique_ptr<HWRenderTarget> GenerateRenderTarget(uint32_t width,

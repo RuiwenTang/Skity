@@ -11,13 +11,17 @@ namespace skity {
 
 class HWRenderTarget {
  public:
-  HWRenderTarget(std::unique_ptr<HWTexture> color_buffer,
+  HWRenderTarget(std::unique_ptr<HWTexture> hcolor_buffer,
+                 std::unique_ptr<HWTexture> vcolor_buffer,
                  std::unique_ptr<HWTexture> stencil_buffer)
-      : c_buffer_(std::move(color_buffer)),
+      : c_h_buffer_(std::move(hcolor_buffer)),
+        c_v_buffer_(std::move(vcolor_buffer)),
         s_buffer_(std::move(stencil_buffer)) {}
   virtual ~HWRenderTarget() = default;
 
-  HWTexture* ColorBuffer() const { return c_buffer_.get(); }
+  HWTexture* HColorBuffer() const { return c_h_buffer_.get(); }
+
+  HWTexture* VColorBuffer() const { return c_v_buffer_.get(); }
 
   HWTexture* StencilBuffer() const { return s_buffer_.get(); }
 
@@ -25,20 +29,21 @@ class HWRenderTarget {
 
   void Destroy() {
     OnDestroy();
-    c_buffer_->Destroy();
+    c_h_buffer_->Destroy();
     s_buffer_->Destroy();
   }
 
-  uint32_t Width() const { return c_buffer_->GetWidth(); }
+  uint32_t Width() const { return c_h_buffer_->GetWidth(); }
 
-  uint32_t Height() const { return c_buffer_->GetHeight(); }
+  uint32_t Height() const { return c_h_buffer_->GetHeight(); }
 
  protected:
   virtual void OnInit() = 0;
   virtual void OnDestroy() = 0;
 
  private:
-  std::unique_ptr<HWTexture> c_buffer_;
+  std::unique_ptr<HWTexture> c_h_buffer_;
+  std::unique_ptr<HWTexture> c_v_buffer_;
   std::unique_ptr<HWTexture> s_buffer_;
 };
 

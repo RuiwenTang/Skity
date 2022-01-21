@@ -7,9 +7,11 @@ namespace skity {
 
 class GLRenderTarget : public HWRenderTarget {
  public:
-  GLRenderTarget(std::unique_ptr<HWTexture> color_buffer,
+  GLRenderTarget(std::unique_ptr<HWTexture> hcolor_buffer,
+                 std::unique_ptr<HWTexture> vcolor_buffer,
                  std::unique_ptr<HWTexture> stencil_buffer)
-      : HWRenderTarget(std::move(color_buffer), std::move(stencil_buffer)),
+      : HWRenderTarget(std::move(hcolor_buffer), std::move(vcolor_buffer),
+                       std::move(stencil_buffer)),
         fbo_(0) {}
   ~GLRenderTarget() override = default;
 

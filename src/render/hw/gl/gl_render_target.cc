@@ -16,7 +16,7 @@ void GLRenderTarget::OnInit() {
 
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
 
-  auto color_buffer = (GLTexture*)ColorBuffer();
+  auto color_buffer = (GLTexture*)HColorBuffer();
   auto stencil_buffer = (GLTexture*)StencilBuffer();
 
   // bind color attachment
