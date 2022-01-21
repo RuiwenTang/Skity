@@ -8,6 +8,7 @@
 #define PIPELINE_MODE_IMAGE_TEXTURE 2
 #define PIPELINE_MODE_LINEAR_GRADIENT 3
 #define PIPELINE_MODE_RADIAL_GRADIENT 4
+#define PIPELINE_MODE_FBO_TEXTURE 5
 
 #define VERTEX_TYPE_LINE_NORMAL 1
 #define VERTEX_TYPE_CIRCLE 2
@@ -178,13 +179,17 @@ void main() {
     FragColor = vec4(0, 0, 0, 0);
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w) * GlobalAlpha;
-  } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE) {
+  } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE ||
+             ColorType == PIPELINE_MODE_FBO_TEXTURE) {
     // Texture sampler
     vec2 uv = calculate_uv();
 
     uv.x = clamp(uv.x, 0.0, 1.0);
 
     uv.y = clamp(uv.y, 0.0, 1.0);
+    if (ColorType == PIPELINE_MODE_FBO_TEXTURE) {
+      uv.y = 1.0 - uv.y;
+    }
     FragColor = texture(UserTexture, uv) * GlobalAlpha;
   } else {
     vec4 g_color = calculate_gradient_color();

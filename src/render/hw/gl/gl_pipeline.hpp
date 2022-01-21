@@ -66,6 +66,10 @@ class GLPipeline : public HWPipeline {
 
   void BindTexture(HWTexture* texture, uint32_t slot) override;
 
+  void BindRenderTarget(HWRenderTarget* render_target) override;
+
+  void UnBindRenderTarget(HWRenderTarget* render_target) override;
+
  private:
   void InitShader();
   void InitBufferObject();

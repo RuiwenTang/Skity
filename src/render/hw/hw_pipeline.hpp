@@ -13,6 +13,7 @@ enum HWPipelineColorMode {
   kImageTexture = 2,
   kLinearGradient = 3,
   kRadialGradient = 4,
+  kFBOTexture = 5,
 };
 
 enum class HWStencilOp {
@@ -32,6 +33,7 @@ enum class HWStencilFunc {
 };
 
 class HWTexture;
+class HWRenderTarget;
 
 class HWPipeline {
  public:
@@ -50,7 +52,11 @@ class HWPipeline {
    *
    * @param mvp
    */
-  virtual void SetViewProjectionMatrix(glm::mat4 const& mvp) = 0;
+  virtual void SetViewProjectionMatrix(glm::mat4 const& mvp) {
+    mvp_matrix_ = mvp;
+  }
+
+  glm::mat4 GetMVPMatrix() const { return mvp_matrix_; }
 
   /**
    * @brief Upload transform matrix to GPU shader
@@ -139,7 +145,12 @@ class HWPipeline {
 
   virtual void BindTexture(HWTexture* texture, uint32_t slot) = 0;
 
+  virtual void BindRenderTarget(HWRenderTarget* render_target) = 0;
+
+  virtual void UnBindRenderTarget(HWRenderTarget* render_target) = 0;
+
  private:
+  glm::mat4 mvp_matrix_ = {};
   glm::mat4 model_matrix_ = {};
 };
 

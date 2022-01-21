@@ -106,11 +106,19 @@ class PostProcessDraw : public HWDraw {
   void Draw() override;
 
  private:
+  void DrawToRenderTarget();
+
+  void DoFilter();
+
+  void DrawToCanvas();
+
+ private:
   HWRenderTarget* render_target_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
   Rect bounds_ = {};
   BlurStyle blur_style_ = BlurStyle::kNormal;
   float blur_radius_ = 0.f;
+  glm::mat4 saved_mvp_ = {};
 };
 
 }  // namespace skity

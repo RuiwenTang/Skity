@@ -76,6 +76,10 @@ class SKVkPipelineImpl : public HWPipeline {
 
   void BindTexture(HWTexture* texture, uint32_t slot) override;
 
+  void BindRenderTarget(HWRenderTarget* render_target) override;
+
+  void UnBindRenderTarget(HWRenderTarget* render_target) override;
+
   // internal vulkan helper functions
   VKMemoryAllocator* Allocator() const { return vk_memory_allocator_.get(); }
 

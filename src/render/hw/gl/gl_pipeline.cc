@@ -1,6 +1,7 @@
 #include "src/render/hw/gl/gl_pipeline.hpp"
 
 #include "src/render/hw/gl/gl_interface.hpp"
+#include "src/render/hw/gl/gl_render_target.hpp"
 
 namespace skity {
 
@@ -77,6 +78,7 @@ void GLPipeline::UnBind() {
 }
 
 void GLPipeline::SetViewProjectionMatrix(glm::mat4 const& mvp) {
+  HWPipeline::SetViewProjectionMatrix(mvp);
   shader_->SetMVP(mvp);
 }
 
@@ -190,6 +192,22 @@ void GLPipeline::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
 
 void GLPipeline::BindTexture(HWTexture* /* unused */, uint32_t slot) {
   GL_CALL(ActiveTexture, slot_to_gl_texture_unit(slot));
+}
+
+void GLPipeline::BindRenderTarget(HWRenderTarget* render_target) {
+  GLRenderTarget* fbo = (GLRenderTarget*)render_target;
+
+  fbo->Bind();
+
+  GL_CALL(Viewport, 0, 0, fbo->Width(), fbo->Height());
+}
+
+void GLPipeline::UnBindRenderTarget(HWRenderTarget* render_target) {
+  GLRenderTarget* fbo = (GLRenderTarget*)render_target;
+
+  fbo->UnBind();
+
+  GL_CALL(Viewport, 0, 0, 1600, 1200);
 }
 
 }  // namespace skity

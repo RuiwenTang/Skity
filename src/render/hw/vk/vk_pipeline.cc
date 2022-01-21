@@ -101,6 +101,7 @@ void SKVkPipelineImpl::UnBind() {
 }
 
 void SKVkPipelineImpl::SetViewProjectionMatrix(const glm::mat4& mvp) {
+  HWPipeline::SetViewProjectionMatrix(mvp);
   LOG_DEBUG("vk_pipeline set mvp");
   global_push_const_.value.mvp = mvp;
   global_push_const_.dirty = true;
@@ -292,6 +293,10 @@ void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
     font_texture_ = vk_texture;
   }
 }
+
+void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {}
+
+void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {}
 
 VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
   VkCommandBufferAllocateInfo buffer_info{

@@ -27,6 +27,10 @@ class HWRenderTarget {
 
   void Init() { OnInit(); }
 
+  virtual void BindHBuffer() = 0;
+
+  virtual void BindVBuffer() = 0;
+
   void Destroy() {
     OnDestroy();
     c_h_buffer_->Destroy();

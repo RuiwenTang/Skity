@@ -90,6 +90,9 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(UniformMatrix4fv);
   GET_PROC(UseProgram);
   GET_PROC(VertexAttribPointer);
+  GET_PROC(Viewport);
+  GET_PROC(ClearBufferfv);
+  GET_PROC(ClearBufferfi);
 }
 
 GLInterface* GLInterface::GlobalInterface() { return g_interface; }

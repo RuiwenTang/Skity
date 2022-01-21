@@ -17,10 +17,21 @@ class GLRenderTarget : public HWRenderTarget {
 
   uint32_t GetFrameBufferID() const { return fbo_; }
 
+  void Bind();
+
+  void BindHBuffer() override;
+
+  void BindVBuffer() override;
+
+  void UnBind();
+
  protected:
   void OnInit() override;
 
   void OnDestroy() override;
+
+ private:
+  void Clear();
 
  private:
   uint32_t fbo_ = {};

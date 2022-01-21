@@ -150,8 +150,8 @@ void HWDraw::DoColorFill() {
     if (!gradient_stops_.empty()) {
       pipeline_->SetGradientPositions(gradient_stops_);
     }
-  } else if (pipeline_mode_ == kImageTexture) {
-    pipeline_->SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
+  } else if (pipeline_mode_ == kImageTexture || pipeline_mode_ == kFBOTexture) {
+    pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
     // slot 0 is image texture
     // slot 1 is font texture
     pipeline_->BindTexture(texture_, 0);
@@ -245,9 +245,56 @@ PostProcessDraw::PostProcessDraw(HWRenderTarget* render_target,
 PostProcessDraw::~PostProcessDraw() = default;
 
 void PostProcessDraw::Draw() {
+  SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
+  DrawToRenderTarget();
+
+  DoFilter();
+
+  DrawToCanvas();
+}
+
+void PostProcessDraw::DrawToRenderTarget() {
+  render_target_->BindHBuffer();
+
+  GetPipeline()->BindRenderTarget(render_target_);
+
+  glm::mat4 matrix = glm::identity<glm::mat4>();
+
+  auto mvp = glm::ortho(bounds_.left(), bounds_.right(), bounds_.bottom(),
+                        bounds_.top());
+
+  saved_mvp_ = GetPipeline()->GetMVPMatrix();
+
+  GetPipeline()->SetViewProjectionMatrix(mvp);
+
   for (const auto& op : draw_list_) {
+    op->SetTransformMatrix(matrix);
     op->Draw();
   }
+}
+
+void PostProcessDraw::DoFilter() {
+  // do horizontal blur
+  render_target_->BindVBuffer();
+  SetTexture(render_target_->HColorBuffer());
+  HWDraw::Draw();
+
+  // do vertical blur
+  render_target_->BindHBuffer();
+  SetTexture(render_target_->VColorBuffer());
+  HWDraw::Draw();
+
+  SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
+}
+
+void PostProcessDraw::DrawToCanvas() {
+  GetPipeline()->UnBindRenderTarget(render_target_);
+
+  SetTexture(render_target_->HColorBuffer());
+
+  GetPipeline()->SetViewProjectionMatrix(saved_mvp_);
+
+  HWDraw::Draw();
 }
 
 }  // namespace skity

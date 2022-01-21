@@ -769,11 +769,22 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
                              std::shared_ptr<MaskFilter> const& mask_filter) {
   if (mask_filter) {
     Rect filter_bounds = mask_filter->approximateFilteredBounds(bounds);
-
     auto fbo = QueryRenderTarget(filter_bounds);
 
     auto op = std::make_unique<PostProcessDraw>(
         fbo, std::move(draw), filter_bounds, GetPipeline(), state_.HasClip());
+
+    Paint paint;
+    paint.setStyle(Paint::kFill_Style);
+    HWPathRaster raster{GetMesh(), paint};
+
+    raster.RasterRect(filter_bounds);
+    raster.FlushRaster();
+
+    op->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+    op->SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
+    op->SetGradientBounds({filter_bounds.left(), filter_bounds.top()},
+                          {filter_bounds.right(), filter_bounds.bottom()});
     op->SetBlurStyle(mask_filter->blurStyle());
     op->SetBlurRadius(mask_filter->blurRadius());
     op->SetTransformMatrix(state_.CurrentMatrix());
@@ -794,6 +805,17 @@ void HWCanvas::HandleMaskFilter(
     auto op = std::make_unique<PostProcessDraw>(
         fbo, std::move(draw_list), bounds, GetPipeline(), state_.HasClip());
 
+    Paint paint;
+    paint.setStyle(Paint::kFill_Style);
+    HWPathRaster raster{GetMesh(), paint};
+
+    raster.RasterRect(filter_bounds);
+    raster.FlushRaster();
+
+    op->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+    op->SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
+    op->SetGradientBounds({filter_bounds.left(), filter_bounds.top()},
+                          {filter_bounds.right(), filter_bounds.bottom()});
     op->SetBlurStyle(mask_filter->blurStyle());
     op->SetBlurRadius(mask_filter->blurRadius());
     op->SetTransformMatrix(state_.CurrentMatrix());
