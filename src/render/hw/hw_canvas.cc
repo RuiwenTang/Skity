@@ -69,6 +69,9 @@ HWCanvas::~HWCanvas() {
   for (auto const& it : font_texture_store_) {
     it.second->Destroy();
   }
+
+  render_target_cache_.CleanUp();
+
   GetPipeline()->Destroy();
 }
 

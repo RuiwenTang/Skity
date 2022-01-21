@@ -32,11 +32,29 @@ HWRenderTarget* HWRenderTargetCache::StoreCache(
   } else {
     std::vector<Info> info_list{target_info};
     info_map_.insert(std::make_pair(target_size, info_list));
+    target_cache_.insert(std::make_pair(target_info.target, std::move(target)));
   }
 
   return target_info.target;
 }
 
-void HWRenderTargetCache::BeginFrame() { current_age_++; }
+void HWRenderTargetCache::BeginFrame() {
+  current_age_++;
+  ClearUsedFlags();
+}
+
+void HWRenderTargetCache::CleanUp() {
+  for (auto& it : target_cache_) {
+    it.second->Destroy();
+  }
+}
+
+void HWRenderTargetCache::ClearUsedFlags() {
+  for (auto& it : info_map_) {
+    for (auto& list : it.second) {
+      list.used = false;
+    }
+  }
+}
 
 }  // namespace skity

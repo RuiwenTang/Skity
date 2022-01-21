@@ -88,6 +88,11 @@ class HWRenderTargetCache final {
 
   void BeginFrame();
 
+  void CleanUp();
+
+ private:
+  void ClearUsedFlags();
+
  private:
   std::unordered_map<HWRenderTarget*, RefRenderTarget> target_cache_ = {};
   std::unordered_map<Size, std::vector<Info>, HWRenderTargetCache::SizeHash>
