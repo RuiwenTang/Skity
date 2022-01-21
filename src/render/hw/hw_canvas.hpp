@@ -101,6 +101,7 @@ class HWCanvas : public Canvas {
   HWPipeline* GetPipeline() { return pipeline_.get(); }
   HWTexture* QueryTexture(Pixmap* pixmap);
   HWFontTexture* QueryFontTexture(Typeface* typeface);
+  HWRenderTarget* QueryRenderTarget(Rect const& bounds);
 
   float FillTextRun(float x, float y, TextRun const& run, Paint const& paint);
   float StrokeTextRun(float x, float y, TextRun const& run, Paint const& paint);
@@ -138,6 +139,7 @@ class HWCanvas : public Canvas {
   std::vector<DrawList> draw_list_stack_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
   std::map<Typeface*, std::unique_ptr<HWFontTexture>> font_texture_store_ = {};
+  HWRenderTargetCache render_target_cache_ = {};
 };
 
 }  // namespace skity

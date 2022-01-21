@@ -94,6 +94,7 @@ if (${ENABLE_HW_RENDER})
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_path_visitor.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_path_visitor.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_pipeline.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_render_target.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_render_target.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_texture.hpp
   )

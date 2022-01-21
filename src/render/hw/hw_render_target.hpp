@@ -2,6 +2,8 @@
 #define SKITY_SRC_RENDER_HW_RENDER_TARGET_HPP
 
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 #include "src/render/hw/hw_texture.hpp"
 
@@ -27,6 +29,10 @@ class HWRenderTarget {
     s_buffer_->Destroy();
   }
 
+  uint32_t Width() const { return c_buffer_->GetWidth(); }
+
+  uint32_t Height() const { return c_buffer_->GetHeight(); }
+
  protected:
   virtual void OnInit() = 0;
   virtual void OnDestroy() = 0;
@@ -34,6 +40,54 @@ class HWRenderTarget {
  private:
   std::unique_ptr<HWTexture> c_buffer_;
   std::unique_ptr<HWTexture> s_buffer_;
+};
+
+class HWRenderTargetCache final {
+  using RefRenderTarget = std::unique_ptr<HWRenderTarget>;
+
+ public:
+  struct Size {
+    uint32_t width = {};
+    uint32_t height = {};
+
+    Size() = default;
+
+    bool operator==(Size const& other) const {
+      return width == other.width && height == other.height;
+    }
+  };
+
+  struct SizeHash {
+    std::size_t operator()(Size const& size) const {
+      size_t res = 17;
+
+      res = res * 31 + std::hash<uint32_t>()(size.width);
+      res = res * 31 + std::hash<uint32_t>()(size.height);
+
+      return res;
+    }
+  };
+
+  struct Info {
+    size_t age = {};
+    bool used = false;
+    HWRenderTarget* target = {};
+  };
+
+  HWRenderTargetCache() = default;
+  ~HWRenderTargetCache() = default;
+
+  HWRenderTarget* QueryTarget(uint32_t width, uint32_t height);
+
+  HWRenderTarget* StoreCache(std::unique_ptr<HWRenderTarget> target);
+
+  void BeginFrame();
+
+ private:
+  std::unordered_map<HWRenderTarget*, RefRenderTarget> target_cache_ = {};
+  std::unordered_map<Size, std::vector<Info>, HWRenderTargetCache::SizeHash>
+      info_map_ = {};
+  size_t current_age_ = {};
 };
 
 }  // namespace skity

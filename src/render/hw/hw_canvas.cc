@@ -518,6 +518,7 @@ void HWCanvas::onRotate(float degree, float px, float py) {
 void HWCanvas::onConcat(const Matrix& matrix) { state_.Concat(matrix); }
 
 void HWCanvas::onFlush() {
+  render_target_cache_.BeginFrame();
   GetPipeline()->Bind();
 
   mesh_->UploadMesh(GetPipeline());
@@ -576,6 +577,18 @@ HWFontTexture* HWCanvas::QueryFontTexture(Typeface* typeface) {
   font_texture_store_[typeface] = std::move(texture);
 
   return font_texture_store_[typeface].get();
+}
+
+HWRenderTarget* HWCanvas::QueryRenderTarget(Rect const& bounds) {
+  uint32_t width = bounds.width();
+  uint32_t height = bounds.height();
+  auto target = render_target_cache_.QueryTarget(width, height);
+
+  if (target) {
+    return target;
+  }
+
+  return render_target_cache_.StoreCache(GenerateRenderTarget(width, height));
 }
 
 float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
@@ -745,12 +758,10 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
   if (mask_filter) {
     Rect filter_bounds = mask_filter->approximateFilteredBounds(bounds);
 
-    auto fbo =
-        GenerateRenderTarget(filter_bounds.width(), filter_bounds.height());
+    auto fbo = QueryRenderTarget(filter_bounds);
 
-    auto op = std::make_unique<PostProcessDraw>(std::move(fbo), std::move(draw),
-                                                filter_bounds, GetPipeline(),
-                                                state_.HasClip());
+    auto op = std::make_unique<PostProcessDraw>(
+        fbo, std::move(draw), filter_bounds, GetPipeline(), state_.HasClip());
     op->SetBlurStyle(mask_filter->blurStyle());
     op->SetBlurRadius(mask_filter->blurRadius());
     op->SetTransformMatrix(state_.CurrentMatrix());
@@ -766,12 +777,10 @@ void HWCanvas::HandleMaskFilter(
   if (mask_filter) {
     Rect filter_bounds = mask_filter->approximateFilteredBounds(bounds);
 
-    auto fbo =
-        GenerateRenderTarget(filter_bounds.width(), filter_bounds.height());
+    auto fbo = QueryRenderTarget(filter_bounds);
 
     auto op = std::make_unique<PostProcessDraw>(
-        std::move(fbo), std::move(draw_list), bounds, GetPipeline(),
-        state_.HasClip());
+        fbo, std::move(draw_list), bounds, GetPipeline(), state_.HasClip());
 
     op->SetBlurStyle(mask_filter->blurStyle());
     op->SetBlurRadius(mask_filter->blurRadius());

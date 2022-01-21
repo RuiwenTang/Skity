@@ -88,14 +88,13 @@ class HWDraw {
 
 class PostProcessDraw : public HWDraw {
  public:
-  PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
+  PostProcessDraw(HWRenderTarget* render_target,
                   std::vector<std::unique_ptr<HWDraw>> draw_list,
                   Rect const& bounds, HWPipeline* pipeline, bool has_clip,
                   bool clip_stencil = false);
 
-  PostProcessDraw(std::unique_ptr<HWRenderTarget> render_target,
-                  std::unique_ptr<HWDraw> op, Rect const& bounds,
-                  HWPipeline* pipeline, bool has_clip,
+  PostProcessDraw(HWRenderTarget* render_target, std::unique_ptr<HWDraw> op,
+                  Rect const& bounds, HWPipeline* pipeline, bool has_clip,
                   bool clip_stencil = false);
 
   ~PostProcessDraw() override;
@@ -107,7 +106,7 @@ class PostProcessDraw : public HWDraw {
   void Draw() override;
 
  private:
-  std::unique_ptr<HWRenderTarget> render_target_ = {};
+  HWRenderTarget* render_target_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
   Rect bounds_ = {};
   BlurStyle blur_style_ = BlurStyle::kNormal;
