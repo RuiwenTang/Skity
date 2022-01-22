@@ -254,9 +254,9 @@ void PostProcessDraw::Draw() {
 }
 
 void PostProcessDraw::DrawToRenderTarget() {
-  render_target_->BindHBuffer();
-
   GetPipeline()->BindRenderTarget(render_target_);
+
+  render_target_->BindColorTexture();
 
   glm::mat4 matrix = glm::identity<glm::mat4>();
 
@@ -275,13 +275,13 @@ void PostProcessDraw::DrawToRenderTarget() {
 
 void PostProcessDraw::DoFilter() {
   // do horizontal blur
-  render_target_->BindVBuffer();
-  SetTexture(render_target_->HColorBuffer());
+  render_target_->BindHorizontalTexture();
+  SetTexture(render_target_->ColorTexture());
   HWDraw::Draw();
 
   // do vertical blur
-  render_target_->BindHBuffer();
-  SetTexture(render_target_->VColorBuffer());
+  render_target_->BindVerticalTexture();
+  SetTexture(render_target_->HorizontalTexture());
   HWDraw::Draw();
 
   SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
@@ -290,7 +290,7 @@ void PostProcessDraw::DoFilter() {
 void PostProcessDraw::DrawToCanvas() {
   GetPipeline()->UnBindRenderTarget(render_target_);
 
-  SetTexture(render_target_->HColorBuffer());
+  SetTexture(render_target_->VerticalTexture());
 
   GetPipeline()->SetViewProjectionMatrix(saved_mvp_);
 

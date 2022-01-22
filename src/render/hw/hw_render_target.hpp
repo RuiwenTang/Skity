@@ -9,46 +9,36 @@
 
 namespace skity {
 
+// Need to call HWPipelne::BindRenderTarget first,
+// otherwise, all Bindxxx function is not working
 class HWRenderTarget {
  public:
-  HWRenderTarget(std::unique_ptr<HWTexture> hcolor_buffer,
-                 std::unique_ptr<HWTexture> vcolor_buffer,
-                 std::unique_ptr<HWTexture> stencil_buffer)
-      : c_h_buffer_(std::move(hcolor_buffer)),
-        c_v_buffer_(std::move(vcolor_buffer)),
-        s_buffer_(std::move(stencil_buffer)) {}
+  HWRenderTarget(uint32_t width, uint32_t height)
+      : width_(width), height_(height) {}
   virtual ~HWRenderTarget() = default;
 
-  HWTexture* HColorBuffer() const { return c_h_buffer_.get(); }
+  uint32_t Width() const { return width_; }
+  uint32_t Height() const { return height_; }
 
-  HWTexture* VColorBuffer() const { return c_v_buffer_.get(); }
+  virtual HWTexture* ColorTexture() = 0;
 
-  HWTexture* StencilBuffer() const { return s_buffer_.get(); }
+  virtual HWTexture* HorizontalTexture() = 0;
 
-  void Init() { OnInit(); }
+  virtual HWTexture* VerticalTexture() = 0;
 
-  virtual void BindHBuffer() = 0;
+  virtual void BindColorTexture() = 0;
 
-  virtual void BindVBuffer() = 0;
+  virtual void BindHorizontalTexture() = 0;
 
-  void Destroy() {
-    OnDestroy();
-    c_h_buffer_->Destroy();
-    s_buffer_->Destroy();
-  }
+  virtual void BindVerticalTexture() = 0;
 
-  uint32_t Width() const { return c_h_buffer_->GetWidth(); }
+  virtual void Init() = 0;
 
-  uint32_t Height() const { return c_h_buffer_->GetHeight(); }
-
- protected:
-  virtual void OnInit() = 0;
-  virtual void OnDestroy() = 0;
+  virtual void Destroy() = 0;
 
  private:
-  std::unique_ptr<HWTexture> c_h_buffer_;
-  std::unique_ptr<HWTexture> c_v_buffer_;
-  std::unique_ptr<HWTexture> s_buffer_;
+  uint32_t width_ = 0;
+  uint32_t height_ = 0;
 };
 
 class HWRenderTargetCache final {

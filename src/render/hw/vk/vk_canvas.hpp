@@ -21,10 +21,8 @@ class VKCanvas : public HWCanvas {
   std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) override;
 
-  std::unique_ptr<HWRenderTarget> CreateBackendRenderTarget(
-      std::unique_ptr<HWTexture> hcolor_buffer,
-      std::unique_ptr<HWTexture> vcolor_buffer,
-      std::unique_ptr<HWTexture> stencil_buffer) override;
+  std::unique_ptr<HWRenderTarget> GenerateBackendRenderTarget(
+      uint32_t width, uint32_t height) override;
 
  private:
   SKVkPipelineImpl* vk_pipeline_ = {};

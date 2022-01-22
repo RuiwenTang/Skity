@@ -14,7 +14,12 @@ void check_fbo_state(GLuint fbo) {
   }
 }
 
-void GLRenderTarget::OnInit() {
+void GLRenderTarget::Init() {
+  // step 1 init all internal textures
+  InitTextures();
+
+  // step 2 bind texture to framebuffer
+  // during init stage, only stencil buffer is bind
   GL_CALL(GenFramebuffers, 1, &fbo_);
 
   if (fbo_ == 0) {
@@ -24,16 +29,9 @@ void GLRenderTarget::OnInit() {
 
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
 
-  auto stencil_buffer = (GLTexture*)StencilBuffer();
-
   // bind stencil attachment
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-          GL_TEXTURE_2D, stencil_buffer->GetTextureID(), 0);
-
-  auto error = GL_CALL(GetError);
-  if (error) {
-    LOG_ERROR("get gl error : {:X}", error);
-  }
+          GL_TEXTURE_2D, stencil_texture_.GetTextureID(), 0);
 
   check_fbo_state(fbo_);
 
@@ -42,27 +40,25 @@ void GLRenderTarget::OnInit() {
 
 void GLRenderTarget::Bind() { GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_); }
 
-void GLRenderTarget::BindHBuffer() {
-  auto error = GL_CALL(GetError);
-
-  Bind();
-
-  auto texture = (GLTexture*)HColorBuffer();
-
+void GLRenderTarget::BindColorTexture() {
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D, texture->GetTextureID(), 0);
+          GL_TEXTURE_2D, color_texture_.GetTextureID(), 0);
 
   check_fbo_state(fbo_);
   Clear();
 }
 
-void GLRenderTarget::BindVBuffer() {
-  Bind();
-
-  auto texture = (GLTexture*)VColorBuffer();
-
+void GLRenderTarget::BindHorizontalTexture() {
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D, texture->GetTextureID(), 0);
+          GL_TEXTURE_2D, horizontal_texture_.GetTextureID(), 0);
+
+  check_fbo_state(fbo_);
+  Clear();
+}
+
+void GLRenderTarget::BindVerticalTexture() {
+  GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+          GL_TEXTURE_2D, vertical_texture_.GetTextureID(), 0);
 
   check_fbo_state(fbo_);
 
@@ -74,7 +70,40 @@ void GLRenderTarget::UnBind() {
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
 }
 
-void GLRenderTarget::OnDestroy() { GL_CALL(DeleteFramebuffers, 1, &fbo_); }
+void GLRenderTarget::Destroy() {
+  GL_CALL(DeleteFramebuffers, 1, &fbo_);
+  color_texture_.Destroy();
+  horizontal_texture_.Destroy();
+  vertical_texture_.Destroy();
+  stencil_texture_.Destroy();
+}
+
+void GLRenderTarget::InitTextures() {
+  // init color texture
+  color_texture_.Init(HWTexture::Type::kColorTexture, HWTexture::Format::kRGBA);
+  color_texture_.Bind();
+  color_texture_.Resize(Width(), Height());
+
+  // init horizontal texture
+  horizontal_texture_.Init(HWTexture::Type::kColorTexture,
+                           HWTexture::Format::kRGBA);
+  horizontal_texture_.Bind();
+  horizontal_texture_.Resize(Width(), Height());
+
+  // init vertical texture
+  vertical_texture_.Init(HWTexture::Type::kColorTexture,
+                         HWTexture::Format::kRGBA);
+  vertical_texture_.Bind();
+  vertical_texture_.Resize(Width(), Height());
+
+  // init stencil texture
+  stencil_texture_.Init(HWTexture::Type::kStencilTexture,
+                        HWTexture::Format::kS);
+  stencil_texture_.Bind();
+  stencil_texture_.Resize(Width(), Height());
+
+  stencil_texture_.UnBind();
+}
 
 void GLRenderTarget::Clear() {
   static const GLenum color_buffer = GL_COLOR_ATTACHMENT0;

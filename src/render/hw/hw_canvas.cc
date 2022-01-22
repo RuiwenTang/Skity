@@ -235,37 +235,6 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
   EnqueueDrawOp(std::move(draw));
 }
 
-std::unique_ptr<HWRenderTarget> HWCanvas::GenerateRenderTarget(
-    uint32_t width, uint32_t height) {
-  auto hcolor_texture = GenerateTexture();
-  hcolor_texture->Init(HWTexture::Type::kColorTexture,
-                       HWTexture::Format::kRGBA);
-  hcolor_texture->Bind();
-  hcolor_texture->Resize(width, height);
-  hcolor_texture->UnBind();
-
-  auto vcolor_texture = GenerateTexture();
-  vcolor_texture->Init(HWTexture::Type::kColorTexture,
-                       HWTexture::Format::kRGBA);
-  vcolor_texture->Bind();
-  vcolor_texture->Resize(width, height);
-  vcolor_texture->UnBind();
-
-  auto stencil_texture = GenerateTexture();
-  stencil_texture->Init(HWTexture::Type::kStencilTexture,
-                        HWTexture::Format::kS);
-  stencil_texture->Bind();
-  stencil_texture->Resize(width, height);
-  stencil_texture->UnBind();
-
-  auto render_target = CreateBackendRenderTarget(std::move(hcolor_texture),
-                                                 std::move(vcolor_texture),
-                                                 std::move(stencil_texture));
-  render_target->Init();
-
-  return render_target;
-}
-
 void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {
   if (paint.getPathEffect()) {
@@ -600,7 +569,8 @@ HWRenderTarget* HWCanvas::QueryRenderTarget(Rect const& bounds) {
     return target;
   }
 
-  return render_target_cache_.StoreCache(GenerateRenderTarget(width, height));
+  return render_target_cache_.StoreCache(
+      GenerateBackendRenderTarget(width, height));
 }
 
 float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
