@@ -83,6 +83,7 @@ class GLPipeline : public HWPipeline {
   uint32_t vao_ = 0;
   std::array<uint32_t, 2> buffers_ = {};
   std::array<size_t, 2> buffer_sizes_ = {};
+  glm::ivec4 saved_viewport_ = {};
 };
 
 }  // namespace skity

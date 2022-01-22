@@ -96,6 +96,7 @@ struct GLInterface {
   PFNGLCLEARBUFFERFVPROC fClearBufferfv = nullptr;
   PFNGLCLEARBUFFERFIPROC fClearBufferfi = nullptr;
   PFNGLVIEWPORTPROC fViewport = nullptr;
+  PFNGLGETINTEGERVPROC fGetIntegerv = nullptr;
 };
 
 }  // namespace skity

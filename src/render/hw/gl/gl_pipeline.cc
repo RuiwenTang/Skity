@@ -199,6 +199,9 @@ void GLPipeline::BindRenderTarget(HWRenderTarget* render_target) {
 
   fbo->Bind();
 
+  // save current viewport
+  GL_CALL(GetIntegerv, GL_VIEWPORT, &saved_viewport_[0]);
+
   GL_CALL(Viewport, 0, 0, fbo->Width(), fbo->Height());
 }
 
@@ -207,7 +210,9 @@ void GLPipeline::UnBindRenderTarget(HWRenderTarget* render_target) {
 
   fbo->UnBind();
 
-  GL_CALL(Viewport, 0, 0, 1600, 1200);
+  // restore saved viewport
+  GL_CALL(Viewport, saved_viewport_[0], saved_viewport_[1], saved_viewport_[2],
+          saved_viewport_[3]);
 }
 
 }  // namespace skity
