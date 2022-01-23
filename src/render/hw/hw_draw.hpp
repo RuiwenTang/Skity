@@ -59,6 +59,7 @@ class HWDraw {
   bool HasClip() { return has_clip_; }
 
   const Lazy<glm::mat4>& TransformMatrix() const { return transform_matrix_; }
+
  private:
   void DoStencilIfNeed();
   void DoColorFill();
@@ -112,7 +113,6 @@ class PostProcessDraw : public HWDraw {
   void DoFilter();
 
   void DrawToCanvas();
-
 
   void SaveTransform();
   void RestoreTransform();
