@@ -33,4 +33,23 @@ void draw_filter(skity::Canvas* canvas) {
   canvas->translate(50.f, 0.f);
   canvas->drawCircle(300, 100, 50, paint);
   canvas->restore();
+
+  canvas->save();
+  canvas->translate(200.f, 0.f);
+
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kOuter, 20.f));
+  canvas->drawCircle(300.f, 100.f, 50.f, paint);
+
+  canvas->restore();
+
+  canvas->save();
+
+  canvas->translate(350, 0.f);
+
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kInner, 20.f));
+
+  canvas->drawCircle(300.f, 100.f, 50.f, paint);
+  canvas->restore();
 }

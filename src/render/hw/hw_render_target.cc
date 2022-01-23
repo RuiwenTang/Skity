@@ -24,7 +24,7 @@ HWRenderTarget* HWRenderTargetCache::QueryTarget(uint32_t width,
 HWRenderTarget* HWRenderTargetCache::StoreCache(
     std::unique_ptr<HWRenderTarget> target) {
   Size target_size{target->Width(), target->Height()};
-  Info target_info{current_age_, false, target.get()};
+  Info target_info{current_age_, true, target.get()};
 
   auto it = info_map_.find(target_size);
   if (it != info_map_.end()) {
@@ -32,8 +32,9 @@ HWRenderTarget* HWRenderTargetCache::StoreCache(
   } else {
     std::vector<Info> info_list{target_info};
     info_map_.insert(std::make_pair(target_size, info_list));
-    target_cache_.insert(std::make_pair(target_info.target, std::move(target)));
   }
+
+  target_cache_.insert(std::make_pair(target_info.target, std::move(target)));
 
   return target_info.target;
 }

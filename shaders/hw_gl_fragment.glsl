@@ -11,6 +11,9 @@
 #define PIPELINE_MODE_FBO_TEXTURE 5
 #define PIPELINE_MODE_HORIZONTAL_BLUR 6
 #define PIPELINE_MODE_VERTICAL_BLUR 7
+#define PIPELINE_MODE_SOLID_BLUR 8
+#define PIPELINE_MODE_OUTER_BLUR 9
+#define PIPELINE_MODE_INNER_BLUR 10
 
 #define VERTEX_TYPE_LINE_NORMAL 1
 #define VERTEX_TYPE_CIRCLE 2
@@ -208,6 +211,41 @@ vec4 calculate_horizontal_blur(vec2 uv) {
   return calculate_blur(uv, dir, step_vec);
 }
 
+vec4 calculate_solid_blur(vec2 uv) {
+  uv = vec2(uv.x, 1.0 - uv.y);
+
+  vec4 raw_color = texture(FontTexture, uv);
+  if (raw_color.a > 0.0) {
+    return raw_color;
+  } else {
+    return texture(UserTexture, uv);
+  }
+}
+
+vec4 calculate_outer_blur(vec2 uv) {
+  uv = vec2(uv.x, 1.0 - uv.y);
+  vec4 raw_color = texture(FontTexture, uv);
+
+  if (raw_color.a > 0.0) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+  } else {
+    return texture(UserTexture, uv);
+  }
+}
+
+vec4 calculate_inner_blur(vec2 uv) {
+  uv = vec2(uv.x, 1.0 - uv.y);
+
+  vec4 raw_color = texture(FontTexture, uv);
+  vec4 blur_color = texture(UserTexture, uv);
+
+  if (raw_color.a > 0.0) {
+    return blur_color * (raw_color.a - blur_color.a);
+  } else {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+  }
+}
+
 void main() {
   int vertex_type = int(vPosInfo.x);
 
@@ -233,7 +271,7 @@ void main() {
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w) * GlobalAlpha;
   } else if (ColorType >= PIPELINE_MODE_IMAGE_TEXTURE &&
-             ColorType <= PIPELINE_MODE_VERTICAL_BLUR) {
+             ColorType <= PIPELINE_MODE_INNER_BLUR) {
     // Texture sampler
     vec2 uv = calculate_uv();
 
@@ -247,6 +285,15 @@ void main() {
       return;
     } else if (ColorType == PIPELINE_MODE_VERTICAL_BLUR) {
       FragColor = calculate_vertical_blur(uv);
+      return;
+    } else if (ColorType == PIPELINE_MODE_SOLID_BLUR) {
+      FragColor = calculate_solid_blur(uv);
+      return;
+    } else if (ColorType == PIPELINE_MODE_OUTER_BLUR) {
+      FragColor = calculate_outer_blur(uv);
+      return;
+    } else if (ColorType == PIPELINE_MODE_INNER_BLUR) {
+      FragColor = calculate_inner_blur(uv);
       return;
     }
 

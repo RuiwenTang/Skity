@@ -151,12 +151,16 @@ void HWDraw::DoColorFill() {
       pipeline_->SetGradientPositions(gradient_stops_);
     }
   } else if (pipeline_mode_ >= kImageTexture ||
-             pipeline_mode_ <= kVerticalBlur) {
+             pipeline_mode_ <= kInnerBlurMix) {
     pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
     // slot 0 is image texture
     // slot 1 is font texture
     pipeline_->BindTexture(texture_, 0);
     texture_->Bind();
+    if (pipeline_mode_ >= kSolidBlurMix && pipeline_mode_ <= kInnerBlurMix) {
+      pipeline_->BindTexture(font_texture_, 1);
+      font_texture_->Bind();
+    }
     pipeline_->SetGradientBoundInfo(*gradient_bounds_);
   }
 
@@ -299,7 +303,20 @@ void PostProcessDraw::DrawToCanvas() {
   RestoreTransform();
 
   SetTexture(render_target_->VerticalTexture());
-  SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
+  if (blur_style_ == BlurStyle::kNormal) {
+    SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
+  } else if (blur_style_ == BlurStyle::kSolid) {
+    SetPipelineColorMode(HWPipelineColorMode::kSolidBlurMix);
+  } else if (blur_style_ == BlurStyle::kOuter) {
+    SetPipelineColorMode(HWPipelineColorMode::kOuterBlurMix);
+  } else if (blur_style_ == BlurStyle::kInner) {
+    SetPipelineColorMode(HWPipelineColorMode::kInnerBlurMix);
+  }
+
+  if (blur_style_ != BlurStyle::kNormal) {
+    // raw color texture is pass through font texture
+    SetFontTexture(render_target_->ColorTexture());
+  }
 
   GetPipeline()->SetViewProjectionMatrix(saved_mvp_);
 
