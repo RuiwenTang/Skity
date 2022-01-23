@@ -14,6 +14,8 @@ enum HWPipelineColorMode {
   kLinearGradient = 3,
   kRadialGradient = 4,
   kFBOTexture = 5,
+  kHorizontalBlur = 6,
+  kVerticalBlur = 7,
 };
 
 enum class HWStencilOp {

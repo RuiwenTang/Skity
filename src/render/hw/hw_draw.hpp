@@ -58,6 +58,7 @@ class HWDraw {
   HWPipeline* GetPipeline() { return pipeline_; }
   bool HasClip() { return has_clip_; }
 
+  const Lazy<glm::mat4>& TransformMatrix() const { return transform_matrix_; }
  private:
   void DoStencilIfNeed();
   void DoColorFill();
@@ -112,6 +113,10 @@ class PostProcessDraw : public HWDraw {
 
   void DrawToCanvas();
 
+
+  void SaveTransform();
+  void RestoreTransform();
+
  private:
   HWRenderTarget* render_target_ = {};
   std::vector<std::unique_ptr<HWDraw>> draw_list_ = {};
@@ -119,6 +124,7 @@ class PostProcessDraw : public HWDraw {
   BlurStyle blur_style_ = BlurStyle::kNormal;
   float blur_radius_ = 0.f;
   glm::mat4 saved_mvp_ = {};
+  glm::mat4 saved_transform_ = {};
 };
 
 }  // namespace skity

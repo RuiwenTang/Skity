@@ -9,6 +9,8 @@
 #define PIPELINE_MODE_LINEAR_GRADIENT 3
 #define PIPELINE_MODE_RADIAL_GRADIENT 4
 #define PIPELINE_MODE_FBO_TEXTURE 5
+#define PIPELINE_MODE_HORIZONTAL_BLUR 6
+#define PIPELINE_MODE_VERTICAL_BLUR 7
 
 #define VERTEX_TYPE_LINE_NORMAL 1
 #define VERTEX_TYPE_CIRCLE 2
@@ -155,6 +157,57 @@ vec2 calculate_uv() {
   return vec2(vX, vY);
 }
 
+// all blur calculation is based on
+// https://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
+float calculate_blur_norm() {
+  float sigma = StrokeWidth + 2.0;
+  return 1.0 / (sqrt(2.0 * M_PI) * sigma);
+}
+
+float calculate_blur_coffe(float norm, float step) {
+  // blur mode kernelSize is passed through StrokeWidth
+  float sigma = StrokeWidth + 2.0;
+  return norm * exp(-1.5 * step * step / (sigma * sigma));
+}
+
+vec4 calculate_blur(vec2 uv, vec2 dir, vec2 step_vec) {
+  float norm = calculate_blur_norm();
+
+  float total = norm;
+
+  vec4 acc = texture(UserTexture, uv) * norm;
+
+  int kernel_size = int(StrokeWidth);
+  for (int i = 1; i <= kernel_size; i++) {
+    float coffe = calculate_blur_coffe(norm, float(i));
+    float f_i = float(i);
+
+    acc += texture(UserTexture, uv - f_i * step_vec * dir) * coffe;
+    acc += texture(UserTexture, uv + f_i * step_vec * dir) * coffe;
+
+    total += 2.0 * coffe;
+  }
+
+  acc = acc / total;
+  return acc;
+}
+
+vec4 calculate_vertical_blur(vec2 uv) {
+  vec2 step_vec = vec2(1.0 / (GradientBounds.z - GradientBounds.x),
+                       1.0 / (GradientBounds.w - GradientBounds.y));
+  vec2 dir = vec2(0.0, 1.0);
+
+  return calculate_blur(uv, dir, step_vec);
+}
+
+vec4 calculate_horizontal_blur(vec2 uv) {
+  vec2 step_vec = vec2(1.0 / (GradientBounds.z - GradientBounds.x),
+                       1.0 / (GradientBounds.w - GradientBounds.y));
+  vec2 dir = vec2(1.0, 0.0);
+
+  return calculate_blur(uv, dir, step_vec);
+}
+
 void main() {
   int vertex_type = int(vPosInfo.x);
 
@@ -179,14 +232,24 @@ void main() {
     FragColor = vec4(0, 0, 0, 0);
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w) * GlobalAlpha;
-  } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE ||
-             ColorType == PIPELINE_MODE_FBO_TEXTURE) {
+  } else if (ColorType >= PIPELINE_MODE_IMAGE_TEXTURE &&
+             ColorType <= PIPELINE_MODE_VERTICAL_BLUR) {
     // Texture sampler
     vec2 uv = calculate_uv();
 
     uv.x = clamp(uv.x, 0.0, 1.0);
 
     uv.y = clamp(uv.y, 0.0, 1.0);
+
+    // TODO this code need optimize
+    if (ColorType == PIPELINE_MODE_HORIZONTAL_BLUR) {
+      FragColor = calculate_horizontal_blur(uv);
+      return;
+    } else if (ColorType == PIPELINE_MODE_VERTICAL_BLUR) {
+      FragColor = calculate_vertical_blur(uv);
+      return;
+    }
+
     if (ColorType == PIPELINE_MODE_FBO_TEXTURE) {
       uv.y = 1.0 - uv.y;
     }

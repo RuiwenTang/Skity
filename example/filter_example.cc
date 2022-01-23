@@ -6,7 +6,7 @@ void draw_filter(skity::Canvas* canvas) {
   auto filter = skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 4.f);
 
   skity::Paint paint;
-  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setStyle(skity::Paint::kStroke_Style);
   paint.setStrokeWidth(18);
   paint.setColor(0xff4285F4);
   paint.setStrokeCap(skity::Paint::kRound_Cap);
@@ -25,7 +25,12 @@ void draw_filter(skity::Canvas* canvas) {
 
   // canvas->drawCircle(100, 200, 50, paint);
 
-  paint.setMaskFilter(nullptr);
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 20.f));
 
+  canvas->save();
+  canvas->translate(50.f, 0.f);
   canvas->drawCircle(300, 100, 50, paint);
+  canvas->restore();
 }

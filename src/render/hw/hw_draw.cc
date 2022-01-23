@@ -150,7 +150,8 @@ void HWDraw::DoColorFill() {
     if (!gradient_stops_.empty()) {
       pipeline_->SetGradientPositions(gradient_stops_);
     }
-  } else if (pipeline_mode_ == kImageTexture || pipeline_mode_ == kFBOTexture) {
+  } else if (pipeline_mode_ >= kImageTexture ||
+             pipeline_mode_ <= kVerticalBlur) {
     pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
     // slot 0 is image texture
     // slot 1 is font texture
@@ -246,6 +247,9 @@ PostProcessDraw::~PostProcessDraw() = default;
 
 void PostProcessDraw::Draw() {
   SetPipelineColorMode(HWPipelineColorMode::kImageTexture);
+
+  SaveTransform();
+
   DrawToRenderTarget();
 
   DoFilter();
@@ -274,27 +278,48 @@ void PostProcessDraw::DrawToRenderTarget() {
 }
 
 void PostProcessDraw::DoFilter() {
+  // pass blur radius through stroke width uniform
+  SetStrokeWidth(blur_radius_);
   // do horizontal blur
   render_target_->BindHorizontalTexture();
   SetTexture(render_target_->ColorTexture());
+  SetPipelineColorMode(HWPipelineColorMode::kHorizontalBlur);
   HWDraw::Draw();
 
   // do vertical blur
   render_target_->BindVerticalTexture();
   SetTexture(render_target_->HorizontalTexture());
+  SetPipelineColorMode(HWPipelineColorMode::kVerticalBlur);
   HWDraw::Draw();
-
-  SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
 }
 
 void PostProcessDraw::DrawToCanvas() {
   GetPipeline()->UnBindRenderTarget(render_target_);
 
+  RestoreTransform();
+
   SetTexture(render_target_->VerticalTexture());
+  SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
 
   GetPipeline()->SetViewProjectionMatrix(saved_mvp_);
 
   HWDraw::Draw();
+}
+
+void PostProcessDraw::SaveTransform() {
+  auto const& matrix = TransformMatrix();
+
+  if (!matrix.IsValid()) {
+    return;
+  }
+
+  saved_transform_ = *matrix;
+
+  SetTransformMatrix(glm::identity<glm::mat4>());
+}
+
+void PostProcessDraw::RestoreTransform() {
+  SetTransformMatrix(saved_transform_);
 }
 
 }  // namespace skity
