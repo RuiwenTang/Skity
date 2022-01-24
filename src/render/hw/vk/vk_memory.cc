@@ -102,7 +102,7 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
   }
 
   AllocatedImage* AllocateImage(VkFormat format, VkExtent3D extent,
-                                VkImageAspectFlags flags) override {
+                                VkImageUsageFlags flags) override {
     VkImageCreateInfo image_info =
         VKUtils::ImageCreateInfo(format, flags, extent);
 
