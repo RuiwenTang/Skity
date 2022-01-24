@@ -89,6 +89,10 @@ class VKPipelineWrapper {
                                   SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
+  virtual void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
+                              SKVkFrameBufferData* frame_buffer,
+                              VKMemoryAllocator* allocator) {}
+
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 
@@ -147,6 +151,9 @@ class VKPipelineWrapper {
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilReplacePipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticBlurPipeline(
       GPUVkContext* ctx);
 
  protected:

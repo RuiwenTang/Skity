@@ -7,6 +7,7 @@
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
+#include "src/render/hw/vk/vk_render_target.hpp"
 #include "src/render/hw/vk/vk_texture.hpp"
 
 #define SKITY_DEFAULT_BUFFER_SIZE 512
@@ -262,6 +263,10 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
              color_mode_ == HWPipelineColorMode::kRadialGradient) {
     gradient_info_set_.value.count.z = color_mode_;
     picked_pipeline = PickGradientPipeline();
+  } else if (color_mode_ >= HWPipelineColorMode::kFBOTexture &&
+             color_mode_ <= HWPipelineColorMode::kInnerBlurMix) {
+    // TODO pick stencil keep or stencil clip pipeline
+    picked_pipeline = static_blur_pipeline_.get();
   }
 
   BindPipelineIfNeed(picked_pipeline);
@@ -294,9 +299,23 @@ void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
   }
 }
 
-void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {}
+void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {
+  current_target_ = (VKRenderTarget*)render_target;
+  // create internal vulkan cmd
+  current_target_->StartDraw();
 
-void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {}
+  uint64_t offset = 0;
+  VkBuffer buffer = vertex_buffer_->GetBuffer();
+  VK_CALL(vkCmdBindVertexBuffers, GetCurrentCMD(), 0, 1, &buffer, &offset);
+
+  VK_CALL(vkCmdBindIndexBuffer, GetCurrentCMD(), index_buffer_->GetBuffer(), 0,
+          VK_INDEX_TYPE_UINT32);
+}
+
+void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
+  // submit internal vulkan cmd
+  current_target_->EndDraw();
+}
 
 VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
   VkCommandBufferAllocateInfo buffer_info{
@@ -420,6 +439,7 @@ void SKVkPipelineImpl::DestroyPipelines() {
   stencil_clip_pipeline_->Destroy(ctx_);
   stencil_rec_clip_pipeline_->Destroy(ctx_);
   stencil_replace_pipeline_->Destroy(ctx_);
+  static_blur_pipeline_->Destroy(ctx_);
 }
 
 void SKVkPipelineImpl::DestroyFrameBuffers() {
@@ -429,7 +449,11 @@ void SKVkPipelineImpl::DestroyFrameBuffers() {
 }
 
 VkCommandBuffer SKVkPipelineImpl::GetCurrentCMD() {
-  return ctx_->GetCurrentCMD();
+  if (current_target_) {
+    return current_target_->CurrentCMD();
+  } else {
+    return ctx_->GetCurrentCMD();
+  }
 }
 
 void SKVkPipelineImpl::InitPipelines() {
@@ -467,6 +491,8 @@ void SKVkPipelineImpl::InitPipelines() {
       VKPipelineWrapper::CreateStencilRecClipPipeline(ctx_);
   stencil_replace_pipeline_ =
       VKPipelineWrapper::CreateStencilReplacePipeline(ctx_);
+
+  static_blur_pipeline_ = VKPipelineWrapper::CreateStaticBlurPipeline(ctx_);
 }
 
 void SKVkPipelineImpl::InitVertexBuffer(size_t new_size) {
@@ -624,6 +650,9 @@ void SKVkPipelineImpl::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
                                  vk_memory_allocator_.get());
     gradient_info_set_.dirty = false;
   }
+
+  pipeline->UploadBlurInfo({color_mode_, 0, 0, 0}, ctx_, CurrentFrameBuffer(),
+                           vk_memory_allocator_.get());
 
   if (image_texture_) {
     pipeline->UploadImageTexture(image_texture_, ctx_, CurrentFrameBuffer(),

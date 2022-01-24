@@ -13,9 +13,6 @@ void draw_filter(skity::Canvas* canvas) {
 
   paint.setMaskFilter(filter);
 
-  glm::ivec4 sizes;
-  glGetIntegerv(GL_VIEWPORT, &sizes[0]);
-
   skity::Path path;
   path.moveTo(10, 10);
   path.quadTo(256, 64, 128, 128);

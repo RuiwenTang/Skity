@@ -277,6 +277,7 @@ void PostProcessDraw::DrawToRenderTarget() {
 
   for (const auto& op : draw_list_) {
     op->SetTransformMatrix(matrix);
+    op->SetHasClip(false);
     op->Draw();
   }
 }

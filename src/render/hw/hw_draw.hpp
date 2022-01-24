@@ -54,6 +54,8 @@ class HWDraw {
 
   void SetGlobalAlpha(float alpha);
 
+  void SetHasClip(bool has_clip) { has_clip_ = has_clip; }
+
  protected:
   HWPipeline* GetPipeline() { return pipeline_; }
   bool HasClip() { return has_clip_; }

@@ -13,6 +13,7 @@ namespace skity {
 
 class VKTexture;
 class VKFontTexture;
+class VKRenderTarget;
 
 template <class T>
 struct DirtyValueHolder {
@@ -169,6 +170,8 @@ class SKVkPipelineImpl : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
+  // blur pipelines
+  std::unique_ptr<VKPipelineWrapper> static_blur_pipeline_ = {};
 
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
@@ -180,6 +183,7 @@ class SKVkPipelineImpl : public HWPipeline {
 
   VKTexture* image_texture_ = nullptr;
   VKTexture* font_texture_ = nullptr;
+  VKRenderTarget* current_target_ = nullptr;
   VkDescriptorSet empty_font_set_ = VK_NULL_HANDLE;
   std::unique_ptr<VKFontTexture> empty_font_texture_ = {};
   std::map<VKTexture*, VkDescriptorSet> used_font_and_set_ = {};

@@ -94,4 +94,7 @@ if (VULKAN_BACKEND)
 
   add_executable(vk_clip_example vk_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vk_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
+
+  add_executable(vk_filter_example vk_filter_example.cc filter_example.cc $<TARGET_OBJECTS:vk_app>)
+  target_link_libraries(vk_filter_example skity::skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
 endif()

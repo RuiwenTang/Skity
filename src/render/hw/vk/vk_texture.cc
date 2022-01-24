@@ -36,17 +36,30 @@ static uint32_t vk_format_comp(VkFormat format) {
   }
 }
 
+static VkImageAspectFlags hw_texture_type_to_vk_aspect(HWTexture::Type type) {
+  if (type == HWTexture::Type::kColorTexture) {
+    return VK_IMAGE_ASPECT_COLOR_BIT;
+  } else if (type == HWTexture::Type::kDepthTexture) {
+    return VK_IMAGE_ASPECT_DEPTH_BIT;
+  } else {
+    // no stand alone stencil aspect, use depth and stencil aspect
+    return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+  }
+}
+
 VKTexture::VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
-                     GPUVkContext* ctx)
-    : HWTexture(), allocator_(allocator), pipeline_(pipeline), ctx_(ctx) {}
+                     GPUVkContext* ctx, bool render_target)
+    : HWTexture(),
+      allocator_(allocator),
+      pipeline_(pipeline),
+      ctx_(ctx),
+      render_target_(render_target) {}
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->format_ =
       hw_texture_format_to_vk_format(format, ctx_->GetDepthStencilFormat());
   this->bpp_ = vk_format_comp(this->format_);
-  this->range_.aspectMask = type == HWTexture::Type::kColorTexture
-                                ? VK_IMAGE_ASPECT_COLOR_BIT
-                                : VK_IMAGE_ASPECT_DEPTH_BIT;
+  this->range_.aspectMask = hw_texture_type_to_vk_aspect(type);
   this->range_.baseMipLevel = 0;
   this->range_.levelCount = 1;
   this->range_.baseArrayLayer = 0;
@@ -163,9 +176,14 @@ void VKTexture::CreateBufferAndImage() {
     return;
   }
 
-  image_.reset(allocator_->AllocateImage(
-      format_, {width_, height_, 1},
-      VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+  VkImageUsageFlags flags =
+      VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+  if (render_target_) {
+    flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  }
+
+  image_.reset(allocator_->AllocateImage(format_, {width_, height_, 1}, flags));
 
   // create image view
   if (!vk_image_view_) {
