@@ -4,6 +4,7 @@
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
+#include "src/render/hw/vk/vk_render_target.hpp"
 #include "src/render/hw/vk/vk_texture.hpp"
 
 namespace skity {
@@ -43,7 +44,12 @@ std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
 
 std::unique_ptr<HWRenderTarget> VKCanvas::GenerateBackendRenderTarget(
     uint32_t width, uint32_t height) {
-  return std::unique_ptr<HWRenderTarget>();
+  auto vk_rt = std::make_unique<VKRenderTarget>(
+      width, height, vk_pipeline_->Allocator(), vk_pipeline_, ctx_);
+
+  vk_rt->Init();
+
+  return vk_rt;
 }
 
 }  // namespace skity

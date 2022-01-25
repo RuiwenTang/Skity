@@ -19,7 +19,7 @@ class SKVkPipelineImpl;
 class VKTexture : public HWTexture {
  public:
   VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
-            GPUVkContext* ctx);
+            GPUVkContext* ctx, bool render_target = false);
 
   ~VKTexture() override = default;
 
@@ -44,7 +44,15 @@ class VKTexture : public HWTexture {
 
   VkImageView GetImageView() const { return vk_image_view_; }
 
+  VkImage GetImage() const;
+
   VkImageLayout GetImageLayout() const;
+
+  VkFormat GetFormat() const { return format_; }
+
+  AllocatedImage* GetAllocatedImage() const { return image_.get(); }
+
+  VkImageSubresourceRange const& Range() const { return range_; }
 
  private:
   void CreateBufferAndImage();
@@ -55,6 +63,7 @@ class VKTexture : public HWTexture {
   VKMemoryAllocator* allocator_ = {};
   SKVkPipelineImpl* pipeline_ = {};
   GPUVkContext* ctx_ = {};
+  bool render_target_ = false;
   VkFormat format_ = {};
   VkImageSubresourceRange range_ = {};
   VkImageView vk_image_view_ = {};

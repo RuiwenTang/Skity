@@ -49,6 +49,10 @@ class VKPipelineWrapper {
       : push_const_size_(push_const_size) {}
   virtual ~VKPipelineWrapper() = default;
 
+  void SetRenderPass(VkRenderPass render_pass) {
+    os_render_pass_ = render_pass;
+  }
+
   void Init(GPUVkContext* ctx, VkShaderModule vertex, VkShaderModule fragment);
 
   void Destroy(GPUVkContext* ctx);
@@ -89,11 +93,21 @@ class VKPipelineWrapper {
                                   SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
+  virtual void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
+                              SKVkFrameBufferData* frame_buffer,
+                              VKMemoryAllocator* allocator) {}
+
   static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
       GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipColorPipeline(
       GPUVkContext* ctx);
@@ -104,8 +118,15 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
+
   static std::unique_ptr<VKPipelineWrapper>
   CreateStencilDiscardGradientPipeline(GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper>
+  CreateStencilDiscardGradientPipeline(GPUVkContext* ctx,
+                                       VkRenderPass render_pass);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipGradientPipeline(
       GPUVkContext* ctx);
@@ -116,8 +137,14 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStaticImagePipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticImagePipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilImagePipeline(
       GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilImagePipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipImagePipeline(
       GPUVkContext* ctx);
@@ -128,11 +155,17 @@ class VKPipelineWrapper {
   static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
+
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipFrontPipeline(
       GPUVkContext* ctx);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
       GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilClipBackPipeline(
       GPUVkContext* ctx);
@@ -148,6 +181,12 @@ class VKPipelineWrapper {
 
   static std::unique_ptr<VKPipelineWrapper> CreateStencilReplacePipeline(
       GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticBlurPipeline(
+      GPUVkContext* ctx);
+
+  static std::unique_ptr<VKPipelineWrapper> CreateStaticBlurPipeline(
+      GPUVkContext* ctx, VkRenderPass render_pass);
 
  protected:
   void InitDescriptorSetLayout(GPUVkContext* ctx);
@@ -168,6 +207,8 @@ class VKPipelineWrapper {
 
   VkPipelineLayout GetPipelineLayout() { return pipeline_layout_; }
 
+  VkCommandBuffer GetBindCMD() { return bind_cmd_; }
+
   static VkPipelineDepthStencilStateCreateInfo StencilDiscardInfo();
   static VkPipelineDepthStencilStateCreateInfo StencilClipDiscardInfo();
   static VkPipelineDepthStencilStateCreateInfo StencilKeepInfo();
@@ -178,6 +219,7 @@ class VKPipelineWrapper {
 
  private:
   size_t push_const_size_;
+  VkRenderPass os_render_pass_ = VK_NULL_HANDLE;
   /**
    * set 0: common transform matrix info
    * set 1: common fragment color info, [global alpha, stroke width]
@@ -187,6 +229,7 @@ class VKPipelineWrapper {
   std::array<VkDescriptorSetLayout, 4> descriptor_set_layout_ = {};
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
+  VkCommandBuffer bind_cmd_ = {};
 };
 
 template <class T>
@@ -196,18 +239,24 @@ struct PipelineBuilder {
   const char* fragment_src;
   size_t fragment_size;
   GPUVkContext* ctx;
+  VkRenderPass render_pass;
 
   PipelineBuilder(const char* vertex_src, size_t vertex_size,
                   const char* fragment_src, size_t fragment_size,
-                  GPUVkContext* ctx)
+                  GPUVkContext* ctx, VkRenderPass r = VK_NULL_HANDLE)
       : vertex_src(vertex_src),
         vertex_size(vertex_size),
         fragment_src(fragment_src),
         fragment_size(fragment_size),
-        ctx(ctx) {}
+        ctx(ctx),
+        render_pass(r) {}
 
   std::unique_ptr<T> operator()() {
     auto pipeline = std::make_unique<T>(sizeof(GlobalPushConst));
+
+    if (render_pass) {
+      pipeline->SetRenderPass(render_pass);
+    }
 
     auto vertex = VKUtils::CreateShader(ctx->GetDevice(),
                                         (const char*)vertex_src, vertex_size);

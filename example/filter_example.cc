@@ -3,7 +3,7 @@
 #include "glad/glad.h"
 
 void draw_filter(skity::Canvas* canvas) {
-  auto filter = skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 4.f);
+  auto filter = skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 10.f);
 
   skity::Paint paint;
   paint.setStyle(skity::Paint::kStroke_Style);
@@ -12,9 +12,6 @@ void draw_filter(skity::Canvas* canvas) {
   paint.setStrokeCap(skity::Paint::kRound_Cap);
 
   paint.setMaskFilter(filter);
-
-  glm::ivec4 sizes;
-  glGetIntegerv(GL_VIEWPORT, &sizes[0]);
 
   skity::Path path;
   path.moveTo(10, 10);

@@ -54,8 +54,14 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   auto dynamic_state =
       VKUtils::PipelineDynamicStateCreateInfo(dynamic_states_value);
 
-  auto pipeline_create_info =
-      VKUtils::PipelineCreateInfo(pipeline_layout_, ctx->GetRenderPass());
+  auto pipeline_create_info = VKUtils::PipelineCreateInfo(
+      pipeline_layout_,
+      os_render_pass_ ? os_render_pass_ : ctx->GetRenderPass());
+
+  if (os_render_pass_) {
+    // currently off screen do not have multisample
+    multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  }
 
   pipeline_create_info.pVertexInputState = &vertex_input_state;
   pipeline_create_info.pInputAssemblyState = &input_assembly_state;
@@ -86,6 +92,7 @@ void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
 
 void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
   VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+  bind_cmd_ = cmd;
 }
 
 void VKPipelineWrapper::UploadPushConstant(GlobalPushConst const& push_const,
@@ -116,7 +123,7 @@ void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
   VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
           VK_NULL_HANDLE);
 
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 1, 1,
           &descriptor_set, 0, nullptr);
 }
@@ -126,7 +133,7 @@ void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
     return;
   }
 
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 3, 1, &set, 0,
           nullptr);
 }
@@ -151,7 +158,7 @@ void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
   VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
           VK_NULL_HANDLE);
 
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 0, 1,
           &descriptor_set, 0, nullptr);
 }
@@ -230,13 +237,22 @@ VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
   blend_attachment_state.colorWriteMask =
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
       VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-  blend_attachment_state.dstColorBlendFactor =
-      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
+  if (os_render_pass_) {
+    blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstColorBlendFactor =
+        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  } else {
+    blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    blend_attachment_state.dstColorBlendFactor =
+        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  }
+
   blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
-  blend_attachment_state.srcAlphaBlendFactor =
-      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-  blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
   blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
 
   return blend_attachment_state;

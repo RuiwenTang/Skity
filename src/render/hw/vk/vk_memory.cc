@@ -102,7 +102,7 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
   }
 
   AllocatedImage* AllocateImage(VkFormat format, VkExtent3D extent,
-                                VkImageAspectFlags flags) override {
+                                VkImageUsageFlags flags) override {
     VkImageCreateInfo image_info =
         VKUtils::ImageCreateInfo(format, flags, extent);
 
@@ -129,6 +129,9 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
   void TransferImageLayout(VkCommandBuffer cmd, AllocatedImage* image,
                            VkImageSubresourceRange range,
                            VkImageLayout old_layout,
+                           VkImageLayout new_layout) override;
+
+  void TransferImageLayout(AllocatedImage* image,
                            VkImageLayout new_layout) override;
 
   void CopyBufferToImage(VkCommandBuffer cmd, AllocatedBuffer* buffer,
@@ -204,6 +207,12 @@ void VKMemoryAllocatorImpl::TransferImageLayout(VkCommandBuffer cmd,
   AllocatedImageImpl* impl = (AllocatedImageImpl*)image;
   VKUtils::SetImageLayout(cmd, impl->image, range.aspectMask, old_layout,
                           new_layout, range);
+  impl->layout = new_layout;
+}
+
+void VKMemoryAllocatorImpl::TransferImageLayout(AllocatedImage* image,
+                                                VkImageLayout new_layout) {
+  AllocatedImageImpl* impl = (AllocatedImageImpl*)image;
   impl->layout = new_layout;
 }
 

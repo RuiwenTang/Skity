@@ -89,7 +89,7 @@ void StaticImagePipeline::UploadImageTexture(VKTexture* texture,
   VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), write_sets.size(),
           write_sets.data(), 0, VK_NULL_HANDLE);
 
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
           &descriptor_set, 0, nullptr);
 }

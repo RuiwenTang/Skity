@@ -123,6 +123,8 @@ if (${ENABLE_HW_RENDER})
   if (${VULKAN_BACKEND})
     target_sources(skity
       PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.cc
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/gradient_pipeline.cc
@@ -147,6 +149,8 @@ if (${ENABLE_HW_RENDER})
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.cc
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.cc

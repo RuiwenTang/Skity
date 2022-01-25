@@ -45,7 +45,7 @@ class VKMemoryAllocator {
   virtual AllocatedBuffer* AllocateStageBuffer(size_t buffer_size) = 0;
 
   virtual AllocatedImage* AllocateImage(VkFormat format, VkExtent3D extent,
-                                        VkImageAspectFlags flags) = 0;
+                                        VkImageUsageFlags flags) = 0;
 
   virtual void FreeBuffer(AllocatedBuffer* allocated_buffer) = 0;
 
@@ -57,6 +57,9 @@ class VKMemoryAllocator {
   virtual void TransferImageLayout(VkCommandBuffer cmd, AllocatedImage* image,
                                    VkImageSubresourceRange range,
                                    VkImageLayout old_layout,
+                                   VkImageLayout new_layout) = 0;
+
+  virtual void TransferImageLayout(AllocatedImage* image,
                                    VkImageLayout new_layout) = 0;
 
   virtual void CopyBufferToImage(VkCommandBuffer cmd, AllocatedBuffer* buffer,
