@@ -14,12 +14,12 @@
 layout(set = 2, binding = 0) uniform _ImageBounds { vec4 info; }
 ImageBounds;
 
-// image texture is in set 2 binding 1
-layout(set = 2, binding = 1) uniform sampler2D ImageTex;
-
 // blur type
-layout(set = 2, binding = 2) uniform _blur_type { ivec4 info; }
+layout(set = 2, binding = 1) uniform _blur_type { ivec4 info; }
 BlurType;
+
+// image texture is in set 2 binding 1
+layout(set = 2, binding = 2) uniform sampler2D ImageTex;
 
 vec2 calculate_uv() {
   vec4 mappedLT = vec4(ImageBounds.info.xy, 0.0, 1.0);
@@ -43,11 +43,5 @@ void main() {
   uv.y = clamp(uv.y, 0.0, 1.0);
 
   vec4 image_color = texture(ImageTex, uv);
-  if (GlobalInfo.premulAlpha == 0) {
-    outColor = vec4(image_color.rgb, image_color.a * AlphaStroke.info.r);
-  } else {
-    vec4 color = vec4(image_color.rgb * image_color.a, image_color.a);
-
-    outColor = color * AlphaStroke.info.r;
-  }
+  outColor = image_color;
 }

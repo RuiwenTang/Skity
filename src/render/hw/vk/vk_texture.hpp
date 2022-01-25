@@ -44,9 +44,15 @@ class VKTexture : public HWTexture {
 
   VkImageView GetImageView() const { return vk_image_view_; }
 
+  VkImage GetImage() const;
+
   VkImageLayout GetImageLayout() const;
 
   VkFormat GetFormat() const { return format_; }
+
+  AllocatedImage* GetAllocatedImage() const { return image_.get(); }
+
+  VkImageSubresourceRange const& Range() const { return range_; }
 
  private:
   void CreateBufferAndImage();

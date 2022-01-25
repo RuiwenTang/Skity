@@ -74,7 +74,7 @@ void StaticGradientPipeline::UploadGradientInfo(
 
   VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
           VK_NULL_HANDLE);
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
           &descriptor_set, 0, nullptr);
 }

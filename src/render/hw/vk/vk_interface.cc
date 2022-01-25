@@ -59,6 +59,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkResetFences);
   GET_PROC(vkUpdateDescriptorSets);
   GET_PROC(vkWaitForFences);
+  GET_PROC(vkQueueWaitIdle);
 }
 
 }  // namespace skity

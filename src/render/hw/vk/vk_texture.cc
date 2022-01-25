@@ -152,6 +152,12 @@ void VKTexture::PrepareForDraw() {
     return;
   }
 
+  if (render_target_) {
+    allocator_->TransferImageLayout(image_.get(),
+                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return;
+  }
+
   // transfer image layout to `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`
   VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
 
@@ -167,6 +173,8 @@ VkSampler VKTexture::GetSampler() const { return pipeline_->PipelineSampler(); }
 VkImageLayout VKTexture::GetImageLayout() const {
   return image_->GetCurrentLayout();
 }
+
+VkImage VKTexture::GetImage() const { return image_->GetImage(); }
 
 void VKTexture::CreateBufferAndImage() {
   size_t total_size = width_ * height_ * bpp_;

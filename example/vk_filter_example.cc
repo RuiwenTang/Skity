@@ -6,7 +6,7 @@ class VKFilterExample : public example::VkApp {
  public:
   VKFilterExample()
       : example::VkApp(800, 600, "Vulkan Filter Example",
-                       {1.f, 1.f, 1.f, 1.f}) {}
+                       {0.3f, 0.4f, 0.5f, 1.f}) {}
 
   ~VKFilterExample() override = default;
 

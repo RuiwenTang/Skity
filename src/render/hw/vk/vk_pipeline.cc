@@ -27,6 +27,7 @@ void SKVkPipelineImpl::Init() {
         ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
   }
   vk_memory_allocator_->Init(ctx_);
+  InitOffScreenRenderPass();
   InitFrameBuffers();
   InitPipelines();
   InitCMDPool();
@@ -51,6 +52,8 @@ void SKVkPipelineImpl::Destroy() {
   DestroyCMDPool();
   DestroyPipelines();
   DestroyFrameBuffers();
+
+  VK_CALL(vkDestroyRenderPass, ctx_->GetDevice(), os_render_pass_, nullptr);
   vk_memory_allocator_->Destroy(ctx_);
 }
 
@@ -266,7 +269,7 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
   } else if (color_mode_ >= HWPipelineColorMode::kFBOTexture &&
              color_mode_ <= HWPipelineColorMode::kInnerBlurMix) {
     // TODO pick stencil keep or stencil clip pipeline
-    picked_pipeline = static_blur_pipeline_.get();
+    picked_pipeline = PickBlurPipeline();
   }
 
   BindPipelineIfNeed(picked_pipeline);
@@ -315,6 +318,8 @@ void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {
 void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
   // submit internal vulkan cmd
   current_target_->EndDraw();
+  current_target_ = nullptr;
+  prev_pipeline_ = nullptr;
 }
 
 VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
@@ -492,7 +497,20 @@ void SKVkPipelineImpl::InitPipelines() {
   stencil_replace_pipeline_ =
       VKPipelineWrapper::CreateStencilReplacePipeline(ctx_);
 
+  // off screen pipelines
+  os_static_color_pipeline_ =
+      VKPipelineWrapper::CreateStaticColorPipeline(ctx_, os_render_pass_);
+  os_stencil_color_pipeline_ =
+      VKPipelineWrapper::CreateStencilColorPipeline(ctx_, os_render_pass_);
+  os_stencil_front_pipeline_ =
+      VKPipelineWrapper::CreateStencilFrontPipeline(ctx_, os_render_pass_);
+  os_stencil_back_pipeline_ =
+      VKPipelineWrapper::CreateStencilBackPipeline(ctx_, os_render_pass_);
+
+  // effect pipelines
   static_blur_pipeline_ = VKPipelineWrapper::CreateStaticBlurPipeline(ctx_);
+  os_static_blur_pipeline_ =
+      VKPipelineWrapper::CreateStaticBlurPipeline(ctx_, os_render_pass_);
 }
 
 void SKVkPipelineImpl::InitVertexBuffer(size_t new_size) {
@@ -509,7 +527,89 @@ void SKVkPipelineImpl::InitIndexBuffer(size_t new_size) {
   index_buffer_.reset(vk_memory_allocator_->AllocateIndexBuffer(new_size));
 }
 
+void SKVkPipelineImpl::InitOffScreenRenderPass() {
+  std::array<VkAttachmentDescription, 2> attachments = {};
+
+  // color attachment
+  attachments[0].format = os_color_format_;
+  attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+  attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  // depth stencil attachment
+  attachments[1].format = ctx_->GetDepthStencilFormat();
+  attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+  attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+  attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference color_ref;
+  color_ref.attachment = 0;
+  color_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference stencil_ref;
+  stencil_ref.attachment = 1;
+  stencil_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkSubpassDescription subpass_desc{};
+  subpass_desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass_desc.colorAttachmentCount = 1;
+  subpass_desc.pColorAttachments = &color_ref;
+  subpass_desc.pDepthStencilAttachment = &stencil_ref;
+
+  // Use subpass dependencies for layout transitions
+  std::array<VkSubpassDependency, 2> dependencies;
+
+  dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependencies[0].dstSubpass = 0;
+  dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+  dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+  dependencies[1].srcSubpass = 0;
+  dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+  dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+  dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+  VkRenderPassCreateInfo create_info{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+  create_info.attachmentCount = 2;
+  create_info.pAttachments = attachments.data();
+  create_info.subpassCount = 1;
+  create_info.pSubpasses = &subpass_desc;
+  // create_info.dependencyCount = 2;
+  // create_info.pDependencies = dependencies.data();
+
+  if (VK_CALL(vkCreateRenderPass, ctx_->GetDevice(), &create_info, nullptr,
+              &os_render_pass_) != VK_SUCCESS) {
+    LOG_ERROR("VkRenderTarget can not create render pass!");
+  }
+}
+
 VKPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
+  // need to pick off screen pipeline
+  if (current_target_) {
+    if (!enable_stencil_test_) {
+      return os_static_color_pipeline_.get();
+    } else {
+      return os_stencil_color_pipeline_.get();
+    }
+
+    return nullptr;
+  }
+
+  // pick normal pipeline
   if (!enable_stencil_test_) {
     return static_color_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -524,6 +624,18 @@ VKPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
 }
 
 VKPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
+  // pick off screen pipeline
+  if (current_target_) {
+    if (stencil_op_ == HWStencilOp::INCR_WRAP) {
+      return os_stencil_front_pipeline_.get();
+    } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
+      return os_stencil_back_pipeline_.get();
+    }
+
+    return nullptr;
+  }
+
+  // pick normal pipeline
   if (stencil_op_ == HWStencilOp::INCR_WRAP) {
     if (stencil_func_ == HWStencilFunc::ALWAYS) {
       return stencil_front_pipeline_.get();
@@ -583,8 +695,16 @@ VKPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
   return nullptr;
 }
 
+VKPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
+  if (current_target_) {
+    return os_static_blur_pipeline_.get();
+  }
+
+  return static_blur_pipeline_.get();
+}
+
 void SKVkPipelineImpl::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
-  if (pipeline == prev_pipeline_) {
+  if (pipeline == prev_pipeline_ && current_target_ == nullptr) {
     // no need to call bind pipeline
     return;
   }

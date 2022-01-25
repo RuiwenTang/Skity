@@ -59,6 +59,9 @@ class VKMemoryAllocator {
                                    VkImageLayout old_layout,
                                    VkImageLayout new_layout) = 0;
 
+  virtual void TransferImageLayout(AllocatedImage* image,
+                                   VkImageLayout new_layout) = 0;
+
   virtual void CopyBufferToImage(VkCommandBuffer cmd, AllocatedBuffer* buffer,
                                  AllocatedImage* image,
                                  VkBufferImageCopy const& copy_region) = 0;

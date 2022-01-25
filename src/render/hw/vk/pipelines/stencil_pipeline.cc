@@ -18,6 +18,18 @@ VKPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx,
+                                              VkRenderPass render_pass) {
+  return PipelineBuilder<StencilFrontPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+      render_pass}();
+}
+
+std::unique_ptr<VKPipelineWrapper>
 VKPipelineWrapper::CreateStencilClipFrontPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipFrontPipeline>{
       (const char*)vk_common_vert_spv,
@@ -37,6 +49,17 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilBackPipeline(
       vk_stencil_discard_frag_spv_size,
       ctx,
   }();
+}
+
+std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStencilBackPipeline(
+    GPUVkContext* ctx, VkRenderPass render_pass) {
+  return PipelineBuilder<StencilBackPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_stencil_discard_frag_spv,
+      vk_stencil_discard_frag_spv_size,
+      ctx,
+      render_pass}();
 }
 
 std::unique_ptr<VKPipelineWrapper>
@@ -237,7 +260,7 @@ StencilRecursiveClipPipeline::GetDepthStencilStateCreateInfo() {
 
 void StencilReplacePipeline::UpdateStencilInfo(uint32_t reference,
                                                GPUVkContext* ctx) {
-  VK_CALL(vkCmdSetStencilReference, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdSetStencilReference, GetBindCMD(),
           VK_STENCIL_FACE_FRONT_AND_BACK, reference);
 }
 

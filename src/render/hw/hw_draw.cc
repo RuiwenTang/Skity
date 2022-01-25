@@ -256,7 +256,7 @@ void PostProcessDraw::Draw() {
 
   DrawToRenderTarget();
 
-  DoFilter();
+  // DoFilter();
 
   DrawToCanvas();
 }
@@ -303,7 +303,7 @@ void PostProcessDraw::DrawToCanvas() {
 
   RestoreTransform();
 
-  SetTexture(render_target_->VerticalTexture());
+  SetTexture(render_target_->ColorTexture());
   if (blur_style_ == BlurStyle::kNormal) {
     SetPipelineColorMode(HWPipelineColorMode::kFBOTexture);
   } else if (blur_style_ == BlurStyle::kSolid) {

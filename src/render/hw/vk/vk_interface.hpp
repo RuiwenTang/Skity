@@ -57,6 +57,7 @@ struct VKInterface {
   PFN_vkResetFences fvkResetFences = {};
   PFN_vkUpdateDescriptorSets fvkUpdateDescriptorSets = {};
   PFN_vkWaitForFences fvkWaitForFences = {};
+  PFN_vkQueueWaitIdle fvkQueueWaitIdle = {};
 };
 
 }  // namespace skity

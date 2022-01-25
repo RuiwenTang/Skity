@@ -20,8 +20,8 @@ class VKRenderTarget : public HWRenderTarget {
     VkRenderPass render_pass = {};
     VkFramebuffer frame_buffer = {};
 
-    void InitRenderPass(GPUVkContext* ctx, VkFormat color_format,
-                        VkFormat stencil_format);
+    Framebuffer(VkRenderPass r) : render_pass(r) {}
+
     void InitFramebuffer(GPUVkContext* ctx, uint32_t width, uint32_t height,
                          VkImageView color_image, VkImageView stencil_image);
 
@@ -30,14 +30,7 @@ class VKRenderTarget : public HWRenderTarget {
 
  public:
   VKRenderTarget(uint32_t width, uint32_t height, VKMemoryAllocator* allocator,
-                 SKVkPipelineImpl* pipeline, GPUVkContext* ctx)
-      : HWRenderTarget(width, height),
-        allocator_(allocator),
-        pipeline_(pipeline),
-        ctx_(ctx),
-        color_texture_(allocator, pipeline, ctx, true),
-        horizontal_texture_(allocator, pipeline, ctx, true),
-        vertical_texture_(allocator, pipeline, ctx, true) {}
+                 SKVkPipelineImpl* pipeline, GPUVkContext* ctx);
 
   ~VKRenderTarget() override;
 
@@ -63,8 +56,6 @@ class VKRenderTarget : public HWRenderTarget {
 
   VkFramebuffer CurrentFramebuffer() const { return current_fbo->frame_buffer; }
 
-  VkRenderPass CurrentRenderPass() const { return current_fbo->render_pass; }
-
   VkCommandBuffer CurrentCMD() const { return vk_cmd_; }
 
  private:
@@ -84,9 +75,9 @@ class VKRenderTarget : public HWRenderTarget {
   VKTexture horizontal_texture_;
   VKTexture vertical_texture_;
   // used to render to texture
-  Framebuffer color_fbo_ = {};
-  Framebuffer horizontal_fbo_ = {};
-  Framebuffer vertical_fbo_ = {};
+  Framebuffer color_fbo_;
+  Framebuffer horizontal_fbo_;
+  Framebuffer vertical_fbo_;
 
   Framebuffer* current_fbo = nullptr;
   VkCommandBuffer vk_cmd_ = {};

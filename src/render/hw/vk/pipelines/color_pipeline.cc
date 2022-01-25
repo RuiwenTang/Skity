@@ -22,6 +22,17 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
   }();
 }
 
+std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
+    GPUVkContext* ctx, VkRenderPass render_pass) {
+  return PipelineBuilder<StaticColorPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_uniform_color_frag_spv,
+      vk_uniform_color_frag_spv_size,
+      ctx,
+      render_pass}();
+}
+
 std::unique_ptr<VKPipelineWrapper>
 VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardColorPipeline>{
@@ -31,6 +42,18 @@ VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx) {
       vk_uniform_color_frag_spv_size,
       ctx,
   }();
+}
+
+std::unique_ptr<VKPipelineWrapper>
+VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx,
+                                              VkRenderPass render_pass) {
+  return PipelineBuilder<StencilDiscardColorPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_uniform_color_frag_spv,
+      vk_uniform_color_frag_spv_size,
+      ctx,
+      render_pass}();
 }
 
 std::unique_ptr<VKPipelineWrapper>
@@ -86,7 +109,7 @@ void StaticColorPipeline::UploadUniformColor(ColorInfoSet const& info,
   VK_CALL(vkUpdateDescriptorSets, ctx->GetDevice(), 1, &write_set, 0,
           VK_NULL_HANDLE);
 
-  VK_CALL(vkCmdBindDescriptorSets, ctx->GetCurrentCMD(),
+  VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
           &descriptor_set, 0, nullptr);
 }

@@ -10,6 +10,20 @@
 
 namespace skity {
 
+VKRenderTarget::VKRenderTarget(uint32_t width, uint32_t height,
+                               VKMemoryAllocator* allocator,
+                               SKVkPipelineImpl* pipeline, GPUVkContext* ctx)
+    : HWRenderTarget(width, height),
+      allocator_(allocator),
+      pipeline_(pipeline),
+      ctx_(ctx),
+      color_texture_(allocator, pipeline, ctx, true),
+      horizontal_texture_(allocator, pipeline, ctx, true),
+      vertical_texture_(allocator, pipeline, ctx, true),
+      color_fbo_(pipeline->OffScreenRenderPass()),
+      horizontal_fbo_(pipeline->OffScreenRenderPass()),
+      vertical_fbo_(pipeline->OffScreenRenderPass()) {}
+
 VKRenderTarget::~VKRenderTarget() = default;
 
 void VKRenderTarget::BindColorTexture() {
@@ -72,6 +86,8 @@ void VKRenderTarget::EndDraw() {
   VK_CALL(vkCmdEndRenderPass, vk_cmd_);
 
   pipeline_->SubmitCMD(vk_cmd_);
+
+  vk_cmd_ = VK_NULL_HANDLE;
 }
 
 void VKRenderTarget::CreateStencilImage() {
@@ -96,19 +112,14 @@ void VKRenderTarget::CreateStencilImage() {
 void VKRenderTarget::InitSubFramebuffers() {
   VkFormat stencil_format = ctx_->GetDepthStencilFormat();
 
-  color_fbo_.InitRenderPass(ctx_, color_texture_.GetFormat(), stencil_format);
   color_fbo_.InitFramebuffer(ctx_, Width(), Height(),
                              color_texture_.GetImageView(),
                              stencil_image_view_);
 
-  horizontal_fbo_.InitRenderPass(ctx_, horizontal_texture_.GetFormat(),
-                                 stencil_format);
   horizontal_fbo_.InitFramebuffer(ctx_, Width(), Height(),
                                   horizontal_texture_.GetImageView(),
                                   stencil_image_view_);
 
-  vertical_fbo_.InitRenderPass(ctx_, vertical_texture_.GetFormat(),
-                               stencil_format);
   vertical_fbo_.InitFramebuffer(ctx_, Width(), Height(),
                                 vertical_texture_.GetImageView(),
                                 stencil_image_view_);
@@ -122,12 +133,12 @@ void VKRenderTarget::DestroySubFramebuffers() {
 
 void VKRenderTarget::BeginCurrentRenderPass() {
   std::array<VkClearValue, 2> clear_values{};
-  clear_values[0].color = {0.f, 0.f, 0.f, 0.f};
+  clear_values[0].color = {1.f, 0.f, 0.f, 1.f};
   clear_values[1].depthStencil = {0.f, 0};
 
   VkRenderPassBeginInfo render_pass_begin_info{
       VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-  render_pass_begin_info.renderPass = current_fbo->render_pass;
+  render_pass_begin_info.renderPass = pipeline_->OffScreenRenderPass();
   render_pass_begin_info.framebuffer = current_fbo->frame_buffer;
   render_pass_begin_info.renderArea.offset = {0, 0};
   render_pass_begin_info.renderArea.extent = {Width(), Height()};
@@ -149,57 +160,7 @@ void VKRenderTarget::BeginCurrentRenderPass() {
   VK_CALL(vkCmdSetScissor, vk_cmd_, 0, 1, &scissor);
 }
 
-void VKRenderTarget::Framebuffer::InitRenderPass(GPUVkContext *ctx,
-                                                 VkFormat color_format,
-                                                 VkFormat stencil_format) {
-  std::array<VkAttachmentDescription, 2> attachments = {};
-  // color attachment
-  attachments[0].format = color_format;
-  attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-  attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-  // depth stencil attachment
-  attachments[1].format = ctx->GetDepthStencilFormat();
-  attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-  attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-  attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-  VkAttachmentReference color_ref;
-  color_ref.attachment = 0;
-  color_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-  VkAttachmentReference stencil_ref;
-  stencil_ref.attachment = 1;
-  stencil_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-  VkSubpassDescription subpass_desc{};
-  subpass_desc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-  subpass_desc.colorAttachmentCount = 1;
-  subpass_desc.pColorAttachments = &color_ref;
-  subpass_desc.pDepthStencilAttachment = &stencil_ref;
-
-  VkRenderPassCreateInfo create_info{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
-  create_info.attachmentCount = 2;
-  create_info.pAttachments = attachments.data();
-  create_info.subpassCount = 1;
-  create_info.pSubpasses = &subpass_desc;
-
-  if (VK_CALL(vkCreateRenderPass, ctx->GetDevice(), &create_info, nullptr,
-              &render_pass) != VK_SUCCESS) {
-    LOG_ERROR("VkRenderTarget can not create render pass!");
-  }
-}
-
-void VKRenderTarget::Framebuffer::InitFramebuffer(GPUVkContext *ctx,
+void VKRenderTarget::Framebuffer::InitFramebuffer(GPUVkContext* ctx,
                                                   uint32_t width,
                                                   uint32_t height,
                                                   VkImageView color_image,
@@ -224,9 +185,8 @@ void VKRenderTarget::Framebuffer::InitFramebuffer(GPUVkContext *ctx,
   }
 }
 
-void VKRenderTarget::Framebuffer::Destroy(GPUVkContext *ctx) {
+void VKRenderTarget::Framebuffer::Destroy(GPUVkContext* ctx) {
   VK_CALL(vkDestroyFramebuffer, ctx->GetDevice(), frame_buffer, nullptr);
-  VK_CALL(vkDestroyRenderPass, ctx->GetDevice(), render_pass, nullptr);
 }
 
 }  // namespace skity

@@ -95,6 +95,9 @@ class SKVkPipelineImpl : public HWPipeline {
   VkFence PipelineFence() const { return vk_fence_; }
   VkSampler PipelineSampler() const { return vk_sampler_; }
 
+  VkRenderPass OffScreenRenderPass() const { return os_render_pass_; }
+  VkFormat OffScreenColorFormat() const { return os_color_format_; }
+
  private:
   void InitCMDPool();
   void InitFence();
@@ -103,6 +106,7 @@ class SKVkPipelineImpl : public HWPipeline {
   void InitPipelines();
   void InitVertexBuffer(size_t new_size);
   void InitIndexBuffer(size_t new_size);
+  void InitOffScreenRenderPass();
 
   void DestroyCMDPool();
   void DestroyFence();
@@ -116,6 +120,7 @@ class SKVkPipelineImpl : public HWPipeline {
   VKPipelineWrapper* PickStencilPipeline();
   VKPipelineWrapper* PickGradientPipeline();
   VKPipelineWrapper* PickImagePipeline();
+  VKPipelineWrapper* PickBlurPipeline();
 
   void BindPipelineIfNeed(VKPipelineWrapper* pipeline);
 
@@ -151,6 +156,8 @@ class SKVkPipelineImpl : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_color_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_clip_color_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_keep_color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> os_static_color_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> os_stencil_color_pipeline_ = {};
   // gradient pipelines
   std::unique_ptr<VKPipelineWrapper> static_gradient_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_gradient_pipeline_ = {};
@@ -170,8 +177,15 @@ class SKVkPipelineImpl : public HWPipeline {
   std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_pipeline_ = {};
   std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> os_stencil_front_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> os_stencil_back_pipeline_ = {};
   // blur pipelines
   std::unique_ptr<VKPipelineWrapper> static_blur_pipeline_ = {};
+  std::unique_ptr<VKPipelineWrapper> os_static_blur_pipeline_ = {};
+
+  // render pass for all offscreen pipeline
+  VkRenderPass os_render_pass_ = {};
+  VkFormat os_color_format_ = VK_FORMAT_R8G8B8A8_UNORM;
 
   std::unique_ptr<AllocatedBuffer> vertex_buffer_ = {};
   std::unique_ptr<AllocatedBuffer> index_buffer_ = {};
