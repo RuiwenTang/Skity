@@ -125,7 +125,7 @@ VkDescriptorSetLayout StencilPipeline::GenerateColorSetLayout(
 VkPipelineColorBlendAttachmentState StencilPipeline::GetColorBlendState() {
   // all stencil pipeline no need color write
   VkPipelineColorBlendAttachmentState blend_attachment_state{};
-  blend_attachment_state.blendEnable = VK_TRUE;
+  blend_attachment_state.blendEnable = VK_FALSE;
   blend_attachment_state.colorWriteMask = 0;
   blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
   blend_attachment_state.dstColorBlendFactor =
