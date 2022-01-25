@@ -237,12 +237,22 @@ VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
   blend_attachment_state.colorWriteMask =
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
       VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-  blend_attachment_state.dstColorBlendFactor =
-      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
+  if (os_render_pass_) {
+    blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstColorBlendFactor =
+        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  } else {
+    blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    blend_attachment_state.dstColorBlendFactor =
+        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  }
+
   blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
-  blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-  blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
   blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
 
   return blend_attachment_state;

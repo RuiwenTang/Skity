@@ -3,7 +3,7 @@
 #include "glad/glad.h"
 
 void draw_filter(skity::Canvas* canvas) {
-  auto filter = skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 4.f);
+  auto filter = skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 10.f);
 
   skity::Paint paint;
   paint.setStyle(skity::Paint::kStroke_Style);

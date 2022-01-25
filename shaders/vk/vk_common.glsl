@@ -34,6 +34,8 @@ layout(location = 1) in vec3 vPosInfo;
 
 layout(location = 0) out vec4 outColor;
 
+float StrokeWidth() { return AlphaStroke.info.g; }
+
 void calculate_discard() {
   int vertex_type = int(vPosInfo.x);
 
