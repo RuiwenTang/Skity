@@ -11,8 +11,8 @@
 
 namespace skity {
 
-std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
-    GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticColorPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StaticColorPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -22,31 +22,32 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticColorPipeline(
-    GPUVkContext* ctx, VkRenderPass render_pass) {
-  return PipelineBuilder<StaticColorPipeline>{
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
-      (const char*)vk_uniform_color_frag_spv,
-      vk_uniform_color_frag_spv_size,
-      ctx,
-      render_pass}();
-}
-
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx) {
-  return PipelineBuilder<StencilDiscardColorPipeline>{
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
-      (const char*)vk_uniform_color_frag_spv,
-      vk_uniform_color_frag_spv_size,
-      ctx,
-  }();
-}
-
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx,
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticColorPipeline(GPUVkContext* ctx,
                                               VkRenderPass render_pass) {
+  return PipelineBuilder<StaticColorPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_uniform_color_frag_spv,
+      vk_uniform_color_frag_spv_size,
+      ctx,
+      render_pass}();
+}
+
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx) {
+  return PipelineBuilder<StencilDiscardColorPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_uniform_color_frag_spv,
+      vk_uniform_color_frag_spv_size,
+      ctx,
+  }();
+}
+
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx,
+                                               VkRenderPass render_pass) {
   return PipelineBuilder<StencilDiscardColorPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -56,8 +57,8 @@ VKPipelineWrapper::CreateStencilColorPipeline(GPUVkContext* ctx,
       render_pass}();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilClipColorPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilClipColorPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipColorPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -67,8 +68,8 @@ VKPipelineWrapper::CreateStencilClipColorPipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilKeepColorPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilKeepColorPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilKeepColorPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -116,17 +117,17 @@ void StaticColorPipeline::UploadUniformColor(ColorInfoSet const& info,
 
 VkPipelineDepthStencilStateCreateInfo
 StencilDiscardColorPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilDiscardInfo();
+  return RenderPipeline::StencilDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilClipColorPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilClipDiscardInfo();
+  return RenderPipeline::StencilClipDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilKeepColorPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilKeepInfo();
+  return RenderPipeline::StencilKeepInfo();
 }
 
 }  // namespace skity

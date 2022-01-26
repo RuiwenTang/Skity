@@ -9,8 +9,8 @@
 
 namespace skity {
 
-std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticImagePipeline(
-    GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticImagePipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StaticImagePipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -20,8 +20,8 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticImagePipeline(
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardImagePipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -31,8 +31,8 @@ VKPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipImagePipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -42,8 +42,8 @@ VKPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilKeepImagePipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilKeepImagePipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilKeepImagePipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -112,17 +112,17 @@ VkDescriptorSetLayout StaticImagePipeline::GenerateColorSetLayout(
 
 VkPipelineDepthStencilStateCreateInfo
 StencilDiscardImagePipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilDiscardInfo();
+  return RenderPipeline::StencilDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilClipImagePipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilClipDiscardInfo();
+  return RenderPipeline::StencilClipDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilKeepImagePipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilKeepInfo();
+  return RenderPipeline::StencilKeepInfo();
 }
 
 }  // namespace skity

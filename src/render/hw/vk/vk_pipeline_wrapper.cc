@@ -10,8 +10,8 @@
 
 namespace skity {
 
-void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
-                             VkShaderModule fragment) {
+void RenderPipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
+                          VkShaderModule fragment) {
   std::array<VkPipelineShaderStageCreateInfo, 2> shaders{};
   shaders[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   shaders[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -80,7 +80,7 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   }
 }
 
-void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
+void RenderPipeline::Destroy(GPUVkContext* ctx) {
   VK_CALL(vkDestroyPipeline, ctx->GetDevice(), pipeline_, nullptr);
   VK_CALL(vkDestroyPipelineLayout, ctx->GetDevice(), pipeline_layout_, nullptr);
 
@@ -90,22 +90,22 @@ void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
   }
 }
 
-void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
+void RenderPipeline::Bind(VkCommandBuffer cmd) {
   VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   bind_cmd_ = cmd;
 }
 
-void VKPipelineWrapper::UploadPushConstant(GlobalPushConst const& push_const,
-                                           VkCommandBuffer cmd) {
+void RenderPipeline::UploadPushConstant(GlobalPushConst const& push_const,
+                                        VkCommandBuffer cmd) {
   VK_CALL(vkCmdPushConstants, cmd, pipeline_layout_,
           VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT, 0,
           sizeof(GlobalPushConst), &push_const);
 }
 
-void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
-                                        GPUVkContext* ctx,
-                                        SKVkFrameBufferData* frame_buffer,
-                                        VKMemoryAllocator* allocator) {
+void RenderPipeline::UploadCommonSet(CommonFragmentSet const& common_set,
+                                     GPUVkContext* ctx,
+                                     SKVkFrameBufferData* frame_buffer,
+                                     VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainCommonSetBuffer();
   allocator->UploadBuffer(buffer, (void*)&common_set,
                           sizeof(CommonFragmentSet));
@@ -128,7 +128,7 @@ void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
           &descriptor_set, 0, nullptr);
 }
 
-void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
+void RenderPipeline::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
   if (GetFontSetLayout() == VK_NULL_HANDLE) {
     return;
   }
@@ -138,10 +138,10 @@ void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
           nullptr);
 }
 
-void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
-                                              GPUVkContext* ctx,
-                                              SKVkFrameBufferData* frame_buffer,
-                                              VKMemoryAllocator* allocator) {
+void RenderPipeline::UploadTransformMatrix(glm::mat4 const& matrix,
+                                           GPUVkContext* ctx,
+                                           SKVkFrameBufferData* frame_buffer,
+                                           VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainTransformBuffer();
   allocator->UploadBuffer(buffer, (void*)&matrix, sizeof(glm::mat4));
 
@@ -163,7 +163,7 @@ void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
           &descriptor_set, 0, nullptr);
 }
 
-void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
+void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   // create set 0
   auto set0_binding = VKUtils::DescriptorSetLayoutBinding(
       VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -205,7 +205,7 @@ void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
       VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set3_create_info);
 }
 
-void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
+void RenderPipeline::InitPipelineLayout(GPUVkContext* ctx) {
   VkPushConstantRange push_const_range = VKUtils::PushConstantRange(
       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
       push_const_size_, 0);
@@ -231,7 +231,7 @@ void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
   }
 }
 
-VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
+VkPipelineColorBlendAttachmentState RenderPipeline::GetColorBlendState() {
   VkPipelineColorBlendAttachmentState blend_attachment_state{};
   blend_attachment_state.blendEnable = VK_TRUE;
   blend_attachment_state.colorWriteMask =
@@ -258,7 +258,7 @@ VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
   return blend_attachment_state;
 }
 
-std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
+std::vector<VkDynamicState> RenderPipeline::GetDynamicStates() {
   std::vector<VkDynamicState> states{
       VK_DYNAMIC_STATE_VIEWPORT,
       VK_DYNAMIC_STATE_SCISSOR,
@@ -267,7 +267,7 @@ std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
   return states;
 }
 
-VkVertexInputBindingDescription VKPipelineWrapper::GetVertexInputBinding() {
+VkVertexInputBindingDescription RenderPipeline::GetVertexInputBinding() {
   VkVertexInputBindingDescription input_binding{};
   input_binding.binding = 0;
   input_binding.stride = 5 * sizeof(float);
@@ -276,7 +276,7 @@ VkVertexInputBindingDescription VKPipelineWrapper::GetVertexInputBinding() {
 }
 
 std::array<VkVertexInputAttributeDescription, 2>
-VKPipelineWrapper::GetVertexInputAttributes() {
+RenderPipeline::GetVertexInputAttributes() {
   std::array<VkVertexInputAttributeDescription, 2> input_attr{};
 
   // location 0 vec2 [x, y]
@@ -293,7 +293,7 @@ VKPipelineWrapper::GetVertexInputAttributes() {
   return input_attr;
 }
 
-VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilDiscardInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilDiscardInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
@@ -309,8 +309,7 @@ VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilDiscardInfo() {
   return depth_stencil_state;
 }
 
-VkPipelineDepthStencilStateCreateInfo
-VKPipelineWrapper::StencilClipDiscardInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilClipDiscardInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
@@ -326,7 +325,7 @@ VKPipelineWrapper::StencilClipDiscardInfo() {
   return depth_stencil_state;
 }
 
-VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilKeepInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilKeepInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 

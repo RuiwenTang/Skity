@@ -255,7 +255,7 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
   }
   LOG_DEBUG("color mode = {}", color_mode_);
 
-  VKPipelineWrapper* picked_pipeline = nullptr;
+  AbsPipelineWrapper* picked_pipeline = nullptr;
   if (color_mode_ == HWPipelineColorMode::kStencil) {
     picked_pipeline = PickStencilPipeline();
   } else if (color_mode_ == HWPipelineColorMode::kUniformColor) {
@@ -462,55 +462,57 @@ VkCommandBuffer SKVkPipelineImpl::GetCurrentCMD() {
 }
 
 void SKVkPipelineImpl::InitPipelines() {
-  static_color_pipeline_ = VKPipelineWrapper::CreateStaticColorPipeline(ctx_);
-  stencil_color_pipeline_ = VKPipelineWrapper::CreateStencilColorPipeline(ctx_);
+  static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(ctx_);
+  stencil_color_pipeline_ =
+      AbsPipelineWrapper::CreateStencilColorPipeline(ctx_);
   stencil_clip_color_pipeline_ =
-      VKPipelineWrapper::CreateStencilClipColorPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipColorPipeline(ctx_);
   stencil_keep_color_pipeline_ =
-      VKPipelineWrapper::CreateStencilKeepColorPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepColorPipeline(ctx_);
   static_gradient_pipeline_ =
-      VKPipelineWrapper::CreateStaticGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStaticGradientPipeline(ctx_);
   stencil_gradient_pipeline_ =
-      VKPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
   stencil_clip_gradient_pipeline_ =
-      VKPipelineWrapper::CreateStencilClipGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipGradientPipeline(ctx_);
   stencil_keep_gradient_pipeline_ =
-      VKPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
-  static_image_pipeline_ = VKPipelineWrapper::CreateStaticImagePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
+  static_image_pipeline_ = AbsPipelineWrapper::CreateStaticImagePipeline(ctx_);
   stencil_image_pipeline_ =
-      VKPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
   stencil_clip_image_pipeline_ =
-      VKPipelineWrapper::CreateStencilClipImagePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipImagePipeline(ctx_);
   stencil_keep_image_pipeline_ =
-      VKPipelineWrapper::CreateStencilKeepImagePipeline(ctx_);
-  stencil_front_pipeline_ = VKPipelineWrapper::CreateStencilFrontPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepImagePipeline(ctx_);
+  stencil_front_pipeline_ =
+      AbsPipelineWrapper::CreateStencilFrontPipeline(ctx_);
   stencil_clip_front_pipeline_ =
-      VKPipelineWrapper::CreateStencilClipFrontPipeline(ctx_);
-  stencil_back_pipeline_ = VKPipelineWrapper::CreateStencilBackPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipFrontPipeline(ctx_);
+  stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(ctx_);
   stencil_clip_back_pipeline_ =
-      VKPipelineWrapper::CreateStencilClipBackPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipBackPipeline(ctx_);
   stencil_rec_clip_back_pipeline_ =
-      VKPipelineWrapper::CreateStencilRecClipBackPipeline(ctx_);
-  stencil_clip_pipeline_ = VKPipelineWrapper::CreateStencilClipPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilRecClipBackPipeline(ctx_);
+  stencil_clip_pipeline_ = AbsPipelineWrapper::CreateStencilClipPipeline(ctx_);
   stencil_rec_clip_pipeline_ =
-      VKPipelineWrapper::CreateStencilRecClipPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilRecClipPipeline(ctx_);
   stencil_replace_pipeline_ =
-      VKPipelineWrapper::CreateStencilReplacePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilReplacePipeline(ctx_);
 
   // off screen pipelines
   os_static_color_pipeline_ =
-      VKPipelineWrapper::CreateStaticColorPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStaticColorPipeline(ctx_, os_render_pass_);
   os_stencil_color_pipeline_ =
-      VKPipelineWrapper::CreateStencilColorPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStencilColorPipeline(ctx_, os_render_pass_);
   os_stencil_front_pipeline_ =
-      VKPipelineWrapper::CreateStencilFrontPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStencilFrontPipeline(ctx_, os_render_pass_);
   os_stencil_back_pipeline_ =
-      VKPipelineWrapper::CreateStencilBackPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStencilBackPipeline(ctx_, os_render_pass_);
 
   // effect pipelines
-  static_blur_pipeline_ = VKPipelineWrapper::CreateStaticBlurPipeline(ctx_);
+  static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_);
   os_static_blur_pipeline_ =
-      VKPipelineWrapper::CreateStaticBlurPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_, os_render_pass_);
 }
 
 void SKVkPipelineImpl::InitVertexBuffer(size_t new_size) {
@@ -597,7 +599,7 @@ void SKVkPipelineImpl::InitOffScreenRenderPass() {
   }
 }
 
-VKPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
+AbsPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
   // need to pick off screen pipeline
   if (current_target_) {
     if (!enable_stencil_test_) {
@@ -623,7 +625,7 @@ VKPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
   return nullptr;
 }
 
-VKPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
+AbsPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
   // pick off screen pipeline
   if (current_target_) {
     if (stencil_op_ == HWStencilOp::INCR_WRAP) {
@@ -667,7 +669,7 @@ VKPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
   return nullptr;
 }
 
-VKPipelineWrapper* SKVkPipelineImpl::PickGradientPipeline() {
+AbsPipelineWrapper* SKVkPipelineImpl::PickGradientPipeline() {
   if (!enable_stencil_test_) {
     return static_gradient_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -681,7 +683,7 @@ VKPipelineWrapper* SKVkPipelineImpl::PickGradientPipeline() {
   return nullptr;
 }
 
-VKPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
+AbsPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
   if (!enable_stencil_test_) {
     return static_image_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -695,7 +697,7 @@ VKPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
   return nullptr;
 }
 
-VKPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
+AbsPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
   if (current_target_) {
     return os_static_blur_pipeline_.get();
   }
@@ -703,7 +705,7 @@ VKPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
   return static_blur_pipeline_.get();
 }
 
-void SKVkPipelineImpl::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::BindPipelineIfNeed(AbsPipelineWrapper* pipeline) {
   if (pipeline == prev_pipeline_ && current_target_ == nullptr) {
     // no need to call bind pipeline
     return;
@@ -713,7 +715,7 @@ void SKVkPipelineImpl::BindPipelineIfNeed(VKPipelineWrapper* pipeline) {
   prev_pipeline_ = pipeline;
 }
 
-void SKVkPipelineImpl::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::UpdatePushConstantIfNeed(AbsPipelineWrapper* pipeline) {
   if (!global_push_const_.dirty) {
     return;
   }
@@ -724,7 +726,7 @@ void SKVkPipelineImpl::UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline) {
 }
 
 void SKVkPipelineImpl::UpdateTransformMatrixIfNeed(
-    VKPipelineWrapper* pipeline) {
+    AbsPipelineWrapper* pipeline) {
 // Fixme to solve Uniform set not working
 // it seems MoltenVK DescriptorSet has bug
 #ifndef __APPLE__
@@ -738,7 +740,7 @@ void SKVkPipelineImpl::UpdateTransformMatrixIfNeed(
                                   vk_memory_allocator_.get());
 }
 
-void SKVkPipelineImpl::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline) {
 // Fixme to solve Uniform set not working
 // it seems MoltenVK DescriptorSet has bug
 #ifndef __APPLE__
@@ -752,11 +754,11 @@ void SKVkPipelineImpl::UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline) {
                             CurrentFrameBuffer(), vk_memory_allocator_.get());
 }
 
-void SKVkPipelineImpl::UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::UpdateStencilConfigIfNeed(AbsPipelineWrapper* pipeline) {
   pipeline->UpdateStencilInfo(stencil_value_, ctx_);
 }
 
-void SKVkPipelineImpl::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {
   if (color_info_set_.dirty && pipeline->HasColorSet()) {
     pipeline->UploadUniformColor(color_info_set_.value, ctx_,
                                  CurrentFrameBuffer(),
@@ -782,7 +784,7 @@ void SKVkPipelineImpl::UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline) {
   // TODO implement font info update
 }
 
-void SKVkPipelineImpl::UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline) {
+void SKVkPipelineImpl::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
   if (font_texture_) {
     auto it = used_font_and_set_.find(font_texture_);
     if (it != used_font_and_set_.end()) {

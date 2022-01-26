@@ -43,52 +43,48 @@ struct GradientInfo {
   alignas(16) glm::vec4 pos[MAX_COLORS / 4];
 };
 
-class VKPipelineWrapper {
+class AbsPipelineWrapper {
  public:
-  VKPipelineWrapper(size_t push_const_size)
-      : push_const_size_(push_const_size) {}
-  virtual ~VKPipelineWrapper() = default;
+  AbsPipelineWrapper() = default;
+  virtual ~AbsPipelineWrapper() = default;
 
-  void SetRenderPass(VkRenderPass render_pass) {
-    os_render_pass_ = render_pass;
-  }
+  virtual bool IsComputePipeline() = 0;
 
-  void Init(GPUVkContext* ctx, VkShaderModule vertex, VkShaderModule fragment);
+  virtual bool HasColorSet() = 0;
 
-  void Destroy(GPUVkContext* ctx);
+  virtual void Init(GPUVkContext* ctx, VkShaderModule vertex,
+                    VkShaderModule fragment) = 0;
 
-  void Bind(VkCommandBuffer cmd);
+  virtual void Destroy(GPUVkContext* ctx) = 0;
+
+  virtual void Bind(VkCommandBuffer cmd) = 0;
+
+  virtual VkDescriptorSetLayout GetFontSetLayout() { return VK_NULL_HANDLE; }
 
   virtual void UpdateStencilInfo(uint32_t reference, GPUVkContext* ctx) {}
 
-  void UploadPushConstant(GlobalPushConst const& push_const,
-                          VkCommandBuffer cmd);
+  virtual void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {}
 
-  void UploadTransformMatrix(glm::mat4 const& matrix, GPUVkContext* ctx,
-                             SKVkFrameBufferData* frame_buffer,
-                             VKMemoryAllocator* allocator);
+  virtual void UploadPushConstant(GlobalPushConst const& push_const,
+                                  VkCommandBuffer cmd) {}
 
-  void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
-                       SKVkFrameBufferData* frame_buffer,
-                       VKMemoryAllocator* allocator);
+  virtual void UploadTransformMatrix(glm::mat4 const& matrix, GPUVkContext* ctx,
+                                     SKVkFrameBufferData* frame_buffer,
+                                     VKMemoryAllocator* allocator) {}
 
-  void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx);
+  virtual void UploadCommonSet(CommonFragmentSet const& common_set,
+                               GPUVkContext* ctx,
+                               SKVkFrameBufferData* frame_buffer,
+                               VKMemoryAllocator* allocator) {}
 
-  bool HasColorSet() { return descriptor_set_layout_[2] != VK_NULL_HANDLE; }
-
-  VkDescriptorSetLayout GetFontSetLayout() { return descriptor_set_layout_[3]; }
-
-  // sub class implement
   virtual void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
                                   SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
-  // sub class implement
   virtual void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
                                   SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
 
-  // sub class implement
   virtual void UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
                                   SKVkFrameBufferData* frame_buffer,
                                   VKMemoryAllocator* allocator) {}
@@ -97,96 +93,136 @@ class VKPipelineWrapper {
                               SKVkFrameBufferData* frame_buffer,
                               VKMemoryAllocator* allocator) {}
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipColorPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepColorPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepColorPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticGradientPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper>
+  static std::unique_ptr<AbsPipelineWrapper>
   CreateStencilDiscardGradientPipeline(GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper>
+  static std::unique_ptr<AbsPipelineWrapper>
   CreateStencilDiscardGradientPipeline(GPUVkContext* ctx,
                                        VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipGradientPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipGradientPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepGradientPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepGradientPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipImagePipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilKeepImagePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepImagePipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilFrontPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipFrontPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipFrontPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilBackPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipBackPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipBackPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilRecClipBackPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipBackPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilClipPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilRecClipPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStencilReplacePipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStencilReplacePipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticBlurPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
       GPUVkContext* ctx);
 
-  static std::unique_ptr<VKPipelineWrapper> CreateStaticBlurPipeline(
+  static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
+};
+
+class RenderPipeline : public AbsPipelineWrapper {
+ public:
+  RenderPipeline(size_t push_const_size) : push_const_size_(push_const_size) {}
+  ~RenderPipeline() override = default;
+
+  void SetRenderPass(VkRenderPass render_pass) {
+    os_render_pass_ = render_pass;
+  }
+
+  bool IsComputePipeline() override { return false; }
+
+  void Init(GPUVkContext* ctx, VkShaderModule vertex,
+            VkShaderModule fragment) override;
+
+  void Destroy(GPUVkContext* ctx) override;
+
+  void Bind(VkCommandBuffer cmd) override;
+
+  void UploadPushConstant(GlobalPushConst const& push_const,
+                          VkCommandBuffer cmd) override;
+
+  void UploadTransformMatrix(glm::mat4 const& matrix, GPUVkContext* ctx,
+                             SKVkFrameBufferData* frame_buffer,
+                             VKMemoryAllocator* allocator) override;
+
+  void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
+                       SKVkFrameBufferData* frame_buffer,
+                       VKMemoryAllocator* allocator) override;
+
+  void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) override;
+
+  bool HasColorSet() override {
+    return descriptor_set_layout_[2] != VK_NULL_HANDLE;
+  }
+
+  VkDescriptorSetLayout GetFontSetLayout() override {
+    return descriptor_set_layout_[3];
+  }
 
  protected:
   void InitDescriptorSetLayout(GPUVkContext* ctx);

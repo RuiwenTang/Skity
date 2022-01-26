@@ -5,10 +5,9 @@
 
 namespace skity {
 
-class StencilPipeline : public VKPipelineWrapper {
+class StencilPipeline : public RenderPipeline {
  public:
-  StencilPipeline(size_t push_const_size)
-      : VKPipelineWrapper(push_const_size) {}
+  StencilPipeline(size_t push_const_size) : RenderPipeline(push_const_size) {}
   ~StencilPipeline() override = default;
 
  protected:

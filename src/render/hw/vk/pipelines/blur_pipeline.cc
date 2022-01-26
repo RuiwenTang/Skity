@@ -9,8 +9,8 @@
 
 namespace skity {
 
-std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticBlurPipeline(
-    GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StaticBlurPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -20,8 +20,9 @@ std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticBlurPipeline(
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper> VKPipelineWrapper::CreateStaticBlurPipeline(
-    GPUVkContext* ctx, VkRenderPass render_pass) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx,
+                                             VkRenderPass render_pass) {
   return PipelineBuilder<StaticBlurPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
