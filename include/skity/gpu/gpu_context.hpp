@@ -129,11 +129,25 @@ struct GPUVkContext : public GPUContext {
   virtual VkQueue GetGraphicQueue() = 0;
 
   /**
+   * @brief Get the VkQueue used for compute command submition
+   *
+   * @return VkQueue
+   */
+  virtual VkQueue GetComputeQueue() = 0;
+
+  /**
    * @brief Get the graphic queue family index
    *
    * @return uint32_t
    */
   virtual uint32_t GetGraphicQueueIndex() = 0;
+
+  /**
+   * @brief Get the Compute Queue family index
+   *
+   * @return uint32_t
+   */
+  virtual uint32_t GetComputeQueueIndex() = 0;
 
   /**
    * @brief Get the Sample Count of current Vulkan context

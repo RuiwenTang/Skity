@@ -494,6 +494,7 @@ void VkApp::PickPhysicalDevice() {
 
   int32_t graphic_queue_family = -1;
   int32_t present_queue_family = -1;
+  int32_t compute_queue_family = -1;
 
   for (size_t i = 0; i < available_devices.size(); i++) {
     uint32_t queue_count = 0;
@@ -515,13 +516,24 @@ void VkApp::PickPhysicalDevice() {
         [](VkQueueFamilyProperties props) {
           return props.queueFlags & VK_QUEUE_PROTECTED_BIT;
         });
-    if (graphic_it != queue_family_properties.end()) {
+
+    auto compute_it = std::find_if(
+        queue_family_properties.begin(), queue_family_properties.end(),
+        [](VkQueueFamilyProperties props) {
+          return props.queueFlags & VK_QUEUE_COMPUTE_BIT;
+        });
+
+    if (graphic_it != queue_family_properties.end() &&
+        compute_it != queue_family_properties.end()) {
       vk_phy_device_ = available_devices[i];
       graphic_queue_family =
           std::distance(graphic_it, queue_family_properties.begin());
 
       present_queue_family =
           std::distance(present_it, queue_family_properties.begin());
+
+      compute_queue_family =
+          std::distance(compute_it, queue_family_properties.begin());
       break;
     }
   }
@@ -569,14 +581,18 @@ void VkApp::PickPhysicalDevice() {
 
   graphic_queue_index_ = graphic_queue_family;
   present_queue_index_ = present_queue_family;
+  compute_queue_index_ = compute_queue_family;
   vk_sample_count_ = get_max_usable_sample_count(phy_props);
 }
 
 void VkApp::CreateVkDevice() {
   std::vector<VkDeviceQueueCreateInfo> queue_create_info{};
 
-  std::set<uint32_t> queue_families = {graphic_queue_index_,
-                                       present_queue_index_};
+  std::set<uint32_t> queue_families = {
+      graphic_queue_index_,
+      present_queue_index_,
+      compute_queue_index_,
+  };
   float queue_priority = 1.f;
 
   for (uint32_t family : queue_families) {
@@ -632,6 +648,7 @@ void VkApp::CreateVkDevice() {
 
   vkGetDeviceQueue(vk_device_, graphic_queue_index_, 0, &vk_graphic_queue_);
   vkGetDeviceQueue(vk_device_, present_queue_index_, 0, &vk_present_queue_);
+  vkGetDeviceQueue(vk_device_, compute_queue_index_, 0, &vk_compute_queue_);
 }
 
 void VkApp::CreateSwapChain() {
