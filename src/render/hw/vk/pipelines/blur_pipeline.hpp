@@ -31,6 +31,17 @@ class StaticBlurPipeline : public StaticPipeline {
   glm::ivec4 blur_info_ = {};
 };
 
+class ComputeBlurPipeline : ComputePipeline {
+ public:
+  ComputeBlurPipeline() = default;
+  ~ComputeBlurPipeline() override = default;
+
+ protected:
+  VkDescriptorSetLayout CreateDescriptorSetLayout(GPUVkContext* ctx) override;
+
+  void OnDispatch(VkCommandBuffer cmd) override;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_BLUR_PIPELINE_HPP

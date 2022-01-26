@@ -423,4 +423,15 @@ void VKUtils::SetImageLayout(VkCommandBuffer cmd, VkImage image,
           nullptr, 1, &image_memory_barrier);
 }
 
+VkComputePipelineCreateInfo VKUtils::ComputePipelineCreateInfo(
+    VkPipelineLayout layout, VkPipelineCreateFlags flags) {
+  VkComputePipelineCreateInfo create_info{
+      VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
+
+  create_info.layout = layout;
+  create_info.flags = flags;
+
+  return create_info;
+}
+
 }  // namespace skity

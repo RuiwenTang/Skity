@@ -23,6 +23,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkCmdBindPipeline);
   GET_PROC(vkCmdBindVertexBuffers);
   GET_PROC(vkCmdCopyBufferToImage);
+  GET_PROC(vkCmdDispatch);
   GET_PROC(vkCmdDrawIndexed);
   GET_PROC(vkCmdEndRenderPass);
   GET_PROC(vkCmdPipelineBarrier);
@@ -31,6 +32,7 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkCmdSetStencilReference);
   GET_PROC(vkCmdSetViewport);
   GET_PROC(vkCreateCommandPool);
+  GET_PROC(vkCreateComputePipelines);
   GET_PROC(vkCreateDescriptorPool);
   GET_PROC(vkCreateDescriptorSetLayout);
   GET_PROC(vkCreateFence);
@@ -54,12 +56,12 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkDestroyShaderModule);
   GET_PROC(vkEndCommandBuffer);
   GET_PROC(vkQueueSubmit);
+  GET_PROC(vkQueueWaitIdle);
   GET_PROC(vkResetCommandPool);
   GET_PROC(vkResetDescriptorPool);
   GET_PROC(vkResetFences);
   GET_PROC(vkUpdateDescriptorSets);
   GET_PROC(vkWaitForFences);
-  GET_PROC(vkQueueWaitIdle);
 }
 
 }  // namespace skity

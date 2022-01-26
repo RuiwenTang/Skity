@@ -43,6 +43,15 @@ struct GradientInfo {
   alignas(16) glm::vec4 pos[MAX_COLORS / 4];
 };
 
+struct ComputeInfo {
+  // [radius, TBD, TBD, TBD]
+  alignas(16) glm::vec4 info = {};
+  // [BlurType, buffer_width, buffer_height, TBD]
+  alignas(16) glm::ivec4 blur_type = {};
+  // [ left, top, right, bottom ]
+  alignas(16) glm::vec4 bounds = {};
+};
+
 class AbsPipelineWrapper {
  public:
   AbsPipelineWrapper() = default;
@@ -58,6 +67,8 @@ class AbsPipelineWrapper {
   virtual void Destroy(GPUVkContext* ctx) = 0;
 
   virtual void Bind(VkCommandBuffer cmd) = 0;
+
+  virtual void Dispatch(VkCommandBuffer cmd) {}
 
   virtual VkDescriptorSetLayout GetFontSetLayout() { return VK_NULL_HANDLE; }
 
@@ -266,6 +277,77 @@ class RenderPipeline : public AbsPipelineWrapper {
   VkPipelineLayout pipeline_layout_ = {};
   VkPipeline pipeline_ = {};
   VkCommandBuffer bind_cmd_ = {};
+};
+
+class ComputePipeline : AbsPipelineWrapper {
+  enum {
+    LOCAL_SIZE = 16,
+  };
+
+ public:
+  ComputePipeline() = default;
+  ~ComputePipeline() override = default;
+
+  void Init(GPUVkContext* ctx, VkShaderModule vertex,
+            VkShaderModule fragment) override;
+
+  void Destroy(GPUVkContext* ctx) override;
+
+  void Bind(VkCommandBuffer cmd) override;
+
+  void Dispatch(VkCommandBuffer cmd) override;
+
+  void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
+                       SKVkFrameBufferData* frame_buffer,
+                       VKMemoryAllocator* allocator) override;
+
+  void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
+                          SKVkFrameBufferData* frame_buffer,
+                          VKMemoryAllocator* allocator) override;
+
+  void UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
+                          SKVkFrameBufferData* frame_buffer,
+                          VKMemoryAllocator* allocator) override;
+
+  void UploadOutputTexture(VKTexture* texture);
+
+ protected:
+  glm::vec4 const& CommonInfo() const { return common_info_; }
+  glm::vec4 const& BoundsInfo() const { return bounds_info_; }
+
+  VKTexture* InputTexture() const { return input_texture_; }
+  VKTexture* OutpuTexture() const { return output_texture_; }
+
+  SKVkFrameBufferData* FrameBufferData() const { return frame_buffer_data_; }
+  VKMemoryAllocator* Allocator() const { return allocator_; }
+
+  virtual VkDescriptorSetLayout CreateDescriptorSetLayout(
+      GPUVkContext* ctx) = 0;
+
+  virtual void OnDispatch(VkCommandBuffer cmd) = 0;
+
+ private:
+  void UpdateFrameDataAndAllocator(SKVkFrameBufferData* frame_data,
+                                   VKMemoryAllocator* allocator) {
+    frame_buffer_data_ = frame_data;
+    allocator_ = allocator;
+  }
+
+  void InitPipelineLayout(GPUVkContext* ctx);
+
+ private:
+  glm::vec4 common_info_ = {};
+  glm::vec4 bounds_info_ = {};
+  VKTexture* input_texture_ = {};
+  VKTexture* output_texture_ = {};
+
+  SKVkFrameBufferData* frame_buffer_data_ = {};
+  VKMemoryAllocator* allocator_ = {};
+
+  VkCommandBuffer bind_cmd_ = {};
+  VkPipelineLayout pipeline_layout_ = {};
+  VkDescriptorSetLayout descriptor_set_layout_ = {};
+  VkPipeline pipeline_ = {};
 };
 
 template <class T>

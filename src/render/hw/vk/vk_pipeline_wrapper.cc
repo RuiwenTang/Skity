@@ -6,6 +6,7 @@
 #include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
+#include "src/render/hw/vk/vk_texture.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
@@ -339,6 +340,86 @@ VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilKeepInfo() {
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;
+}
+
+void ComputePipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
+                           VkShaderModule fragment) {
+  InitPipelineLayout(ctx);
+
+  VkPipelineShaderStageCreateInfo shader_stage{
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+  shader_stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  shader_stage.module = vertex;
+  shader_stage.pName = "main";
+
+  auto pipeline_ci = VKUtils::ComputePipelineCreateInfo(pipeline_layout_);
+  pipeline_ci.stage = shader_stage;
+
+  VK_CALL(vkCreateComputePipelines, ctx->GetDevice(), VK_NULL_HANDLE, 1,
+          &pipeline_ci, nullptr, &pipeline_);
+}
+
+void ComputePipeline::Destroy(GPUVkContext* ctx) {
+  VK_CALL(vkDestroyPipeline, ctx->GetDevice(), pipeline_, nullptr);
+  VK_CALL(vkDestroyPipelineLayout, ctx->GetDevice(), pipeline_layout_, nullptr);
+  VK_CALL(vkDestroyDescriptorSetLayout, ctx->GetDevice(),
+          descriptor_set_layout_, nullptr);
+}
+
+void ComputePipeline::Bind(VkCommandBuffer cmd) {
+  VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
+  bind_cmd_ = cmd;
+}
+
+void ComputePipeline::Dispatch(VkCommandBuffer cmd) {
+  auto out_texture = OutpuTexture();
+  if (out_texture == nullptr) {
+    return;
+  }
+
+  OnDispatch(cmd);
+  VK_CALL(vkCmdDispatch, cmd, out_texture->GetWidth() / LOCAL_SIZE,
+          out_texture->GetHeight() / LOCAL_SIZE, 1);
+}
+
+void ComputePipeline::UploadOutputTexture(VKTexture* texture) {
+  output_texture_ = texture;
+}
+
+void ComputePipeline::UploadCommonSet(const CommonFragmentSet& common_set,
+                                      GPUVkContext* ctx,
+                                      SKVkFrameBufferData* frame_buffer,
+                                      VKMemoryAllocator* allocator) {
+  common_info_ = common_set.info;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::UploadGradientInfo(const GradientInfo& info,
+                                         GPUVkContext* ctx,
+                                         SKVkFrameBufferData* frame_buffer,
+                                         VKMemoryAllocator* allocator) {
+  bounds_info_ = info.bounds;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
+                                         SKVkFrameBufferData* frame_buffer,
+                                         VKMemoryAllocator* allocator) {
+  input_texture_ = texture;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::InitPipelineLayout(GPUVkContext* ctx) {
+  descriptor_set_layout_ = CreateDescriptorSetLayout(ctx);
+
+  VkPipelineLayoutCreateInfo pipeline_ci{
+      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+
+  pipeline_ci.setLayoutCount = 1;
+  pipeline_ci.pSetLayouts = &descriptor_set_layout_;
+
+  VK_CALL(vkCreatePipelineLayout, ctx->GetDevice(), &pipeline_ci, nullptr,
+          &pipeline_layout_);
 }
 
 }  // namespace skity

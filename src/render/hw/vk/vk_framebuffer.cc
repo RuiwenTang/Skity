@@ -42,6 +42,11 @@ void SKVkFrameBufferData::Destroy(GPUVkContext* ctx) {
     delete buffer;
   }
 
+  for (auto buffer : common_set_buffer_) {
+    allocator_->FreeBuffer(buffer);
+    delete buffer;
+  }
+
   current_transform_buffer_index = -1;
 
   for (auto pool : uniform_buffer_pool_) {
@@ -68,6 +73,10 @@ void SKVkFrameBufferData::FrameBegin(GPUVkContext* ctx) {
 
   if (gradient_info_index >= 0) {
     gradient_info_index = 0;
+  }
+
+  if (compute_info_index >= 0) {
+    compute_info_index = 0;
   }
 
   for (auto pool : uniform_buffer_pool_) {
@@ -147,6 +156,18 @@ AllocatedBuffer* SKVkFrameBufferData::ObtainGradientBuffer() {
       allocator_->AllocateUniformBuffer(sizeof(GradientInfo)));
 
   return gradient_info_buffer_.back();
+}
+
+AllocatedBuffer* SKVkFrameBufferData::ObtainComputeInfoBuffer() {
+  compute_info_index++;
+  if (compute_info_index < compute_info_buffer_.size()) {
+    return compute_info_buffer_[compute_info_index];
+  }
+
+  compute_info_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(ComputeInfo)));
+
+  return compute_info_buffer_.back();
 }
 
 VkDescriptorSet SKVkFrameBufferData::ObtainUniformBufferSet(

@@ -109,4 +109,11 @@ void StaticBlurPipeline::UploadImageTexture(VKTexture* texture,
           &descriptor_set, 0, nullptr);
 }
 
+VkDescriptorSetLayout ComputeBlurPipeline::CreateDescriptorSetLayout(
+    GPUVkContext* ctx) {
+  return nullptr;
+}
+
+void ComputeBlurPipeline::OnDispatch(VkCommandBuffer cmd) {}
+
 }  // namespace skity
