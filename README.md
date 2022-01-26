@@ -66,6 +66,22 @@ The code generates the following result:
   <img src="https://github.com/RuiwenTang/Skity/blob/gh-pages/images/fill_star.png?raw=true" width="300" />
 </p>
 
+### Blur Effect
+
+By using [`MaskFilter`](./include/skity/effect/mask_filter.hpp), can make some **Post-processing** effect, currently only support [Blur](https://en.wikipedia.org/wiki/Blur) effect.
+
+```c++
+paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 10.f));
+
+canvas->drawPath(path /* previouse created star path */, paint);
+
+```
+
+<p align="center">
+  <img src="./resources/blur_star.png"  width="300"/>
+</p>
+
 ## Build
 
 ### Third party dependencies
@@ -141,8 +157,14 @@ make
   - jpg image decode (need install [libjpeg-turbo](https://www.libjpeg-turbo.org/))
 
 - SVG (done)
+
   - basic svg tag parser
     - `<svg>` `<g>` `<path>` `<circle>` `<rect>`
+
+- Maskfilter (WIP)
+  - Gaussian Blur with inner and outer effect
+    - Finish in OpenGL backend
+    - WIP in Vulkan backend
 
 ## Reference
 
@@ -158,3 +180,4 @@ make
 - [ ] Support [lottie](https://airbnb.design/lottie/) anmiation.
 
 - [ ] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
+  - WIP with Vulkan backend

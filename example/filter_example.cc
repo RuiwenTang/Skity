@@ -49,4 +49,25 @@ void draw_filter(skity::Canvas* canvas) {
 
   canvas->drawCircle(300.f, 100.f, 50.f, paint);
   canvas->restore();
+
+  skity::Path path2;
+  path2.moveTo(199, 34);
+  path2.lineTo(253, 143);
+  path2.lineTo(374, 160);
+  path2.lineTo(287, 244);
+  path2.lineTo(307, 365);
+  path2.lineTo(199, 309);
+  path2.lineTo(97, 365);
+  path2.lineTo(112, 245);
+  path2.lineTo(26, 161);
+  path2.lineTo(146, 143);
+  path2.close();
+
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 10.f));
+
+  canvas->save();
+  canvas->translate(300, 200);
+  canvas->drawPath(path2, paint);
+  canvas->restore();
 }
