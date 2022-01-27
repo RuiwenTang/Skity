@@ -270,8 +270,9 @@ void main() {
     FragColor = vec4(0, 0, 0, 0);
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {
     FragColor = vec4(UserColor.xyz * UserColor.w, UserColor.w) * GlobalAlpha;
-  } else if (ColorType >= PIPELINE_MODE_IMAGE_TEXTURE &&
-             ColorType <= PIPELINE_MODE_INNER_BLUR) {
+  } else if (ColorType == PIPELINE_MODE_IMAGE_TEXTURE ||
+             (ColorType >= PIPELINE_MODE_FBO_TEXTURE &&
+              ColorType <= PIPELINE_MODE_INNER_BLUR)) {
     // Texture sampler
     vec2 uv = calculate_uv();
 
