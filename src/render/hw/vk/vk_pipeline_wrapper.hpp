@@ -68,7 +68,7 @@ class AbsPipelineWrapper {
 
   virtual void Bind(VkCommandBuffer cmd) = 0;
 
-  virtual void Dispatch(VkCommandBuffer cmd) {}
+  virtual void Dispatch(VkCommandBuffer cmd, GPUVkContext* ctx) {}
 
   virtual VkDescriptorSetLayout GetFontSetLayout() { return VK_NULL_HANDLE; }
 
@@ -194,6 +194,9 @@ class AbsPipelineWrapper {
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
       GPUVkContext* ctx, VkRenderPass render_pass);
+
+  static std::unique_ptr<AbsPipelineWrapper> CreateComputeBlurPipeline(
+      GPUVkContext* ctx);
 };
 
 class RenderPipeline : public AbsPipelineWrapper {
@@ -279,7 +282,7 @@ class RenderPipeline : public AbsPipelineWrapper {
   VkCommandBuffer bind_cmd_ = {};
 };
 
-class ComputePipeline : AbsPipelineWrapper {
+class ComputePipeline : public AbsPipelineWrapper {
   enum {
     LOCAL_SIZE = 16,
   };
@@ -295,7 +298,7 @@ class ComputePipeline : AbsPipelineWrapper {
 
   void Bind(VkCommandBuffer cmd) override;
 
-  void Dispatch(VkCommandBuffer cmd) override;
+  void Dispatch(VkCommandBuffer cmd, GPUVkContext* ctx) override;
 
   void UploadCommonSet(CommonFragmentSet const& common_set, GPUVkContext* ctx,
                        SKVkFrameBufferData* frame_buffer,
@@ -309,6 +312,10 @@ class ComputePipeline : AbsPipelineWrapper {
                           SKVkFrameBufferData* frame_buffer,
                           VKMemoryAllocator* allocator) override;
 
+  bool IsComputePipeline() override { return true; }
+
+  bool HasColorSet() override { return false; }
+
   void UploadOutputTexture(VKTexture* texture);
 
  protected:
@@ -321,10 +328,16 @@ class ComputePipeline : AbsPipelineWrapper {
   SKVkFrameBufferData* FrameBufferData() const { return frame_buffer_data_; }
   VKMemoryAllocator* Allocator() const { return allocator_; }
 
+  VkPipelineLayout GetPipelineLayout() { return pipeline_layout_; }
+
   virtual VkDescriptorSetLayout CreateDescriptorSetLayout(
       GPUVkContext* ctx) = 0;
 
-  virtual void OnDispatch(VkCommandBuffer cmd) = 0;
+  virtual void OnDispatch(VkCommandBuffer cmd, GPUVkContext* ctx) = 0;
+
+  VkDescriptorSetLayout ComputeSetLayout() const {
+    return descriptor_set_layout_;
+  }
 
  private:
   void UpdateFrameDataAndAllocator(SKVkFrameBufferData* frame_data,

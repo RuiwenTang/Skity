@@ -31,15 +31,22 @@ class StaticBlurPipeline : public StaticPipeline {
   glm::ivec4 blur_info_ = {};
 };
 
-class ComputeBlurPipeline : ComputePipeline {
+class ComputeBlurPipeline : public ComputePipeline {
  public:
   ComputeBlurPipeline() = default;
   ~ComputeBlurPipeline() override = default;
 
+  void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
+                      SKVkFrameBufferData* frame_buffer,
+                      VKMemoryAllocator* allocator) override;
+
  protected:
   VkDescriptorSetLayout CreateDescriptorSetLayout(GPUVkContext* ctx) override;
 
-  void OnDispatch(VkCommandBuffer cmd) override;
+  void OnDispatch(VkCommandBuffer cmd, GPUVkContext* ctx) override;
+
+ private:
+  glm::ivec4 blur_info_ = {};
 };
 
 }  // namespace skity

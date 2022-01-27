@@ -371,13 +371,13 @@ void ComputePipeline::Bind(VkCommandBuffer cmd) {
   bind_cmd_ = cmd;
 }
 
-void ComputePipeline::Dispatch(VkCommandBuffer cmd) {
+void ComputePipeline::Dispatch(VkCommandBuffer cmd, GPUVkContext* ctx) {
   auto out_texture = OutpuTexture();
   if (out_texture == nullptr) {
     return;
   }
 
-  OnDispatch(cmd);
+  OnDispatch(cmd, ctx);
   VK_CALL(vkCmdDispatch, cmd, out_texture->GetWidth() / LOCAL_SIZE,
           out_texture->GetHeight() / LOCAL_SIZE, 1);
 }
