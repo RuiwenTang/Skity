@@ -87,6 +87,8 @@ void VKRenderTarget::EndDraw() {
 
   pipeline_->SubmitCMD(vk_cmd_);
 
+  VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+
   vk_cmd_ = VK_NULL_HANDLE;
 }
 

@@ -70,6 +70,9 @@ void SKVkPipelineImpl::Bind() {
 
   CurrentFrameBuffer()->FrameBegin(ctx_);
 
+  // reset previouse frame allocate command buffer
+  VK_CALL(vkResetCommandPool, ctx_->GetDevice(), vk_cmd_pool_, 0);
+
   // view port
   VkViewport view_port{0,
                        0,
@@ -313,6 +316,8 @@ void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {
 
   VK_CALL(vkCmdBindIndexBuffer, GetCurrentCMD(), index_buffer_->GetBuffer(), 0,
           VK_INDEX_TYPE_UINT32);
+
+  ResetUniformDirty();
 }
 
 void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
@@ -320,6 +325,7 @@ void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
   current_target_->EndDraw();
   current_target_ = nullptr;
   prev_pipeline_ = nullptr;
+  ResetUniformDirty();
 }
 
 VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
@@ -817,6 +823,14 @@ void SKVkPipelineImpl::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
   } else {
     pipeline->UploadFontSet(empty_font_set_, ctx_);
   }
+}
+
+void SKVkPipelineImpl::ResetUniformDirty() {
+  global_push_const_.dirty = true;
+  model_matrix_.dirty = true;
+  common_fragment_set_.dirty = true;
+  color_info_set_.dirty = true;
+  gradient_info_set_.dirty = true;
 }
 
 SKVkFrameBufferData* SKVkPipelineImpl::CurrentFrameBuffer() {

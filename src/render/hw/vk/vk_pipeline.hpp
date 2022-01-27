@@ -131,6 +131,8 @@ class SKVkPipelineImpl : public HWPipeline {
   void UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline);
   void UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline);
 
+  void ResetUniformDirty();
+
   SKVkFrameBufferData* CurrentFrameBuffer();
 
  private:

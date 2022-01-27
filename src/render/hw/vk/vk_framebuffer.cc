@@ -42,7 +42,7 @@ void SKVkFrameBufferData::Destroy(GPUVkContext* ctx) {
     delete buffer;
   }
 
-  for (auto buffer : common_set_buffer_) {
+  for (auto buffer : compute_info_buffer_) {
     allocator_->FreeBuffer(buffer);
     delete buffer;
   }
