@@ -333,6 +333,7 @@ void VKUtils::SetImageLayout(VkCommandBuffer cmd, VkImage image,
   // before it will be transitioned to the new layout
   switch (old_layout) {
     case VK_IMAGE_LAYOUT_UNDEFINED:
+    case VK_IMAGE_LAYOUT_GENERAL:
       // Image layout is undefined(or does not matter)
       // Only valid as init layout
       // No flags required, listed only for completeness
@@ -413,8 +414,12 @@ void VKUtils::SetImageLayout(VkCommandBuffer cmd, VkImage image,
       }
       image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
       break;
+    case VK_IMAGE_LAYOUT_GENERAL:
+      image_memory_barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+      image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+      break;
     default:
-      LOG_WARN("Other source layouts aren't handled (yet)");
+      LOG_WARN("Other target layouts aren't handled (yet)");
       break;
   }
 

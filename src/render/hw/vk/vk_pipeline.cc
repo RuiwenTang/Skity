@@ -290,7 +290,11 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
   // dynamic state to use stencil discard
   UpdateStencilConfigIfNeed(picked_pipeline);
 
-  VK_CALL(vkCmdDrawIndexed, GetCurrentCMD(), count, 1, start, 0, 0);
+  if (picked_pipeline->IsComputePipeline()) {
+    picked_pipeline->Dispatch(GetCurrentCMD(), ctx_);
+  } else {
+    VK_CALL(vkCmdDrawIndexed, GetCurrentCMD(), count, 1, start, 0, 0);
+  }
 }
 
 void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
@@ -451,6 +455,7 @@ void SKVkPipelineImpl::DestroyPipelines() {
   stencil_rec_clip_pipeline_->Destroy(ctx_);
   stencil_replace_pipeline_->Destroy(ctx_);
   static_blur_pipeline_->Destroy(ctx_);
+  os_static_blur_pipeline_->Destroy(ctx_);
 }
 
 void SKVkPipelineImpl::DestroyFrameBuffers() {
@@ -519,6 +524,7 @@ void SKVkPipelineImpl::InitPipelines() {
   static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_);
   os_static_blur_pipeline_ =
       AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_, os_render_pass_);
+  compute_blur_pipeline_ = AbsPipelineWrapper::CreateComputeBlurPipeline(ctx_);
 }
 
 void SKVkPipelineImpl::InitVertexBuffer(size_t new_size) {
@@ -546,7 +552,7 @@ void SKVkPipelineImpl::InitOffScreenRenderPass() {
   attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  attachments[0].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
   // depth stencil attachment
   attachments[1].format = ctx_->GetDepthStencilFormat();
@@ -705,6 +711,10 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
 
 AbsPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
   if (current_target_) {
+    if (color_mode_ == HWPipelineColorMode::kHorizontalBlur ||
+        color_mode_ == HWPipelineColorMode::kVerticalBlur) {
+      return compute_blur_pipeline_.get();
+    }
     return os_static_blur_pipeline_.get();
   }
 
@@ -792,6 +802,12 @@ void SKVkPipelineImpl::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {
 
 void SKVkPipelineImpl::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
   if (font_texture_) {
+    if (pipeline->IsComputePipeline()) {
+      auto com_pipeline = (ComputePipeline*)pipeline;
+      com_pipeline->UploadOutputTexture(font_texture_);
+      return;
+    }
+
     auto it = used_font_and_set_.find(font_texture_);
     if (it != used_font_and_set_.end()) {
       if (font_texture_->GetImageLayout() !=

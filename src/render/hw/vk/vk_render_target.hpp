@@ -15,6 +15,44 @@ struct AllocatedImage;
 class VKMemoryAllocator;
 class SKVkPipelineImpl;
 
+class RenderTargetTexture : public VKTexture {
+ public:
+  RenderTargetTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
+                      GPUVkContext* ctx,
+                      VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                                VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+      : VKTexture(allocator, pipeline, ctx, flags) {}
+
+  ~RenderTargetTexture() override = default;
+
+  void PrepareForDraw() override { ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL); }
+};
+
+class FinalRenderTargetTexture : public VKTexture {
+ public:
+  FinalRenderTargetTexture(
+      VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
+      GPUVkContext* ctx,
+      VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+      : VKTexture(allocator, pipeline, ctx, flags) {}
+
+  ~FinalRenderTargetTexture() override = default;
+
+  void PrepareForDraw() override {
+    if (do_filter_) {
+      ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL);
+    } else {
+      ChangeImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    }
+  }
+
+  void SetIsDoFilter(bool value) { do_filter_ = value; }
+
+ private:
+  bool do_filter_ = false;
+};
+
 class VKRenderTarget : public HWRenderTarget {
   struct Framebuffer {
     VkRenderPass render_pass = {};
@@ -71,13 +109,11 @@ class VKRenderTarget : public HWRenderTarget {
   GPUVkContext* ctx_ = {};
   std::unique_ptr<AllocatedImage> stencil_image_ = {};
   VkImageView stencil_image_view_ = {};
-  VKTexture color_texture_;
-  VKTexture horizontal_texture_;
-  VKTexture vertical_texture_;
+  RenderTargetTexture color_texture_;
+  RenderTargetTexture horizontal_texture_;
+  FinalRenderTargetTexture vertical_texture_;
   // used to render to texture
   Framebuffer color_fbo_;
-  Framebuffer horizontal_fbo_;
-  Framebuffer vertical_fbo_;
 
   Framebuffer* current_fbo = nullptr;
   VkCommandBuffer vk_cmd_ = {};

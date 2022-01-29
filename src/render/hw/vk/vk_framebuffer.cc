@@ -89,11 +89,13 @@ void SKVkFrameBufferData::FrameBegin(GPUVkContext* ctx) {
 }
 
 void SKVkFrameBufferData::AppendUniformBufferPool(GPUVkContext* ctx) {
-  std::array<VkDescriptorPoolSize, 2> pool_size{};
+  std::array<VkDescriptorPoolSize, 3> pool_size{};
   pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   pool_size[0].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
   pool_size[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   pool_size[1].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
+  pool_size[2].type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+  pool_size[2].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL * 2;
 
   auto create_info = VKUtils::DescriptorPoolCreateInfo(
       pool_size.size(), pool_size.data(), DEFAULT_UNIFORM_SIZE_PER_POOL);

@@ -17,32 +17,38 @@ VKRenderTarget::VKRenderTarget(uint32_t width, uint32_t height,
       allocator_(allocator),
       pipeline_(pipeline),
       ctx_(ctx),
-      color_texture_(allocator, pipeline, ctx, true),
-      horizontal_texture_(allocator, pipeline, ctx, true),
-      vertical_texture_(allocator, pipeline, ctx, true),
-      color_fbo_(pipeline->OffScreenRenderPass()),
-      horizontal_fbo_(pipeline->OffScreenRenderPass()),
-      vertical_fbo_(pipeline->OffScreenRenderPass()) {}
+      color_texture_(allocator, pipeline, ctx,
+                     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_STORAGE_BIT |
+                         VK_IMAGE_USAGE_SAMPLED_BIT),
+      horizontal_texture_(
+          allocator, pipeline, ctx,
+          VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
+      vertical_texture_(
+          allocator, pipeline, ctx,
+          VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT),
+      color_fbo_(pipeline->OffScreenRenderPass()) {}
 
 VKRenderTarget::~VKRenderTarget() = default;
 
 void VKRenderTarget::BindColorTexture() {
   current_fbo = &color_fbo_;
+  if (color_texture_.GetImageLayout() ==
+      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    color_texture_.ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL);
+  }
   BeginCurrentRenderPass();
 }
 
 void VKRenderTarget::BindHorizontalTexture() {
   VK_CALL(vkCmdEndRenderPass, vk_cmd_);
 
-  current_fbo = &horizontal_fbo_;
-  BeginCurrentRenderPass();
+  horizontal_texture_.ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL);
 }
 
 void VKRenderTarget::BindVerticalTexture() {
-  VK_CALL(vkCmdEndRenderPass, vk_cmd_);
-
-  current_fbo = &vertical_fbo_;
-  BeginCurrentRenderPass();
+  vertical_texture_.ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL);
+  vertical_texture_.SetIsDoFilter(true);
 }
 
 void VKRenderTarget::Init() {
@@ -83,13 +89,12 @@ void VKRenderTarget::StartDraw() {
 }
 
 void VKRenderTarget::EndDraw() {
-  VK_CALL(vkCmdEndRenderPass, vk_cmd_);
-
   pipeline_->SubmitCMD(vk_cmd_);
 
   VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
 
   vk_cmd_ = VK_NULL_HANDLE;
+  vertical_texture_.SetIsDoFilter(false);
 }
 
 void VKRenderTarget::CreateStencilImage() {
@@ -117,21 +122,9 @@ void VKRenderTarget::InitSubFramebuffers() {
   color_fbo_.InitFramebuffer(ctx_, Width(), Height(),
                              color_texture_.GetImageView(),
                              stencil_image_view_);
-
-  horizontal_fbo_.InitFramebuffer(ctx_, Width(), Height(),
-                                  horizontal_texture_.GetImageView(),
-                                  stencil_image_view_);
-
-  vertical_fbo_.InitFramebuffer(ctx_, Width(), Height(),
-                                vertical_texture_.GetImageView(),
-                                stencil_image_view_);
 }
 
-void VKRenderTarget::DestroySubFramebuffers() {
-  color_fbo_.Destroy(ctx_);
-  horizontal_fbo_.Destroy(ctx_);
-  vertical_fbo_.Destroy(ctx_);
-}
+void VKRenderTarget::DestroySubFramebuffers() { color_fbo_.Destroy(ctx_); }
 
 void VKRenderTarget::BeginCurrentRenderPass() {
   std::array<VkClearValue, 2> clear_values{};

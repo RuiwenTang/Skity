@@ -11,7 +11,7 @@ layout(set = 0, binding = 0) uniform _blur_info {
   // [radius, TBD, TBD, TBD]
   vec4 info;
   // [ BlurType, buffer_width, buffer_height ]
-  vec4 type;
+  ivec4 type;
   // [ left, top, right, bottom ]
   vec4 bounds;
 }
@@ -59,8 +59,18 @@ vec4 calculate_blur(ivec2 uv, ivec2 dir) {
 
 void main() {
   // just copy for test
-  vec4 acc = imageLoad(InputImage,
-                       ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y));
-
+  // vec4 acc = imageLoad(InputImage,
+  //                      ivec2(gl_GlobalInvocationID.x,
+  //                      gl_GlobalInvocationID.y));
+  ivec2 dir;
+  if (BlurInfo.type.x == PIPELINE_MODE_HORIZONTAL_BLUR) {
+    dir.x = 1;
+    dir.y = 0;
+  } else {
+    dir.x = 0;
+    dir.y = 1;
+  }
+  vec4 acc = calculate_blur(
+      ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), dir);
   imageStore(ResultImage, ivec2(gl_GlobalInvocationID.xy), acc);
 }

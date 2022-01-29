@@ -184,6 +184,7 @@ class SKVkPipelineImpl : public HWPipeline {
   // blur pipelines
   std::unique_ptr<AbsPipelineWrapper> static_blur_pipeline_ = {};
   std::unique_ptr<AbsPipelineWrapper> os_static_blur_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> compute_blur_pipeline_ = {};
 
   // render pass for all offscreen pipeline
   VkRenderPass os_render_pass_ = {};
