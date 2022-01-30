@@ -43,6 +43,21 @@ void VKRenderTarget::BindColorTexture() {
 void VKRenderTarget::BindHorizontalTexture() {
   VK_CALL(vkCmdEndRenderPass, vk_cmd_);
 
+  VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+
+  barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+  barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+  barrier.image = color_texture_.GetImage();
+  barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+  barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+  VK_CALL(vkCmdPipelineBarrier, vk_cmd_, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+          &barrier);
+
   horizontal_texture_.ChangeImageLayout(VK_IMAGE_LAYOUT_GENERAL);
 }
 
@@ -89,9 +104,21 @@ void VKRenderTarget::StartDraw() {
 }
 
 void VKRenderTarget::EndDraw() {
-  pipeline_->SubmitCMD(vk_cmd_);
+  VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
 
-  VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+  barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+  barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+  barrier.image = vertical_texture_.GetImage();
+  barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+  barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+  VK_CALL(vkCmdPipelineBarrier, vk_cmd_, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+          VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+          &barrier);
+  pipeline_->SubmitCMD(vk_cmd_);
 
   vk_cmd_ = VK_NULL_HANDLE;
   vertical_texture_.SetIsDoFilter(false);

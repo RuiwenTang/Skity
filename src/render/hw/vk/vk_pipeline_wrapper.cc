@@ -246,6 +246,8 @@ VkPipelineColorBlendAttachmentState RenderPipeline::GetColorBlendState() {
         VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+    blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
   } else {
     blend_attachment_state.blendEnable = VK_TRUE;
     blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
@@ -253,10 +255,9 @@ VkPipelineColorBlendAttachmentState RenderPipeline::GetColorBlendState() {
         VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+    blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
   }
-
-  blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
-  blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
 
   return blend_attachment_state;
 }
@@ -380,8 +381,9 @@ void ComputePipeline::Dispatch(VkCommandBuffer cmd, GPUVkContext* ctx) {
   }
 
   OnDispatch(cmd, ctx);
-  VK_CALL(vkCmdDispatch, cmd, out_texture->GetWidth() / LOCAL_SIZE,
-          out_texture->GetHeight() / LOCAL_SIZE, 1);
+  VK_CALL(vkCmdDispatch, cmd,
+          (out_texture->GetWidth() + LOCAL_SIZE - 1) / LOCAL_SIZE,
+          (out_texture->GetHeight() + LOCAL_SIZE - 1) / LOCAL_SIZE, 1);
 }
 
 void ComputePipeline::UploadOutputTexture(VKTexture* texture) {

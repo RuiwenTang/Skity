@@ -12,7 +12,7 @@ namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx) {
-  return PipelineBuilder<StaticBlurPipeline>{
+  return PipelineBuilder<FinalBlurPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_blur_effect_frag_spv,
@@ -122,6 +122,25 @@ void StaticBlurPipeline::UploadImageTexture(VKTexture* texture,
   VK_CALL(vkCmdBindDescriptorSets, GetBindCMD(),
           VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 2, 1,
           &descriptor_set, 0, nullptr);
+}
+
+VkPipelineColorBlendAttachmentState FinalBlurPipeline::GetColorBlendState() {
+  VkPipelineColorBlendAttachmentState blend_attachment_state{};
+
+  blend_attachment_state.colorWriteMask =
+      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+  blend_attachment_state.blendEnable = VK_TRUE;
+  blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+  blend_attachment_state.dstColorBlendFactor =
+      VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+  blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+  blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
+
+  return blend_attachment_state;
 }
 
 void ComputeBlurPipeline::UploadBlurInfo(glm::ivec4 const& info,

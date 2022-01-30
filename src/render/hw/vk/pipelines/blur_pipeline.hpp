@@ -31,6 +31,16 @@ class StaticBlurPipeline : public StaticPipeline {
   glm::ivec4 blur_info_ = {};
 };
 
+class FinalBlurPipeline : public StaticBlurPipeline {
+ public:
+  FinalBlurPipeline(size_t push_const_size)
+      : StaticBlurPipeline(push_const_size) {}
+  ~FinalBlurPipeline() override = default;
+
+ protected:
+  VkPipelineColorBlendAttachmentState GetColorBlendState() override;
+};
+
 class ComputeBlurPipeline : public ComputePipeline {
  public:
   ComputeBlurPipeline() = default;

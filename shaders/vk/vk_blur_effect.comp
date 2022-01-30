@@ -58,10 +58,6 @@ vec4 calculate_blur(ivec2 uv, ivec2 dir) {
 }
 
 void main() {
-  // just copy for test
-  // vec4 acc = imageLoad(InputImage,
-  //                      ivec2(gl_GlobalInvocationID.x,
-  //                      gl_GlobalInvocationID.y));
   ivec2 dir;
   if (BlurInfo.type.x == PIPELINE_MODE_HORIZONTAL_BLUR) {
     dir.x = 1;
