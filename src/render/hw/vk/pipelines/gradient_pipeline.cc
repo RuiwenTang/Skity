@@ -11,8 +11,8 @@
 
 namespace skity {
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StaticGradientPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -22,8 +22,8 @@ VKPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardGradientPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -33,8 +33,8 @@ VKPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipGradientPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -44,8 +44,8 @@ VKPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
   }();
 }
 
-std::unique_ptr<VKPipelineWrapper>
-VKPipelineWrapper::CreateStencilKeepGradientPipeline(GPUVkContext* ctx) {
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilKeepGradientPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilKeepGradientPipeline>{
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
@@ -91,17 +91,17 @@ VkDescriptorSetLayout StaticGradientPipeline::GenerateColorSetLayout(
 
 VkPipelineDepthStencilStateCreateInfo
 StencilDiscardGradientPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilDiscardInfo();
+  return RenderPipeline::StencilDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilClipGradientPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilClipDiscardInfo();
+  return RenderPipeline::StencilClipDiscardInfo();
 }
 
 VkPipelineDepthStencilStateCreateInfo
 StencilKeepGradientPipeline::GetDepthStencilStateCreateInfo() {
-  return VKPipelineWrapper::StencilKeepInfo();
+  return RenderPipeline::StencilKeepInfo();
 }
 
 }  // namespace skity

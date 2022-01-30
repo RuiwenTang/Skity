@@ -31,6 +31,8 @@ class SKVkFrameBufferData {
 
   AllocatedBuffer* ObtainGradientBuffer();
 
+  AllocatedBuffer* ObtainComputeInfoBuffer();
+
   // allocate descriptor set for set 0
   VkDescriptorSet ObtainUniformBufferSet(GPUVkContext* ctx,
                                          VkDescriptorSetLayout layout);
@@ -55,6 +57,9 @@ class SKVkFrameBufferData {
 
   std::vector<AllocatedBuffer*> gradient_info_buffer_ = {};
   int32_t gradient_info_index = -1;
+
+  std::vector<AllocatedBuffer*> compute_info_buffer_ = {};
+  int32_t compute_info_index = -1;
 };
 
 }  // namespace skity

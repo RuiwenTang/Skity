@@ -42,6 +42,11 @@ void SKVkFrameBufferData::Destroy(GPUVkContext* ctx) {
     delete buffer;
   }
 
+  for (auto buffer : compute_info_buffer_) {
+    allocator_->FreeBuffer(buffer);
+    delete buffer;
+  }
+
   current_transform_buffer_index = -1;
 
   for (auto pool : uniform_buffer_pool_) {
@@ -70,6 +75,10 @@ void SKVkFrameBufferData::FrameBegin(GPUVkContext* ctx) {
     gradient_info_index = 0;
   }
 
+  if (compute_info_index >= 0) {
+    compute_info_index = 0;
+  }
+
   for (auto pool : uniform_buffer_pool_) {
     VK_CALL(vkResetDescriptorPool, ctx->GetDevice(), pool, 0);
   }
@@ -80,11 +89,13 @@ void SKVkFrameBufferData::FrameBegin(GPUVkContext* ctx) {
 }
 
 void SKVkFrameBufferData::AppendUniformBufferPool(GPUVkContext* ctx) {
-  std::array<VkDescriptorPoolSize, 2> pool_size{};
+  std::array<VkDescriptorPoolSize, 3> pool_size{};
   pool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   pool_size[0].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
   pool_size[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   pool_size[1].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL;
+  pool_size[2].type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+  pool_size[2].descriptorCount = DEFAULT_UNIFORM_SIZE_PER_POOL * 2;
 
   auto create_info = VKUtils::DescriptorPoolCreateInfo(
       pool_size.size(), pool_size.data(), DEFAULT_UNIFORM_SIZE_PER_POOL);
@@ -147,6 +158,18 @@ AllocatedBuffer* SKVkFrameBufferData::ObtainGradientBuffer() {
       allocator_->AllocateUniformBuffer(sizeof(GradientInfo)));
 
   return gradient_info_buffer_.back();
+}
+
+AllocatedBuffer* SKVkFrameBufferData::ObtainComputeInfoBuffer() {
+  compute_info_index++;
+  if (compute_info_index < compute_info_buffer_.size()) {
+    return compute_info_buffer_[compute_info_index];
+  }
+
+  compute_info_buffer_.emplace_back(
+      allocator_->AllocateUniformBuffer(sizeof(ComputeInfo)));
+
+  return compute_info_buffer_.back();
 }
 
 VkDescriptorSet SKVkFrameBufferData::ObtainUniformBufferSet(

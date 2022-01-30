@@ -1,0 +1,72 @@
+#version 450
+
+#define M_PI 3.1415926535897932384626433832795
+
+#define PIPELINE_MODE_HORIZONTAL_BLUR 6
+#define PIPELINE_MODE_VERTICAL_BLUR 7
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(set = 0, binding = 0) uniform _blur_info {
+  // [radius, TBD, TBD, TBD]
+  vec4 info;
+  // [ BlurType, buffer_width, buffer_height ]
+  ivec4 type;
+  // [ left, top, right, bottom ]
+  vec4 bounds;
+}
+BlurInfo;
+
+layout(set = 0, binding = 1, rgba8) uniform readonly image2D InputImage;
+layout(set = 0, binding = 2, rgba8) uniform image2D ResultImage;
+
+float StrokeWidth() { return BlurInfo.info.x; }
+
+// all blur calculation is based on
+// https://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
+float calculate_blur_norm() {
+  float sigma = StrokeWidth() + 2.0;
+  return 1.0 / (sqrt(2.0 * M_PI) * sigma);
+}
+
+float calculate_blur_coffe(float norm, float step) {
+  // blur mode kernelSize is passed through StrokeWidth
+  float sigma = StrokeWidth() + 2.0;
+  return norm * exp(-0.5 * step * step / (sigma * sigma));
+}
+
+vec4 calculate_blur(ivec2 uv, ivec2 dir) {
+  ivec2 step_vec = ivec2(1, 1);
+  float norm = calculate_blur_norm();
+
+  float total = norm;
+
+  vec4 acc = imageLoad(InputImage, uv) * norm;
+
+  int kernel_size = int(StrokeWidth());
+  for (int i = 1; i <= kernel_size; i++) {
+    float coffe = calculate_blur_coffe(norm, float(i));
+
+    acc += imageLoad(InputImage, uv - i * step_vec * dir) * coffe;
+    acc += imageLoad(InputImage, uv + i * step_vec * dir) * coffe;
+
+    total += 2.0 * coffe;
+  }
+
+  acc = acc / total;
+  return acc;
+}
+
+void main() {
+  ivec2 dir;
+  if (BlurInfo.type.x == PIPELINE_MODE_HORIZONTAL_BLUR) {
+    dir.x = 1;
+    dir.y = 0;
+  } else {
+    dir.x = 0;
+    dir.y = 1;
+  }
+  vec4 acc = calculate_blur(
+      ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), dir);
+  imageStore(ResultImage, ivec2(gl_GlobalInvocationID.xy), acc);
+}

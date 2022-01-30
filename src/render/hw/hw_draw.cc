@@ -288,12 +288,14 @@ void PostProcessDraw::DoFilter() {
   // do horizontal blur
   render_target_->BindHorizontalTexture();
   SetTexture(render_target_->ColorTexture());
+  SetFontTexture(render_target_->HorizontalTexture());
   SetPipelineColorMode(HWPipelineColorMode::kHorizontalBlur);
   HWDraw::Draw();
 
   // do vertical blur
   render_target_->BindVerticalTexture();
   SetTexture(render_target_->HorizontalTexture());
+  SetFontTexture(render_target_->VerticalTexture());
   SetPipelineColorMode(HWPipelineColorMode::kVerticalBlur);
   HWDraw::Draw();
 }

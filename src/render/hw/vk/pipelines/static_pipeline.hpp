@@ -10,9 +10,9 @@ namespace skity {
  * @brief Base class for all pipeline which do not need stencil test
  *
  */
-class StaticPipeline : public VKPipelineWrapper {
+class StaticPipeline : public RenderPipeline {
  public:
-  StaticPipeline(size_t push_const_size) : VKPipelineWrapper(push_const_size) {}
+  StaticPipeline(size_t push_const_size) : RenderPipeline(push_const_size) {}
   ~StaticPipeline() override = default;
 
  protected:

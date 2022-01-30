@@ -46,7 +46,11 @@ class VkApp : public skity::GPUVkContext {
 
   VkQueue GetGraphicQueue() override { return GraphicQueue(); }
 
+  VkQueue GetComputeQueue() override { return ComputeQueue(); }
+
   uint32_t GetGraphicQueueIndex() override { return GraphicQueueIndex(); }
+
+  uint32_t GetComputeQueueIndex() override { return ComputeQueueIndex(); }
 
   VkSampleCountFlagBits GetSampleCount() override { return vk_sample_count_; }
 
@@ -75,7 +79,9 @@ class VkApp : public skity::GPUVkContext {
   uint32_t SwapchinImageCount() const { return swap_chain_image_views.size(); }
   uint32_t CurrentFrameIndex() const { return current_frame_; }
   VkQueue GraphicQueue() const { return vk_graphic_queue_; }
+  VkQueue ComputeQueue() const { return vk_compute_queue_; }
   uint32_t GraphicQueueIndex() const { return graphic_queue_index_; }
+  uint32_t ComputeQueueIndex() const { return compute_queue_index_; }
 
  private:
   void SetupVkContext();
@@ -111,8 +117,10 @@ class VkApp : public skity::GPUVkContext {
   VkDevice vk_device_ = {};
   uint32_t graphic_queue_index_ = {};
   uint32_t present_queue_index_ = {};
+  uint32_t compute_queue_index_ = {};
   VkQueue vk_graphic_queue_ = {};
   VkQueue vk_present_queue_ = {};
+  VkQueue vk_compute_queue_ = {};
   VkSwapchainKHR vk_swap_chain_ = {};
   VkFormat swap_chain_format_ = {};
   VkFormat depth_stencil_format_ = {};

@@ -104,6 +104,9 @@ class VKUtils final {
       VkImageSubresourceRange range,
       VkPipelineStageFlags src_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
       VkPipelineStageFlags dst_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+  static VkComputePipelineCreateInfo ComputePipelineCreateInfo(
+      VkPipelineLayout layout, VkPipelineCreateFlags flags = 0);
 };
 
 }  // namespace skity

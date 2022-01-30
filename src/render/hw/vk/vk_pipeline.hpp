@@ -116,20 +116,22 @@ class SKVkPipelineImpl : public HWPipeline {
 
   VkCommandBuffer GetCurrentCMD();
 
-  VKPipelineWrapper* PickColorPipeline();
-  VKPipelineWrapper* PickStencilPipeline();
-  VKPipelineWrapper* PickGradientPipeline();
-  VKPipelineWrapper* PickImagePipeline();
-  VKPipelineWrapper* PickBlurPipeline();
+  AbsPipelineWrapper* PickColorPipeline();
+  AbsPipelineWrapper* PickStencilPipeline();
+  AbsPipelineWrapper* PickGradientPipeline();
+  AbsPipelineWrapper* PickImagePipeline();
+  AbsPipelineWrapper* PickBlurPipeline();
 
-  void BindPipelineIfNeed(VKPipelineWrapper* pipeline);
+  void BindPipelineIfNeed(AbsPipelineWrapper* pipeline);
 
-  void UpdatePushConstantIfNeed(VKPipelineWrapper* pipeline);
-  void UpdateTransformMatrixIfNeed(VKPipelineWrapper* pipeline);
-  void UpdateCommonSetIfNeed(VKPipelineWrapper* pipeline);
-  void UpdateStencilConfigIfNeed(VKPipelineWrapper* pipeline);
-  void UpdateColorInfoIfNeed(VKPipelineWrapper* pipeline);
-  void UpdateFontInfoIfNeed(VKPipelineWrapper* pipeline);
+  void UpdatePushConstantIfNeed(AbsPipelineWrapper* pipeline);
+  void UpdateTransformMatrixIfNeed(AbsPipelineWrapper* pipeline);
+  void UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline);
+  void UpdateStencilConfigIfNeed(AbsPipelineWrapper* pipeline);
+  void UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline);
+  void UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline);
+
+  void ResetUniformDirty();
 
   SKVkFrameBufferData* CurrentFrameBuffer();
 
@@ -149,39 +151,40 @@ class SKVkPipelineImpl : public HWPipeline {
   std::unique_ptr<VKMemoryAllocator> vk_memory_allocator_ = {};
   std::vector<std::unique_ptr<SKVkFrameBufferData>> frame_buffer_ = {};
   // used to check if need to bind pipeline
-  VKPipelineWrapper* prev_pipeline_ = nullptr;
+  AbsPipelineWrapper* prev_pipeline_ = nullptr;
 
   // color pipelines
-  std::unique_ptr<VKPipelineWrapper> static_color_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_color_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_color_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_keep_color_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> os_static_color_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> os_stencil_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> static_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_keep_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> os_static_color_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> os_stencil_color_pipeline_ = {};
   // gradient pipelines
-  std::unique_ptr<VKPipelineWrapper> static_gradient_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_gradient_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_gradient_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_keep_gradient_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> static_gradient_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_gradient_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_gradient_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_keep_gradient_pipeline_ = {};
   // image pipelines
-  std::unique_ptr<VKPipelineWrapper> static_image_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_image_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_image_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_keep_image_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> static_image_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_image_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_image_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_keep_image_pipeline_ = {};
   // stencil pipelines
-  std::unique_ptr<VKPipelineWrapper> stencil_front_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_front_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_back_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_back_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_back_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_clip_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_rec_clip_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> stencil_replace_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> os_stencil_front_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> os_stencil_back_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_front_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_front_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_back_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_back_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_rec_clip_back_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_clip_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_rec_clip_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> stencil_replace_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> os_stencil_front_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> os_stencil_back_pipeline_ = {};
   // blur pipelines
-  std::unique_ptr<VKPipelineWrapper> static_blur_pipeline_ = {};
-  std::unique_ptr<VKPipelineWrapper> os_static_blur_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> static_blur_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> os_static_blur_pipeline_ = {};
+  std::unique_ptr<AbsPipelineWrapper> compute_blur_pipeline_ = {};
 
   // render pass for all offscreen pipeline
   VkRenderPass os_render_pass_ = {};

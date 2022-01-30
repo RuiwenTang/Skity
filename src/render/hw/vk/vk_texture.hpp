@@ -19,7 +19,9 @@ class SKVkPipelineImpl;
 class VKTexture : public HWTexture {
  public:
   VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
-            GPUVkContext* ctx, bool render_target = false);
+            GPUVkContext* ctx,
+            VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
   ~VKTexture() override = default;
 
@@ -38,7 +40,11 @@ class VKTexture : public HWTexture {
   void UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                   uint32_t height, void* data) override;
 
-  void PrepareForDraw();
+  virtual void PrepareForDraw();
+
+  void ChangeImageLayout(VkImageLayout target_layout);
+
+  void ChangeImageLayoutWithoutSumbit(VkImageLayout target_layout);
 
   VkSampler GetSampler() const;
 
@@ -63,7 +69,7 @@ class VKTexture : public HWTexture {
   VKMemoryAllocator* allocator_ = {};
   SKVkPipelineImpl* pipeline_ = {};
   GPUVkContext* ctx_ = {};
-  bool render_target_ = false;
+  VkImageUsageFlags flags_ = {};
   VkFormat format_ = {};
   VkImageSubresourceRange range_ = {};
   VkImageView vk_image_view_ = {};

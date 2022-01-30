@@ -6,12 +6,13 @@
 #include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
+#include "src/render/hw/vk/vk_texture.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
 
-void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
-                             VkShaderModule fragment) {
+void RenderPipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
+                          VkShaderModule fragment) {
   std::array<VkPipelineShaderStageCreateInfo, 2> shaders{};
   shaders[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   shaders[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -80,7 +81,7 @@ void VKPipelineWrapper::Init(GPUVkContext* ctx, VkShaderModule vertex,
   }
 }
 
-void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
+void RenderPipeline::Destroy(GPUVkContext* ctx) {
   VK_CALL(vkDestroyPipeline, ctx->GetDevice(), pipeline_, nullptr);
   VK_CALL(vkDestroyPipelineLayout, ctx->GetDevice(), pipeline_layout_, nullptr);
 
@@ -90,22 +91,22 @@ void VKPipelineWrapper::Destroy(GPUVkContext* ctx) {
   }
 }
 
-void VKPipelineWrapper::Bind(VkCommandBuffer cmd) {
+void RenderPipeline::Bind(VkCommandBuffer cmd) {
   VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   bind_cmd_ = cmd;
 }
 
-void VKPipelineWrapper::UploadPushConstant(GlobalPushConst const& push_const,
-                                           VkCommandBuffer cmd) {
+void RenderPipeline::UploadPushConstant(GlobalPushConst const& push_const,
+                                        VkCommandBuffer cmd) {
   VK_CALL(vkCmdPushConstants, cmd, pipeline_layout_,
           VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT, 0,
           sizeof(GlobalPushConst), &push_const);
 }
 
-void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
-                                        GPUVkContext* ctx,
-                                        SKVkFrameBufferData* frame_buffer,
-                                        VKMemoryAllocator* allocator) {
+void RenderPipeline::UploadCommonSet(CommonFragmentSet const& common_set,
+                                     GPUVkContext* ctx,
+                                     SKVkFrameBufferData* frame_buffer,
+                                     VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainCommonSetBuffer();
   allocator->UploadBuffer(buffer, (void*)&common_set,
                           sizeof(CommonFragmentSet));
@@ -128,7 +129,7 @@ void VKPipelineWrapper::UploadCommonSet(CommonFragmentSet const& common_set,
           &descriptor_set, 0, nullptr);
 }
 
-void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
+void RenderPipeline::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
   if (GetFontSetLayout() == VK_NULL_HANDLE) {
     return;
   }
@@ -138,10 +139,10 @@ void VKPipelineWrapper::UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {
           nullptr);
 }
 
-void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
-                                              GPUVkContext* ctx,
-                                              SKVkFrameBufferData* frame_buffer,
-                                              VKMemoryAllocator* allocator) {
+void RenderPipeline::UploadTransformMatrix(glm::mat4 const& matrix,
+                                           GPUVkContext* ctx,
+                                           SKVkFrameBufferData* frame_buffer,
+                                           VKMemoryAllocator* allocator) {
   auto buffer = frame_buffer->ObtainTransformBuffer();
   allocator->UploadBuffer(buffer, (void*)&matrix, sizeof(glm::mat4));
 
@@ -163,7 +164,7 @@ void VKPipelineWrapper::UploadTransformMatrix(glm::mat4 const& matrix,
           &descriptor_set, 0, nullptr);
 }
 
-void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
+void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   // create set 0
   auto set0_binding = VKUtils::DescriptorSetLayoutBinding(
       VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -205,7 +206,7 @@ void VKPipelineWrapper::InitDescriptorSetLayout(GPUVkContext* ctx) {
       VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set3_create_info);
 }
 
-void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
+void RenderPipeline::InitPipelineLayout(GPUVkContext* ctx) {
   VkPushConstantRange push_const_range = VKUtils::PushConstantRange(
       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
       push_const_size_, 0);
@@ -231,34 +232,37 @@ void VKPipelineWrapper::InitPipelineLayout(GPUVkContext* ctx) {
   }
 }
 
-VkPipelineColorBlendAttachmentState VKPipelineWrapper::GetColorBlendState() {
+VkPipelineColorBlendAttachmentState RenderPipeline::GetColorBlendState() {
   VkPipelineColorBlendAttachmentState blend_attachment_state{};
-  blend_attachment_state.blendEnable = VK_TRUE;
+
   blend_attachment_state.colorWriteMask =
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
       VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
   if (os_render_pass_) {
+    blend_attachment_state.blendEnable = VK_FALSE;
     blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     blend_attachment_state.dstColorBlendFactor =
         VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+    blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
   } else {
+    blend_attachment_state.blendEnable = VK_TRUE;
     blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     blend_attachment_state.dstColorBlendFactor =
         VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+    blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
   }
-
-  blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
-  blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
 
   return blend_attachment_state;
 }
 
-std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
+std::vector<VkDynamicState> RenderPipeline::GetDynamicStates() {
   std::vector<VkDynamicState> states{
       VK_DYNAMIC_STATE_VIEWPORT,
       VK_DYNAMIC_STATE_SCISSOR,
@@ -267,7 +271,7 @@ std::vector<VkDynamicState> VKPipelineWrapper::GetDynamicStates() {
   return states;
 }
 
-VkVertexInputBindingDescription VKPipelineWrapper::GetVertexInputBinding() {
+VkVertexInputBindingDescription RenderPipeline::GetVertexInputBinding() {
   VkVertexInputBindingDescription input_binding{};
   input_binding.binding = 0;
   input_binding.stride = 5 * sizeof(float);
@@ -276,7 +280,7 @@ VkVertexInputBindingDescription VKPipelineWrapper::GetVertexInputBinding() {
 }
 
 std::array<VkVertexInputAttributeDescription, 2>
-VKPipelineWrapper::GetVertexInputAttributes() {
+RenderPipeline::GetVertexInputAttributes() {
   std::array<VkVertexInputAttributeDescription, 2> input_attr{};
 
   // location 0 vec2 [x, y]
@@ -293,7 +297,7 @@ VKPipelineWrapper::GetVertexInputAttributes() {
   return input_attr;
 }
 
-VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilDiscardInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilDiscardInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
@@ -309,8 +313,7 @@ VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilDiscardInfo() {
   return depth_stencil_state;
 }
 
-VkPipelineDepthStencilStateCreateInfo
-VKPipelineWrapper::StencilClipDiscardInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilClipDiscardInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
@@ -326,7 +329,7 @@ VKPipelineWrapper::StencilClipDiscardInfo() {
   return depth_stencil_state;
 }
 
-VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilKeepInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilKeepInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
@@ -340,6 +343,87 @@ VkPipelineDepthStencilStateCreateInfo VKPipelineWrapper::StencilKeepInfo() {
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;
+}
+
+void ComputePipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
+                           VkShaderModule fragment) {
+  InitPipelineLayout(ctx);
+
+  VkPipelineShaderStageCreateInfo shader_stage{
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+  shader_stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+  shader_stage.module = vertex;
+  shader_stage.pName = "main";
+
+  auto pipeline_ci = VKUtils::ComputePipelineCreateInfo(pipeline_layout_);
+  pipeline_ci.stage = shader_stage;
+
+  VK_CALL(vkCreateComputePipelines, ctx->GetDevice(), VK_NULL_HANDLE, 1,
+          &pipeline_ci, nullptr, &pipeline_);
+}
+
+void ComputePipeline::Destroy(GPUVkContext* ctx) {
+  VK_CALL(vkDestroyPipeline, ctx->GetDevice(), pipeline_, nullptr);
+  VK_CALL(vkDestroyPipelineLayout, ctx->GetDevice(), pipeline_layout_, nullptr);
+  VK_CALL(vkDestroyDescriptorSetLayout, ctx->GetDevice(),
+          descriptor_set_layout_, nullptr);
+}
+
+void ComputePipeline::Bind(VkCommandBuffer cmd) {
+  VK_CALL(vkCmdBindPipeline, cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_);
+  bind_cmd_ = cmd;
+}
+
+void ComputePipeline::Dispatch(VkCommandBuffer cmd, GPUVkContext* ctx) {
+  auto out_texture = OutpuTexture();
+  if (out_texture == nullptr) {
+    return;
+  }
+
+  OnDispatch(cmd, ctx);
+  VK_CALL(vkCmdDispatch, cmd,
+          (out_texture->GetWidth() + LOCAL_SIZE - 1) / LOCAL_SIZE,
+          (out_texture->GetHeight() + LOCAL_SIZE - 1) / LOCAL_SIZE, 1);
+}
+
+void ComputePipeline::UploadOutputTexture(VKTexture* texture) {
+  output_texture_ = texture;
+}
+
+void ComputePipeline::UploadCommonSet(const CommonFragmentSet& common_set,
+                                      GPUVkContext* ctx,
+                                      SKVkFrameBufferData* frame_buffer,
+                                      VKMemoryAllocator* allocator) {
+  common_info_ = common_set.info;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::UploadGradientInfo(const GradientInfo& info,
+                                         GPUVkContext* ctx,
+                                         SKVkFrameBufferData* frame_buffer,
+                                         VKMemoryAllocator* allocator) {
+  bounds_info_ = info.bounds;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::UploadImageTexture(VKTexture* texture, GPUVkContext* ctx,
+                                         SKVkFrameBufferData* frame_buffer,
+                                         VKMemoryAllocator* allocator) {
+  input_texture_ = texture;
+  UpdateFrameDataAndAllocator(frame_buffer, allocator);
+}
+
+void ComputePipeline::InitPipelineLayout(GPUVkContext* ctx) {
+  descriptor_set_layout_ = CreateDescriptorSetLayout(ctx);
+
+  VkPipelineLayoutCreateInfo pipeline_ci{
+      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+
+  pipeline_ci.setLayoutCount = 1;
+  pipeline_ci.pSetLayouts = &descriptor_set_layout_;
+
+  VK_CALL(vkCreatePipelineLayout, ctx->GetDevice(), &pipeline_ci, nullptr,
+          &pipeline_layout_);
 }
 
 }  // namespace skity

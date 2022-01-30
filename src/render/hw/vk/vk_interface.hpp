@@ -21,6 +21,7 @@ struct VKInterface {
   PFN_vkCmdBindPipeline fvkCmdBindPipeline = {};
   PFN_vkCmdBindVertexBuffers fvkCmdBindVertexBuffers = {};
   PFN_vkCmdCopyBufferToImage fvkCmdCopyBufferToImage = {};
+  PFN_vkCmdDispatch fvkCmdDispatch = {};
   PFN_vkCmdDrawIndexed fvkCmdDrawIndexed = {};
   PFN_vkCmdEndRenderPass fvkCmdEndRenderPass = {};
   PFN_vkCmdPipelineBarrier fvkCmdPipelineBarrier = {};
@@ -29,6 +30,7 @@ struct VKInterface {
   PFN_vkCmdSetStencilReference fvkCmdSetStencilReference = {};
   PFN_vkCmdSetViewport fvkCmdSetViewport = {};
   PFN_vkCreateCommandPool fvkCreateCommandPool = {};
+  PFN_vkCreateComputePipelines fvkCreateComputePipelines = {};
   PFN_vkCreateDescriptorPool fvkCreateDescriptorPool = {};
   PFN_vkCreateDescriptorSetLayout fvkCreateDescriptorSetLayout = {};
   PFN_vkCreateFence fvkCreateFence = {};
@@ -52,12 +54,12 @@ struct VKInterface {
   PFN_vkDestroyShaderModule fvkDestroyShaderModule = {};
   PFN_vkEndCommandBuffer fvkEndCommandBuffer = {};
   PFN_vkQueueSubmit fvkQueueSubmit = {};
+  PFN_vkQueueWaitIdle fvkQueueWaitIdle = {};
   PFN_vkResetCommandPool fvkResetCommandPool = {};
   PFN_vkResetDescriptorPool fvkResetDescriptorPool = {};
   PFN_vkResetFences fvkResetFences = {};
   PFN_vkUpdateDescriptorSets fvkUpdateDescriptorSets = {};
   PFN_vkWaitForFences fvkWaitForFences = {};
-  PFN_vkQueueWaitIdle fvkQueueWaitIdle = {};
 };
 
 }  // namespace skity

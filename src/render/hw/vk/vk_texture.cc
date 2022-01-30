@@ -48,12 +48,12 @@ static VkImageAspectFlags hw_texture_type_to_vk_aspect(HWTexture::Type type) {
 }
 
 VKTexture::VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
-                     GPUVkContext* ctx, bool render_target)
+                     GPUVkContext* ctx, VkImageUsageFlags flags)
     : HWTexture(),
       allocator_(allocator),
       pipeline_(pipeline),
       ctx_(ctx),
-      render_target_(render_target) {}
+      flags_(flags) {}
 
 void VKTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   this->format_ =
@@ -147,25 +147,32 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
 }
 
 void VKTexture::PrepareForDraw() {
-  if (image_->GetCurrentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-    // Texture is ready to draw nothing need todo
+  ChangeImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
+void VKTexture::ChangeImageLayout(VkImageLayout target_layout) {
+  if (image_ == nullptr) {
     return;
   }
 
-  if (render_target_) {
-    allocator_->TransferImageLayout(image_.get(),
-                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+  if (image_->GetCurrentLayout() == target_layout) {
     return;
   }
 
-  // transfer image layout to `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`
   VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
 
   allocator_->TransferImageLayout(cmd, image_.get(), range_,
-                                  image_->GetCurrentLayout(),
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  image_->GetCurrentLayout(), target_layout);
 
   pipeline_->SubmitCMD(cmd);
+}
+
+void VKTexture::ChangeImageLayoutWithoutSumbit(VkImageLayout target_layout) {
+  if (image_ == nullptr) {
+    return;
+  }
+
+  allocator_->TransferImageLayout(image_.get(), target_layout);
 }
 
 VkSampler VKTexture::GetSampler() const { return pipeline_->PipelineSampler(); }
@@ -184,14 +191,8 @@ void VKTexture::CreateBufferAndImage() {
     return;
   }
 
-  VkImageUsageFlags flags =
-      VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-  if (render_target_) {
-    flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-  }
-
-  image_.reset(allocator_->AllocateImage(format_, {width_, height_, 1}, flags));
+  image_.reset(
+      allocator_->AllocateImage(format_, {width_, height_, 1}, flags_));
 
   // create image view
   if (!vk_image_view_) {
