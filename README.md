@@ -163,8 +163,10 @@ make
 
 - Maskfilter (WIP)
   - Gaussian Blur with inner and outer effect
-    - Finish in OpenGL backend
-    - WIP in Vulkan backend
+    - OpenGL backend
+      - Using FBO and off screen rendering to do blur calculation
+    - Vulkan backend
+      - Use compute shader to do blur calculation
 
 ## Reference
 
