@@ -23,57 +23,6 @@ BlurType;
 // image texture is in set 2 binding 1
 layout(set = 2, binding = 2) uniform sampler2D ImageTex;
 
-// all blur calculation is based on
-// https://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
-float calculate_blur_norm() {
-  float sigma = StrokeWidth() + 2.0;
-  return 1.0 / (sqrt(2.0 * M_PI) * sigma);
-}
-
-float calculate_blur_coffe(float norm, float step) {
-  // blur mode kernelSize is passed through StrokeWidth
-  float sigma = StrokeWidth() + 2.0;
-  return norm * exp(-0.5 * step * step / (sigma * sigma));
-}
-
-vec4 calculate_blur(vec2 uv, vec2 dir, vec2 step_vec) {
-  float norm = calculate_blur_norm();
-
-  float total = norm;
-
-  vec4 acc = texture(ImageTex, uv) * norm;
-
-  int kernel_size = int(StrokeWidth());
-  for (int i = 1; i <= kernel_size; i++) {
-    float coffe = calculate_blur_coffe(norm, float(i));
-    float f_i = float(i);
-
-    acc += texture(ImageTex, uv - f_i * step_vec * dir) * coffe;
-    acc += texture(ImageTex, uv + f_i * step_vec * dir) * coffe;
-
-    total += 2.0 * coffe;
-  }
-
-  acc = acc / total;
-  return acc;
-}
-
-vec4 calculate_vertical_blur(vec2 uv) {
-  vec2 step_vec = vec2(1.0 / (ImageBounds.info.z - ImageBounds.info.x),
-                       1.0 / (ImageBounds.info.w - ImageBounds.info.y));
-  vec2 dir = vec2(0.0, 1.0);
-
-  return calculate_blur(uv, dir, step_vec);
-}
-
-vec4 calculate_horizontal_blur(vec2 uv) {
-  vec2 step_vec = vec2(1.0 / (ImageBounds.info.z - ImageBounds.info.x),
-                       1.0 / (ImageBounds.info.w - ImageBounds.info.y));
-  vec2 dir = vec2(1.0, 0.0);
-
-  return calculate_blur(uv, dir, step_vec);
-}
-
 vec4 calculate_solid_blur(vec2 uv) {
   vec4 raw_color = texture(FontTex, uv);
   if (raw_color.a > 0.0) {
@@ -127,11 +76,7 @@ void main() {
 
   uv.y = 1.0 - uv.y;
 
-  if (BlurType.info.x == PIPELINE_MODE_HORIZONTAL_BLUR) {
-    outColor = calculate_horizontal_blur(uv);
-  } else if (BlurType.info.x == PIPELINE_MODE_VERTICAL_BLUR) {
-    outColor = calculate_vertical_blur(uv);
-  } else if (BlurType.info.x == PIPELINE_MODE_SOLID_BLUR) {
+  if (BlurType.info.x == PIPELINE_MODE_SOLID_BLUR) {
     outColor = calculate_solid_blur(uv);
   } else if (BlurType.info.x == PIPELINE_MODE_OUTER_BLUR) {
     outColor = calculate_outer_blur(uv);
