@@ -454,6 +454,11 @@ void SKVkPipelineImpl::DestroyPipelines() {
   stencil_clip_pipeline_->Destroy(ctx_);
   stencil_rec_clip_pipeline_->Destroy(ctx_);
   stencil_replace_pipeline_->Destroy(ctx_);
+  os_static_color_pipeline_->Destroy(ctx_);
+  os_stencil_color_pipeline_->Destroy(ctx_);
+  os_stencil_front_pipeline_->Destroy(ctx_);
+  os_stencil_back_pipeline_->Destroy(ctx_);
+  compute_blur_pipeline_->Destroy(ctx_);
   static_blur_pipeline_->Destroy(ctx_);
   os_static_blur_pipeline_->Destroy(ctx_);
 }
