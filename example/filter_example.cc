@@ -20,8 +20,6 @@ void draw_filter(skity::Canvas* canvas) {
 
   canvas->drawPath(path, paint);
 
-  // canvas->drawCircle(100, 200, 50, paint);
-
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setMaskFilter(
       skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 20.f));
@@ -69,5 +67,17 @@ void draw_filter(skity::Canvas* canvas) {
   canvas->save();
   canvas->translate(300, 200);
   canvas->drawPath(path2, paint);
+  canvas->restore();
+
+  canvas->save();
+  canvas->translate(0, 300);
+  paint.setTextSize(40.f);
+  paint.setMaskFilter(nullptr);
+  paint.setStyle(skity::Paint::kFill_Style);
+
+  canvas->drawSimpleText2("Hello World!", 10, 80, paint);
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 3.f));
+  canvas->drawSimpleText2("Hello World!", 10, 30, paint);
   canvas->restore();
 }

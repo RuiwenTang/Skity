@@ -23,6 +23,10 @@ class SK_API TextBlob final {
 
   Vec2 getBoundSize() const;
 
+  float getBlobAscent() const;
+
+  float getBlobDescent() const;
+
  private:
   std::vector<TextRun> text_run_ = {};
 };

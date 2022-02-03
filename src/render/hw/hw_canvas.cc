@@ -441,7 +441,8 @@ void HWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
                    blob_size.x + paint.getStrokeWidth(),
                    blob_size.y + paint.getStrokeWidth());
   } else {
-    bounds.setXYWH(x, y, blob_size.x, blob_size.y);
+    float ascent = blob->getBlobAscent();
+    bounds.setXYWH(x, y - ascent, blob_size.x, blob_size.y);
   }
 
   if (need_fill) {
@@ -772,8 +773,9 @@ void HWCanvas::HandleMaskFilter(
 
     auto fbo = QueryRenderTarget(filter_bounds);
 
-    auto op = std::make_unique<PostProcessDraw>(
-        fbo, std::move(draw_list), bounds, GetPipeline(), state_.HasClip());
+    auto op = std::make_unique<PostProcessDraw>(fbo, std::move(draw_list),
+                                                filter_bounds, GetPipeline(),
+                                                state_.HasClip());
 
     Paint paint;
     paint.setStyle(Paint::kFill_Style);

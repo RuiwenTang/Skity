@@ -21,6 +21,40 @@ Vec2 TextBlob::getBoundSize() const {
   return Vec2{width, height};
 }
 
+float TextBlob::getBlobAscent() const {
+  if (text_run_.empty()) {
+    return 0.f;
+  }
+
+  float ascent = 0.f;
+
+  for (auto const &run : text_run_) {
+    auto const &glyphs = run.getGlyphInfo();
+    for (auto const &glyph : glyphs) {
+      ascent = std::max(ascent, glyph.ascent);
+    }
+  }
+
+  return ascent;
+}
+
+float TextBlob::getBlobDescent() const {
+  if (text_run_.empty()) {
+    return 0.f;
+  }
+
+  float descent = 0.f;
+
+  for (auto const &run : text_run_) {
+    auto const &glyphs = run.getGlyphInfo();
+    for (auto const &glyph : glyphs) {
+      descent = std::min(descent, glyph.descent);
+    }
+  }
+
+  return descent;
+}
+
 class SimpleDelegate : public TypefaceDelegate {
  public:
   SimpleDelegate(std::vector<std::shared_ptr<Typeface>> typeface)
