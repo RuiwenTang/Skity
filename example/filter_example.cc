@@ -72,12 +72,15 @@ void draw_filter(skity::Canvas* canvas) {
   canvas->save();
   canvas->translate(0, 300);
   paint.setTextSize(40.f);
-  paint.setMaskFilter(nullptr);
+  paint.setMaskFilter(
+      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 5.f));
+  paint.setColor(skity::Color_RED);
+
   paint.setStyle(skity::Paint::kFill_Style);
 
-  canvas->drawSimpleText2("Hello World!", 10, 80, paint);
-  paint.setMaskFilter(
-      skity::MaskFilter::MakeBlur(skity::BlurStyle::kNormal, 3.f));
+  canvas->drawSimpleText2("Hello World!", 12, 32, paint);
+  paint.setMaskFilter(nullptr);
+  paint.setColor(0xff4285F4);
   canvas->drawSimpleText2("Hello World!", 10, 30, paint);
   canvas->restore();
 }
