@@ -1,4 +1,4 @@
-#include "src/render/hw/gl/gl_pipeline.hpp"
+#include "src/render/hw/gl/gl_renderer.hpp"
 
 #include "src/render/hw/gl/gl_interface.hpp"
 #include "src/render/hw/gl/gl_render_target.hpp"
@@ -50,71 +50,71 @@ static GLenum slot_to_gl_texture_unit(uint32_t slot) {
   return GL_TEXTURE0;
 }
 
-GLPipeline::GLPipeline(GPUContext* ctx) : HWPipeline(), ctx_(ctx) {}
+GLRenderer::GLRenderer(GPUContext* ctx) : HWRenderer(), ctx_(ctx) {}
 
-GLPipeline::~GLPipeline() {
+GLRenderer::~GLRenderer() {
   GL_CALL(DeleteBuffers, buffers_.size(), buffers_.data());
   GL_CALL(DeleteVertexArrays, 1, &vao_);
 }
 
-void GLPipeline::Init() {
+void GLRenderer::Init() {
   GLInterface::InitGlobalInterface(ctx_->proc_loader);
   InitShader();
   InitBufferObject();
 }
 
-void GLPipeline::Destroy() {}
+void GLRenderer::Destroy() {}
 
-void GLPipeline::Bind() {
+void GLRenderer::Bind() {
   shader_->Bind();
   shader_->SetUserTexture(0);
   shader_->SetFontTexture(1);
   BindBuffers();
 }
 
-void GLPipeline::UnBind() {
+void GLRenderer::UnBind() {
   UnBindBuffers();
   shader_->UnBind();
 }
 
-void GLPipeline::SetViewProjectionMatrix(glm::mat4 const& mvp) {
-  HWPipeline::SetViewProjectionMatrix(mvp);
+void GLRenderer::SetViewProjectionMatrix(glm::mat4 const& mvp) {
+  HWRenderer::SetViewProjectionMatrix(mvp);
   shader_->SetMVP(mvp);
 }
 
-void GLPipeline::SetModelMatrix(glm::mat4 const& matrix) {
-  HWPipeline::SetModelMatrix(matrix);
+void GLRenderer::SetModelMatrix(glm::mat4 const& matrix) {
+  HWRenderer::SetModelMatrix(matrix);
   shader_->SetTransformMatrix(matrix);
 }
 
-void GLPipeline::SetPipelineColorMode(HWPipelineColorMode mode) {
+void GLRenderer::SetPipelineColorMode(HWPipelineColorMode mode) {
   int32_t color_type = static_cast<int32_t>(mode);
   shader_->SetColorType(color_type);
 }
 
-void GLPipeline::SetStrokeWidth(float width) { shader_->SetStrokeWidth(width); }
+void GLRenderer::SetStrokeWidth(float width) { shader_->SetStrokeWidth(width); }
 
-void GLPipeline::SetUniformColor(const glm::vec4& color) {
+void GLRenderer::SetUniformColor(const glm::vec4& color) {
   shader_->SetUniformColor(color);
 }
 
-void GLPipeline::SetGradientBoundInfo(const glm::vec4& info) {
+void GLRenderer::SetGradientBoundInfo(const glm::vec4& info) {
   shader_->SetGradientBoundInfo(info);
 }
 
-void GLPipeline::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
+void GLRenderer::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
   shader_->SetGradientCountInfo(color_count, pos_count);
 }
 
-void GLPipeline::SetGradientColors(const std::vector<Color4f>& colors) {
+void GLRenderer::SetGradientColors(const std::vector<Color4f>& colors) {
   shader_->SetGradientColors(colors);
 }
 
-void GLPipeline::SetGradientPositions(const std::vector<float>& pos) {
+void GLRenderer::SetGradientPositions(const std::vector<float>& pos) {
   shader_->SetGradientPostions(pos);
 }
 
-void GLPipeline::UploadVertexBuffer(void* data, size_t data_size) {
+void GLRenderer::UploadVertexBuffer(void* data, size_t data_size) {
   GL_CALL(BindBuffer, GL_ARRAY_BUFFER, buffers_[0]);
   if (data_size > buffer_sizes_[0]) {
     // resize gpu buffer
@@ -125,7 +125,7 @@ void GLPipeline::UploadVertexBuffer(void* data, size_t data_size) {
   GL_CALL(BufferSubData, GL_ARRAY_BUFFER, 0, data_size, data);
 }
 
-void GLPipeline::UploadIndexBuffer(void* data, size_t data_size) {
+void GLRenderer::UploadIndexBuffer(void* data, size_t data_size) {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
   if (data_size > buffer_sizes_[1]) {
     // resize gpu buffer
@@ -137,37 +137,37 @@ void GLPipeline::UploadIndexBuffer(void* data, size_t data_size) {
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, data_size, data);
 }
 
-void GLPipeline::SetGlobalAlpha(float alpha) { shader_->SetGlobalAlpha(alpha); }
+void GLRenderer::SetGlobalAlpha(float alpha) { shader_->SetGlobalAlpha(alpha); }
 
-void GLPipeline::EnableStencilTest() { GL_CALL(Enable, GL_STENCIL_TEST); }
+void GLRenderer::EnableStencilTest() { GL_CALL(Enable, GL_STENCIL_TEST); }
 
-void GLPipeline::DisableStencilTest() { GL_CALL(Disable, GL_STENCIL_TEST); }
+void GLRenderer::DisableStencilTest() { GL_CALL(Disable, GL_STENCIL_TEST); }
 
-void GLPipeline::DisableColorOutput() { GL_CALL(ColorMask, 0, 0, 0, 0); }
+void GLRenderer::DisableColorOutput() { GL_CALL(ColorMask, 0, 0, 0, 0); }
 
-void GLPipeline::EnableColorOutput() { GL_CALL(ColorMask, 1, 1, 1, 1); }
+void GLRenderer::EnableColorOutput() { GL_CALL(ColorMask, 1, 1, 1, 1); }
 
-void GLPipeline::UpdateStencilMask(uint8_t write_mask) {
+void GLRenderer::UpdateStencilMask(uint8_t write_mask) {
   GL_CALL(StencilMask, write_mask);
 }
 
-void GLPipeline::UpdateStencilOp(HWStencilOp op) {
+void GLRenderer::UpdateStencilOp(HWStencilOp op) {
   GL_CALL(StencilOp, GL_KEEP, GL_KEEP, hw_stencil_op_to_gl(op));
 }
 
-void GLPipeline::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
+void GLRenderer::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
                                    uint32_t compare_mask) {
   GL_CALL(StencilFunc, hw_stencil_func_to_gl(func), value, compare_mask);
 }
 
-void GLPipeline::DrawIndex(uint32_t start, uint32_t count) {
+void GLRenderer::DrawIndex(uint32_t start, uint32_t count) {
   GL_CALL(DrawElements, GL_TRIANGLES, count, GL_UNSIGNED_INT,
           (void*)(start * sizeof(GLuint)));
 }
 
-void GLPipeline::InitShader() { shader_ = GLShader::CreatePipelineShader(); }
+void GLRenderer::InitShader() { shader_ = GLShader::CreatePipelineShader(); }
 
-void GLPipeline::InitBufferObject() {
+void GLRenderer::InitBufferObject() {
   GL_CALL(GenVertexArrays, 1, &vao_);
   GL_CALL(GenBuffers, 2, buffers_.data());
 
@@ -186,15 +186,15 @@ void GLPipeline::InitBufferObject() {
   GL_CALL(BindVertexArray, 0);
 }
 
-void GLPipeline::BindBuffers() { GL_CALL(BindVertexArray, vao_); }
+void GLRenderer::BindBuffers() { GL_CALL(BindVertexArray, vao_); }
 
-void GLPipeline::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
+void GLRenderer::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
 
-void GLPipeline::BindTexture(HWTexture* /* unused */, uint32_t slot) {
+void GLRenderer::BindTexture(HWTexture* /* unused */, uint32_t slot) {
   GL_CALL(ActiveTexture, slot_to_gl_texture_unit(slot));
 }
 
-void GLPipeline::BindRenderTarget(HWRenderTarget* render_target) {
+void GLRenderer::BindRenderTarget(HWRenderTarget* render_target) {
   GLRenderTarget* fbo = (GLRenderTarget*)render_target;
 
   fbo->Bind();
@@ -205,7 +205,7 @@ void GLPipeline::BindRenderTarget(HWRenderTarget* render_target) {
   GL_CALL(Viewport, 0, 0, fbo->Width(), fbo->Height());
 }
 
-void GLPipeline::UnBindRenderTarget(HWRenderTarget* render_target) {
+void GLRenderer::UnBindRenderTarget(HWRenderTarget* render_target) {
   GLRenderTarget* fbo = (GLRenderTarget*)render_target;
 
   fbo->UnBind();

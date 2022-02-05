@@ -9,7 +9,7 @@
 #include "src/geometry/math.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 #include "src/render/hw/hw_path_raster.hpp"
-#include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_renderer.hpp"
 
 #ifdef SKITY_OPENGL
 #include "src/render/hw/gl/gl_canvas.hpp"
@@ -77,7 +77,7 @@ HWCanvas::~HWCanvas() {
 
 void HWCanvas::Init(GPUContext* ctx) {
   this->OnInit(ctx);
-  pipeline_ = CreatePipeline();
+  renderer_ = CreateRenderer();
   if (draw_list_stack_.empty()) {
     draw_list_stack_.emplace_back(DrawList());
   }

@@ -5,8 +5,8 @@
 namespace skity {
 
 VKFontTexture::VKFontTexture(Typeface* typeface, VKMemoryAllocator* allocator,
-                             SKVkPipelineImpl* pipeline, GPUVkContext* ctx)
-    : HWFontTexture(typeface), VKTexture(allocator, pipeline, ctx) {}
+                             VkRenderer* renderer, GPUVkContext* ctx)
+    : HWFontTexture(typeface), VKTexture(allocator, renderer, ctx) {}
 
 VKFontTexture::~VKFontTexture() = default;
 

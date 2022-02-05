@@ -5,29 +5,29 @@
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
-#include "src/render/hw/vk/vk_pipeline.hpp"
+#include "src/render/hw/vk/vk_renderer.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
 namespace skity {
 
 VKRenderTarget::VKRenderTarget(uint32_t width, uint32_t height,
                                VKMemoryAllocator* allocator,
-                               SKVkPipelineImpl* pipeline, GPUVkContext* ctx)
+                               VkRenderer* renderer, GPUVkContext* ctx)
     : HWRenderTarget(width, height),
       allocator_(allocator),
-      pipeline_(pipeline),
+      renderer_(renderer),
       ctx_(ctx),
-      color_texture_(allocator, pipeline, ctx,
+      color_texture_(allocator, renderer, ctx,
                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                          VK_IMAGE_USAGE_STORAGE_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT),
       horizontal_texture_(
-          allocator, pipeline, ctx,
+          allocator, renderer, ctx,
           VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
       vertical_texture_(
-          allocator, pipeline, ctx,
+          allocator, renderer, ctx,
           VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT),
-      color_fbo_(pipeline->OffScreenRenderPass()) {}
+      color_fbo_(renderer->OffScreenRenderPass()) {}
 
 VKRenderTarget::~VKRenderTarget() = default;
 
@@ -100,7 +100,7 @@ void VKRenderTarget::StartDraw() {
     LOG_ERROR("VKRenderTarget: state error, previouse cmd not submit");
   }
 
-  vk_cmd_ = pipeline_->ObtainInternalCMD();
+  vk_cmd_ = renderer_->ObtainInternalCMD();
 }
 
 void VKRenderTarget::EndDraw() {
@@ -118,7 +118,7 @@ void VKRenderTarget::EndDraw() {
   VK_CALL(vkCmdPipelineBarrier, vk_cmd_, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
           &barrier);
-  pipeline_->SubmitCMD(vk_cmd_);
+  renderer_->SubmitCMD(vk_cmd_);
 
   vk_cmd_ = VK_NULL_HANDLE;
   vertical_texture_.SetIsDoFilter(false);
@@ -160,7 +160,7 @@ void VKRenderTarget::BeginCurrentRenderPass() {
 
   VkRenderPassBeginInfo render_pass_begin_info{
       VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-  render_pass_begin_info.renderPass = pipeline_->OffScreenRenderPass();
+  render_pass_begin_info.renderPass = renderer_->OffScreenRenderPass();
   render_pass_begin_info.framebuffer = current_fbo->frame_buffer;
   render_pass_begin_info.renderArea.offset = {0, 0};
   render_pass_begin_info.renderArea.extent = {Width(), Height()};

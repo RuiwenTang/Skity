@@ -4,7 +4,7 @@
 #include <map>
 #include <skity/gpu/gpu_context.hpp>
 
-#include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_renderer.hpp"
 #include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
@@ -21,10 +21,10 @@ struct DirtyValueHolder {
   bool dirty = true;
 };
 
-class SKVkPipelineImpl : public HWPipeline {
+class VkRenderer : public HWRenderer {
  public:
-  SKVkPipelineImpl(GPUVkContext* ctx);
-  ~SKVkPipelineImpl() override;
+  VkRenderer(GPUVkContext* ctx);
+  ~VkRenderer() override;
 
   void Init() override;
 

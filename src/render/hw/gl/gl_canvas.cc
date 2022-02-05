@@ -11,13 +11,13 @@ GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 void GLCanvas::OnInit(GPUContext* ctx) { ctx_ = ctx; }
 
-std::unique_ptr<HWPipeline> GLCanvas::CreatePipeline() {
-  auto pipeline = std::make_unique<GLPipeline>(ctx_);
-  pipeline->Init();
+std::unique_ptr<HWRenderer> GLCanvas::CreateRenderer() {
+  auto renderer = std::make_unique<GLRenderer>(ctx_);
+  renderer->Init();
 
-  pipeline_ = pipeline.get();
+  gl_renderer_ = renderer.get();
 
-  return pipeline;
+  return renderer;
 }
 
 std::unique_ptr<HWTexture> GLCanvas::GenerateTexture() {

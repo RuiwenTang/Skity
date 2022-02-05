@@ -40,9 +40,9 @@ enum class HWStencilFunc {
 class HWTexture;
 class HWRenderTarget;
 
-class HWPipeline {
+class HWRenderer {
  public:
-  virtual ~HWPipeline() = default;
+  virtual ~HWRenderer() = default;
 
   virtual void Init() = 0;
 

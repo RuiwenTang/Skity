@@ -93,9 +93,9 @@ if (${ENABLE_HW_RENDER})
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_path_raster.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_path_visitor.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_path_visitor.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_pipeline.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_render_target.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_render_target.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_renderer.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_texture.hpp
   )
 
@@ -109,10 +109,10 @@ if (${ENABLE_HW_RENDER})
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_font_texture.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_pipeline.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.cc
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.cc
@@ -145,12 +145,12 @@ if (${ENABLE_HW_RENDER})
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_interface.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.cc
+        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.cc
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.hpp
         ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.cc

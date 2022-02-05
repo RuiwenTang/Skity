@@ -6,14 +6,14 @@
 #include <skity/gpu/gpu_context.hpp>
 
 #include "src/render/hw/gl/gl_shader.hpp"
-#include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_renderer.hpp"
 
 namespace skity {
 
-class GLPipeline : public HWPipeline {
+class GLRenderer : public HWRenderer {
  public:
-  GLPipeline(GPUContext* ctx);
-  ~GLPipeline() override;
+  GLRenderer(GPUContext* ctx);
+  ~GLRenderer() override;
 
   void Init() override;
 

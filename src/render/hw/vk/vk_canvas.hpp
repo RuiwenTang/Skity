@@ -2,7 +2,7 @@
 #define SKITY_SRC_RENDER_HW_VK_VK_CANVAS_HPP
 
 #include "src/render/hw/hw_canvas.hpp"
-#include "src/render/hw/vk/vk_pipeline.hpp"
+#include "src/render/hw/vk/vk_renderer.hpp"
 
 namespace skity {
 
@@ -14,7 +14,7 @@ class VKCanvas : public HWCanvas {
  protected:
   void OnInit(GPUContext* ctx) override;
 
-  std::unique_ptr<HWPipeline> CreatePipeline() override;
+  std::unique_ptr<HWRenderer> CreateRenderer() override;
 
   std::unique_ptr<HWTexture> GenerateTexture() override;
 
@@ -25,7 +25,7 @@ class VKCanvas : public HWCanvas {
       uint32_t width, uint32_t height) override;
 
  private:
-  SKVkPipelineImpl* vk_pipeline_ = {};
+  VkRenderer* vk_renderer_ = {};
   GPUVkContext* ctx_ = {};
 };
 

@@ -20,7 +20,7 @@ class Pixmap;
 class Typeface;
 
 class HWMesh;
-class HWPipeline;
+class HWRenderer;
 class HWPathRaster;
 
 /**
@@ -39,7 +39,7 @@ class HWCanvas : public Canvas {
  protected:
   virtual void OnInit(GPUContext* ctx) = 0;
 
-  virtual std::unique_ptr<HWPipeline> CreatePipeline() = 0;
+  virtual std::unique_ptr<HWRenderer> CreateRenderer() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
   virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) = 0;
@@ -94,7 +94,7 @@ class HWCanvas : public Canvas {
                                           bool stroke = false,
                                           Rect const& = {});
 
-  HWPipeline* GetPipeline() { return pipeline_.get(); }
+  HWRenderer* GetPipeline() { return renderer_.get(); }
   HWTexture* QueryTexture(Pixmap* pixmap);
   HWFontTexture* QueryFontTexture(Typeface* typeface);
   HWRenderTarget* QueryRenderTarget(Rect const& bounds);
@@ -131,7 +131,7 @@ class HWCanvas : public Canvas {
   HWCanvasState state_;
   std::unique_ptr<HWMesh> mesh_;
   Lazy<float> global_alpha_ = {};
-  std::unique_ptr<HWPipeline> pipeline_ = {};
+  std::unique_ptr<HWRenderer> renderer_ = {};
   std::vector<DrawList> draw_list_stack_ = {};
   std::map<Pixmap*, std::unique_ptr<HWTexture>> image_texture_store_ = {};
   std::map<Typeface*, std::unique_ptr<HWFontTexture>> font_texture_store_ = {};
