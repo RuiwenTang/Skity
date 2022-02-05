@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "src/render/hw/gl/gl_pipeline.hpp"
+#include "src/render/hw/gl/gl_renderer.hpp"
 #include "src/render/hw/hw_canvas.hpp"
 
 namespace skity {
@@ -15,7 +15,7 @@ class GLCanvas : public HWCanvas {
 
  protected:
   void OnInit(GPUContext* ctx) override;
-  std::unique_ptr<HWPipeline> CreatePipeline() override;
+  std::unique_ptr<HWRenderer> CreateRenderer() override;
   std::unique_ptr<HWTexture> GenerateTexture() override;
   std::unique_ptr<HWFontTexture> GenerateFontTexture(
       Typeface* typeface) override;
@@ -24,7 +24,7 @@ class GLCanvas : public HWCanvas {
 
  private:
   GPUContext* ctx_;
-  GLPipeline* pipeline_;
+  GLRenderer* gl_renderer_;
 };
 
 }  // namespace skity

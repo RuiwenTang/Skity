@@ -15,14 +15,14 @@ struct HWDrawRange {
   uint32_t count = 0;
 };
 
-class HWPipeline;
+class HWRenderer;
 class HWTexture;
 class HWRenderTarget;
 
 class HWDraw {
  public:
-  HWDraw(HWPipeline* pipeline, bool has_clip, bool clip_stencil = false)
-      : pipeline_(pipeline), has_clip_(has_clip), clip_stencil_(clip_stencil) {}
+  HWDraw(HWRenderer* renderer, bool has_clip, bool clip_stencil = false)
+      : renderer_(renderer), has_clip_(has_clip), clip_stencil_(clip_stencil) {}
   virtual ~HWDraw() = default;
 
   virtual void Draw();
@@ -57,7 +57,7 @@ class HWDraw {
   void SetHasClip(bool has_clip) { has_clip_ = has_clip; }
 
  protected:
-  HWPipeline* GetPipeline() { return pipeline_; }
+  HWRenderer* GetPipeline() { return renderer_; }
   bool HasClip() { return has_clip_; }
 
   const Lazy<glm::mat4>& TransformMatrix() const { return transform_matrix_; }
@@ -70,7 +70,7 @@ class HWDraw {
   void DoStencilBufferMoveInternal();
 
  private:
-  HWPipeline* pipeline_;
+  HWRenderer* renderer_;
   bool has_clip_;
   bool clip_stencil_;
   bool clear_stencil_clip_ = false;
@@ -94,11 +94,11 @@ class PostProcessDraw : public HWDraw {
  public:
   PostProcessDraw(HWRenderTarget* render_target,
                   std::vector<std::unique_ptr<HWDraw>> draw_list,
-                  Rect const& bounds, HWPipeline* pipeline, bool has_clip,
+                  Rect const& bounds, HWRenderer* renderer, bool has_clip,
                   bool clip_stencil = false);
 
   PostProcessDraw(HWRenderTarget* render_target, std::unique_ptr<HWDraw> op,
-                  Rect const& bounds, HWPipeline* pipeline, bool has_clip,
+                  Rect const& bounds, HWRenderer* renderer, bool has_clip,
                   bool clip_stencil = false);
 
   ~PostProcessDraw() override;

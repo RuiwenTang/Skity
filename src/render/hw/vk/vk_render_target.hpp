@@ -13,15 +13,15 @@ namespace skity {
 
 struct AllocatedImage;
 class VKMemoryAllocator;
-class SKVkPipelineImpl;
+class VkRenderer;
 
 class RenderTargetTexture : public VKTexture {
  public:
-  RenderTargetTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
+  RenderTargetTexture(VKMemoryAllocator* allocator, VkRenderer* renderer,
                       GPUVkContext* ctx,
                       VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-      : VKTexture(allocator, pipeline, ctx, flags) {}
+      : VKTexture(allocator, renderer, ctx, flags) {}
 
   ~RenderTargetTexture() override = default;
 
@@ -31,11 +31,10 @@ class RenderTargetTexture : public VKTexture {
 class FinalRenderTargetTexture : public VKTexture {
  public:
   FinalRenderTargetTexture(
-      VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
-      GPUVkContext* ctx,
+      VKMemoryAllocator* allocator, VkRenderer* renderer, GPUVkContext* ctx,
       VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-      : VKTexture(allocator, pipeline, ctx, flags) {}
+      : VKTexture(allocator, renderer, ctx, flags) {}
 
   ~FinalRenderTargetTexture() override = default;
 
@@ -68,7 +67,7 @@ class VKRenderTarget : public HWRenderTarget {
 
  public:
   VKRenderTarget(uint32_t width, uint32_t height, VKMemoryAllocator* allocator,
-                 SKVkPipelineImpl* pipeline, GPUVkContext* ctx);
+                 VkRenderer* renderer, GPUVkContext* ctx);
 
   ~VKRenderTarget() override;
 
@@ -105,7 +104,7 @@ class VKRenderTarget : public HWRenderTarget {
 
  private:
   VKMemoryAllocator* allocator_ = {};
-  SKVkPipelineImpl* pipeline_ = {};
+  VkRenderer* renderer_ = {};
   GPUVkContext* ctx_ = {};
   std::unique_ptr<AllocatedImage> stencil_image_ = {};
   VkImageView stencil_image_view_ = {};

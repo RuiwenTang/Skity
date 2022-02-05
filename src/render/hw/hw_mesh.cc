@@ -1,6 +1,6 @@
 #include "src/render/hw/hw_mesh.hpp"
 
-#include "src/render/hw/hw_pipeline.hpp"
+#include "src/render/hw/hw_renderer.hpp"
 
 namespace skity {
 
@@ -29,11 +29,11 @@ size_t HWMesh::AppendIndices(const std::vector<uint32_t> &indices) {
   return base;
 }
 
-void HWMesh::UploadMesh(HWPipeline *pipeline) {
-  pipeline->UploadVertexBuffer(raw_vertex_buffer_.data(),
+void HWMesh::UploadMesh(HWRenderer *renderer) {
+  renderer->UploadVertexBuffer(raw_vertex_buffer_.data(),
                                sizeof(HWVertex) * raw_vertex_buffer_.size());
 
-  pipeline->UploadIndexBuffer(raw_index_buffer_.data(),
+  renderer->UploadIndexBuffer(raw_index_buffer_.data(),
                               sizeof(uint32_t) * raw_index_buffer_.size());
 }
 

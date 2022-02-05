@@ -3,8 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "src/logging.hpp"
-#include "src/render/hw/hw_pipeline.hpp"
 #include "src/render/hw/hw_render_target.hpp"
+#include "src/render/hw/hw_renderer.hpp"
 #include "src/render/hw/hw_texture.hpp"
 
 namespace skity {
@@ -12,17 +12,17 @@ namespace skity {
 void HWDraw::Draw() {
   // update transform matrix
   if (transform_matrix_.IsValid()) {
-    pipeline_->SetModelMatrix(*transform_matrix_);
+    renderer_->SetModelMatrix(*transform_matrix_);
   }
 
   // stroke width
   if (stroke_width_.IsValid()) {
-    pipeline_->SetStrokeWidth(*stroke_width_);
+    renderer_->SetStrokeWidth(*stroke_width_);
   }
 
   // global alpha
   if (global_alpha_.IsValid()) {
-    pipeline_->SetGlobalAlpha(*global_alpha_);
+    renderer_->SetGlobalAlpha(*global_alpha_);
   }
 
   DoStencilIfNeed();
@@ -82,28 +82,28 @@ void HWDraw::DoStencilIfNeed() {
     return;
   }
 
-  pipeline_->DisableColorOutput();
-  pipeline_->EnableStencilTest();
-  pipeline_->UpdateStencilMask(0x0F);
-  pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
+  renderer_->DisableColorOutput();
+  renderer_->EnableStencilTest();
+  renderer_->UpdateStencilMask(0x0F);
+  renderer_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
   if (has_clip_) {
-    pipeline_->UpdateStencilFunc(HWStencilFunc::LESS_OR_EQUAL, 0x10, 0x1F);
+    renderer_->UpdateStencilFunc(HWStencilFunc::LESS_OR_EQUAL, 0x10, 0x1F);
   } else {
-    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
+    renderer_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x01, 0x0F);
   }
 
   if (stencil_front_range_.count > 0) {
-    pipeline_->UpdateStencilOp(HWStencilOp::INCR_WRAP);
-    pipeline_->DrawIndex(stencil_front_range_.start,
+    renderer_->UpdateStencilOp(HWStencilOp::INCR_WRAP);
+    renderer_->DrawIndex(stencil_front_range_.start,
                          stencil_front_range_.count);
   }
 
   if (stencil_back_range_.count > 0) {
-    pipeline_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
-    pipeline_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
+    renderer_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
+    renderer_->DrawIndex(stencil_back_range_.start, stencil_back_range_.count);
   }
 
-  pipeline_->EnableColorOutput();
+  renderer_->EnableColorOutput();
 }
 
 void HWDraw::DoColorFill() {
@@ -111,60 +111,60 @@ void HWDraw::DoColorFill() {
       stencil_back_range_.count != 0 || stencil_front_range_.count != 0;
 
   if (has_stencil_discard) {
-    pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
+    renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
     if (has_clip_) {
-      pipeline_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
-      pipeline_->UpdateStencilMask(0x0F);
+      renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
+      renderer_->UpdateStencilMask(0x0F);
     } else {
-      pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
-      pipeline_->UpdateStencilMask(0x0F);
+      renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
+      renderer_->UpdateStencilMask(0x0F);
     }
   } else {
     if (has_clip_) {
-      pipeline_->EnableStencilTest();
-      pipeline_->UpdateStencilOp(HWStencilOp::KEEP);
-      pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
+      renderer_->EnableStencilTest();
+      renderer_->UpdateStencilOp(HWStencilOp::KEEP);
+      renderer_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
     } else {
-      pipeline_->DisableStencilTest();
+      renderer_->DisableStencilTest();
     }
   }
 
   if (font_texture_) {
     // slot 1 is font texture
-    pipeline_->BindTexture(font_texture_, 1);
+    renderer_->BindTexture(font_texture_, 1);
     font_texture_->Bind();
   }
 
   if (pipeline_mode_ == kUniformColor) {
-    pipeline_->SetPipelineColorMode(HWPipelineColorMode::kUniformColor);
+    renderer_->SetPipelineColorMode(HWPipelineColorMode::kUniformColor);
     if (uniform_color_.IsValid()) {
-      pipeline_->SetUniformColor(*uniform_color_);
+      renderer_->SetUniformColor(*uniform_color_);
     }
   } else if (pipeline_mode_ == kLinearGradient ||
              pipeline_mode_ == kRadialGradient) {
-    pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
-    pipeline_->SetGradientCountInfo(gradient_colors_.size(),
+    renderer_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
+    renderer_->SetGradientCountInfo(gradient_colors_.size(),
                                     gradient_stops_.size());
-    pipeline_->SetGradientBoundInfo(*gradient_bounds_);
-    pipeline_->SetGradientColors(gradient_colors_);
+    renderer_->SetGradientBoundInfo(*gradient_bounds_);
+    renderer_->SetGradientColors(gradient_colors_);
     if (!gradient_stops_.empty()) {
-      pipeline_->SetGradientPositions(gradient_stops_);
+      renderer_->SetGradientPositions(gradient_stops_);
     }
   } else if (pipeline_mode_ >= kImageTexture ||
              pipeline_mode_ <= kInnerBlurMix) {
-    pipeline_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
+    renderer_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
     // slot 0 is image texture
     // slot 1 is font texture
-    pipeline_->BindTexture(texture_, 0);
+    renderer_->BindTexture(texture_, 0);
     texture_->Bind();
     if (pipeline_mode_ >= kSolidBlurMix && pipeline_mode_ <= kInnerBlurMix) {
-      pipeline_->BindTexture(font_texture_, 1);
+      renderer_->BindTexture(font_texture_, 1);
       font_texture_->Bind();
     }
-    pipeline_->SetGradientBoundInfo(*gradient_bounds_);
+    renderer_->SetGradientBoundInfo(*gradient_bounds_);
   }
 
-  pipeline_->DrawIndex(color_range_.start, color_range_.count);
+  renderer_->DrawIndex(color_range_.start, color_range_.count);
 
   if (texture_) {
     texture_->UnBind();
@@ -172,29 +172,29 @@ void HWDraw::DoColorFill() {
 }
 
 void HWDraw::DoStencilBufferMove() {
-  pipeline_->DisableColorOutput();
-  pipeline_->EnableStencilTest();
-  pipeline_->UpdateStencilMask(0xFF);
-  pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
-  pipeline_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
+  renderer_->DisableColorOutput();
+  renderer_->EnableStencilTest();
+  renderer_->UpdateStencilMask(0xFF);
+  renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
+  renderer_->SetPipelineColorMode(HWPipelineColorMode::kStencil);
 
-  auto current_matrix = pipeline_->GetModelMatrix();
+  auto current_matrix = renderer_->GetModelMatrix();
   bool need_reset = current_matrix != glm::identity<glm::mat4>();
 
   if (need_reset) {
-    pipeline_->SetModelMatrix(glm::identity<glm::mat4>());
+    renderer_->SetModelMatrix(glm::identity<glm::mat4>());
   }
 
   DoStencilBufferMoveInternal();
 
   if (need_reset) {
-    pipeline_->SetModelMatrix(current_matrix);
+    renderer_->SetModelMatrix(current_matrix);
   }
 
-  pipeline_->UpdateStencilMask(0x0F);
-  pipeline_->UpdateStencilOp(HWStencilOp::KEEP);
-  pipeline_->DisableStencilTest();
-  pipeline_->EnableColorOutput();
+  renderer_->UpdateStencilMask(0x0F);
+  renderer_->UpdateStencilOp(HWStencilOp::KEEP);
+  renderer_->DisableStencilTest();
+  renderer_->EnableColorOutput();
 }
 
 void HWDraw::DoStencilBufferMoveInternal() {
@@ -204,33 +204,33 @@ void HWDraw::DoStencilBufferMoveInternal() {
 
   if (clear_stencil_clip_) {
     // clear stencil clip value
-    pipeline_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);
-    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+    renderer_->UpdateStencilFunc(HWStencilFunc::ALWAYS, 0x00, 0x0F);
+    renderer_->DrawIndex(color_range_.start, color_range_.count);
   } else if (!has_clip_) {
     // mark bit 9 if lower 8 bit is not zero
-    pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x10, 0x0F);
+    renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x10, 0x0F);
 
-    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+    renderer_->DrawIndex(color_range_.start, color_range_.count);
   } else {
     // recursive clip path
 
     // step 1 clear all 0x10 value
-    pipeline_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
-    pipeline_->UpdateStencilMask(0xFF);
-    pipeline_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
-    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+    renderer_->UpdateStencilOp(HWStencilOp::DECR_WRAP);
+    renderer_->UpdateStencilMask(0xFF);
+    renderer_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
+    renderer_->DrawIndex(color_range_.start, color_range_.count);
 
     // step 2 replace all great than 0x10 to 0x10
-    pipeline_->UpdateStencilOp(HWStencilOp::REPLACE);
-    pipeline_->UpdateStencilMask(0x0F);
-    pipeline_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x00, 0x0F);
-    pipeline_->DrawIndex(color_range_.start, color_range_.count);
+    renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
+    renderer_->UpdateStencilMask(0x0F);
+    renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x00, 0x0F);
+    renderer_->DrawIndex(color_range_.start, color_range_.count);
   }
 }
 
 PostProcessDraw::PostProcessDraw(HWRenderTarget* render_target,
                                  std::vector<std::unique_ptr<HWDraw>> draw_list,
-                                 Rect const& bounds, HWPipeline* pipeline,
+                                 Rect const& bounds, HWRenderer* pipeline,
                                  bool has_clip, bool clip_stencil)
     : HWDraw(pipeline, has_clip, clip_stencil),
       render_target_(render_target),
@@ -239,7 +239,7 @@ PostProcessDraw::PostProcessDraw(HWRenderTarget* render_target,
 
 PostProcessDraw::PostProcessDraw(HWRenderTarget* render_target,
                                  std::unique_ptr<HWDraw> op, Rect const& bounds,
-                                 HWPipeline* pipeline, bool has_clip,
+                                 HWRenderer* pipeline, bool has_clip,
                                  bool clip_stencil)
     : HWDraw(pipeline, has_clip, clip_stencil),
       render_target_(render_target),

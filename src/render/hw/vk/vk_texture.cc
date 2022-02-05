@@ -2,7 +2,7 @@
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
-#include "src/render/hw/vk/vk_pipeline.hpp"
+#include "src/render/hw/vk/vk_renderer.hpp"
 
 namespace skity {
 
@@ -47,11 +47,11 @@ static VkImageAspectFlags hw_texture_type_to_vk_aspect(HWTexture::Type type) {
   }
 }
 
-VKTexture::VKTexture(VKMemoryAllocator* allocator, SKVkPipelineImpl* pipeline,
+VKTexture::VKTexture(VKMemoryAllocator* allocator, VkRenderer* renderer,
                      GPUVkContext* ctx, VkImageUsageFlags flags)
     : HWTexture(),
       allocator_(allocator),
-      pipeline_(pipeline),
+      renderer_(renderer),
       ctx_(ctx),
       flags_(flags) {}
 
@@ -117,7 +117,7 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
 
   allocator_->UploadBuffer(stage_buffer.get(), data, buffer_size);
 
-  VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
+  VkCommandBuffer cmd = renderer_->ObtainInternalCMD();
   // step 2 set vk_image layout for
   if (image_->GetCurrentLayout() != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
     allocator_->TransferImageLayout(cmd, image_.get(), range_,
@@ -141,7 +141,7 @@ void VKTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
   allocator_->CopyBufferToImage(cmd, stage_buffer.get(), image_.get(),
                                 copy_region);
 
-  pipeline_->SubmitCMD(cmd);
+  renderer_->SubmitCMD(cmd);
 
   allocator_->FreeBuffer(stage_buffer.get());
 }
@@ -159,12 +159,12 @@ void VKTexture::ChangeImageLayout(VkImageLayout target_layout) {
     return;
   }
 
-  VkCommandBuffer cmd = pipeline_->ObtainInternalCMD();
+  VkCommandBuffer cmd = renderer_->ObtainInternalCMD();
 
   allocator_->TransferImageLayout(cmd, image_.get(), range_,
                                   image_->GetCurrentLayout(), target_layout);
 
-  pipeline_->SubmitCMD(cmd);
+  renderer_->SubmitCMD(cmd);
 }
 
 void VKTexture::ChangeImageLayoutWithoutSumbit(VkImageLayout target_layout) {
@@ -175,7 +175,7 @@ void VKTexture::ChangeImageLayoutWithoutSumbit(VkImageLayout target_layout) {
   allocator_->TransferImageLayout(image_.get(), target_layout);
 }
 
-VkSampler VKTexture::GetSampler() const { return pipeline_->PipelineSampler(); }
+VkSampler VKTexture::GetSampler() const { return renderer_->PipelineSampler(); }
 
 VkImageLayout VKTexture::GetImageLayout() const {
   return image_->GetCurrentLayout();

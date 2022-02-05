@@ -5,7 +5,7 @@
 
 namespace skity {
 
-class HWPipeline;
+class HWRenderer;
 
 enum {
   HW_VERTEX_TYPE_LINE_NORMAL = 1,
@@ -44,7 +44,7 @@ class HWMesh {
 
   size_t AppendIndices(std::vector<uint32_t> const& indices);
 
-  void UploadMesh(HWPipeline* pipeline);
+  void UploadMesh(HWRenderer* renderer);
   void ResetMesh();
 
  private:

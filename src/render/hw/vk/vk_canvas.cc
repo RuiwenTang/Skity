@@ -22,30 +22,30 @@ void VKCanvas::OnInit(GPUContext* ctx) {
   ctx_ = (GPUVkContext*)ctx;
 }
 
-std::unique_ptr<HWPipeline> VKCanvas::CreatePipeline() {
-  auto pipeline = std::make_unique<SKVkPipelineImpl>(ctx_);
-  pipeline->Init();
+std::unique_ptr<HWRenderer> VKCanvas::CreateRenderer() {
+  auto renderer = std::make_unique<VkRenderer>(ctx_);
+  renderer->Init();
 
-  vk_pipeline_ = pipeline.get();
+  vk_renderer_ = renderer.get();
 
-  return pipeline;
+  return renderer;
 }
 
 std::unique_ptr<HWTexture> VKCanvas::GenerateTexture() {
-  return std::make_unique<VKTexture>(vk_pipeline_->Allocator(), vk_pipeline_,
+  return std::make_unique<VKTexture>(vk_renderer_->Allocator(), vk_renderer_,
                                      ctx_);
 }
 
 std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
     Typeface* typeface) {
-  return std::make_unique<VKFontTexture>(typeface, vk_pipeline_->Allocator(),
-                                         vk_pipeline_, ctx_);
+  return std::make_unique<VKFontTexture>(typeface, vk_renderer_->Allocator(),
+                                         vk_renderer_, ctx_);
 }
 
 std::unique_ptr<HWRenderTarget> VKCanvas::GenerateBackendRenderTarget(
     uint32_t width, uint32_t height) {
   auto vk_rt = std::make_unique<VKRenderTarget>(
-      width, height, vk_pipeline_->Allocator(), vk_pipeline_, ctx_);
+      width, height, vk_renderer_->Allocator(), vk_renderer_, ctx_);
 
   vk_rt->Init();
 

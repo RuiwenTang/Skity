@@ -9,7 +9,7 @@ namespace skity {
 class VKFontTexture : public HWFontTexture, public VKTexture {
  public:
   VKFontTexture(Typeface* typeface, VKMemoryAllocator* allocator,
-                SKVkPipelineImpl* pipeline, GPUVkContext* ctx);
+                VkRenderer* renderer, GPUVkContext* ctx);
   ~VKFontTexture() override;
 
   void Init() override;

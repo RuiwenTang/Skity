@@ -1,4 +1,4 @@
-#include "src/render/hw/vk/vk_pipeline.hpp"
+#include "src/render/hw/vk/vk_renderer.hpp"
 
 #ifdef SKITY_LOG
 #undef SKITY_LOG
@@ -14,14 +14,14 @@
 
 namespace skity {
 
-SKVkPipelineImpl::SKVkPipelineImpl(GPUVkContext* ctx)
-    : HWPipeline(),
+VkRenderer::VkRenderer(GPUVkContext* ctx)
+    : HWRenderer(),
       ctx_(ctx),
       vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
-SKVkPipelineImpl::~SKVkPipelineImpl() = default;
+VkRenderer::~VkRenderer() = default;
 
-void SKVkPipelineImpl::Init() {
+void VkRenderer::Init() {
   if (!VKInterface::GlobalInterface()) {
     VKInterface::InitGlobalInterface(
         ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
@@ -41,7 +41,7 @@ void SKVkPipelineImpl::Init() {
   empty_font_texture_->PrepareForDraw();
 }
 
-void SKVkPipelineImpl::Destroy() {
+void VkRenderer::Destroy() {
   vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
   vk_memory_allocator_->FreeBuffer(index_buffer_.get());
 
@@ -57,7 +57,7 @@ void SKVkPipelineImpl::Destroy() {
   vk_memory_allocator_->Destroy(ctx_);
 }
 
-void SKVkPipelineImpl::Bind() {
+void VkRenderer::Bind() {
   LOG_DEBUG("vk_pipeline Bind");
   prev_pipeline_ = nullptr;
   global_push_const_.dirty = true;
@@ -102,71 +102,70 @@ void SKVkPipelineImpl::Bind() {
           VK_NULL_HANDLE);
 }
 
-void SKVkPipelineImpl::UnBind() {
+void VkRenderer::UnBind() {
   LOG_DEBUG("vk_pipeline UnBind");
   prev_pipeline_ = nullptr;
 }
 
-void SKVkPipelineImpl::SetViewProjectionMatrix(const glm::mat4& mvp) {
-  HWPipeline::SetViewProjectionMatrix(mvp);
+void VkRenderer::SetViewProjectionMatrix(const glm::mat4& mvp) {
+  HWRenderer::SetViewProjectionMatrix(mvp);
   LOG_DEBUG("vk_pipeline set mvp");
   global_push_const_.value.mvp = mvp;
   global_push_const_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetModelMatrix(const glm::mat4& matrix) {
-  HWPipeline::SetModelMatrix(matrix);
+void VkRenderer::SetModelMatrix(const glm::mat4& matrix) {
+  HWRenderer::SetModelMatrix(matrix);
   LOG_DEBUG("vk_pipeline upload transform matrix");
   model_matrix_.value = matrix;
   model_matrix_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetPipelineColorMode(HWPipelineColorMode mode) {
+void VkRenderer::SetPipelineColorMode(HWPipelineColorMode mode) {
   LOG_DEBUG("vk_pipeline set color mode");
   color_mode_ = mode;
 }
 
-void SKVkPipelineImpl::SetStrokeWidth(float width) {
+void VkRenderer::SetStrokeWidth(float width) {
   LOG_DEBUG("vk_pipeline set stroke width");
   common_fragment_set_.value.info.g = width;
   common_fragment_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetUniformColor(const glm::vec4& color) {
+void VkRenderer::SetUniformColor(const glm::vec4& color) {
   LOG_DEBUG("vk_pipeline set uniform color");
   color_info_set_.value.user_color = color;
   color_info_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetGradientBoundInfo(const glm::vec4& info) {
+void VkRenderer::SetGradientBoundInfo(const glm::vec4& info) {
   LOG_DEBUG("vk_pipeline set gradient bounds");
   gradient_info_set_.value.bounds = info;
   gradient_info_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetGradientCountInfo(int32_t color_count,
-                                            int32_t pos_count) {
+void VkRenderer::SetGradientCountInfo(int32_t color_count, int32_t pos_count) {
   LOG_DEBUG("vk_pipeline set gradient color and stop count");
   gradient_info_set_.value.count.x = color_count;
   gradient_info_set_.value.count.y = pos_count;
   gradient_info_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetGradientColors(const std::vector<Color4f>& colors) {
+void VkRenderer::SetGradientColors(const std::vector<Color4f>& colors) {
   LOG_DEBUG("vk_pipeline set gradient colors");
   std::memcpy(gradient_info_set_.value.colors, colors.data(),
               sizeof(float) * 4 * colors.size());
   gradient_info_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::SetGradientPositions(const std::vector<float>& pos) {
+void VkRenderer::SetGradientPositions(const std::vector<float>& pos) {
   LOG_DEBUG("vk_pipeline set gradient stops");
   std::memcpy(gradient_info_set_.value.pos, pos.data(),
               sizeof(float) * pos.size());
   gradient_info_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::UploadVertexBuffer(void* data, size_t data_size) {
+void VkRenderer::UploadVertexBuffer(void* data, size_t data_size) {
   LOG_DEBUG("vk_pipeline upload vertex buffer with size: {}", data_size);
 
   if (!vertex_buffer_ || vertex_buffer_->BufferSize() < data_size) {
@@ -183,7 +182,7 @@ void SKVkPipelineImpl::UploadVertexBuffer(void* data, size_t data_size) {
   VK_CALL(vkCmdBindVertexBuffers, GetCurrentCMD(), 0, 1, &buffer, &offset);
 }
 
-void SKVkPipelineImpl::UploadIndexBuffer(void* data, size_t data_size) {
+void VkRenderer::UploadIndexBuffer(void* data, size_t data_size) {
   LOG_DEBUG("vk_pipeline upload index buffer with size: {}", data_size);
 
   if (!index_buffer_ || index_buffer_->BufferSize() < data_size) {
@@ -199,44 +198,44 @@ void SKVkPipelineImpl::UploadIndexBuffer(void* data, size_t data_size) {
           VK_INDEX_TYPE_UINT32);
 }
 
-void SKVkPipelineImpl::SetGlobalAlpha(float alpha) {
+void VkRenderer::SetGlobalAlpha(float alpha) {
   LOG_DEBUG("vk_pipeline set global alpha");
   common_fragment_set_.value.info.r = alpha;
   common_fragment_set_.dirty = true;
 }
 
-void SKVkPipelineImpl::EnableStencilTest() {
+void VkRenderer::EnableStencilTest() {
   LOG_DEBUG("vk_pipeline enable stencil test");
   enable_stencil_test_ = true;
 }
 
-void SKVkPipelineImpl::DisableStencilTest() {
+void VkRenderer::DisableStencilTest() {
   LOG_DEBUG("vk_pipeline disable stencil test");
   enable_stencil_test_ = false;
 }
 
-void SKVkPipelineImpl::EnableColorOutput() {
+void VkRenderer::EnableColorOutput() {
   LOG_DEBUG("vk_pipeline enable color output");
   enable_color_output_ = true;
 }
 
-void SKVkPipelineImpl::DisableColorOutput() {
+void VkRenderer::DisableColorOutput() {
   LOG_DEBUG("vk_pipeline disable color output");
   enable_color_output_ = false;
 }
 
-void SKVkPipelineImpl::UpdateStencilMask(uint8_t write_mask) {
+void VkRenderer::UpdateStencilMask(uint8_t write_mask) {
   LOG_DEBUG("vk_pipeline set stencil write mask {:x}", write_mask);
   stencil_write_mask_ = write_mask;
 }
 
-void SKVkPipelineImpl::UpdateStencilOp(HWStencilOp op) {
+void VkRenderer::UpdateStencilOp(HWStencilOp op) {
   LOG_DEBUG("vk_pipeline set stencil op");
   stencil_op_ = op;
 }
 
-void SKVkPipelineImpl::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
-                                         uint32_t compare_mask) {
+void VkRenderer::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
+                                   uint32_t compare_mask) {
   LOG_DEBUG("vk_pipeline set stencil func with value : {} ; mask : {:x}", value,
             compare_mask);
 
@@ -245,7 +244,7 @@ void SKVkPipelineImpl::UpdateStencilFunc(HWStencilFunc func, uint32_t value,
   stencil_compare_mask_ = compare_mask;
 }
 
-void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
+void VkRenderer::DrawIndex(uint32_t start, uint32_t count) {
   LOG_DEBUG("vk_pipeline draw_index [ {} -> {} ]", start, count);
 
   LOG_DEBUG("color output enable : {}", enable_color_output_);
@@ -297,7 +296,7 @@ void SKVkPipelineImpl::DrawIndex(uint32_t start, uint32_t count) {
   }
 }
 
-void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
+void VkRenderer::BindTexture(HWTexture* texture, uint32_t slot) {
   LOG_DEBUG("vk_pipeline bind to {}", slot);
   VKTexture* vk_texture = (VKTexture*)texture;
 
@@ -309,7 +308,7 @@ void SKVkPipelineImpl::BindTexture(HWTexture* texture, uint32_t slot) {
   }
 }
 
-void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {
+void VkRenderer::BindRenderTarget(HWRenderTarget* render_target) {
   current_target_ = (VKRenderTarget*)render_target;
   // create internal vulkan cmd
   current_target_->StartDraw();
@@ -324,7 +323,7 @@ void SKVkPipelineImpl::BindRenderTarget(HWRenderTarget* render_target) {
   ResetUniformDirty();
 }
 
-void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
+void VkRenderer::UnBindRenderTarget(HWRenderTarget* render_target) {
   // submit internal vulkan cmd
   current_target_->EndDraw();
   current_target_ = nullptr;
@@ -332,7 +331,7 @@ void SKVkPipelineImpl::UnBindRenderTarget(HWRenderTarget* render_target) {
   ResetUniformDirty();
 }
 
-VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
+VkCommandBuffer VkRenderer::ObtainInternalCMD() {
   VkCommandBufferAllocateInfo buffer_info{
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
   buffer_info.commandBufferCount = 1;
@@ -356,7 +355,7 @@ VkCommandBuffer SKVkPipelineImpl::ObtainInternalCMD() {
   return cmd;
 }
 
-void SKVkPipelineImpl::SubmitCMD(VkCommandBuffer cmd) {
+void VkRenderer::SubmitCMD(VkCommandBuffer cmd) {
   VK_CALL(vkEndCommandBuffer, cmd);
 
   VkSubmitInfo submit_info{VK_STRUCTURE_TYPE_SUBMIT_INFO};
@@ -369,16 +368,16 @@ void SKVkPipelineImpl::SubmitCMD(VkCommandBuffer cmd) {
   ResetFence();
 }
 
-void SKVkPipelineImpl::WaitForFence() {
+void VkRenderer::WaitForFence() {
   VK_CALL(vkWaitForFences, ctx_->GetDevice(), 1, &vk_fence_, VK_TRUE,
           1000000000);
 }
 
-void SKVkPipelineImpl::ResetFence() {
+void VkRenderer::ResetFence() {
   VK_CALL(vkResetFences, ctx_->GetDevice(), 1, &vk_fence_);
 }
 
-void SKVkPipelineImpl::InitCMDPool() {
+void VkRenderer::InitCMDPool() {
   // create a command pool for internal use
   VkCommandPoolCreateInfo create_info{
       VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
@@ -391,7 +390,7 @@ void SKVkPipelineImpl::InitCMDPool() {
   }
 }
 
-void SKVkPipelineImpl::InitFence() {
+void VkRenderer::InitFence() {
   VkFenceCreateInfo create_info{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
   create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
@@ -403,7 +402,7 @@ void SKVkPipelineImpl::InitFence() {
   ResetFence();
 }
 
-void SKVkPipelineImpl::InitSampler() {
+void VkRenderer::InitSampler() {
   // create sampler
   auto sampler_create_info = VKUtils::SamplerCreateInfo();
 
@@ -411,7 +410,7 @@ void SKVkPipelineImpl::InitSampler() {
           &vk_sampler_);
 }
 
-void SKVkPipelineImpl::InitFrameBuffers() {
+void VkRenderer::InitFrameBuffers() {
   frame_buffer_.resize(ctx_->GetSwapchainBufferCount());
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
     frame_buffer_[i] =
@@ -420,20 +419,20 @@ void SKVkPipelineImpl::InitFrameBuffers() {
   }
 }
 
-void SKVkPipelineImpl::DestroyCMDPool() {
+void VkRenderer::DestroyCMDPool() {
   VK_CALL(vkResetCommandPool, ctx_->GetDevice(), vk_cmd_pool_, 0);
   VK_CALL(vkDestroyCommandPool, ctx_->GetDevice(), vk_cmd_pool_, nullptr);
 }
 
-void SKVkPipelineImpl::DestroyFence() {
+void VkRenderer::DestroyFence() {
   VK_CALL(vkDestroyFence, ctx_->GetDevice(), vk_fence_, nullptr);
 }
 
-void SKVkPipelineImpl::DestroySampler() {
+void VkRenderer::DestroySampler() {
   VK_CALL(vkDestroySampler, ctx_->GetDevice(), vk_sampler_, nullptr);
 }
 
-void SKVkPipelineImpl::DestroyPipelines() {
+void VkRenderer::DestroyPipelines() {
   static_color_pipeline_->Destroy(ctx_);
   stencil_color_pipeline_->Destroy(ctx_);
   stencil_clip_color_pipeline_->Destroy(ctx_);
@@ -463,13 +462,13 @@ void SKVkPipelineImpl::DestroyPipelines() {
   os_static_blur_pipeline_->Destroy(ctx_);
 }
 
-void SKVkPipelineImpl::DestroyFrameBuffers() {
+void VkRenderer::DestroyFrameBuffers() {
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
     frame_buffer_[i]->Destroy(ctx_);
   }
 }
 
-VkCommandBuffer SKVkPipelineImpl::GetCurrentCMD() {
+VkCommandBuffer VkRenderer::GetCurrentCMD() {
   if (current_target_) {
     return current_target_->CurrentCMD();
   } else {
@@ -477,7 +476,7 @@ VkCommandBuffer SKVkPipelineImpl::GetCurrentCMD() {
   }
 }
 
-void SKVkPipelineImpl::InitPipelines() {
+void VkRenderer::InitPipelines() {
   static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(ctx_);
   stencil_color_pipeline_ =
       AbsPipelineWrapper::CreateStencilColorPipeline(ctx_);
@@ -532,21 +531,21 @@ void SKVkPipelineImpl::InitPipelines() {
   compute_blur_pipeline_ = AbsPipelineWrapper::CreateComputeBlurPipeline(ctx_);
 }
 
-void SKVkPipelineImpl::InitVertexBuffer(size_t new_size) {
+void VkRenderer::InitVertexBuffer(size_t new_size) {
   if (vertex_buffer_) {
     vk_memory_allocator_->FreeBuffer(vertex_buffer_.get());
   }
   vertex_buffer_.reset(vk_memory_allocator_->AllocateVertexBuffer(new_size));
 }
 
-void SKVkPipelineImpl::InitIndexBuffer(size_t new_size) {
+void VkRenderer::InitIndexBuffer(size_t new_size) {
   if (index_buffer_) {
     vk_memory_allocator_->FreeBuffer(index_buffer_.get());
   }
   index_buffer_.reset(vk_memory_allocator_->AllocateIndexBuffer(new_size));
 }
 
-void SKVkPipelineImpl::InitOffScreenRenderPass() {
+void VkRenderer::InitOffScreenRenderPass() {
   std::array<VkAttachmentDescription, 2> attachments = {};
 
   // color attachment
@@ -616,7 +615,7 @@ void SKVkPipelineImpl::InitOffScreenRenderPass() {
   }
 }
 
-AbsPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
+AbsPipelineWrapper* VkRenderer::PickColorPipeline() {
   // need to pick off screen pipeline
   if (current_target_) {
     if (!enable_stencil_test_) {
@@ -642,7 +641,7 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickColorPipeline() {
   return nullptr;
 }
 
-AbsPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
+AbsPipelineWrapper* VkRenderer::PickStencilPipeline() {
   // pick off screen pipeline
   if (current_target_) {
     if (stencil_op_ == HWStencilOp::INCR_WRAP) {
@@ -686,7 +685,7 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickStencilPipeline() {
   return nullptr;
 }
 
-AbsPipelineWrapper* SKVkPipelineImpl::PickGradientPipeline() {
+AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
   if (!enable_stencil_test_) {
     return static_gradient_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -700,7 +699,7 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickGradientPipeline() {
   return nullptr;
 }
 
-AbsPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
+AbsPipelineWrapper* VkRenderer::PickImagePipeline() {
   if (!enable_stencil_test_) {
     return static_image_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -714,7 +713,7 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickImagePipeline() {
   return nullptr;
 }
 
-AbsPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
+AbsPipelineWrapper* VkRenderer::PickBlurPipeline() {
   if (current_target_) {
     if (color_mode_ == HWPipelineColorMode::kHorizontalBlur ||
         color_mode_ == HWPipelineColorMode::kVerticalBlur) {
@@ -726,7 +725,7 @@ AbsPipelineWrapper* SKVkPipelineImpl::PickBlurPipeline() {
   return static_blur_pipeline_.get();
 }
 
-void SKVkPipelineImpl::BindPipelineIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::BindPipelineIfNeed(AbsPipelineWrapper* pipeline) {
   if (pipeline == prev_pipeline_ && current_target_ == nullptr) {
     // no need to call bind pipeline
     return;
@@ -736,7 +735,7 @@ void SKVkPipelineImpl::BindPipelineIfNeed(AbsPipelineWrapper* pipeline) {
   prev_pipeline_ = pipeline;
 }
 
-void SKVkPipelineImpl::UpdatePushConstantIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdatePushConstantIfNeed(AbsPipelineWrapper* pipeline) {
   if (!global_push_const_.dirty) {
     return;
   }
@@ -746,8 +745,7 @@ void SKVkPipelineImpl::UpdatePushConstantIfNeed(AbsPipelineWrapper* pipeline) {
   pipeline->UploadPushConstant(global_push_const_.value, GetCurrentCMD());
 }
 
-void SKVkPipelineImpl::UpdateTransformMatrixIfNeed(
-    AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdateTransformMatrixIfNeed(AbsPipelineWrapper* pipeline) {
 // Fixme to solve Uniform set not working
 // it seems MoltenVK DescriptorSet has bug
 #ifndef __APPLE__
@@ -761,7 +759,7 @@ void SKVkPipelineImpl::UpdateTransformMatrixIfNeed(
                                   vk_memory_allocator_.get());
 }
 
-void SKVkPipelineImpl::UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline) {
 // Fixme to solve Uniform set not working
 // it seems MoltenVK DescriptorSet has bug
 #ifndef __APPLE__
@@ -775,11 +773,11 @@ void SKVkPipelineImpl::UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline) {
                             CurrentFrameBuffer(), vk_memory_allocator_.get());
 }
 
-void SKVkPipelineImpl::UpdateStencilConfigIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdateStencilConfigIfNeed(AbsPipelineWrapper* pipeline) {
   pipeline->UpdateStencilInfo(stencil_value_, ctx_);
 }
 
-void SKVkPipelineImpl::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {
   if (color_info_set_.dirty && pipeline->HasColorSet()) {
     pipeline->UploadUniformColor(color_info_set_.value, ctx_,
                                  CurrentFrameBuffer(),
@@ -805,7 +803,7 @@ void SKVkPipelineImpl::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {
   // TODO implement font info update
 }
 
-void SKVkPipelineImpl::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
+void VkRenderer::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
   if (font_texture_) {
     if (pipeline->IsComputePipeline()) {
       auto com_pipeline = (ComputePipeline*)pipeline;
@@ -846,7 +844,7 @@ void SKVkPipelineImpl::UpdateFontInfoIfNeed(AbsPipelineWrapper* pipeline) {
   }
 }
 
-void SKVkPipelineImpl::ResetUniformDirty() {
+void VkRenderer::ResetUniformDirty() {
   global_push_const_.dirty = true;
   model_matrix_.dirty = true;
   common_fragment_set_.dirty = true;
@@ -854,7 +852,7 @@ void SKVkPipelineImpl::ResetUniformDirty() {
   gradient_info_set_.dirty = true;
 }
 
-SKVkFrameBufferData* SKVkPipelineImpl::CurrentFrameBuffer() {
+SKVkFrameBufferData* VkRenderer::CurrentFrameBuffer() {
   return frame_buffer_[ctx_->GetCurrentBufferIndex()].get();
 }
 
