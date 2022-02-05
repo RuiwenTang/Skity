@@ -11,7 +11,8 @@ class DiscretePathEffect : public PathEffect {
   ~DiscretePathEffect() override = default;
 
  protected:
-  bool onFilterPath(Path* dst, Path const& src, bool stroke, Paint const&) const override;
+  bool onFilterPath(Path* dst, Path const& src, bool stroke,
+                    Paint const&) const override;
 
  private:
   float seg_length_;
