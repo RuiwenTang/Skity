@@ -23,6 +23,19 @@ AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx,
+                                                 VkRenderPass render_pass) {
+  return PipelineBuilder<StaticGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+      render_pass,
+  }();
+}
+
+std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardGradientPipeline>{
       (const char*)vk_common_vert_spv,
@@ -30,6 +43,19 @@ AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
       (const char*)vk_gradient_color_frag_spv,
       vk_gradient_color_frag_spv_size,
       ctx,
+  }();
+}
+
+std::unique_ptr<AbsPipelineWrapper>
+AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
+    GPUVkContext* ctx, VkRenderPass render_pass) {
+  return PipelineBuilder<StencilDiscardGradientPipeline>{
+      (const char*)vk_common_vert_spv,
+      vk_common_vert_spv_size,
+      (const char*)vk_gradient_color_frag_spv,
+      vk_gradient_color_frag_spv_size,
+      ctx,
+      render_pass,
   }();
 }
 

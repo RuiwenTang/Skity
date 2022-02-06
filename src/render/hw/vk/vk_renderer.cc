@@ -460,6 +460,10 @@ void VkRenderer::DestroyPipelines() {
   compute_blur_pipeline_->Destroy(ctx_);
   static_blur_pipeline_->Destroy(ctx_);
   os_static_blur_pipeline_->Destroy(ctx_);
+  os_static_image_pipeline_->Destroy(ctx_);
+  os_stencil_image_pipeline_->Destroy(ctx_);
+  os_static_gradient_pipeline_->Destroy(ctx_);
+  os_stencil_gradient_pipeline_->Destroy(ctx_);
 }
 
 void VkRenderer::DestroyFrameBuffers() {
@@ -523,6 +527,15 @@ void VkRenderer::InitPipelines() {
       AbsPipelineWrapper::CreateStencilFrontPipeline(ctx_, os_render_pass_);
   os_stencil_back_pipeline_ =
       AbsPipelineWrapper::CreateStencilBackPipeline(ctx_, os_render_pass_);
+  os_static_image_pipeline_ =
+      AbsPipelineWrapper::CreateStaticImagePipeline(ctx_, os_render_pass_);
+  os_stencil_image_pipeline_ =
+      AbsPipelineWrapper::CreateStencilImagePipeline(ctx_, os_render_pass_);
+  os_static_gradient_pipeline_ =
+      AbsPipelineWrapper::CreateStaticGradientPipeline(ctx_, os_render_pass_);
+  os_stencil_gradient_pipeline_ =
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_,
+                                                               os_render_pass_);
 
   // effect pipelines
   static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_);
@@ -686,6 +699,15 @@ AbsPipelineWrapper* VkRenderer::PickStencilPipeline() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
+  if (current_target_) {
+    if (!enable_stencil_test_) {
+      return os_static_gradient_pipeline_.get();
+    } else {
+      return os_stencil_gradient_pipeline_.get();
+    }
+    return nullptr;
+  }
+
   if (!enable_stencil_test_) {
     return static_gradient_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
@@ -700,6 +722,15 @@ AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickImagePipeline() {
+  if (current_target_) {
+    if (!enable_stencil_test_) {
+      return os_static_image_pipeline_.get();
+    } else {
+      return os_stencil_image_pipeline_.get();
+    }
+    return nullptr;
+  }
+
   if (!enable_stencil_test_) {
     return static_image_pipeline_.get();
   } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
