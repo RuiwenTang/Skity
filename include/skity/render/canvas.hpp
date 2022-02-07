@@ -4,7 +4,6 @@
 
 #include <memory>
 #include <skity/geometry/rect.hpp>
-#include <skity/gpu/gpu_context.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
 #include <skity/macros.hpp>
@@ -13,6 +12,7 @@
 namespace skity {
 
 class TextBlob;
+class GPUContext;
 
 /**
  * @class Canvas

@@ -5,6 +5,7 @@
 // this should after glad
 #include <GLFW/glfw3.h>
 
+#include <skity/gpu/gpu_context.hpp>
 #include <skity/skity.hpp>
 #include <string>
 

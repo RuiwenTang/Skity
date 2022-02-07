@@ -2,7 +2,7 @@
 #define SKITY_SRC_RENDER_HW_VK_VK_PIPELINE_HPP
 
 #include <map>
-#include <skity/gpu/gpu_context.hpp>
+#include <skity/gpu/gpu_vk_context.hpp>
 
 #include "src/render/hw/hw_renderer.hpp"
 #include "src/render/hw/vk/vk_framebuffer.hpp"

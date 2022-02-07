@@ -1,7 +1,7 @@
 #include "src/render/hw/vk/vk_memory.hpp"
 
 #include <cstring>
-#include <skity/gpu/gpu_context.hpp>
+#include <skity/gpu/gpu_vk_context.hpp>
 #define VMA_IMPLEMENTATION
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1

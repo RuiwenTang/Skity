@@ -17,8 +17,6 @@
 #include <skity/geometry/point.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/geometry/rrect.hpp>
-// gpu
-#include <skity/gpu/gpu_context.hpp>
 // graphic
 #include <skity/graphic/color.hpp>
 #include <skity/graphic/paint.hpp>

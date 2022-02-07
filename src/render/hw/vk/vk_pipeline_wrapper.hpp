@@ -6,7 +6,7 @@
 #include <array>
 #include <glm/glm.hpp>
 #include <memory>
-#include <skity/gpu/gpu_context.hpp>
+#include <skity/gpu/gpu_vk_context.hpp>
 #include <vector>
 
 #include "src/render/hw/vk/vk_interface.hpp"

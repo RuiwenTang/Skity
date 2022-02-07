@@ -17,6 +17,7 @@ set(SKITY_PUBLIC_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/skity/geometry/rect.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/geometry/rrect.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/gpu/gpu_context.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/skity/gpu/gpu_vk_context.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/graphic/color.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/graphic/paint.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/graphic/path.hpp
