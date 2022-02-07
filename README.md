@@ -165,7 +165,7 @@ make
   - basic svg tag parser
     - `<svg>` `<g>` `<path>` `<circle>` `<rect>`
 
-- Maskfilter (WIP)
+- Maskfilter (done with Blur effect filter)
   - Gaussian Blur with inner and outer effect
     - OpenGL backend
       - Using FBO and off screen rendering to do blur calculation
@@ -185,5 +185,4 @@ make
 
 - [ ] Support [lottie](https://airbnb.design/lottie/) anmiation.
 
-- [ ] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
-  - WIP with Vulkan backend
+- [x] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
