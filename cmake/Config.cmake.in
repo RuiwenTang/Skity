@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/skityTargets.cmake")
+
+find_package(pugixml REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/skitySVGTargets.cmake")
+
+check_required_components(skity)

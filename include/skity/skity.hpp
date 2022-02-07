@@ -1,6 +1,8 @@
 #ifndef SKITY_HPP
 #define SKITY_HPP
 
+// config
+#include <skity/config.hpp>
 // all macros
 #include <skity/macros.hpp>
 // codec

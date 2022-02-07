@@ -8,9 +8,14 @@ target_link_libraries(skity-svg skity)
 target_link_libraries(skity-svg pugixml)
 
 target_include_directories(skity-svg PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(skity-svg PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(skity-svg PRIVATE ${SKITY_ROOT}/include)
 target_include_directories(skity-svg PRIVATE ${SKITY_ROOT})
+
+target_include_directories(skity-svg
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+)
 
 target_sources(skity-svg
   PRIVATE
@@ -39,4 +44,25 @@ target_sources(skity-svg
         ${CMAKE_CURRENT_LIST_DIR}/src/svg/svg_types.hpp
         ${CMAKE_CURRENT_LIST_DIR}/src/xml/xml_parser.cc
         ${CMAKE_CURRENT_LIST_DIR}/src/xml/xml_parser.hpp
+)
+
+# install header
+install(DIRECTORY
+  "${CMAKE_CURRENT_LIST_DIR}/include/skity"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING PATTERN "*.hpp"
+)
+
+# install library
+install(TARGETS skity-svg EXPORT skity-svg-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# install config file
+install(EXPORT skity-svg-targets
+  FILE        skitySVGTargets.cmake
+  NAMESPACE   skity::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
 )

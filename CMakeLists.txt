@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
+
 project(Skity)
+
+set(SKITY_VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -15,10 +18,18 @@ set(SKITY_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(skity SHARED)
 
 # public header include
-target_include_directories(skity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(skity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm)
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(skity PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm>
+    $<INSTALL_INTERFACE:include/glm>
+)
+target_include_directories(skity PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+    )
+
 add_library(skity::skity ALIAS skity)
 
 # platform
@@ -48,3 +59,30 @@ endif()
 if (${BUILD_EXAMPLE})
     add_subdirectory(example)
 endif()
+
+# glm headers
+install(DIRECTORY 
+    third_party/glm/glm
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
+    PATTERN "CMakeLists.txt" EXCLUDE)
+
+# package config file
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/skityConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
+)
+
+# version
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/skityConfigVersion.cmake
+    VERSION ${SKITY_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/skityConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/skityConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
+)

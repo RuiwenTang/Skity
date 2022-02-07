@@ -1,6 +1,8 @@
 #ifndef SKITY_GPU_GPU_CONTEXT_HPP
 #define SKITY_GPU_GPU_CONTEXT_HPP
 
+#include <skity/config.hpp>
+
 #ifdef SKITY_VULKAN
 #include <vulkan/vulkan.h>
 #endif

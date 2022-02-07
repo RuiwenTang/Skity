@@ -5,6 +5,7 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/../include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glm)
 # xml
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../module/svg/include)

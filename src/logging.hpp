@@ -2,6 +2,7 @@
 #define SKITY_SRC_LOGGING_HPP
 
 #include <memory>
+#include <skity/config.hpp>
 #ifdef SKITY_LOG
 #include <spdlog/spdlog.h>
 #endif

@@ -11,7 +11,7 @@ option(OPENGL_BACKEND "option for opengl backend" ON)
 
 
 if (${ENABLE_LOG})
-    add_definitions(-DSKITY_LOG=1)
+    set(SKITY_LOG 1)
     # no exception
     add_definitions(-DSPDLOG_NO_EXCEPTIONS)
     include_directories(third_party/spdlog/include)
@@ -19,13 +19,13 @@ endif()
 
 
 if (${VULKAN_BACKEND})
-    add_definitions(-DSKITY_VULKAN=1)
+    set(SKITY_VULKAN 1)
     include_directories(third_party/Vulkan-Headers/include)
     include_directories(third_party/VulkanMemoryAllocator/include)
 endif()
 
 if (${OPENGL_BACKEND})
-    add_definitions(-DSKITY_OPENGL=1)
+    set(SKITY_OPENGL 1)
     include_directories(third_party/OpenGL)
 endif()
 
