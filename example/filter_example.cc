@@ -18,7 +18,25 @@ void draw_filter(skity::Canvas* canvas) {
   path.quadTo(256, 64, 128, 128);
   path.quadTo(10, 192, 250, 250);
 
+  {
+    skity::Vec4 colors[] = {
+        skity::Vec4{0.f, 1.f, 1.f, 1.f},
+        skity::Vec4{0.f, 0.f, 1.f, 1.f},
+        skity::Vec4{1.f, 0.f, 0.f, 1.f},
+    };
+
+    std::vector<skity::Point> pts = {
+        skity::Point{10.f, 10.f, 0.f, 1.f},
+        skity::Point{250.f, 250.f, 0.f, 1.f},
+    };
+
+    auto lgs = skity::Shader::MakeLinear(pts.data(), colors, nullptr, 3);
+    paint.setShader(lgs);
+  }
+
   canvas->drawPath(path, paint);
+
+  paint.setShader(nullptr);
 
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setMaskFilter(
