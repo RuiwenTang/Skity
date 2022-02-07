@@ -15,6 +15,10 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | <img src="./resources/nanovg_demo.png" width="200" > | <img src="./resources/tiger.png" width="150" /> | <img src="./resources/skia_demo.png" width="150"> | <img src="https://github.com/RuiwenTang/Skity-Android/blob/main/screen_shots/gl_frame_example_android.png?raw=true" width="200"> |
 
+| [Blur filter example](./example/filter_example.cc)       |
+| -------------------------------------------------------- |
+| <img src="./resources/filter_example.png" width="180" /> |
+
 ## Quick Start
 
 ### Initialization
