@@ -151,9 +151,10 @@ static bool get_support_depth_format(VkPhysicalDevice phy_devce,
   // format to use
   // Start with the highest precision packed format
   std::vector<VkFormat> depthFormats = {
-      VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT,
-      VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT,
-      VK_FORMAT_D16_UNORM};
+      VK_FORMAT_D32_SFLOAT_S8_UINT,
+      VK_FORMAT_D24_UNORM_S8_UINT,
+      VK_FORMAT_D16_UNORM_S8_UINT,
+  };
 
   for (auto& format : depthFormats) {
     VkFormatProperties formatProps;
