@@ -8,6 +8,7 @@
 namespace skity {
 
 struct GPUVkContext;
+struct VKInterface;
 
 struct AllocatedBuffer {
   AllocatedBuffer() = default;
@@ -66,7 +67,8 @@ class VKMemoryAllocator {
                                  AllocatedImage* image,
                                  VkBufferImageCopy const& copy_region) = 0;
 
-  static std::unique_ptr<VKMemoryAllocator> CreateMemoryAllocator();
+  static std::unique_ptr<VKMemoryAllocator> CreateMemoryAllocator(
+      VKInterface* interface);
 };
 
 }  // namespace skity

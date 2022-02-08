@@ -15,17 +15,15 @@
 namespace skity {
 
 VkRenderer::VkRenderer(GPUVkContext* ctx)
-    : HWRenderer(),
-      ctx_(ctx),
-      vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
+    : HWRenderer(), ctx_(ctx), vk_memory_allocator_() {}
 
-VkRenderer::~VkRenderer() { VKInterface::DeInitGlobalInterface(); }
+VkRenderer::~VkRenderer() { delete vk_interface_; }
 
 void VkRenderer::Init() {
-  if (!VKInterface::GlobalInterface()) {
-    VKInterface::InitGlobalInterface(
-        ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
-  }
+  vk_interface_ = VKInterface::InitInterface(
+      ctx_->GetDevice(), (PFN_vkGetDeviceProcAddr)ctx_->proc_loader);
+  vk_memory_allocator_ =
+      VKMemoryAllocator::CreateMemoryAllocator(vk_interface_);
   vk_memory_allocator_->Init(ctx_);
   InitOffScreenRenderPass();
   InitFrameBuffers();
@@ -35,7 +33,7 @@ void VkRenderer::Init() {
   InitSampler();
 
   empty_font_texture_ = std::make_unique<VKFontTexture>(
-      nullptr, vk_memory_allocator_.get(), this, ctx_);
+      GetInterface(), nullptr, vk_memory_allocator_.get(), this, ctx_);
 
   empty_font_texture_->Init();
   empty_font_texture_->PrepareForDraw();
@@ -413,8 +411,8 @@ void VkRenderer::InitSampler() {
 void VkRenderer::InitFrameBuffers() {
   frame_buffer_.resize(ctx_->GetSwapchainBufferCount());
   for (size_t i = 0; i < frame_buffer_.size(); i++) {
-    frame_buffer_[i] =
-        std::make_unique<SKVkFrameBufferData>(vk_memory_allocator_.get());
+    frame_buffer_[i] = std::make_unique<SKVkFrameBufferData>(
+        GetInterface(), vk_memory_allocator_.get());
     frame_buffer_[i]->Init(ctx_);
   }
 }
@@ -481,67 +479,79 @@ VkCommandBuffer VkRenderer::GetCurrentCMD() {
 }
 
 void VkRenderer::InitPipelines() {
-  static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(ctx_);
+  static_color_pipeline_ =
+      AbsPipelineWrapper::CreateStaticColorPipeline(GetInterface(), ctx_);
   stencil_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilColorPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilColorPipeline(GetInterface(), ctx_);
   stencil_clip_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipColorPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipColorPipeline(GetInterface(), ctx_);
   stencil_keep_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilKeepColorPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepColorPipeline(GetInterface(), ctx_);
   static_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStaticGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStaticGradientPipeline(GetInterface(), ctx_);
   stencil_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GetInterface(),
+                                                               ctx_);
   stencil_clip_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipGradientPipeline(GetInterface(),
+                                                            ctx_);
   stencil_keep_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilKeepGradientPipeline(ctx_);
-  static_image_pipeline_ = AbsPipelineWrapper::CreateStaticImagePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepGradientPipeline(GetInterface(),
+                                                            ctx_);
+  static_image_pipeline_ =
+      AbsPipelineWrapper::CreateStaticImagePipeline(GetInterface(), ctx_);
   stencil_image_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GetInterface(),
+                                                               ctx_);
   stencil_clip_image_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipImagePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipImagePipeline(GetInterface(), ctx_);
   stencil_keep_image_pipeline_ =
-      AbsPipelineWrapper::CreateStencilKeepImagePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilKeepImagePipeline(GetInterface(), ctx_);
   stencil_front_pipeline_ =
-      AbsPipelineWrapper::CreateStencilFrontPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilFrontPipeline(GetInterface(), ctx_);
   stencil_clip_front_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipFrontPipeline(ctx_);
-  stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipFrontPipeline(GetInterface(), ctx_);
+  stencil_back_pipeline_ =
+      AbsPipelineWrapper::CreateStencilBackPipeline(GetInterface(), ctx_);
   stencil_clip_back_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipBackPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilClipBackPipeline(GetInterface(), ctx_);
   stencil_rec_clip_back_pipeline_ =
-      AbsPipelineWrapper::CreateStencilRecClipBackPipeline(ctx_);
-  stencil_clip_pipeline_ = AbsPipelineWrapper::CreateStencilClipPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilRecClipBackPipeline(GetInterface(),
+                                                           ctx_);
+  stencil_clip_pipeline_ =
+      AbsPipelineWrapper::CreateStencilClipPipeline(GetInterface(), ctx_);
   stencil_rec_clip_pipeline_ =
-      AbsPipelineWrapper::CreateStencilRecClipPipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilRecClipPipeline(GetInterface(), ctx_);
   stencil_replace_pipeline_ =
-      AbsPipelineWrapper::CreateStencilReplacePipeline(ctx_);
+      AbsPipelineWrapper::CreateStencilReplacePipeline(GetInterface(), ctx_);
 
   // off screen pipelines
-  os_static_color_pipeline_ =
-      AbsPipelineWrapper::CreateStaticColorPipeline(ctx_, os_render_pass_);
-  os_stencil_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilColorPipeline(ctx_, os_render_pass_);
-  os_stencil_front_pipeline_ =
-      AbsPipelineWrapper::CreateStencilFrontPipeline(ctx_, os_render_pass_);
-  os_stencil_back_pipeline_ =
-      AbsPipelineWrapper::CreateStencilBackPipeline(ctx_, os_render_pass_);
-  os_static_image_pipeline_ =
-      AbsPipelineWrapper::CreateStaticImagePipeline(ctx_, os_render_pass_);
-  os_stencil_image_pipeline_ =
-      AbsPipelineWrapper::CreateStencilImagePipeline(ctx_, os_render_pass_);
+  os_static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  os_stencil_color_pipeline_ = AbsPipelineWrapper::CreateStencilColorPipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  os_stencil_front_pipeline_ = AbsPipelineWrapper::CreateStencilFrontPipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  os_stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  os_static_image_pipeline_ = AbsPipelineWrapper::CreateStaticImagePipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  os_stencil_image_pipeline_ = AbsPipelineWrapper::CreateStencilImagePipeline(
+      GetInterface(), ctx_, os_render_pass_);
   os_static_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStaticGradientPipeline(ctx_, os_render_pass_);
+      AbsPipelineWrapper::CreateStaticGradientPipeline(GetInterface(), ctx_,
+                                                       os_render_pass_);
   os_stencil_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(ctx_,
-                                                               os_render_pass_);
+      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
+          GetInterface(), ctx_, os_render_pass_);
 
   // effect pipelines
-  static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_);
-  os_static_blur_pipeline_ =
-      AbsPipelineWrapper::CreateStaticBlurPipeline(ctx_, os_render_pass_);
-  compute_blur_pipeline_ = AbsPipelineWrapper::CreateComputeBlurPipeline(ctx_);
+  static_blur_pipeline_ =
+      AbsPipelineWrapper::CreateStaticBlurPipeline(GetInterface(), ctx_);
+  os_static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(
+      GetInterface(), ctx_, os_render_pass_);
+  compute_blur_pipeline_ =
+      AbsPipelineWrapper::CreateComputeBlurPipeline(GetInterface(), ctx_);
 }
 
 void VkRenderer::InitVertexBuffer(size_t new_size) {

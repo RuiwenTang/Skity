@@ -173,8 +173,8 @@ void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   auto set0_create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(&set0_binding, 1);
 
-  descriptor_set_layout_[0] =
-      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set0_create_info);
+  descriptor_set_layout_[0] = VKUtils::CreateDescriptorSetLayout(
+      GetInterface(), ctx->GetDevice(), set0_create_info);
 
   // create set 1
   auto set1_binding = VKUtils::DescriptorSetLayoutBinding(
@@ -183,8 +183,8 @@ void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   auto set1_create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(&set1_binding, 1);
 
-  descriptor_set_layout_[1] =
-      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set1_create_info);
+  descriptor_set_layout_[1] = VKUtils::CreateDescriptorSetLayout(
+      GetInterface(), ctx->GetDevice(), set1_create_info);
 
   // create set 2
   // set 2 is create by sub class implementation
@@ -202,8 +202,8 @@ void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   auto set3_create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(&set3_binding, 1);
 
-  descriptor_set_layout_[3] =
-      VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), set3_create_info);
+  descriptor_set_layout_[3] = VKUtils::CreateDescriptorSetLayout(
+      GetInterface(), ctx->GetDevice(), set3_create_info);
 }
 
 void RenderPipeline::InitPipelineLayout(GPUVkContext* ctx) {

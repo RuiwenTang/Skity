@@ -12,8 +12,10 @@
 namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStaticGradientPipeline(VKInterface* vk_interface,
+                                                 GPUVkContext* ctx) {
   return PipelineBuilder<StaticGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -23,9 +25,11 @@ AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStaticGradientPipeline(VKInterface* vk_interface,
+                                                 GPUVkContext* ctx,
                                                  VkRenderPass render_pass) {
   return PipelineBuilder<StaticGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -36,8 +40,10 @@ AbsPipelineWrapper::CreateStaticGradientPipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
+    VKInterface* vk_interface, GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -48,8 +54,9 @@ AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GPUVkContext* ctx) {
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
-    GPUVkContext* ctx, VkRenderPass render_pass) {
+    VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass) {
   return PipelineBuilder<StencilDiscardGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -60,8 +67,10 @@ AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilClipGradientPipeline(VKInterface* vk_interface,
+                                                      GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -71,8 +80,10 @@ AbsPipelineWrapper::CreateStencilClipGradientPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilKeepGradientPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilKeepGradientPipeline(VKInterface* vk_interface,
+                                                      GPUVkContext* ctx) {
   return PipelineBuilder<StencilKeepGradientPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_gradient_color_frag_spv,
@@ -112,7 +123,8 @@ VkDescriptorSetLayout StaticGradientPipeline::GenerateColorSetLayout(
 
   auto create_info = VKUtils::DescriptorSetLayoutCreateInfo(&binding, 1);
 
-  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+  return VKUtils::CreateDescriptorSetLayout(GetInterface(), ctx->GetDevice(),
+                                            create_info);
 }
 
 VkPipelineDepthStencilStateCreateInfo

@@ -2,17 +2,12 @@
 
 namespace skity {
 
-VKInterface* g_vk_interface = nullptr;
+#define GET_PROC(F) \
+  vk_interface->f##F = (decltype(vk_interface->f##F))proc_loader(device, "" #F)
 
-#define GET_PROC(F)      \
-  g_vk_interface->f##F = \
-      (decltype(g_vk_interface->f##F))proc_loader(device, "" #F)
-
-VKInterface* VKInterface::GlobalInterface() { return g_vk_interface; }
-
-void VKInterface::InitGlobalInterface(VkDevice device,
-                                      PFN_vkGetDeviceProcAddr proc_loader) {
-  g_vk_interface = new VKInterface;
+VKInterface* VKInterface::InitInterface(VkDevice device,
+                                        PFN_vkGetDeviceProcAddr proc_loader) {
+  auto vk_interface = new VKInterface;
 
   GET_PROC(vkAllocateCommandBuffers);
   GET_PROC(vkAllocateDescriptorSets);
@@ -62,14 +57,8 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkResetFences);
   GET_PROC(vkUpdateDescriptorSets);
   GET_PROC(vkWaitForFences);
-}
 
-void VKInterface::DeInitGlobalInterface() {
-  if (!g_vk_interface) {
-    return;
-  }
-  delete g_vk_interface;
-  g_vk_interface = nullptr;
+  return vk_interface;
 }
 
 }  // namespace skity

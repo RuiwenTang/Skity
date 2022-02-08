@@ -6,15 +6,17 @@
 #include <skity/gpu/gpu_vk_context.hpp>
 #include <vector>
 
+#include "src/render/hw/vk/vk_interface.hpp"
+
 namespace skity {
 
 class VKMemoryAllocator;
 struct AllocatedBuffer;
 
 // helper class to hold descriptor set buffer using per frame
-class SKVkFrameBufferData {
+class SKVkFrameBufferData : public VkInterfaceClient {
  public:
-  SKVkFrameBufferData(VKMemoryAllocator* allocator);
+  SKVkFrameBufferData(VKInterface* interface, VKMemoryAllocator* allocator);
   ~SKVkFrameBufferData() = default;
 
   void Init(GPUVkContext* ctx);

@@ -5,14 +5,12 @@
 
 namespace skity {
 
-#define VK_CALL(name, ...) VKInterface::GlobalInterface()->f##name(__VA_ARGS__)
+#define VK_CALL(name, ...) GetInterface()->f##name(__VA_ARGS__)
+#define VK_CALL_I(name, ...) vk_interface->f##name(__VA_ARGS__)
 
 struct VKInterface {
-  static VKInterface* GlobalInterface();
-  static void InitGlobalInterface(VkDevice device,
-                                  PFN_vkGetDeviceProcAddr proc_loader);
-
-  static void DeInitGlobalInterface();
+  static VKInterface* InitInterface(VkDevice device,
+                                    PFN_vkGetDeviceProcAddr proc_loader);
 
   PFN_vkAllocateCommandBuffers fvkAllocateCommandBuffers = {};
   PFN_vkAllocateDescriptorSets fvkAllocateDescriptorSets = {};
@@ -62,6 +60,20 @@ struct VKInterface {
   PFN_vkResetFences fvkResetFences = {};
   PFN_vkUpdateDescriptorSets fvkUpdateDescriptorSets = {};
   PFN_vkWaitForFences fvkWaitForFences = {};
+};
+
+class VkInterfaceClient {
+ public:
+  VkInterfaceClient() = default;
+  VkInterfaceClient(VKInterface* interface) : interface_(interface) {}
+  ~VkInterfaceClient() = default;
+
+  VKInterface* GetInterface() const { return interface_; }
+
+  void SetInterface(VKInterface* interface) { interface_ = interface; }
+
+ private:
+  VKInterface* interface_ = {};
 };
 
 }  // namespace skity

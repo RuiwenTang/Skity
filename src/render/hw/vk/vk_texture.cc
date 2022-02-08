@@ -47,9 +47,11 @@ static VkImageAspectFlags hw_texture_type_to_vk_aspect(HWTexture::Type type) {
   }
 }
 
-VKTexture::VKTexture(VKMemoryAllocator* allocator, VkRenderer* renderer,
-                     GPUVkContext* ctx, VkImageUsageFlags flags)
+VKTexture::VKTexture(VKInterface* interface, VKMemoryAllocator* allocator,
+                     VkRenderer* renderer, GPUVkContext* ctx,
+                     VkImageUsageFlags flags)
     : HWTexture(),
+      VkInterfaceClient(interface),
       allocator_(allocator),
       renderer_(renderer),
       ctx_(ctx),

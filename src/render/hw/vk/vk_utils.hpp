@@ -7,6 +7,8 @@
 
 namespace skity {
 
+struct VKInterface;
+
 class VKUtils final {
  public:
   VKUtils() = delete;
@@ -15,8 +17,8 @@ class VKUtils final {
   static VkPushConstantRange PushConstantRange(VkShaderStageFlags flags,
                                                uint32_t size, uint32_t offset);
 
-  static VkShaderModule CreateShader(VkDevice, const char* data,
-                                     size_t data_size);
+  static VkShaderModule CreateShader(VKInterface* vk_interface, VkDevice,
+                                     const char* data, size_t data_size);
 
   static VkPipelineVertexInputStateCreateInfo
   PipelineVertexInputStateCreateInfo();
@@ -62,7 +64,8 @@ class VKUtils final {
       const VkDescriptorSetLayoutBinding* p_bindings, uint32_t binding_count);
 
   static VkDescriptorSetLayout CreateDescriptorSetLayout(
-      VkDevice device, VkDescriptorSetLayoutCreateInfo const& create_info);
+      VKInterface* vk_interface, VkDevice device,
+      VkDescriptorSetLayoutCreateInfo const& create_info);
 
   static VkPipelineDepthStencilStateCreateInfo
   PipelineDepthStencilStateCreateInfo(VkBool32 depth_test_enable,
@@ -99,9 +102,9 @@ class VKUtils final {
       VkFormat format, VkImage image, VkImageSubresourceRange const& range);
 
   static void SetImageLayout(
-      VkCommandBuffer cmd, VkImage image, VkImageAspectFlags aspect_mask,
-      VkImageLayout old_layout, VkImageLayout new_layout,
-      VkImageSubresourceRange range,
+      VKInterface* vk_interface, VkCommandBuffer cmd, VkImage image,
+      VkImageAspectFlags aspect_mask, VkImageLayout old_layout,
+      VkImageLayout new_layout, VkImageSubresourceRange range,
       VkPipelineStageFlags src_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
       VkPipelineStageFlags dst_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 

@@ -32,20 +32,23 @@ std::unique_ptr<HWRenderer> VKCanvas::CreateRenderer() {
 }
 
 std::unique_ptr<HWTexture> VKCanvas::GenerateTexture() {
-  return std::make_unique<VKTexture>(vk_renderer_->Allocator(), vk_renderer_,
+  return std::make_unique<VKTexture>(vk_renderer_->GetInterface(),
+                                     vk_renderer_->Allocator(), vk_renderer_,
                                      ctx_);
 }
 
 std::unique_ptr<HWFontTexture> VKCanvas::GenerateFontTexture(
     Typeface* typeface) {
-  return std::make_unique<VKFontTexture>(typeface, vk_renderer_->Allocator(),
+  return std::make_unique<VKFontTexture>(vk_renderer_->GetInterface(), typeface,
+                                         vk_renderer_->Allocator(),
                                          vk_renderer_, ctx_);
 }
 
 std::unique_ptr<HWRenderTarget> VKCanvas::GenerateBackendRenderTarget(
     uint32_t width, uint32_t height) {
   auto vk_rt = std::make_unique<VKRenderTarget>(
-      width, height, vk_renderer_->Allocator(), vk_renderer_, ctx_);
+      vk_renderer_->GetInterface(), width, height, vk_renderer_->Allocator(),
+      vk_renderer_, ctx_);
 
   vk_rt->Init();
 

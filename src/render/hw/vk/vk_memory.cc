@@ -42,9 +42,11 @@ struct AllocatedImageImpl : public AllocatedImage {
   VkExtent3D GetImageExtent() override { return extent; }
 };
 
-class VKMemoryAllocatorImpl : public VKMemoryAllocator {
+class VKMemoryAllocatorImpl : public VKMemoryAllocator,
+                              public VkInterfaceClient {
  public:
-  VKMemoryAllocatorImpl() = default;
+  VKMemoryAllocatorImpl(VKInterface* interface)
+      : VKMemoryAllocator(), VkInterfaceClient(interface) {}
   ~VKMemoryAllocatorImpl() override = default;
 
   void Init(GPUVkContext* ctx) override { InitVMA(ctx); }
@@ -211,8 +213,8 @@ void VKMemoryAllocatorImpl::TransferImageLayout(VkCommandBuffer cmd,
                                                 VkImageLayout old_layout,
                                                 VkImageLayout new_layout) {
   AllocatedImageImpl* impl = (AllocatedImageImpl*)image;
-  VKUtils::SetImageLayout(cmd, impl->image, range.aspectMask, old_layout,
-                          new_layout, range);
+  VKUtils::SetImageLayout(GetInterface(), cmd, impl->image, range.aspectMask,
+                          old_layout, new_layout, range);
   impl->layout = new_layout;
 }
 
@@ -269,8 +271,9 @@ AllocatedImage* VKMemoryAllocatorImpl::AllocateImageInternal(
   return impl;
 }
 
-std::unique_ptr<VKMemoryAllocator> VKMemoryAllocator::CreateMemoryAllocator() {
-  return std::make_unique<VKMemoryAllocatorImpl>();
+std::unique_ptr<VKMemoryAllocator> VKMemoryAllocator::CreateMemoryAllocator(
+    VKInterface* interface) {
+  return std::make_unique<VKMemoryAllocatorImpl>(interface);
 }
 
 }  // namespace skity

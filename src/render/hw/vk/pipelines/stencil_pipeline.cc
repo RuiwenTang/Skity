@@ -7,8 +7,10 @@
 namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
+                                               GPUVkContext* ctx) {
   return PipelineBuilder<StencilFrontPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -18,9 +20,11 @@ AbsPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
+                                               GPUVkContext* ctx,
                                                VkRenderPass render_pass) {
   return PipelineBuilder<StencilFrontPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -30,8 +34,10 @@ AbsPipelineWrapper::CreateStencilFrontPipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipFrontPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilClipFrontPipeline(VKInterface* vk_interface,
+                                                   GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipFrontPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -41,8 +47,10 @@ AbsPipelineWrapper::CreateStencilClipFrontPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilBackPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx) {
   return PipelineBuilder<StencilBackPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -52,9 +60,11 @@ AbsPipelineWrapper::CreateStencilBackPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilBackPipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx,
                                               VkRenderPass render_pass) {
   return PipelineBuilder<StencilBackPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -64,8 +74,10 @@ AbsPipelineWrapper::CreateStencilBackPipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipBackPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilClipBackPipeline(VKInterface* vk_interface,
+                                                  GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipBackPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -75,8 +87,10 @@ AbsPipelineWrapper::CreateStencilClipBackPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilRecClipBackPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilRecClipBackPipeline(VKInterface* vk_interface,
+                                                     GPUVkContext* ctx) {
   return PipelineBuilder<StencilRecursiveClipBackPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -86,8 +100,10 @@ AbsPipelineWrapper::CreateStencilRecClipBackPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilClipPipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -97,8 +113,10 @@ AbsPipelineWrapper::CreateStencilClipPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilRecClipPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilRecClipPipeline(VKInterface* vk_interface,
+                                                 GPUVkContext* ctx) {
   return PipelineBuilder<StencilRecursiveClipPipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
@@ -108,8 +126,10 @@ AbsPipelineWrapper::CreateStencilRecClipPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilReplacePipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilReplacePipeline(VKInterface* vk_interface,
+                                                 GPUVkContext* ctx) {
   return PipelineBuilder<StencilReplacePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,

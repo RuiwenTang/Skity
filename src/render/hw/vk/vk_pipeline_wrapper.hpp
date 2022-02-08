@@ -52,7 +52,7 @@ struct ComputeInfo {
   alignas(16) glm::vec4 bounds = {};
 };
 
-class AbsPipelineWrapper {
+class AbsPipelineWrapper : public VkInterfaceClient {
  public:
   AbsPipelineWrapper() = default;
   virtual ~AbsPipelineWrapper() = default;
@@ -105,98 +105,100 @@ class AbsPipelineWrapper {
                               VKMemoryAllocator* allocator) {}
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipColorPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepColorPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper>
-  CreateStencilDiscardGradientPipeline(GPUVkContext* ctx);
+  CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
+                                       GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper>
-  CreateStencilDiscardGradientPipeline(GPUVkContext* ctx,
+  CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
+                                       GPUVkContext* ctx,
                                        VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipGradientPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepGradientPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipImagePipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepImagePipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipFrontPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipBackPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipBackPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilReplacePipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
-      GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateComputeBlurPipeline(
-      GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx);
 };
 
 class RenderPipeline : public AbsPipelineWrapper {
@@ -365,6 +367,7 @@ class ComputePipeline : public AbsPipelineWrapper {
 
 template <class T>
 struct PipelineBuilder {
+  VKInterface* vk_interface;
   const char* vertex_src;
   size_t vertex_size;
   const char* fragment_src;
@@ -372,10 +375,12 @@ struct PipelineBuilder {
   GPUVkContext* ctx;
   VkRenderPass render_pass;
 
-  PipelineBuilder(const char* vertex_src, size_t vertex_size,
-                  const char* fragment_src, size_t fragment_size,
-                  GPUVkContext* ctx, VkRenderPass r = VK_NULL_HANDLE)
-      : vertex_src(vertex_src),
+  PipelineBuilder(VKInterface* interface, const char* vertex_src,
+                  size_t vertex_size, const char* fragment_src,
+                  size_t fragment_size, GPUVkContext* ctx,
+                  VkRenderPass r = VK_NULL_HANDLE)
+      : vk_interface(interface),
+        vertex_src(vertex_src),
         vertex_size(vertex_size),
         fragment_src(fragment_src),
         fragment_size(fragment_size),
@@ -389,15 +394,17 @@ struct PipelineBuilder {
       pipeline->SetRenderPass(render_pass);
     }
 
-    auto vertex = VKUtils::CreateShader(ctx->GetDevice(),
+    auto vertex = VKUtils::CreateShader(vk_interface, ctx->GetDevice(),
                                         (const char*)vertex_src, vertex_size);
 
-    auto fragment = VKUtils::CreateShader(
-        ctx->GetDevice(), (const char*)fragment_src, fragment_size);
+    auto fragment =
+        VKUtils::CreateShader(vk_interface, ctx->GetDevice(),
+                              (const char*)fragment_src, fragment_size);
+    pipeline->SetInterface(vk_interface);
     pipeline->Init(ctx, vertex, fragment);
 
-    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
-    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
+    VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
+    VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);
 
     return pipeline;
   }

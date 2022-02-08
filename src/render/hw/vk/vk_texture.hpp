@@ -7,6 +7,7 @@
 #include <skity/gpu/gpu_vk_context.hpp>
 
 #include "src/render/hw/hw_texture.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
 
 namespace skity {
 
@@ -16,10 +17,10 @@ struct AllocatedImage;
 class VKMemoryAllocator;
 class VkRenderer;
 
-class VKTexture : public HWTexture {
+class VKTexture : public HWTexture, public VkInterfaceClient {
  public:
-  VKTexture(VKMemoryAllocator* allocator, VkRenderer* renderer,
-            GPUVkContext* ctx,
+  VKTexture(VKInterface* interface, VKMemoryAllocator* allocator,
+            VkRenderer* renderer, GPUVkContext* ctx,
             VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 

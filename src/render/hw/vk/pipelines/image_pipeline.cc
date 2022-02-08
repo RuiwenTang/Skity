@@ -10,8 +10,10 @@
 namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticImagePipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStaticImagePipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx) {
   return PipelineBuilder<StaticImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -21,9 +23,11 @@ AbsPipelineWrapper::CreateStaticImagePipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticImagePipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStaticImagePipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx,
                                               VkRenderPass render_pass) {
   return PipelineBuilder<StaticImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -34,8 +38,10 @@ AbsPipelineWrapper::CreateStaticImagePipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilImagePipeline(VKInterface* vk_interface,
+                                               GPUVkContext* ctx) {
   return PipelineBuilder<StencilDiscardImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -45,9 +51,11 @@ AbsPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStencilImagePipeline(VKInterface* vk_interface,
+                                               GPUVkContext* ctx,
                                                VkRenderPass render_pass) {
   return PipelineBuilder<StencilDiscardImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -58,8 +66,10 @@ AbsPipelineWrapper::CreateStencilImagePipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilClipImagePipeline(VKInterface* vk_interface,
+                                                   GPUVkContext* ctx) {
   return PipelineBuilder<StencilClipImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -69,8 +79,10 @@ AbsPipelineWrapper::CreateStencilClipImagePipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilKeepImagePipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStencilKeepImagePipeline(VKInterface* vk_interface,
+                                                   GPUVkContext* ctx) {
   return PipelineBuilder<StencilKeepImagePipeline>{
+      vk_interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_image_color_frag_spv,
@@ -133,7 +145,8 @@ VkDescriptorSetLayout StaticImagePipeline::GenerateColorSetLayout(
   auto create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(binding.data(), binding.size());
 
-  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+  return VKUtils::CreateDescriptorSetLayout(GetInterface(), ctx->GetDevice(),
+                                            create_info);
 }
 
 VkPipelineDepthStencilStateCreateInfo

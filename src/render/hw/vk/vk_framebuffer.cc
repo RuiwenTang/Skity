@@ -5,7 +5,6 @@
 #include <skity/geometry/point.hpp>
 
 #include "src/logging.hpp"
-#include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
@@ -14,8 +13,9 @@ namespace skity {
 
 #define DEFAULT_UNIFORM_SIZE_PER_POOL 1000
 
-SKVkFrameBufferData::SKVkFrameBufferData(VKMemoryAllocator* allocator)
-    : allocator_(allocator) {}
+SKVkFrameBufferData::SKVkFrameBufferData(VKInterface* interface,
+                                         VKMemoryAllocator* allocator)
+    : VkInterfaceClient(interface), allocator_(allocator) {}
 
 void SKVkFrameBufferData::Init(GPUVkContext* ctx) {
   AppendUniformBufferPool(ctx);

@@ -19,8 +19,8 @@ VkPushConstantRange VKUtils::PushConstantRange(VkShaderStageFlags flags,
   return ret;
 }
 
-VkShaderModule VKUtils::CreateShader(VkDevice device, const char *data,
-                                     size_t data_size) {
+VkShaderModule VKUtils::CreateShader(VKInterface *vk_interface, VkDevice device,
+                                     const char *data, size_t data_size) {
   VkShaderModule shader_module = {};
 
   VkShaderModuleCreateInfo create_info{
@@ -29,8 +29,8 @@ VkShaderModule VKUtils::CreateShader(VkDevice device, const char *data,
   create_info.codeSize = data_size;
   create_info.pCode = (uint32_t *)data;
 
-  if (VK_CALL(vkCreateShaderModule, device, &create_info, nullptr,
-              &shader_module) != VK_SUCCESS) {
+  if (VK_CALL_I(vkCreateShaderModule, device, &create_info, nullptr,
+                &shader_module) != VK_SUCCESS) {
     LOG_ERROR("Failed to create shader module!!");
 #ifndef SKITY_RELEASE
     assert(false);
@@ -167,11 +167,12 @@ VkDescriptorSetLayoutCreateInfo VKUtils::DescriptorSetLayoutCreateInfo(
 }
 
 VkDescriptorSetLayout VKUtils::CreateDescriptorSetLayout(
-    VkDevice device, const VkDescriptorSetLayoutCreateInfo &create_info) {
+    VKInterface *vk_interface, VkDevice device,
+    const VkDescriptorSetLayoutCreateInfo &create_info) {
   VkDescriptorSetLayout ret = VK_NULL_HANDLE;
 
-  if (VK_CALL(vkCreateDescriptorSetLayout, device, &create_info, nullptr,
-              &ret) != VK_SUCCESS) {
+  if (VK_CALL_I(vkCreateDescriptorSetLayout, device, &create_info, nullptr,
+                &ret) != VK_SUCCESS) {
     LOG_ERROR("Failed create DescriptorSet layout with {} bindings",
               create_info.bindingCount);
   }
@@ -315,8 +316,8 @@ VkImageViewCreateInfo VKUtils::ImageViewCreateInfo(
   return create_info;
 }
 
-void VKUtils::SetImageLayout(VkCommandBuffer cmd, VkImage image,
-                             VkImageAspectFlags aspect_mask,
+void VKUtils::SetImageLayout(VKInterface *vk_interface, VkCommandBuffer cmd,
+                             VkImage image, VkImageAspectFlags aspect_mask,
                              VkImageLayout old_layout, VkImageLayout new_layout,
                              VkImageSubresourceRange range,
                              VkPipelineStageFlags src_stage,
@@ -424,8 +425,8 @@ void VKUtils::SetImageLayout(VkCommandBuffer cmd, VkImage image,
   }
 
   // Put barrier inside setup command buffer
-  VK_CALL(vkCmdPipelineBarrier, cmd, src_stage, dst_stage, 0, 0, nullptr, 0,
-          nullptr, 1, &image_memory_barrier);
+  VK_CALL_I(vkCmdPipelineBarrier, cmd, src_stage, dst_stage, 0, 0, nullptr, 0,
+            nullptr, 1, &image_memory_barrier);
 }
 
 VkComputePipelineCreateInfo VKUtils::ComputePipelineCreateInfo(

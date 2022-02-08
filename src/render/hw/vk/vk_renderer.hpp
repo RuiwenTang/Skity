@@ -14,6 +14,7 @@ namespace skity {
 class VKTexture;
 class VKFontTexture;
 class VKRenderTarget;
+struct VKInterface;
 
 template <class T>
 struct DirtyValueHolder {
@@ -97,6 +98,8 @@ class VkRenderer : public HWRenderer {
 
   VkRenderPass OffScreenRenderPass() const { return os_render_pass_; }
   VkFormat OffScreenColorFormat() const { return os_color_format_; }
+
+  VKInterface* GetInterface() const { return vk_interface_; }
 
  private:
   void InitCMDPool();
@@ -208,6 +211,7 @@ class VkRenderer : public HWRenderer {
   VkDescriptorSet empty_font_set_ = VK_NULL_HANDLE;
   std::unique_ptr<VKFontTexture> empty_font_texture_ = {};
   std::map<VKTexture*, VkDescriptorSet> used_font_and_set_ = {};
+  VKInterface* vk_interface_ = {};
 };
 
 }  // namespace skity

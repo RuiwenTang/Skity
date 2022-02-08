@@ -11,8 +11,10 @@
 namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateStaticBlurPipeline(VKInterface* interface,
+                                             GPUVkContext* ctx) {
   return PipelineBuilder<FinalBlurPipeline>{
+      interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_blur_effect_frag_spv,
@@ -22,9 +24,11 @@ AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx) {
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx,
+AbsPipelineWrapper::CreateStaticBlurPipeline(VKInterface* interface,
+                                             GPUVkContext* ctx,
                                              VkRenderPass render_pass) {
   return PipelineBuilder<StaticBlurPipeline>{
+      interface,
       (const char*)vk_common_vert_spv,
       vk_common_vert_spv_size,
       (const char*)vk_blur_effect_frag_spv,
@@ -34,16 +38,17 @@ AbsPipelineWrapper::CreateStaticBlurPipeline(GPUVkContext* ctx,
 }
 
 std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateComputeBlurPipeline(GPUVkContext* ctx) {
+AbsPipelineWrapper::CreateComputeBlurPipeline(VKInterface* vk_interface,
+                                              GPUVkContext* ctx) {
   auto compute_shader = VKUtils::CreateShader(
-      ctx->GetDevice(), (const char*)vk_blur_effect_comp_spv,
+      vk_interface, ctx->GetDevice(), (const char*)vk_blur_effect_comp_spv,
       vk_blur_effect_comp_spv_size);
 
   auto pipeline = std::make_unique<ComputeBlurPipeline>();
-
+  pipeline->SetInterface(vk_interface);
   pipeline->Init(ctx, compute_shader, VK_NULL_HANDLE);
 
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), compute_shader, nullptr);
+  VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), compute_shader, nullptr);
   return pipeline;
 }
 
@@ -62,7 +67,8 @@ VkDescriptorSetLayout StaticBlurPipeline::GenerateColorSetLayout(
   auto create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(binding.data(), binding.size());
 
-  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+  return VKUtils::CreateDescriptorSetLayout(GetInterface(), ctx->GetDevice(),
+                                            create_info);
 }
 
 void StaticBlurPipeline::UploadBlurInfo(glm::ivec4 const& info,
@@ -168,7 +174,8 @@ VkDescriptorSetLayout ComputeBlurPipeline::CreateDescriptorSetLayout(
   auto create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(bindings.data(), bindings.size());
 
-  return VKUtils::CreateDescriptorSetLayout(ctx->GetDevice(), create_info);
+  return VKUtils::CreateDescriptorSetLayout(GetInterface(), ctx->GetDevice(),
+                                            create_info);
 }
 
 void ComputeBlurPipeline::OnDispatch(VkCommandBuffer cmd, GPUVkContext* ctx) {

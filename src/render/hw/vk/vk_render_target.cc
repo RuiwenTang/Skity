@@ -10,22 +10,23 @@
 
 namespace skity {
 
-VKRenderTarget::VKRenderTarget(uint32_t width, uint32_t height,
-                               VKMemoryAllocator* allocator,
+VKRenderTarget::VKRenderTarget(VKInterface* interface, uint32_t width,
+                               uint32_t height, VKMemoryAllocator* allocator,
                                VkRenderer* renderer, GPUVkContext* ctx)
     : HWRenderTarget(width, height),
+      VkInterfaceClient(interface),
       allocator_(allocator),
       renderer_(renderer),
       ctx_(ctx),
-      color_texture_(allocator, renderer, ctx,
+      color_texture_(interface, allocator, renderer, ctx,
                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                          VK_IMAGE_USAGE_STORAGE_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT),
       horizontal_texture_(
-          allocator, renderer, ctx,
+          interface, allocator, renderer, ctx,
           VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
       vertical_texture_(
-          allocator, renderer, ctx,
+          interface, allocator, renderer, ctx,
           VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT),
       color_fbo_(renderer->OffScreenRenderPass()) {}
 
@@ -146,12 +147,14 @@ void VKRenderTarget::CreateStencilImage() {
 void VKRenderTarget::InitSubFramebuffers() {
   VkFormat stencil_format = ctx_->GetDepthStencilFormat();
 
-  color_fbo_.InitFramebuffer(ctx_, Width(), Height(),
+  color_fbo_.InitFramebuffer(GetInterface(), ctx_, Width(), Height(),
                              color_texture_.GetImageView(),
                              stencil_image_view_);
 }
 
-void VKRenderTarget::DestroySubFramebuffers() { color_fbo_.Destroy(ctx_); }
+void VKRenderTarget::DestroySubFramebuffers() {
+  color_fbo_.Destroy(GetInterface(), ctx_);
+}
 
 void VKRenderTarget::BeginCurrentRenderPass() {
   std::array<VkClearValue, 2> clear_values{};
@@ -182,11 +185,9 @@ void VKRenderTarget::BeginCurrentRenderPass() {
   VK_CALL(vkCmdSetScissor, vk_cmd_, 0, 1, &scissor);
 }
 
-void VKRenderTarget::Framebuffer::InitFramebuffer(GPUVkContext* ctx,
-                                                  uint32_t width,
-                                                  uint32_t height,
-                                                  VkImageView color_image,
-                                                  VkImageView stencil_image) {
+void VKRenderTarget::Framebuffer::InitFramebuffer(
+    VKInterface* vk_interface, GPUVkContext* ctx, uint32_t width,
+    uint32_t height, VkImageView color_image, VkImageView stencil_image) {
   std::array<VkImageView, 2> attachments = {};
   attachments[0] = color_image;
   attachments[1] = stencil_image;
@@ -201,14 +202,15 @@ void VKRenderTarget::Framebuffer::InitFramebuffer(GPUVkContext* ctx,
   create_info.height = height;
   create_info.layers = 1;
 
-  if (VK_CALL(vkCreateFramebuffer, ctx->GetDevice(), &create_info, nullptr,
-              &frame_buffer) != VK_SUCCESS) {
+  if (VK_CALL_I(vkCreateFramebuffer, ctx->GetDevice(), &create_info, nullptr,
+                &frame_buffer) != VK_SUCCESS) {
     LOG_ERROR("VkRenderTarget can not create framebuffer!");
   }
 }
 
-void VKRenderTarget::Framebuffer::Destroy(GPUVkContext* ctx) {
-  VK_CALL(vkDestroyFramebuffer, ctx->GetDevice(), frame_buffer, nullptr);
+void VKRenderTarget::Framebuffer::Destroy(VKInterface* vk_interface,
+                                          GPUVkContext* ctx) {
+  VK_CALL_I(vkDestroyFramebuffer, ctx->GetDevice(), frame_buffer, nullptr);
 }
 
 }  // namespace skity

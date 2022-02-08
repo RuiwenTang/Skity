@@ -17,11 +17,11 @@ class VkRenderer;
 
 class RenderTargetTexture : public VKTexture {
  public:
-  RenderTargetTexture(VKMemoryAllocator* allocator, VkRenderer* renderer,
-                      GPUVkContext* ctx,
+  RenderTargetTexture(VKInterface* interface, VKMemoryAllocator* allocator,
+                      VkRenderer* renderer, GPUVkContext* ctx,
                       VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-      : VKTexture(allocator, renderer, ctx, flags) {}
+      : VKTexture(interface, allocator, renderer, ctx, flags) {}
 
   ~RenderTargetTexture() override = default;
 
@@ -31,10 +31,11 @@ class RenderTargetTexture : public VKTexture {
 class FinalRenderTargetTexture : public VKTexture {
  public:
   FinalRenderTargetTexture(
-      VKMemoryAllocator* allocator, VkRenderer* renderer, GPUVkContext* ctx,
+      VKInterface* interface, VKMemoryAllocator* allocator,
+      VkRenderer* renderer, GPUVkContext* ctx,
       VkImageUsageFlags flags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-      : VKTexture(allocator, renderer, ctx, flags) {}
+      : VKTexture(interface, allocator, renderer, ctx, flags) {}
 
   ~FinalRenderTargetTexture() override = default;
 
@@ -52,22 +53,24 @@ class FinalRenderTargetTexture : public VKTexture {
   bool do_filter_ = false;
 };
 
-class VKRenderTarget : public HWRenderTarget {
+class VKRenderTarget : public HWRenderTarget, public VkInterfaceClient {
   struct Framebuffer {
     VkRenderPass render_pass = {};
     VkFramebuffer frame_buffer = {};
 
     Framebuffer(VkRenderPass r) : render_pass(r) {}
 
-    void InitFramebuffer(GPUVkContext* ctx, uint32_t width, uint32_t height,
+    void InitFramebuffer(VKInterface* vk_interface, GPUVkContext* ctx,
+                         uint32_t width, uint32_t height,
                          VkImageView color_image, VkImageView stencil_image);
 
-    void Destroy(GPUVkContext* ctx);
+    void Destroy(VKInterface* vk_interface, GPUVkContext* ctx);
   };
 
  public:
-  VKRenderTarget(uint32_t width, uint32_t height, VKMemoryAllocator* allocator,
-                 VkRenderer* renderer, GPUVkContext* ctx);
+  VKRenderTarget(VKInterface* interface, uint32_t width, uint32_t height,
+                 VKMemoryAllocator* allocator, VkRenderer* renderer,
+                 GPUVkContext* ctx);
 
   ~VKRenderTarget() override;
 
