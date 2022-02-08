@@ -12,6 +12,8 @@ struct VKInterface {
   static void InitGlobalInterface(VkDevice device,
                                   PFN_vkGetDeviceProcAddr proc_loader);
 
+  static void DeInitGlobalInterface();
+
   PFN_vkAllocateCommandBuffers fvkAllocateCommandBuffers = {};
   PFN_vkAllocateDescriptorSets fvkAllocateDescriptorSets = {};
   PFN_vkBeginCommandBuffer fvkBeginCommandBuffer = {};

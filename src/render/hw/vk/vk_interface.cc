@@ -64,4 +64,12 @@ void VKInterface::InitGlobalInterface(VkDevice device,
   GET_PROC(vkWaitForFences);
 }
 
+void VKInterface::DeInitGlobalInterface() {
+  if (!g_vk_interface) {
+    return;
+  }
+  delete g_vk_interface;
+  g_vk_interface = nullptr;
+}
+
 }  // namespace skity

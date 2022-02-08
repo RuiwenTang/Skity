@@ -19,7 +19,7 @@ VkRenderer::VkRenderer(GPUVkContext* ctx)
       ctx_(ctx),
       vk_memory_allocator_(VKMemoryAllocator::CreateMemoryAllocator()) {}
 
-VkRenderer::~VkRenderer() = default;
+VkRenderer::~VkRenderer() { VKInterface::DeInitGlobalInterface(); }
 
 void VkRenderer::Init() {
   if (!VKInterface::GlobalInterface()) {

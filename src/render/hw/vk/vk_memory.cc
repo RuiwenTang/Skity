@@ -114,11 +114,17 @@ class VKMemoryAllocatorImpl : public VKMemoryAllocator {
   }
 
   void FreeBuffer(AllocatedBuffer* allocated_buffer) override {
+    if (allocated_buffer == nullptr) {
+      return;
+    }
     AllocatedBufferImpl* impl = (AllocatedBufferImpl*)allocated_buffer;
     vmaDestroyBuffer(vma_allocator_, impl->buffer, impl->vma_allocation);
   }
 
   void FreeImage(AllocatedImage* allocated_image) override {
+    if (allocated_image == nullptr) {
+      return;
+    }
     AllocatedImageImpl* impl = (AllocatedImageImpl*)allocated_image;
     vmaDestroyImage(vma_allocator_, impl->image, impl->vma_allocation);
   }
