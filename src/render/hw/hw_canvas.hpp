@@ -87,6 +87,10 @@ class HWCanvas : public Canvas {
 
   HWMesh* GetMesh();
 
+  glm::mat4 GetCurrentMVP() const { return mvp_; }
+
+  void SetCurrentMVP(glm::mat4 const& mvp) { mvp_ = mvp; }
+
  private:
   std::unique_ptr<HWDraw> GenerateOp();
 

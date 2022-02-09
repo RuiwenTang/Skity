@@ -696,6 +696,7 @@ void VkApp::CreateSwapChain() {
 
   swap_chain_format_ = format;
   swap_chain_extend_ = surface_caps.currentExtent;
+  vk_surface_transform_ = surface_caps.currentTransform;
 }
 
 void VkApp::CreateSwapChainImageViews() {

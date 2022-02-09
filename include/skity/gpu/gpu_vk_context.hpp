@@ -131,6 +131,18 @@ struct GPUVkContext : public GPUContext {
    * @return VkFormat
    */
   virtual VkFormat GetDepthStencilFormat() = 0;
+
+  /**
+   * @brief Get the Swapchain Surface Transform flag
+   * @note  By default, canvas does not need to handle surface transform, and
+   *        this function should return `VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR`.
+   *        But in Android or other mobile platforms, the surface orientation
+   *        could be changed, and the pipeline MVP matrix need to make the
+   *        adjustment.
+   *
+   * @return VkSurfaceTransformFlagBitsKHR
+   */
+  virtual VkSurfaceTransformFlagBitsKHR GetSurfaceTransform() = 0;
 };
 
 }  // namespace skity

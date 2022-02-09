@@ -24,9 +24,16 @@ class VKCanvas : public HWCanvas {
   std::unique_ptr<HWRenderTarget> GenerateBackendRenderTarget(
       uint32_t width, uint32_t height) override;
 
+  void onFlush() override;
+
+ private:
+  void HandleOrientation();
+
  private:
   VkRenderer* vk_renderer_ = {};
   GPUVkContext* ctx_ = {};
+  VkSurfaceTransformFlagBitsKHR current_transform_ =
+      VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 };
 
 }  // namespace skity

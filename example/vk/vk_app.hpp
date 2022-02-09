@@ -57,6 +57,10 @@ class VkApp : public skity::GPUVkContext {
 
   VkFormat GetDepthStencilFormat() override { return depth_stencil_format_; }
 
+  VkSurfaceTransformFlagBitsKHR GetSurfaceTransform() override {
+    return vk_surface_transform_;
+  }
+
  protected:
   virtual void OnStart();
   virtual void OnUpdate(float elapsed_time) {}
@@ -112,6 +116,8 @@ class VkApp : public skity::GPUVkContext {
   GLFWwindow* window_ = {};
   VkInstance vk_instance_ = {};
   VkSurfaceKHR vk_surface_ = {};
+  VkSurfaceTransformFlagBitsKHR vk_surface_transform_ =
+      VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
   VkDebugUtilsMessengerEXT vk_debug_messenger_ = {};
   VkPhysicalDevice vk_phy_device_ = {};
   VkSampleCountFlagBits vk_sample_count_ = VK_SAMPLE_COUNT_1_BIT;

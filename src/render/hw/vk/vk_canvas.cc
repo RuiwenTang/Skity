@@ -1,6 +1,7 @@
 #include "src/render/hw/vk/vk_canvas.hpp"
 
 #include <cassert>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
@@ -53,6 +54,39 @@ std::unique_ptr<HWRenderTarget> VKCanvas::GenerateBackendRenderTarget(
   vk_rt->Init();
 
   return vk_rt;
+}
+
+void VKCanvas::onFlush() {
+  HandleOrientation();
+
+  HWCanvas::onFlush();
+}
+
+void VKCanvas::HandleOrientation() {
+  auto ctx_transform = ctx_->GetSurfaceTransform();
+
+  if (ctx_transform == current_transform_) {
+    return;
+  }
+
+  current_transform_ = ctx_transform;
+
+  glm::mat4 pre_rotate = glm::mat4(1.f);
+  glm::vec3 rotation_axis = glm::vec3(0.f, 0.f, 1.f);
+
+  if (current_transform_ & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR) {
+    pre_rotate = glm::rotate(pre_rotate, glm::radians(90.f), rotation_axis);
+  } else if (current_transform_ & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+    pre_rotate = glm::rotate(pre_rotate, glm::radians(270.f), rotation_axis);
+  } else if (current_transform_ & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) {
+    pre_rotate = glm::rotate(pre_rotate, glm::radians(180.f), rotation_axis);
+  }
+
+  auto mvp = GetCurrentMVP();
+
+  auto adapt_mvp = pre_rotate * mvp;
+
+  SetCurrentMVP(adapt_mvp);
 }
 
 }  // namespace skity
