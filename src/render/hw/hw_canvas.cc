@@ -519,6 +519,7 @@ void HWCanvas::onFlush() {
   mesh_->ResetMesh();
   global_alpha_.Reset();
   full_rect_start_ = full_rect_count_ = -1;
+  render_target_cache_.EndFrame();
 }
 
 HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {

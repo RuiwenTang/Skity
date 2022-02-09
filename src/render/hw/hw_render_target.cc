@@ -2,6 +2,10 @@
 
 namespace skity {
 
+enum {
+  CACHE_PERGE_LIMIT = 1000,
+};
+
 HWRenderTarget* HWRenderTargetCache::QueryTarget(uint32_t width,
                                                  uint32_t height) {
   Size target_size{width, height};
@@ -42,6 +46,26 @@ HWRenderTarget* HWRenderTargetCache::StoreCache(
 void HWRenderTargetCache::BeginFrame() {
   current_age_++;
   ClearUsedFlags();
+}
+
+void HWRenderTargetCache::EndFrame() {
+  for (auto map_it = info_map_.begin(); map_it != info_map_.end();) {
+    for (auto it = map_it->second.begin(); it != map_it->second.end();) {
+      if (current_age_ - it->age > CACHE_PERGE_LIMIT) {
+        auto rt = it->target;
+        it = map_it->second.erase(it);
+        target_cache_.erase(rt);
+      } else {
+        it++;
+      }
+    }
+
+    if (map_it->second.empty()) {
+      map_it = info_map_.erase(map_it);
+    } else {
+      map_it++;
+    }
+  }
 }
 
 void HWRenderTargetCache::CleanUp() {

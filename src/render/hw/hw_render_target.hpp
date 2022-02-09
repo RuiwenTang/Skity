@@ -82,6 +82,8 @@ class HWRenderTargetCache final {
 
   void BeginFrame();
 
+  void EndFrame();
+
   void CleanUp();
 
  private:
