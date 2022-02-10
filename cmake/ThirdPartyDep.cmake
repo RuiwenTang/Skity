@@ -14,9 +14,6 @@ endif()
 if (${VULKAN_BACKEND})
   find_path(VULKAN_HEADERS_INCLUDE_DIRS "vk_video/vulkan_video_codec_h264std.h")
   target_include_directories(skity ${VULKAN_HEADERS_INCLUDE_DIRS})
-
-  find_package(unofficial-vulkan-memory-allocator CONFIG REQUIRED)
-  target_link_libraries(skity PRIVATE unofficial::vulkan-memory-allocator::vulkan-memory-allocator)
 endif()
 
 else()
@@ -42,8 +39,6 @@ else()
   if (${VULKAN_BACKEND})
     include_directories(third_party/Vulkan-Headers/include)
 
-    add_subdirectory(third_party/VulkanMemoryAllocator)
-    target_link_libraries(skity PRIVATE VulkanMemoryAllocator)
   endif()
 
 endif()
@@ -55,6 +50,11 @@ target_link_libraries(skity PUBLIC glm::glm)
 # OpenGL header file
 if (${OPENGL_BACKEND})
   target_include_directories(skity PRIVATE third_party/OpenGL)
+endif()
+
+# Vulkan memory allocator
+if (${VULKAN_BACKEND})
+  target_include_directories(skity PRIVATE third_party/VulkanMemoryAllocator/include)
 endif()
 
 
