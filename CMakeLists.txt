@@ -20,10 +20,7 @@ add_library(skity SHARED)
 # public header include
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(skity PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm>
-    $<INSTALL_INTERFACE:include/glm>
-)
+
 target_include_directories(skity PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -32,12 +29,36 @@ target_include_directories(skity PUBLIC
 
 add_library(skity::skity ALIAS skity)
 
+# default config
+include(GNUInstallDirs)
 # platform
 include(cmake/Platform.cmake)
 # options
 include(cmake/Options.cmake)
 # pack all shader files
 include(cmake/Shader.cmake)
+# third party deps
+include(cmake/ThirdPartyDep.cmake)
+
+if (${ENABLE_LOG})
+    set(SKITY_LOG 1)
+    # no exception
+    add_definitions(-DSPDLOG_NO_EXCEPTIONS)
+endif()
+
+
+if (${VULKAN_BACKEND})
+    set(SKITY_VULKAN 1)
+endif()
+
+if (${OPENGL_BACKEND})
+    set(SKITY_OPENGL 1)
+endif()
+
+# svg module
+if (${BUILD_SVG_MODULE})
+    add_subdirectory(module/svg)
+endif()
 
 
 # header files
@@ -59,12 +80,6 @@ endif()
 if (${BUILD_EXAMPLE})
     add_subdirectory(example)
 endif()
-
-# glm headers
-install(DIRECTORY 
-    third_party/glm/glm
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
-    PATTERN "CMakeLists.txt" EXCLUDE)
 
 # package config file
 include(CMakePackageConfigHelpers)
