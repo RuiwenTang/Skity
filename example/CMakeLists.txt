@@ -4,11 +4,6 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
   add_library(glad OBJECT ../third_party/glad/src/glad.c)
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/../include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glm)
-# xml
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../module/svg/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 #GLFW
@@ -50,6 +45,8 @@ add_library(gl_app OBJECT
   gl/gl_app.hpp
 )
 
+target_link_libraries(gl_app skity::skity)
+
 add_executable(gl_example gl_example.cc example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 
 target_link_libraries(gl_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -76,6 +73,8 @@ if (VULKAN_BACKEND)
     vk/vk_app.cc 
     vk/vk_app.hpp
   )
+
+  target_link_libraries(vk_app skity::skity)
 
   find_package(Vulkan REQUIRED)
 
