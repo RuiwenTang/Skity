@@ -1,11 +1,9 @@
 
-include_directories(${SKITY_ROOT}/third_party/pugixml/src)
-
 add_library(skity-svg STATIC)
 add_library(skity::svg ALIAS skity-svg)
 
-target_link_libraries(skity-svg skity)
-target_link_libraries(skity-svg pugixml)
+target_link_libraries(skity-svg PUBLIC skity)
+target_link_libraries(skity-svg PUBLIC pugixml::pugixml)
 
 target_include_directories(skity-svg PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(skity-svg PRIVATE ${SKITY_ROOT}/include)
