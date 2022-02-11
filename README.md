@@ -21,6 +21,82 @@ Its **API** follows the same pattern as [Skia](https://skia.org/) and implements
 
 ## Quick Start
 
+### Build and Install
+
+#### Option A: Build from source
+
+##### Requirements
+
+- CMake
+- [Freetype](https://www.freetype.org/): If not present, font rendering will not working
+- [GLFW](https://www.glfw.org/): for build test and example
+- optional
+  - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
+  - [libjpeg-turbo](https://www.libjpeg-turbo.org/): for jpg file decode
+  - on windows ,need to set environment value: `JPEG_PREFIX=path to libjpeg installed directory`
+
+```shell
+# fetch sources from github
+git clone --recursive https://github.com/RuiwenTang/Skity.git
+cd Skity
+# Create build directory
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+#### Option B: Using [`vcpkg`](https://github.com/microsoft/vcpkg)
+
+The port config is located in [vcpkg-skity](https://github.com/RuiwenTang/vcpkg-skity).
+
+##### Using [manifest mode](https://github.com/microsoft/vcpkg/blob/master/docs/users/manifests.md)
+
+Add the following registry info to vcpkg-configuration.json as a git [registry](https://github.com/microsoft/vcpkg/blob/master/docs/users/registries.md):
+
+```
+{
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/RuiwenTang/vcpkg-skity.git",
+      "baseline": "cf125cc8a08423432b70c240cfdd66e7002abbbf",
+      "packages": [ "skity" ]
+    }
+  ]
+}
+```
+
+And then add `skity` to vcpkg.json as a dependency:
+
+```
+{
+  "name": "my-application",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "skity"
+  ]
+}
+```
+
+##### Using overlay-ports
+
+Clone [vcpkg-skity repo](https://github.com/RuiwenTang/vcpkg-skity) and pass a [port-overlay](https://github.com/microsoft/vcpkg/blob/master/docs/specifications/ports-overlay.md) to vcpkg:
+
+```
+vcpkg install skity --overlay-ports=/path/to/vcpkg-skity/ports/skity
+```
+
+#### Linking in CMake
+
+In CMakeLists.txt, find and link skity:
+
+```
+find_package(skity CONFIG REQUIRED)
+target_link_library(main skity::skity)
+```
+
 ### Initialization
 
 The code below shows how to create a `skity::Canvas` instance using [GLFW](https://www.glfw.org/) with OpenGL backend. The full code can look at [gl_app.cc](./example/gl/gl_app.cc)
@@ -113,27 +189,6 @@ canvas->drawPath(path /* previouse created star path */, paint);
 | **BUILD_SVG_MODULE** | ON            | Build SVG module. If turn off the [pugixml](https://github.com/zeux/pugixml.git) is no longer needed.                                                                                  |
 | **BUILD_EXAMPLE**    | ON            | Build [example code](./example/). Need [GLFW](https://www.glfw.org/) .                                                                                                                 |
 | **BUILD_TEST**       | ON            | Build [test code](./test)                                                                                                                                                              |
-
-### Requirements
-
-- CMake
-- [Freetype](https://www.freetype.org/): If not present, font rendering will not working
-- [GLFW](https://www.glfw.org/): for build test and example
-- optional
-  - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
-  - [libjpeg-turbo](https://www.libjpeg-turbo.org/): for jpg file decode
-  - on windows ,need to set environment value: `JPEG_PREFIX=path to libjpeg installed directory`
-
-```shell
-# fetch sources from github
-git clone --recursive https://github.com/RuiwenTang/Skity.git
-cd Skity
-# Create build directory
-mkdir build
-cd build
-cmake ..
-make
-```
 
 ## Current status:
 
