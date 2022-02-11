@@ -4,7 +4,83 @@
 
 Skity is a 2D vector graphic render library writing in c++. The API follows the same pattern as [Skia](https://skia.org/) and implements the backend rendering by myself. Currently it can run on OpenGL and Vulkan context.
 
+## Build and Install
+
+### Option A: Build from source
+
+#### Requirements
+
+- CMake
+- [Freetype](https://www.freetype.org/): If not present, font rendering will not working
+- optional
+  - [libpng](http://www.libpng.org/pub/png/libpng.html): for png file decode
+  - [libjpeg-turbo](https://www.libjpeg-turbo.org/): for jpg file decode
+  - on windows ,need to set environment value: `JPEG_PREFIX=path to libjpeg installed directory`
+
+```shell
+# fetch sources from github
+git clone --recursive https://github.com/RuiwenTang/Skity.git
+cd Skity
+# Create build directory
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+### Option B: Using [`vcpkg`](https://github.com/microsoft/vcpkg)
+
+The port config is located in [vcpkg-skity](https://github.com/RuiwenTang/vcpkg-skity).
+
+#### Using [manifest mode](https://github.com/microsoft/vcpkg/blob/master/docs/users/manifests.md)
+
+Add the following registry info to vcpkg-configuration.json as a git [registry](https://github.com/microsoft/vcpkg/blob/master/docs/users/registries.md):
+
+```
+{
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/RuiwenTang/vcpkg-skity.git",
+      "baseline": "cf125cc8a08423432b70c240cfdd66e7002abbbf",
+      "packages": [ "skity" ]
+    }
+  ]
+}
+```
+
+And then add `skity` to vcpkg.json as a dependency:
+
+```
+{
+  "name": "my-application",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "skity"
+  ]
+}
+```
+
+#### Using overlay-ports
+
+Clone [vcpkg-skity repo](https://github.com/RuiwenTang/vcpkg-skity) and pass a [port-overlay](https://github.com/microsoft/vcpkg/blob/master/docs/specifications/ports-overlay.md) to vcpkg:
+
+```
+vcpkg install skity --overlay-ports=/path/to/vcpkg-skity/ports/skity
+```
+
+### Linking in CMake
+
+In CMakeLists.txt, find and link skity:
+
+```
+find_package(skity CONFIG REQUIRED)
+target_link_library(main skity::skity)
+```
+
 ### Brief Overview
+
 
 To use Skity just include the header file in sources code.
 

@@ -11,3 +11,4 @@ exclude:
   - Gemfile.lock
   - node_modules
   - update_boostrap.sh
+  - run_dev.sh
