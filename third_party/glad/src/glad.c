@@ -1823,6 +1823,7 @@ static void find_coreGL(void) {
 		max_loaded_major = 4;
 		max_loaded_minor = 6;
 	}
+	GLAD_GL_VERSION_4_0 = 1;
 }
 
 int gladLoadGLLoader(GLADloadproc load) {
