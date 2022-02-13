@@ -18,7 +18,7 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   // multisample
-  glfwWindowHint(GLFW_SAMPLES, 0);
+  glfwWindowHint(GLFW_SAMPLES, 8);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -64,6 +64,33 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
 
   glAttachShader(program, vs);
   glAttachShader(program, fs);
+  glLinkProgram(program);
+  glGetProgramiv(program, GL_LINK_STATUS, &success);
+
+  if (!success) {
+    GLchar info_log[1024];
+    glGetProgramInfoLog(program, 1024, nullptr, info_log);
+    std::cerr << "program link error " << info_log << std::endl;
+    exit(-5);
+  }
+
+  return program;
+}
+
+GLuint create_shader_program(const char* vs_code, const char* fs_code,
+                             const char* tcs_code, const char* tes_code) {
+  GLuint program = glCreateProgram();
+  GLint success;
+  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
+  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
+  GLuint tcs = create_shader(tcs_code, GL_TESS_CONTROL_SHADER);
+  GLuint tes = create_shader(tes_code, GL_TESS_EVALUATION_SHADER);
+
+  glAttachShader(program, vs);
+  glAttachShader(program, fs);
+  glAttachShader(program, tcs);
+  glAttachShader(program, tes);
+
   glLinkProgram(program);
   glGetProgramiv(program, GL_LINK_STATUS, &success);
 
