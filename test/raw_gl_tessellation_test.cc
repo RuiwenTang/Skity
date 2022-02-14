@@ -10,31 +10,47 @@ class RawGLTessTest : public test::TestApp {
  protected:
   void OnInit() override {
     glClearColor(1.f, 1.f, 1.f, 1.f);
+    glClearStencil(0x0);
+    glEnable(GL_STENCIL_TEST);
 
     InitVertexBuffer();
     InitProgram();
   }
 
-  void OnDraw() override { 
-      glClear(GL_COLOR_BUFFER_BIT); 
-      
-      glBindVertexArray(vao);
-      glUseProgram(program);
+  void OnDraw() override {
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-      if (glad_glPatchParameteri == nullptr) {
-        exit(-1);
-      }
+    glBindVertexArray(vao);
+    glUseProgram(program);
 
-      glDrawArrays(GL_PATCHES, 0, 3);
+    if (glad_glPatchParameteri == nullptr) {
+      exit(-1);
+    }
 
-      glBindVertexArray(0);
+    glColorMask(0, 0, 0, 0);
+    glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+    glDrawArrays(GL_PATCHES, 3, 3);
 
-      glUseProgram(0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    glDrawArrays(GL_PATCHES, 0, 3);
+
+    glColorMask(1, 1, 1, 1);
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glDrawArrays(GL_PATCHES, 3, 3);
+
+    glBindVertexArray(0);
+
+    glUseProgram(0);
   }
 
  private:
   void InitVertexBuffer() {
     std::vector<float> raw_points{
+        -0.5f, -0.5f, 1.f, 1.f,  // p0
+        0.3f,  0.5f,  1.f, 1.f,  // p1
+        0.5f,  -0.3f, 1.f, 1.f,  // p2
         -0.5f, -0.5f, 0.f, 1.f,  // p0
         0.3f,  0.5f,  0.f, 1.f,  // p1
         0.5f,  -0.3f, 0.f, 1.f,  // p2
@@ -53,8 +69,6 @@ class RawGLTessTest : public test::TestApp {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                           (void*)0);
 
-
-    glPatchParameteri(GL_PATCH_VERTICES, 3);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
@@ -88,12 +102,14 @@ class RawGLTessTest : public test::TestApp {
         layout(vertices = 3) out;
         
         void main(){
-            gl_TessLevelInner[0] = 2;
-            gl_TessLevelOuter[0] = 16;
+            gl_TessLevelInner[0] = 1;
+            gl_TessLevelOuter[0] = 1;
             gl_TessLevelOuter[1] = 1;
-            gl_TessLevelOuter[2] = 16;
-            
-            gl_out[gl_InvocationID].gl_Position =  gl_in[gl_InvocationID].gl_Position;
+            if (gl_in[0].gl_Position.z == 0.0) {
+              gl_TessLevelOuter[2] = 1;
+            } else {
+              gl_TessLevelOuter[2] = 32;
+            }
         }
     )";
 
@@ -115,11 +131,14 @@ class RawGLTessTest : public test::TestApp {
             float u = gl_TessCoord.x;
             float v = gl_TessCoord.y;
             float w = gl_TessCoord.z;
-            
-            vec2 p = quad_bezier(u, vec2(gl_in[0].gl_Position), vec2(gl_in[1].gl_Position), vec2(gl_in[2].gl_Position));
 
-            // gl_Position = (u * gl_in[0].gl_Position) + (u * gl_in[1].gl_Position) + (w * gl_in[2].gl_Position);
-            gl_Position = vec4(p, 0.0, 1.0) + (w * gl_in[2].gl_Position);
+            if (gl_in[0].gl_Position.z == 0) {
+              gl_Position = (u * gl_in[0].gl_Position) + (v * gl_in[1].gl_Position) + (w * gl_in[2].gl_Position);
+            } else {
+              vec2 p = quad_bezier(u, vec2(gl_in[0].gl_Position), vec2(gl_in[1].gl_Position), vec2(gl_in[2].gl_Position));
+            
+              gl_Position = vec4(p, 0.0, 1.0) + (w * gl_in[2].gl_Position);
+            }
         }
     )";
 
