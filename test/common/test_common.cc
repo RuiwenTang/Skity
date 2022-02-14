@@ -78,6 +78,31 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
 }
 
 GLuint create_shader_program(const char* vs_code, const char* fs_code,
+                             const char* gs_code) {
+  GLuint program = glCreateProgram();
+  GLint success;
+
+  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
+  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
+  GLuint gs = create_shader(gs_code, GL_GEOMETRY_SHADER);
+
+  glAttachShader(program, vs);
+  glAttachShader(program, fs);
+  glAttachShader(program, gs);
+  glLinkProgram(program);
+  glGetProgramiv(program, GL_LINK_STATUS, &success);
+
+  if (!success) {
+    GLchar info_log[1024];
+    glGetProgramInfoLog(program, 1024, nullptr, info_log);
+    std::cerr << "program link error " << info_log << std::endl;
+    exit(-5);
+  }
+
+  return program;
+}
+
+GLuint create_shader_program(const char* vs_code, const char* fs_code,
                              const char* tcs_code, const char* tes_code) {
   GLuint program = glCreateProgram();
   GLint success;

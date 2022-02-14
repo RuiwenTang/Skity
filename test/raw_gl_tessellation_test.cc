@@ -2,10 +2,10 @@
 
 #include "test/common/test_common.hpp"
 
-class RawGLTessTest : public test::TestApp {
+class RawGLGemTest : public test::TestApp {
  public:
-  RawGLTessTest() = default;
-  ~RawGLTessTest() override = default;
+  RawGLGemTest() = default;
+  ~RawGLGemTest() override = default;
 
  protected:
   void OnInit() override {
@@ -153,7 +153,7 @@ class RawGLTessTest : public test::TestApp {
 };
 
 int main(int argc, const char** argv) {
-  RawGLTessTest app;
+  RawGLGemTest app;
   app.Start();
   return 0;
 }

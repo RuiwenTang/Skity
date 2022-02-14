@@ -67,6 +67,9 @@ target_link_libraries(hw_canvas_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 add_executable(raw_gl_tessellation_test raw_gl_tessellation_test.cc  $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
 target_link_libraries(raw_gl_tessellation_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+add_executable(raw_gl_geometry_test raw_gl_geometry_test.cc  $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+target_link_libraries(raw_gl_geometry_test skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+
 add_executable(svg_parser_test svg_parser_test.cc)
 target_include_directories(svg_parser_test PRIVATE ${SKITY_ROOT}/module/svg/include)
 target_link_libraries(svg_parser_test skity skity::svg)

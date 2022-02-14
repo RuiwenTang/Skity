@@ -10,6 +10,9 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height);
 GLuint create_shader_program(const char* vs_code, const char* fs_code);
 
 GLuint create_shader_program(const char* vs_code, const char* fs_code,
+                             const char* gs_code);
+
+GLuint create_shader_program(const char* vs_code, const char* fs_code,
                              const char* tcs_code, const char* tes_code);
 
 class TestApp {
