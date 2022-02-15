@@ -236,8 +236,10 @@ canvas->drawPath(path /* previouse created star path */, paint);
 
 - [x] Vulkan backend support (Experimental done)
 
+- [x] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
+
+- [ ] Use [Geometry Shader]() if possible to optimize GPU raster (Working in progress)
+
 - [ ] CPU backend support (planning)
 
 - [ ] Support [lottie](https://airbnb.design/lottie/) anmiation.
-
-- [x] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
