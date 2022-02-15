@@ -11,10 +11,18 @@ GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 void GLCanvas::OnInit(GPUContext* ctx) { ctx_ = ctx; }
 
-bool GLCanvas::SupportGeometryShader() { return false; }
+bool GLCanvas::SupportGeometryShader() {
+#ifdef SKITY_ANDROID
+  return false;
+#else
+  // TODO after all geometry raster and pipeline code is finish
+  // this will change to default true since OpenGL 3.3+ support Geometry Shader
+  return false;
+#endif
+}
 
 std::unique_ptr<HWRenderer> GLCanvas::CreateRenderer() {
-  auto renderer = std::make_unique<GLRenderer>(ctx_);
+  auto renderer = std::make_unique<GLRenderer>(ctx_, SupportGeometryShader());
   renderer->Init();
 
   gl_renderer_ = renderer.get();

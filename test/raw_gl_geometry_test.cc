@@ -110,7 +110,7 @@ class RawGLGemTest : public test::TestApp {
 
         float step = 1.0 / 31.0;
         float u = 0.0;
-        vec2 points[16];
+        vec2 points[32];
         for(int i = 0; i < 32; i++) {
           points[i] = quad_bezier(u, p0, p1, p2);
           u += step;

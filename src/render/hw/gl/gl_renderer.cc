@@ -50,7 +50,8 @@ static GLenum slot_to_gl_texture_unit(uint32_t slot) {
   return GL_TEXTURE0;
 }
 
-GLRenderer::GLRenderer(GPUContext* ctx) : HWRenderer(), ctx_(ctx) {}
+GLRenderer::GLRenderer(GPUContext* ctx, bool use_gs)
+    : HWRenderer(), ctx_(ctx), use_gs_(use_gs) {}
 
 GLRenderer::~GLRenderer() {
   GL_CALL(DeleteBuffers, buffers_.size(), buffers_.data());
@@ -165,7 +166,13 @@ void GLRenderer::DrawIndex(uint32_t start, uint32_t count) {
           (void*)(start * sizeof(GLuint)));
 }
 
-void GLRenderer::InitShader() { shader_ = GLShader::CreatePipelineShader(); }
+void GLRenderer::InitShader() {
+  if (use_gs_) {
+    shader_ = GLShader::CreateGSPipelineShader();
+  } else {
+    shader_ = GLShader::CreatePipelineShader();
+  }
+}
 
 void GLRenderer::InitBufferObject() {
   GL_CALL(GenVertexArrays, 1, &vao_);

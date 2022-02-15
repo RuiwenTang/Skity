@@ -12,7 +12,7 @@ namespace skity {
 
 class GLRenderer : public HWRenderer {
  public:
-  GLRenderer(GPUContext* ctx);
+  GLRenderer(GPUContext* ctx, bool use_gs);
   ~GLRenderer() override;
 
   void Init() override;
@@ -79,6 +79,7 @@ class GLRenderer : public HWRenderer {
 
  private:
   GPUContext* ctx_;
+  bool use_gs_;
   std::unique_ptr<GLPipelineShader> shader_ = {};
   uint32_t vao_ = 0;
   std::array<uint32_t, 2> buffers_ = {};

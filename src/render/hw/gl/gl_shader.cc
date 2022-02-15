@@ -56,6 +56,32 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
   return program;
 }
 
+GLuint create_shader_program(const char* vs_code, const char* fs_code,
+                             const char* gs_code) {
+  GLuint program = GL_CALL(CreateProgram);
+  GLint success;
+
+  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
+  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
+  GLuint gs = create_shader(gs_code, GL_GEOMETRY_SHADER);
+
+  GL_CALL(AttachShader, program, vs);
+  GL_CALL(AttachShader, program, fs);
+  GL_CALL(AttachShader, program, gs);
+
+  GL_CALL(LinkProgram, program);
+  GL_CALL(GetProgramiv, program, GL_LINK_STATUS, &success);
+
+  if (!success) {
+    GLchar info_log[1024];
+    GL_CALL(GetProgramInfoLog, program, 1024, nullptr, info_log);
+    LOG_ERROR("OpenGL program link error : {}", info_log);
+    exit(-5);
+  }
+
+  return program;
+}
+
 GLShader::~GLShader() {
   if (program_) {
     GL_CALL(DeleteProgram, program_);
@@ -127,6 +153,23 @@ std::unique_ptr<GLPipelineShader> GLShader::CreatePipelineShader() {
                         hw_gl_fragment_glsl_size};
   shader->program_ =
       create_shader_program(vs_shader.c_str(), fs_shader.c_str());
+
+  shader->InitLocations();
+
+  return shader;
+}
+
+std::unique_ptr<GLPipelineShader> GLShader::CreateGSPipelineShader() {
+  auto shader = std::make_unique<GLPipelineShader>();
+  std::string vs_shader{(const char*)hw_gl_gs_vertex_glsl,
+                        hw_gl_gs_vertex_glsl_size};
+  std::string fs_shader{(const char*)hw_gl_gs_fragment_glsl,
+                        hw_gl_gs_fragment_glsl_size};
+  std::string gs_shader{(const char*)hw_gl_gs_geometry_glsl,
+                        hw_gl_gs_geometry_glsl_size};
+
+  shader->program_ = create_shader_program(vs_shader.c_str(), fs_shader.c_str(),
+                                           gs_shader.c_str());
 
   shader->InitLocations();
 

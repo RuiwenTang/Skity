@@ -37,6 +37,8 @@ class GLShader {
 
   static std::unique_ptr<GLPipelineShader> CreatePipelineShader();
 
+  static std::unique_ptr<GLPipelineShader> CreateGSPipelineShader();
+
  protected:
   GLShader() = default;
 
