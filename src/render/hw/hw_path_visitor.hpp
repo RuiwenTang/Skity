@@ -13,8 +13,8 @@ class HWMesh;
 
 class HWPathVisitor : public HWGeometryRaster {
  public:
-  HWPathVisitor(HWMesh* mesh, Paint const& paint)
-      : HWGeometryRaster(mesh, paint) {}
+  HWPathVisitor(HWMesh* mesh, Paint const& paint, bool use_gs)
+      : HWGeometryRaster(mesh, paint, use_gs) {}
   virtual ~HWPathVisitor() = default;
 
   void VisitPath(Path const& path, bool force_close);

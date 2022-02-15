@@ -185,7 +185,7 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
   Paint working_paint;
   working_paint.setStyle(Paint::kFill_Style);
 
-  HWPathRaster raster{GetMesh(), working_paint};
+  HWPathRaster raster{GetMesh(), working_paint, SupportGeometryShader()};
 
   // raster path as normal path fill
   raster.FillPath(path);
@@ -198,7 +198,7 @@ void HWCanvas::onClipPath(const Path& path, ClipOp op) {
     // For recursive clip path, need to do full scene check
     // to make stencil buffer right
     // this may cause some performance issues and need optimization
-    HWPathRaster tmp_raster{GetMesh(), working_paint};
+    HWPathRaster tmp_raster{GetMesh(), working_paint, SupportGeometryShader()};
     tmp_raster.RasterRect(Rect::MakeXYWH(0, 0, width_, height_));
 
     tmp_raster.FlushRaster();
@@ -248,7 +248,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
     return;
   }
 
-  HWPathRaster raster(GetMesh(), paint);
+  HWPathRaster raster(GetMesh(), paint, SupportGeometryShader());
   raster.RasterLine({x0, y0}, {x1, y1});
   raster.FlushRaster();
 
@@ -272,7 +272,7 @@ void HWCanvas::onDrawCircle(float cx, float cy, float radius,
     return;
   }
 
-  HWPathRaster raster{GetMesh(), paint};
+  HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
   raster.FillCircle(cx, cy, radius);
 
   raster.FlushRaster();
@@ -306,7 +306,7 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   if (need_fill) {
     working_paint.setStyle(Paint::kFill_Style);
 
-    HWPathRaster raster{GetMesh(), working_paint};
+    HWPathRaster raster{GetMesh(), working_paint, SupportGeometryShader()};
     Path dst;
     if (paint.getPathEffect() &&
         paint.getPathEffect()->filterPath(&dst, path, false, working_paint)) {
@@ -335,7 +335,7 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   if (need_stroke) {
     working_paint.setStyle(Paint::kStroke_Style);
 
-    HWPathRaster raster{GetMesh(), working_paint};
+    HWPathRaster raster{GetMesh(), working_paint, SupportGeometryShader()};
 
     Path dst;
     if (paint.getPathEffect() &&
@@ -386,7 +386,7 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
   }
 
   if (need_fill) {
-    HWPathRaster raster(GetMesh(), paint);
+    HWPathRaster raster(GetMesh(), paint, SupportGeometryShader());
     work_paint.setStyle(Paint::kFill_Style);
     raster.RasterRect(rect);
 
@@ -407,7 +407,7 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
   }
 
   if (need_stroke) {
-    HWPathRaster raster(GetMesh(), paint);
+    HWPathRaster raster(GetMesh(), paint, SupportGeometryShader());
     work_paint.setStyle(Paint::kStroke_Style);
     raster.RasterRect(rect);
 
@@ -592,7 +592,7 @@ float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
   float offset_x = x;
   float max_height = 0.f;
 
-  HWPathRaster raster{GetMesh(), paint};
+  HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
 
   auto font_texture = QueryFontTexture(typeface.get());
 
@@ -645,7 +645,7 @@ float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
   float max_height = 0.f;
 
   for (auto const& info : run.getGlyphInfo()) {
-    HWPathRaster raster{GetMesh(), paint};
+    HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
     glm::mat4 transform =
         glm::translate(glm::identity<glm::mat4>(), {offset_x, y, 0.f});
 
@@ -754,7 +754,7 @@ void HWCanvas::EnqueueDrawOp(std::unique_ptr<HWDraw> draw, Rect const& bounds,
 
     Paint paint;
     paint.setStyle(Paint::kFill_Style);
-    HWPathRaster raster{GetMesh(), paint};
+    HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
 
     raster.RasterRect(filter_bounds);
     raster.FlushRaster();
@@ -786,7 +786,7 @@ void HWCanvas::HandleMaskFilter(
 
     Paint paint;
     paint.setStyle(Paint::kFill_Style);
-    HWPathRaster raster{GetMesh(), paint};
+    HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
 
     raster.RasterRect(filter_bounds);
     raster.FlushRaster();

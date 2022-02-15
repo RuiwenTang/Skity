@@ -15,7 +15,7 @@ class HWMesh;
 
 class HWGeometryRaster {
  public:
-  HWGeometryRaster(HWMesh* mesh, Paint const& paint);
+  HWGeometryRaster(HWMesh* mesh, Paint const& paint, bool use_gs);
   virtual ~HWGeometryRaster() = default;
 
   void RasterLine(glm::vec2 const& p0, glm::vec2 const& p1);
@@ -35,6 +35,8 @@ class HWGeometryRaster {
   uint32_t ColorCount() const { return color_count_; }
 
   Rect RasterBounds() const;
+
+  bool UseGeometryShader() const { return use_gs_; }
 
  protected:
   enum BufferType {
@@ -79,6 +81,7 @@ class HWGeometryRaster {
  private:
   HWMesh* mesh_;
   Paint paint_;
+  bool use_gs_;
   BufferType buffer_type_ = kColor;
 
   uint32_t stencil_front_start_ = {};

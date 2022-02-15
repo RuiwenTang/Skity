@@ -11,7 +11,8 @@ class HWMesh;
 
 class HWPathRaster : public HWPathVisitor {
  public:
-  HWPathRaster(HWMesh* mesh, Paint const& paint) : HWPathVisitor(mesh, paint) {}
+  HWPathRaster(HWMesh* mesh, Paint const& paint, bool use_gs)
+      : HWPathVisitor(mesh, paint, use_gs) {}
   ~HWPathRaster() override = default;
 
   void FillPath(Path const& path);

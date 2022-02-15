@@ -7,8 +7,9 @@
 
 namespace skity {
 
-HWGeometryRaster::HWGeometryRaster(HWMesh* mesh, Paint const& paint)
-    : mesh_(mesh), paint_(paint) {}
+HWGeometryRaster::HWGeometryRaster(HWMesh* mesh, Paint const& paint,
+                                   bool use_gs)
+    : mesh_(mesh), paint_(paint), use_gs_(use_gs) {}
 
 void HWGeometryRaster::RasterLine(const glm::vec2& p0, const glm::vec2& p1) {
   if (paint_.getStyle() == Paint::kFill_Style) {
