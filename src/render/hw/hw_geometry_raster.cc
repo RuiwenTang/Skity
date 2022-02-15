@@ -125,6 +125,11 @@ void HWGeometryRaster::HandleLineCap(glm::vec2 const& center,
     return;
   }
 
+  if (paint_.getStrokeCap() == Paint::kRound_Cap && use_gs_) {
+    HandleGSRoundCap(center, p0, p1, out_dir, stroke_radius);
+    return;
+  }
+
   glm::vec2 a = p0 + out_dir * stroke_radius;
   glm::vec2 b = p1 + out_dir * stroke_radius;
 
@@ -321,6 +326,33 @@ void HWGeometryRaster::SwitchStencilToColor() {
     color_buffer_ = stencil_front_buffer_;
     stencil_front_buffer_.clear();
   }
+}
+
+void HWGeometryRaster::HandleGSRoundCap(glm::vec2 const& center,
+                                        glm::vec2 const& p0,
+                                        glm::vec2 const& p1,
+                                        glm::vec2 const& out_dir,
+                                        float stroke_radius) {
+  glm::vec2 a = p0 + out_dir * stroke_radius;
+  glm::vec2 b = p1 + out_dir * stroke_radius;
+
+  glm::vec2 ab = (a + b) * 0.5f;
+
+  auto n_p0_i = AppendLineVertex(p0);
+  auto n_ab_i = AppendLineVertex(ab);
+  auto n_p1_i = AppendLineVertex(p1);
+
+  AppendFrontTriangle(n_p0_i, n_ab_i, n_p1_i);
+
+  auto q_ab_i = AppendVertex(ab.x, ab.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+
+  auto q_p0_i = AppendVertex(p0.x, p0.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+  auto q_a_i = AppendVertex(a.x, a.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+  auto q_p1_i = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+  auto q_b_i = AppendVertex(b.x, b.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+
+  AppendFrontTriangle(q_p0_i, q_a_i, q_ab_i);
+  AppendFrontTriangle(q_ab_i, q_b_i, q_p1_i);
 }
 
 }  // namespace skity

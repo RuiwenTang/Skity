@@ -40,9 +40,9 @@ class RawGLGemTest : public test::TestApp {
  private:
   void InitVertexBuffer() {
     std::vector<float> raw_points{
-        50.f,  300.f, 0.f, 1.f,  // p0
-        300.f, 100.f, 0.f, 1.f,  // p1
-        350.f, 300.f, 0.f, 1.f,  // p2
+        350.f,       300.f,       0.f, 1.f,  // p0
+        349.99996f,  320.710663f, 0.f, 1.f,  // p1
+        335.355316f, 335.355316f, 0.f, 1.f,  // p2
     };
 
     glGenVertexArrays(1, &vao);
@@ -58,7 +58,7 @@ class RawGLGemTest : public test::TestApp {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                           (void*)0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glBindVertexArray(0);
   }
@@ -143,7 +143,9 @@ class RawGLGemTest : public test::TestApp {
       layout (triangle_strip, max_vertices = 96) out;
 
       #define MAX_STEP 32
+      #define MAX_QUAD_STEP 32
       #define STROKE_WIDTH 4
+      #define StrokeWidth 10.0
 
       uniform mat4 mvp;
 
@@ -156,27 +158,27 @@ class RawGLGemTest : public test::TestApp {
             return p;
       }
 
+      vec2 quad_bezier_tangent(float u, vec2 p0, vec2 p1, vec2 p2) {
+        vec2 p = 2.0 * (1.0 - u) * (p1 - p0) + 2.0 * u * (p2 - p1);
+
+        return normalize(p);
+      }
+
       void generate_quad_stroke() {
         vec2 p0 = gl_in[0].gl_Position.xy;
         vec2 p1 = gl_in[1].gl_Position.xy;
         vec2 p2 = gl_in[2].gl_Position.xy;
 
-        vec2 p10 = p1 - p0;
-        vec2 p21 = p2 - p1;
-
-        float step = 1.0 / 31.0;
+        float step = 1.0 / float(MAX_QUAD_STEP - 1);
         float u = 0.0;
-        for(int i = 0; i < MAX_STEP; i++) {
+        for (int i = 0; i < MAX_QUAD_STEP; i++) {
           vec2 p = quad_bezier(u, p0, p1, p2);
-          
-          vec2 a = p0 + u * p10;
-          vec2 b = p1 + u * p21;
 
-          vec2 d = normalize(b - a);
-          vec2 n = vec2(d.y, -d.x);
+          vec2 tangent = quad_bezier_tangent(u, p0, p1, p2);
+          vec2 n = vec2(tangent.y, -tangent.x);
 
-          vec2 up = p + n * STROKE_WIDTH;
-          vec2 dp = p - n * STROKE_WIDTH;
+          vec2 up = p + n * StrokeWidth * 0.5;
+          vec2 dp = p - n * StrokeWidth * 0.5;
 
           gl_Position = mvp * vec4(up, 0.0, 1.0);
           EmitVertex();
@@ -186,7 +188,7 @@ class RawGLGemTest : public test::TestApp {
 
           u += step;
         }
-
+        EndPrimitive();
       }
 
       void main() {

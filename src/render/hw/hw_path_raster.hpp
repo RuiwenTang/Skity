@@ -32,6 +32,8 @@ class HWPathRaster : public HWPathVisitor {
   void StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
   void StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                     glm::vec2 const& p3);
+  void GSStrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                      glm::vec2 const& p3);
   void FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
   void FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                   glm::vec2 const& p3);

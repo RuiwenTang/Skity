@@ -60,7 +60,7 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
       width_(width),
       height_(height),
       density_(density <= 1.f ? 2.f : density),
-      mesh_() {}
+      mesh_(std::make_unique<HWMesh>()) {}
 
 HWCanvas::~HWCanvas() {
   for (auto const& it : image_texture_store_) {
@@ -78,11 +78,7 @@ HWCanvas::~HWCanvas() {
 
 void HWCanvas::Init(GPUContext* ctx) {
   this->OnInit(ctx);
-  if (SupportGeometryShader()) {
-    mesh_ = std::make_unique<HWMeshGS>();
-  } else {
-    mesh_ = std::make_unique<HWMeshNormal>();
-  }
+
   renderer_ = CreateRenderer();
   if (draw_list_stack_.empty()) {
     draw_list_stack_.emplace_back(DrawList());
@@ -264,7 +260,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
 
 void HWCanvas::onDrawCircle(float cx, float cy, float radius,
                             Paint const& paint) {
-  if (paint.getStyle() != Paint::kFill_Style) {
+  if (paint.getStyle() != Paint::kFill_Style || SupportGeometryShader()) {
     Path path;
     path.addCircle(cx, cy, radius);
     onDrawPath(path, paint);
