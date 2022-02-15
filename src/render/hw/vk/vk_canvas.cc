@@ -23,6 +23,8 @@ void VKCanvas::OnInit(GPUContext* ctx) {
   ctx_ = (GPUVkContext*)ctx;
 }
 
+bool VKCanvas::SupportGeometryShader() { return false; }
+
 std::unique_ptr<HWRenderer> VKCanvas::CreateRenderer() {
   auto renderer = std::make_unique<VkRenderer>(ctx_);
   renderer->Init();

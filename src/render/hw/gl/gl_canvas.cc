@@ -11,6 +11,8 @@ GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 void GLCanvas::OnInit(GPUContext* ctx) { ctx_ = ctx; }
 
+bool GLCanvas::SupportGeometryShader() { return false; }
+
 std::unique_ptr<HWRenderer> GLCanvas::CreateRenderer() {
   auto renderer = std::make_unique<GLRenderer>(ctx_);
   renderer->Init();

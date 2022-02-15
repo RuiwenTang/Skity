@@ -15,6 +15,7 @@ class GLCanvas : public HWCanvas {
 
  protected:
   void OnInit(GPUContext* ctx) override;
+  bool SupportGeometryShader() override;
   std::unique_ptr<HWRenderer> CreateRenderer() override;
   std::unique_ptr<HWTexture> GenerateTexture() override;
   std::unique_ptr<HWFontTexture> GenerateFontTexture(

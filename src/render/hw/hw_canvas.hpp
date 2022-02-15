@@ -39,6 +39,7 @@ class HWCanvas : public Canvas {
  protected:
   virtual void OnInit(GPUContext* ctx) = 0;
 
+  virtual bool SupportGeometryShader() = 0;
   virtual std::unique_ptr<HWRenderer> CreateRenderer() = 0;
   virtual std::unique_ptr<HWTexture> GenerateTexture() = 0;
   virtual std::unique_ptr<HWFontTexture> GenerateFontTexture(
