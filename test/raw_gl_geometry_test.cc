@@ -68,12 +68,11 @@ class RawGLGemTest : public test::TestApp {
     const char* vs_code = R"(
         #version 400 core
 
-        uniform mat4 mvp;
-        
+
         layout(location = 0) in vec4 vPosition;
        
         void main() {
-            gl_Position = mvp * vPosition;
+            gl_Position = vPosition;
         }
     )";
 
@@ -92,6 +91,8 @@ class RawGLGemTest : public test::TestApp {
 
       layout (triangles) in;
       layout (triangle_strip, max_vertices = 96) out;
+
+      uniform mat4 mvp;
 
       vec2 quad_bezier(float u, vec2 p0, vec2 p1, vec2 p2) {
             float b0 = (1.0 - u) * (1.0 - u);
@@ -116,13 +117,13 @@ class RawGLGemTest : public test::TestApp {
         }
 
         for(int i = 0; i < 31; i++) {
-          gl_Position = vec4(p0, 0.0, 1.0);
+          gl_Position = mvp * vec4(p0, 0.0, 1.0);
           EmitVertex();
 
-          gl_Position = vec4(points[i], 0.0, 1.0);
+          gl_Position = mvp * vec4(points[i], 0.0, 1.0);
           EmitVertex();
 
-          gl_Position = vec4(points[i + 1], 0.0, 1.0);
+          gl_Position = mvp * vec4(points[i + 1], 0.0, 1.0);
           EmitVertex();
 
           EndPrimitive();
@@ -135,7 +136,65 @@ class RawGLGemTest : public test::TestApp {
       }
     )";
 
-    program = test::create_shader_program(vs_code, fs_code, gs_code);
+    const char* gs_stroke_code = R"(
+      #version 400 core
+
+      layout (triangles) in;
+      layout (triangle_strip, max_vertices = 96) out;
+
+      #define MAX_STEP 32
+      #define STROKE_WIDTH 4
+
+      uniform mat4 mvp;
+
+      vec2 quad_bezier(float u, vec2 p0, vec2 p1, vec2 p2) {
+            float b0 = (1.0 - u) * (1.0 - u);
+            float b1 = 2.0 * u * (1.0 - u);
+            float b2 = u * u;
+
+            vec2 p = b0 * p0 + b1 * p1 + b2 * p2;
+            return p;
+      }
+
+      void generate_quad_stroke() {
+        vec2 p0 = gl_in[0].gl_Position.xy;
+        vec2 p1 = gl_in[1].gl_Position.xy;
+        vec2 p2 = gl_in[2].gl_Position.xy;
+
+        vec2 p10 = p1 - p0;
+        vec2 p21 = p2 - p1;
+
+        float step = 1.0 / 31.0;
+        float u = 0.0;
+        for(int i = 0; i < MAX_STEP; i++) {
+          vec2 p = quad_bezier(u, p0, p1, p2);
+          
+          vec2 a = p0 + u * p10;
+          vec2 b = p1 + u * p21;
+
+          vec2 d = normalize(b - a);
+          vec2 n = vec2(d.y, -d.x);
+
+          vec2 up = p + n * STROKE_WIDTH;
+          vec2 dp = p - n * STROKE_WIDTH;
+
+          gl_Position = mvp * vec4(up, 0.0, 1.0);
+          EmitVertex();
+
+          gl_Position = mvp * vec4(dp, 0.0, 1.0);
+          EmitVertex();
+
+          u += step;
+        }
+
+      }
+
+      void main() {
+        generate_quad_stroke();
+      }
+    )";
+
+    program = test::create_shader_program(vs_code, fs_code, gs_stroke_code);
 
     mvp_location = glGetUniformLocation(program, "mvp");
   }
