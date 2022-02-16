@@ -26,6 +26,8 @@ class GLCanvas : public HWCanvas {
  private:
   GPUContext* ctx_;
   GLRenderer* gl_renderer_;
+  int gl_major_ = 0;
+  int gl_minor_ = 0;
 };
 
 }  // namespace skity

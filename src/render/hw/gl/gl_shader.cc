@@ -12,14 +12,21 @@ namespace skity {
 
 #ifdef SKITY_ANDROID
 #define SHADER_HEADER "#version 300 es \n precision mediump float;\n"
+#define SHADER_HEADER_320 "#version 320 es \n precision mediump float;\n"
 #else
 #define SHADER_HEADER "#version 330 core \n"
 #endif
 
-GLuint create_shader(const char* source, GLenum type) {
+GLuint create_shader(const char* source, GLenum type, bool use_gs = false) {
   GLuint shader = GL_CALL(CreateShader, type);
 
   std::array<const char*, 2> shaders{SHADER_HEADER, source};
+#ifdef SKITY_ANDROID
+  // Fixme to solve android geometry shader compile error
+  if (use_gs) {
+    shaders[0] = SHADER_HEADER_320;
+  }
+#endif
   GLint success;
   GL_CALL(ShaderSource, shader, shaders.size(), shaders.data(), nullptr);
   GL_CALL(CompileShader, shader);
@@ -64,9 +71,9 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code,
   GLuint program = GL_CALL(CreateProgram);
   GLint success;
 
-  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER);
-  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER);
-  GLuint gs = create_shader(gs_code, GL_GEOMETRY_SHADER);
+  GLuint vs = create_shader(vs_code, GL_VERTEX_SHADER, true);
+  GLuint fs = create_shader(fs_code, GL_FRAGMENT_SHADER, true);
+  GLuint gs = create_shader(gs_code, GL_GEOMETRY_SHADER, true);
 
   GL_CALL(AttachShader, program, vs);
   GL_CALL(AttachShader, program, fs);

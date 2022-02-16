@@ -3,17 +3,46 @@
 #include "src/render/hw/gl/gl_font_texture.hpp"
 #include "src/render/hw/gl/gl_render_target.hpp"
 #include "src/render/hw/gl/gl_texture.hpp"
+#include "src/render/hw/gl/gl_interface.hpp"
+
+#ifdef SKITY_ANDROID
+#include <cstdio>
+#endif
 
 namespace skity {
 
 GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
     : HWCanvas(mvp, width, height, density) {}
 
-void GLCanvas::OnInit(GPUContext* ctx) { ctx_ = ctx; }
+void GLCanvas::OnInit(GPUContext* ctx) {
+  ctx_ = ctx;
+#ifdef SKITY_ANDROID
+  const char* version;
+  std::vector<const char*> prefixes = {
+          "OpenGL ES-CM ",
+          "OpenGL ES-CL ",
+          "OpenGL ES ",
+  };
+
+  PFNGLGETSTRINGPROC gl_get_string = reinterpret_cast<PFNGLGETSTRINGPROC>(((GLInterface::GLGetProc) ctx->proc_loader)(
+          "glGetString"));
+  version = (const char*) gl_get_string(GL_VERSION);
+
+  for(auto pref : prefixes) {
+    size_t length = std::strlen(pref);
+    if (std::strncmp(version, pref, length) == 0) {
+      version += length;
+      break;
+    }
+  }
+
+  std::sscanf(version, "%d.%d", &gl_major_, &gl_minor_);
+#endif
+}
 
 bool GLCanvas::SupportGeometryShader() {
 #ifdef SKITY_ANDROID
-  return false;
+  return gl_major_ == 3 && gl_minor_ == 2;
 #else
   // TODO after all geometry raster and pipeline code is finish
   // this will change to default true since OpenGL 3.3+ support Geometry Shader
