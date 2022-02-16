@@ -45,8 +45,10 @@ uniform vec4 GradientBounds;
 uniform vec4 GradientColors[MAX_COLORS];
 uniform float GradientStops[MAX_COLORS];
 
-// [x, y, mix]
-in vec3 fPos;
+// [x, y]
+in vec2 fPos;
+// [mix, u, v]
+in vec3 fPosInfo;
 
 out vec4 FragColor;
 
@@ -245,7 +247,7 @@ vec4 calculate_inner_blur(vec2 uv) {
 }
 
 void main() {
-  int vertex_type = int(fPos.z);
+  int vertex_type = int(fPosInfo.x);
 
   if (ColorType == PIPELINE_MODE_STENCIL) {
     FragColor = vec4(0, 0, 0, 0);
@@ -290,7 +292,7 @@ void main() {
 
   if (vertex_type == VERTEX_TYPE_TEXT) {
     // TODO use other info to pass
-    float r = texture(FontTexture, vec2(fPos.x, fPos.y)).r;
+    float r = texture(FontTexture, vec2(fPosInfo.y, fPosInfo.z)).r;
     FragColor = FragColor * r;
   }
 }

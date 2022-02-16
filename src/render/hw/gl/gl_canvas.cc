@@ -17,7 +17,7 @@ bool GLCanvas::SupportGeometryShader() {
 #else
   // TODO after all geometry raster and pipeline code is finish
   // this will change to default true since OpenGL 3.3+ support Geometry Shader
-  return false;
+  return true;
 #endif
 }
 

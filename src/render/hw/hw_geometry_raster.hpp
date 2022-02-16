@@ -74,9 +74,14 @@ class HWGeometryRaster {
   // used for convexity polygon
   void SwitchStencilToColor();
 
+  void HandleGSRoundCap(glm::vec2 const& center, glm::vec2 const& p0,
+                        glm::vec2 const& p1, glm::vec2 const& out_dir,
+                        float stroke_radius);
+
+  void ExpandBounds(glm::vec2 const& p);
+
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();
-  void ExpandBounds(glm::vec2 const& p);
 
  private:
   HWMesh* mesh_;

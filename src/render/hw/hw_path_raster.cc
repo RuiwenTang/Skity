@@ -83,7 +83,11 @@ void HWPathRaster::OnLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
 void HWPathRaster::OnQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                             glm::vec2 const& p3) {
   if (stroke_) {
-    StrokeQuadTo(p1, p2, p3);
+    if (UseGeometryShader()) {
+      GSStrokeQuadTo(p1, p2, p3);
+    } else {
+      StrokeQuadTo(p1, p2, p3);
+    }
   } else {
     FillQuadTo(p1, p2, p3);
   }
@@ -193,6 +197,46 @@ void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
   }
 
   AppendQuadOrSplitRecursively(outer_quad, inner_quad);
+
+  prev_pt_ = p2;
+  curr_pt_ = p3;
+}
+
+void HWPathRaster::GSStrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                                  glm::vec2 const& p3) {
+  if (p1 == first_pt_) {
+    // first point
+    prev_pt_ = first_pt_;
+    curr_pt_ = p2;
+    first_pt_dir_ = glm::normalize(p2 - p1);
+  }
+
+  Orientation orientation = CalculateOrientation(p1, p2, p3);
+  if (orientation == Orientation::kLinear) {
+    StrokeLineTo(p1, p3);
+    return;
+  }
+
+  auto a = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+  auto b = AppendVertex(p2.x, p2.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+  auto c = AppendVertex(p3.x, p3.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+
+  AppendFrontTriangle(a, b, c);
+
+  float stroke_radius = StrokeWidth() * 0.5f;
+
+  auto p1_dir = glm::normalize(p2 - p1);
+  auto p2_dir = glm::normalize((p2 - p1 + p2 - p3) * 0.5f);
+  auto p3_dir = glm::normalize(p3 - p2);
+
+  auto p1_n = glm::vec2(p1_dir.y, -p1_dir.x);
+  auto p3_n = glm::vec2(p3_dir.y, -p3_dir.x);
+
+  ExpandBounds(p1 + p1_n * stroke_radius);
+  ExpandBounds(p1 - p1_n * stroke_radius);
+  ExpandBounds(p3 + p3_n * stroke_radius);
+  ExpandBounds(p3 - p3_n * stroke_radius);
+  ExpandBounds(p2 + p2_dir * stroke_radius);
 
   prev_pt_ = p2;
   curr_pt_ = p3;
