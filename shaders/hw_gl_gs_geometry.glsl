@@ -1,7 +1,7 @@
 
 layout(triangles) in;
-// 32 * 3 = 96
-layout(triangle_strip, max_vertices = 96) out;
+// 16 * 3 = 48
+layout(triangle_strip, max_vertices = 48) out;
 
 uniform mat4 mvp;
 uniform mat4 UserTransform;
