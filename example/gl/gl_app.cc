@@ -1,7 +1,8 @@
 #include "gl/gl_app.hpp"
 
-#include "example_config.hpp"
 #include <chrono>
+
+#include "example_config.hpp"
 
 namespace example {
 
@@ -11,7 +12,7 @@ GLFWwindow* init_glfw_window(uint32_t width, uint32_t height,
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   // multisample
-  glfwWindowHint(GLFW_SAMPLES, 32);
+  glfwWindowHint(GLFW_SAMPLES, 8);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 

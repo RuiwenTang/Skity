@@ -23,7 +23,6 @@ class GLFrameApp : public example::GLApp {
 
  protected:
   void OnStart() override {
-    glfwSwapInterval(0);
     load_images(images_);
     typeface_ =
         skity::Typeface::MakeFromFile(EXAMPLE_IMAGE_ROOT "/Roboto-Regular.ttf");
