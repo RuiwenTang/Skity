@@ -53,6 +53,9 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
     exit(-5);
   }
 
+  GL_CALL(DeleteShader, vs);
+  GL_CALL(DeleteShader, fs);
+
   return program;
 }
 
@@ -78,6 +81,10 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code,
     LOG_ERROR("OpenGL program link error : {}", info_log);
     exit(-5);
   }
+
+  GL_CALL(DeleteShader, vs);
+  GL_CALL(DeleteShader, fs);
+  GL_CALL(DeleteShader, gs);
 
   return program;
 }
