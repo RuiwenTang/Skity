@@ -1,6 +1,7 @@
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
 
 #include <array>
+#include <vector>
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_framebuffer.hpp"
@@ -12,17 +13,34 @@
 namespace skity {
 
 void RenderPipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
-                          VkShaderModule fragment) {
-  std::array<VkPipelineShaderStageCreateInfo, 2> shaders{};
-  shaders[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  shaders[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-  shaders[0].module = vertex;
-  shaders[0].pName = "main";
+                          VkShaderModule fragment, VkShaderModule geometry) {
+  std::vector<VkPipelineShaderStageCreateInfo> shaders{};
 
-  shaders[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  shaders[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-  shaders[1].module = fragment;
-  shaders[1].pName = "main";
+  VkPipelineShaderStageCreateInfo vs_ci{};
+  vs_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vs_ci.stage = VK_SHADER_STAGE_VERTEX_BIT;
+  vs_ci.module = vertex;
+  vs_ci.pName = "main";
+
+  shaders.emplace_back(vs_ci);
+
+  VkPipelineShaderStageCreateInfo fs_ci{};
+  fs_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fs_ci.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  fs_ci.module = fragment;
+  fs_ci.pName = "main";
+
+  shaders.emplace_back(fs_ci);
+
+  if (UseGeometryShader()) {
+    VkPipelineShaderStageCreateInfo gs_ci{};
+    gs_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    gs_ci.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+    gs_ci.module = geometry;
+    gs_ci.pName = "main";
+
+    shaders.emplace_back(gs_ci);
+  }
 
   InitDescriptorSetLayout(ctx);
   InitPipelineLayout(ctx);
@@ -165,10 +183,17 @@ void RenderPipeline::UploadTransformMatrix(glm::mat4 const& matrix,
 }
 
 void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
+  VkShaderStageFlags set0_stage_flags;
+  if (UseGeometryShader()) {
+    set0_stage_flags =
+        VK_SHADER_STAGE_GEOMETRY_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+  } else {
+    set0_stage_flags =
+        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+  }
   // create set 0
   auto set0_binding = VKUtils::DescriptorSetLayoutBinding(
-      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-      VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, set0_stage_flags, 0);
 
   auto set0_create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(&set0_binding, 1);
@@ -176,9 +201,13 @@ void RenderPipeline::InitDescriptorSetLayout(GPUVkContext* ctx) {
   descriptor_set_layout_[0] = VKUtils::CreateDescriptorSetLayout(
       GetInterface(), ctx->GetDevice(), set0_create_info);
 
+  VkShaderStageFlags set1_stage_flags = VK_SHADER_STAGE_FRAGMENT_BIT;
+  if (UseGeometryShader()) {
+    set1_stage_flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+  }
   // create set 1
   auto set1_binding = VKUtils::DescriptorSetLayoutBinding(
-      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, set1_stage_flags, 0);
 
   auto set1_create_info =
       VKUtils::DescriptorSetLayoutCreateInfo(&set1_binding, 1);
@@ -346,7 +375,7 @@ VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilKeepInfo() {
 }
 
 void ComputePipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
-                           VkShaderModule fragment) {
+                           VkShaderModule fragment, VkShaderModule geometry) {
   InitPipelineLayout(ctx);
 
   VkPipelineShaderStageCreateInfo shader_stage{

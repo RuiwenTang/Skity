@@ -12,7 +12,8 @@ namespace skity {
  */
 class StaticPipeline : public RenderPipeline {
  public:
-  StaticPipeline(size_t push_const_size) : RenderPipeline(push_const_size) {}
+  StaticPipeline(bool use_gs, size_t push_const_size)
+      : RenderPipeline(use_gs, push_const_size) {}
   ~StaticPipeline() override = default;
 
  protected:

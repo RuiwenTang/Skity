@@ -54,7 +54,7 @@ struct ComputeInfo {
 
 class AbsPipelineWrapper : public VkInterfaceClient {
  public:
-  AbsPipelineWrapper() = default;
+  AbsPipelineWrapper(bool use_gs) : use_gs_(use_gs) {}
   virtual ~AbsPipelineWrapper() = default;
 
   virtual bool IsComputePipeline() = 0;
@@ -62,7 +62,7 @@ class AbsPipelineWrapper : public VkInterfaceClient {
   virtual bool HasColorSet() = 0;
 
   virtual void Init(GPUVkContext* ctx, VkShaderModule vertex,
-                    VkShaderModule fragment) = 0;
+                    VkShaderModule fragment, VkShaderModule geometry) = 0;
 
   virtual void Destroy(GPUVkContext* ctx) = 0;
 
@@ -105,105 +105,120 @@ class AbsPipelineWrapper : public VkInterfaceClient {
                               VKMemoryAllocator* allocator) {}
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepColorPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper>
   CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
-                                       GPUVkContext* ctx);
+                                       GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper>
   CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
-                                       GPUVkContext* ctx,
+                                       GPUVkContext* ctx, bool use_gs,
                                        VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilReplacePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, VkRenderPass render_pass);
+      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
+      VkRenderPass render_pass);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateComputeBlurPipeline(
       VKInterface* vk_interface, GPUVkContext* ctx);
+
+ protected:
+  bool UseGeometryShader() const { return use_gs_; }
+
+ private:
+  bool use_gs_;
 };
 
 class RenderPipeline : public AbsPipelineWrapper {
  public:
-  RenderPipeline(size_t push_const_size) : push_const_size_(push_const_size) {}
+  RenderPipeline(bool use_gs, size_t push_const_size)
+      : AbsPipelineWrapper(use_gs), push_const_size_(push_const_size) {}
   ~RenderPipeline() override = default;
 
   void SetRenderPass(VkRenderPass render_pass) {
@@ -212,8 +227,8 @@ class RenderPipeline : public AbsPipelineWrapper {
 
   bool IsComputePipeline() override { return false; }
 
-  void Init(GPUVkContext* ctx, VkShaderModule vertex,
-            VkShaderModule fragment) override;
+  void Init(GPUVkContext* ctx, VkShaderModule vertex, VkShaderModule fragment,
+            VkShaderModule geometry) override;
 
   void Destroy(GPUVkContext* ctx) override;
 
@@ -290,11 +305,11 @@ class ComputePipeline : public AbsPipelineWrapper {
   };
 
  public:
-  ComputePipeline() = default;
+  ComputePipeline() : AbsPipelineWrapper(false) {}
   ~ComputePipeline() override = default;
 
-  void Init(GPUVkContext* ctx, VkShaderModule vertex,
-            VkShaderModule fragment) override;
+  void Init(GPUVkContext* ctx, VkShaderModule vertex, VkShaderModule fragment,
+            VkShaderModule geometry) override;
 
   void Destroy(GPUVkContext* ctx) override;
 
@@ -372,23 +387,29 @@ struct PipelineBuilder {
   size_t vertex_size;
   const char* fragment_src;
   size_t fragment_size;
+  const char* geometry_src;
+  size_t geometry_size;
   GPUVkContext* ctx;
   VkRenderPass render_pass;
 
   PipelineBuilder(VKInterface* interface, const char* vertex_src,
                   size_t vertex_size, const char* fragment_src,
-                  size_t fragment_size, GPUVkContext* ctx,
+                  size_t fragment_size, const char* geometry_src,
+                  size_t geometry_size, GPUVkContext* ctx,
                   VkRenderPass r = VK_NULL_HANDLE)
       : vk_interface(interface),
         vertex_src(vertex_src),
         vertex_size(vertex_size),
         fragment_src(fragment_src),
         fragment_size(fragment_size),
+        geometry_src(geometry_src),
+        geometry_size(geometry_size),
         ctx(ctx),
         render_pass(r) {}
 
   std::unique_ptr<T> operator()() {
-    auto pipeline = std::make_unique<T>(sizeof(GlobalPushConst));
+    auto pipeline =
+        std::make_unique<T>(geometry_size > 0, sizeof(GlobalPushConst));
 
     if (render_pass) {
       pipeline->SetRenderPass(render_pass);
@@ -400,8 +421,15 @@ struct PipelineBuilder {
     auto fragment =
         VKUtils::CreateShader(vk_interface, ctx->GetDevice(),
                               (const char*)fragment_src, fragment_size);
+
+    VkShaderModule geometry = VK_NULL_HANDLE;
+    if (geometry_size > 0) {
+      geometry =
+          VKUtils::CreateShader(vk_interface, ctx->GetDevice(),
+                                (const char*)geometry_src, geometry_size);
+    }
     pipeline->SetInterface(vk_interface);
-    pipeline->Init(ctx, vertex, fragment);
+    pipeline->Init(ctx, vertex, fragment, geometry);
 
     VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), vertex, nullptr);
     VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), fragment, nullptr);

@@ -12,27 +12,33 @@ namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStaticBlurPipeline(VKInterface* interface,
-                                             GPUVkContext* ctx) {
+                                             GPUVkContext* ctx, bool use_gs) {
   return PipelineBuilder<FinalBlurPipeline>{
       interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_blur_effect_frag_spv,
       vk_blur_effect_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStaticBlurPipeline(VKInterface* interface,
-                                             GPUVkContext* ctx,
+                                             GPUVkContext* ctx, bool use_gs,
                                              VkRenderPass render_pass) {
   return PipelineBuilder<StaticBlurPipeline>{
       interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_blur_effect_frag_spv,
       vk_blur_effect_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
       render_pass}();
 }
@@ -46,7 +52,7 @@ AbsPipelineWrapper::CreateComputeBlurPipeline(VKInterface* vk_interface,
 
   auto pipeline = std::make_unique<ComputeBlurPipeline>();
   pipeline->SetInterface(vk_interface);
-  pipeline->Init(ctx, compute_shader, VK_NULL_HANDLE);
+  pipeline->Init(ctx, compute_shader, VK_NULL_HANDLE, VK_NULL_HANDLE);
 
   VK_CALL_I(vkDestroyShaderModule, ctx->GetDevice(), compute_shader, nullptr);
   return pipeline;

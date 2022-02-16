@@ -8,132 +8,167 @@ namespace skity {
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
-                                               GPUVkContext* ctx) {
+                                               GPUVkContext* ctx, bool use_gs) {
   return PipelineBuilder<StencilFrontPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
-                                               GPUVkContext* ctx,
+                                               GPUVkContext* ctx, bool use_gs,
                                                VkRenderPass render_pass) {
   return PipelineBuilder<StencilFrontPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
       render_pass}();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilClipFrontPipeline(VKInterface* vk_interface,
-                                                   GPUVkContext* ctx) {
+                                                   GPUVkContext* ctx,
+                                                   bool use_gs) {
   return PipelineBuilder<StencilClipFrontPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx) {
+                                              GPUVkContext* ctx, bool use_gs) {
   return PipelineBuilder<StencilBackPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx,
+                                              GPUVkContext* ctx, bool use_gs,
                                               VkRenderPass render_pass) {
   return PipelineBuilder<StencilBackPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
       render_pass}();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilClipBackPipeline(VKInterface* vk_interface,
-                                                  GPUVkContext* ctx) {
+                                                  GPUVkContext* ctx,
+                                                  bool use_gs) {
   return PipelineBuilder<StencilClipBackPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilRecClipBackPipeline(VKInterface* vk_interface,
-                                                     GPUVkContext* ctx) {
+                                                     GPUVkContext* ctx,
+                                                     bool use_gs) {
   return PipelineBuilder<StencilRecursiveClipBackPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilClipPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx) {
+                                              GPUVkContext* ctx, bool use_gs) {
   return PipelineBuilder<StencilClipPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilRecClipPipeline(VKInterface* vk_interface,
-                                                 GPUVkContext* ctx) {
+                                                 GPUVkContext* ctx,
+                                                 bool use_gs) {
   return PipelineBuilder<StencilRecursiveClipPipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }
 
 std::unique_ptr<AbsPipelineWrapper>
 AbsPipelineWrapper::CreateStencilReplacePipeline(VKInterface* vk_interface,
-                                                 GPUVkContext* ctx) {
+                                                 GPUVkContext* ctx,
+                                                 bool use_gs) {
   return PipelineBuilder<StencilReplacePipeline>{
       vk_interface,
-      (const char*)vk_common_vert_spv,
-      vk_common_vert_spv_size,
+      use_gs ? (const char*)vk_gs_common_vert_spv
+             : (const char*)vk_common_vert_spv,
+      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
       (const char*)vk_stencil_discard_frag_spv,
       vk_stencil_discard_frag_spv_size,
+      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
+      use_gs ? vk_gs_geometry_geom_spv_size : 0,
       ctx,
   }();
 }

@@ -7,8 +7,8 @@ namespace skity {
 
 class StaticColorPipeline : public StaticPipeline {
  public:
-  StaticColorPipeline(size_t push_const_size)
-      : StaticPipeline(push_const_size) {}
+  StaticColorPipeline(bool use_gs, size_t push_const_size)
+      : StaticPipeline(use_gs, push_const_size) {}
   ~StaticColorPipeline() override = default;
 
   void UploadUniformColor(ColorInfoSet const& info, GPUVkContext* ctx,
@@ -21,8 +21,8 @@ class StaticColorPipeline : public StaticPipeline {
 
 class StencilDiscardColorPipeline : public StaticColorPipeline {
  public:
-  StencilDiscardColorPipeline(size_t push_const_size)
-      : StaticColorPipeline(push_const_size) {}
+  StencilDiscardColorPipeline(bool use_gs, size_t push_const_size)
+      : StaticColorPipeline(use_gs, push_const_size) {}
 
   ~StencilDiscardColorPipeline() override = default;
 
@@ -33,8 +33,8 @@ class StencilDiscardColorPipeline : public StaticColorPipeline {
 
 class StencilClipColorPipeline : public StaticColorPipeline {
  public:
-  StencilClipColorPipeline(size_t push_const_size)
-      : StaticColorPipeline(push_const_size) {}
+  StencilClipColorPipeline(bool use_gs, size_t push_const_size)
+      : StaticColorPipeline(use_gs, push_const_size) {}
 
   ~StencilClipColorPipeline() override = default;
 
@@ -45,8 +45,8 @@ class StencilClipColorPipeline : public StaticColorPipeline {
 
 class StencilKeepColorPipeline : public StaticColorPipeline {
  public:
-  StencilKeepColorPipeline(size_t push_const_size)
-      : StaticColorPipeline(push_const_size) {}
+  StencilKeepColorPipeline(bool use_gs, size_t push_const_size)
+      : StaticColorPipeline(use_gs, push_const_size) {}
 
   ~StencilKeepColorPipeline() override = default;
 

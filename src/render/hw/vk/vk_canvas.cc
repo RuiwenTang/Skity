@@ -5,6 +5,7 @@
 
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
+#include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_render_target.hpp"
 #include "src/render/hw/vk/vk_texture.hpp"
 
@@ -23,10 +24,12 @@ void VKCanvas::OnInit(GPUContext* ctx) {
   ctx_ = (GPUVkContext*)ctx;
 }
 
-bool VKCanvas::SupportGeometryShader() { return false; }
+bool VKCanvas::SupportGeometryShader() {
+  return vk_phy_features_.geometryShader == VK_TRUE;
+}
 
 std::unique_ptr<HWRenderer> VKCanvas::CreateRenderer() {
-  auto renderer = std::make_unique<VkRenderer>(ctx_);
+  auto renderer = std::make_unique<VkRenderer>(ctx_, SupportGeometryShader());
   renderer->Init();
 
   vk_renderer_ = renderer.get();

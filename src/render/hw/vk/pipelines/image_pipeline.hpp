@@ -7,8 +7,8 @@ namespace skity {
 
 class StaticImagePipeline : public StaticPipeline {
  public:
-  StaticImagePipeline(size_t push_const_size)
-      : StaticPipeline(push_const_size) {}
+  StaticImagePipeline(bool use_gs, size_t push_const_size)
+      : StaticPipeline(use_gs, push_const_size) {}
   ~StaticImagePipeline() override = default;
 
   void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
@@ -28,8 +28,8 @@ class StaticImagePipeline : public StaticPipeline {
 
 class StencilDiscardImagePipeline : public StaticImagePipeline {
  public:
-  StencilDiscardImagePipeline(size_t push_const_size)
-      : StaticImagePipeline(push_const_size) {}
+  StencilDiscardImagePipeline(bool use_gs, size_t push_const_size)
+      : StaticImagePipeline(use_gs, push_const_size) {}
   ~StencilDiscardImagePipeline() override = default;
 
  protected:
@@ -39,8 +39,8 @@ class StencilDiscardImagePipeline : public StaticImagePipeline {
 
 class StencilClipImagePipeline : public StaticImagePipeline {
  public:
-  StencilClipImagePipeline(size_t push_const_size)
-      : StaticImagePipeline(push_const_size) {}
+  StencilClipImagePipeline(bool use_gs, size_t push_const_size)
+      : StaticImagePipeline(use_gs, push_const_size) {}
   ~StencilClipImagePipeline() override = default;
 
  protected:
@@ -50,8 +50,8 @@ class StencilClipImagePipeline : public StaticImagePipeline {
 
 class StencilKeepImagePipeline : public StaticImagePipeline {
  public:
-  StencilKeepImagePipeline(size_t push_const_size)
-      : StaticImagePipeline(push_const_size) {}
+  StencilKeepImagePipeline(bool use_gs, size_t push_const_size)
+      : StaticImagePipeline(use_gs, push_const_size) {}
   ~StencilKeepImagePipeline() override = default;
 
  protected:

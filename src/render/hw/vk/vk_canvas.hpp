@@ -34,6 +34,7 @@ class VKCanvas : public HWCanvas {
  private:
   VkRenderer* vk_renderer_ = {};
   GPUVkContext* ctx_ = {};
+  VkPhysicalDeviceFeatures vk_phy_features_ = {};
   VkSurfaceTransformFlagBitsKHR current_transform_ =
       VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 };

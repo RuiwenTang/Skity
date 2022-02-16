@@ -42,6 +42,13 @@ struct GPUVkContext : public GPUContext {
   virtual VkPhysicalDevice GetPhysicalDevice() = 0;
 
   /**
+   * @brief Get the Physical Device Features info
+   *
+   * @return VkPhysicalDeviceFeatures
+   */
+  virtual VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures() = 0;
+
+  /**
    * @brief Get the VkDevice object for internal use
    *
    * @return VkDevice

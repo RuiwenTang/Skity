@@ -7,8 +7,8 @@ namespace skity {
 
 class StaticBlurPipeline : public StaticPipeline {
  public:
-  StaticBlurPipeline(size_t push_const_size)
-      : StaticPipeline(push_const_size) {}
+  StaticBlurPipeline(bool use_gs, size_t push_const_size)
+      : StaticPipeline(use_gs, push_const_size) {}
   ~StaticBlurPipeline() override = default;
 
   void UploadGradientInfo(GradientInfo const& info, GPUVkContext* ctx,
@@ -33,8 +33,8 @@ class StaticBlurPipeline : public StaticPipeline {
 
 class FinalBlurPipeline : public StaticBlurPipeline {
  public:
-  FinalBlurPipeline(size_t push_const_size)
-      : StaticBlurPipeline(push_const_size) {}
+  FinalBlurPipeline(bool use_gs, size_t push_const_size)
+      : StaticBlurPipeline(use_gs, push_const_size) {}
   ~FinalBlurPipeline() override = default;
 
  protected:

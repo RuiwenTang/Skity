@@ -53,6 +53,7 @@ struct VKInterface {
   PFN_vkDestroySampler fvkDestroySampler = {};
   PFN_vkDestroyShaderModule fvkDestroyShaderModule = {};
   PFN_vkEndCommandBuffer fvkEndCommandBuffer = {};
+  PFN_vkGetPhysicalDeviceFeatures fvkGetPhysicalDeviceFeatures = {};
   PFN_vkQueueSubmit fvkQueueSubmit = {};
   PFN_vkQueueWaitIdle fvkQueueWaitIdle = {};
   PFN_vkResetCommandPool fvkResetCommandPool = {};

@@ -50,6 +50,7 @@ VKInterface* VKInterface::InitInterface(VkDevice device,
   GET_PROC(vkDestroySampler);
   GET_PROC(vkDestroyShaderModule);
   GET_PROC(vkEndCommandBuffer);
+  GET_PROC(vkGetPhysicalDeviceFeatures);
   GET_PROC(vkQueueSubmit);
   GET_PROC(vkQueueWaitIdle);
   GET_PROC(vkResetCommandPool);

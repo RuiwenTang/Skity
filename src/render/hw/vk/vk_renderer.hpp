@@ -24,7 +24,7 @@ struct DirtyValueHolder {
 
 class VkRenderer : public HWRenderer {
  public:
-  VkRenderer(GPUVkContext* ctx);
+  VkRenderer(GPUVkContext* ctx, bool use_gs);
   ~VkRenderer() override;
 
   void Init() override;
@@ -140,6 +140,7 @@ class VkRenderer : public HWRenderer {
 
  private:
   GPUVkContext* ctx_ = {};
+  bool use_gs_ = {};
   VkCommandPool vk_cmd_pool_ = {};
   VkFence vk_fence_ = {};
   VkSampler vk_sampler_ = {};

@@ -608,6 +608,12 @@ void VkApp::CreateVkDevice() {
 
   VkPhysicalDeviceFeatures device_features{};
 
+  vkGetPhysicalDeviceFeatures(vk_phy_device_, &vk_phy_features_);
+
+  if (vk_phy_features_.geometryShader) {
+    device_features.geometryShader = VK_TRUE;
+  }
+
   std::vector<const char*> required_device_extension{
       VK_KHR_SWAPCHAIN_EXTENSION_NAME};
   {

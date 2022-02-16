@@ -7,8 +7,8 @@ namespace skity {
 
 class StaticGradientPipeline : public StaticPipeline {
  public:
-  StaticGradientPipeline(size_t push_const_size)
-      : StaticPipeline(push_const_size) {}
+  StaticGradientPipeline(bool use_gs, size_t push_const_size)
+      : StaticPipeline(use_gs, push_const_size) {}
 
   ~StaticGradientPipeline() override = default;
 
@@ -22,8 +22,8 @@ class StaticGradientPipeline : public StaticPipeline {
 
 class StencilDiscardGradientPipeline : public StaticGradientPipeline {
  public:
-  StencilDiscardGradientPipeline(size_t push_const_size)
-      : StaticGradientPipeline(push_const_size) {}
+  StencilDiscardGradientPipeline(bool use_gs, size_t push_const_size)
+      : StaticGradientPipeline(use_gs, push_const_size) {}
   ~StencilDiscardGradientPipeline() override = default;
 
  protected:
@@ -33,8 +33,8 @@ class StencilDiscardGradientPipeline : public StaticGradientPipeline {
 
 class StencilClipGradientPipeline : public StaticGradientPipeline {
  public:
-  StencilClipGradientPipeline(size_t push_const_size)
-      : StaticGradientPipeline(push_const_size) {}
+  StencilClipGradientPipeline(bool use_gs, size_t push_const_size)
+      : StaticGradientPipeline(use_gs, push_const_size) {}
 
   ~StencilClipGradientPipeline() override = default;
 
@@ -45,8 +45,8 @@ class StencilClipGradientPipeline : public StaticGradientPipeline {
 
 class StencilKeepGradientPipeline : public StaticGradientPipeline {
  public:
-  StencilKeepGradientPipeline(size_t push_const_size)
-      : StaticGradientPipeline(push_const_size) {}
+  StencilKeepGradientPipeline(bool use_gs, size_t push_const_size)
+      : StaticGradientPipeline(use_gs, push_const_size) {}
   ~StencilKeepGradientPipeline() override = default;
 
  protected:

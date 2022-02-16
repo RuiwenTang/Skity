@@ -7,7 +7,8 @@ namespace skity {
 
 class StencilPipeline : public RenderPipeline {
  public:
-  StencilPipeline(size_t push_const_size) : RenderPipeline(push_const_size) {}
+  StencilPipeline(bool use_gs, size_t push_const_size)
+      : RenderPipeline(use_gs, push_const_size) {}
   ~StencilPipeline() override = default;
 
  protected:
@@ -17,8 +18,8 @@ class StencilPipeline : public RenderPipeline {
 
 class StencilFrontPipeline : public StencilPipeline {
  public:
-  StencilFrontPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilFrontPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
   ~StencilFrontPipeline() override = default;
 
  protected:
@@ -28,8 +29,8 @@ class StencilFrontPipeline : public StencilPipeline {
 
 class StencilClipFrontPipeline : public StencilPipeline {
  public:
-  StencilClipFrontPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilClipFrontPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
 
   ~StencilClipFrontPipeline() override = default;
 
@@ -40,8 +41,8 @@ class StencilClipFrontPipeline : public StencilPipeline {
 
 class StencilBackPipeline : public StencilPipeline {
  public:
-  StencilBackPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilBackPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
   ~StencilBackPipeline() override = default;
 
  protected:
@@ -51,8 +52,8 @@ class StencilBackPipeline : public StencilPipeline {
 
 class StencilClipBackPipeline : public StencilPipeline {
  public:
-  StencilClipBackPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilClipBackPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
 
   ~StencilClipBackPipeline() override = default;
 
@@ -63,8 +64,8 @@ class StencilClipBackPipeline : public StencilPipeline {
 
 class StencilRecursiveClipBackPipeline : public StencilPipeline {
  public:
-  StencilRecursiveClipBackPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilRecursiveClipBackPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
 
   ~StencilRecursiveClipBackPipeline() override = default;
 
@@ -76,8 +77,8 @@ class StencilRecursiveClipBackPipeline : public StencilPipeline {
 // Used for move stencil buffer for clip
 class StencilClipPipeline : public StencilPipeline {
  public:
-  StencilClipPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilClipPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
   ~StencilClipPipeline() override = default;
 
  protected:
@@ -87,8 +88,8 @@ class StencilClipPipeline : public StencilPipeline {
 
 class StencilRecursiveClipPipeline : public StencilPipeline {
  public:
-  StencilRecursiveClipPipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilRecursiveClipPipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
   ~StencilRecursiveClipPipeline() override = default;
 
  protected:
@@ -99,8 +100,8 @@ class StencilRecursiveClipPipeline : public StencilPipeline {
 // Used for clip buffer clear or convex polygon clip
 class StencilReplacePipeline : public StencilPipeline {
  public:
-  StencilReplacePipeline(size_t push_const_size)
-      : StencilPipeline(push_const_size) {}
+  StencilReplacePipeline(bool use_gs, size_t push_const_size)
+      : StencilPipeline(use_gs, push_const_size) {}
   ~StencilReplacePipeline() override = default;
 
   void UpdateStencilInfo(uint32_t reference, GPUVkContext* ctx) override;

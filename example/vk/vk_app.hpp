@@ -33,6 +33,9 @@ class VkApp : public skity::GPUVkContext {
 
   VkInstance GetInstance() override { return Instance(); }
   VkPhysicalDevice GetPhysicalDevice() override { return PhysicalDevice(); }
+  VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures() override {
+    return vk_phy_features_;
+  }
   VkDevice GetDevice() override { return Device(); }
   VkExtent2D GetFrameExtent() override { return FrameExtent(); }
   VkCommandBuffer GetCurrentCMD() override { return CurrentCMDBuffer(); }
@@ -120,6 +123,7 @@ class VkApp : public skity::GPUVkContext {
       VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
   VkDebugUtilsMessengerEXT vk_debug_messenger_ = {};
   VkPhysicalDevice vk_phy_device_ = {};
+  VkPhysicalDeviceFeatures vk_phy_features_ = {};
   VkSampleCountFlagBits vk_sample_count_ = VK_SAMPLE_COUNT_1_BIT;
   VkDevice vk_device_ = {};
   uint32_t graphic_queue_index_ = {};
