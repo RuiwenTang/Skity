@@ -11,7 +11,7 @@ class RawGLGemTest : public test::TestApp {
   void OnInit() override {
     glClearColor(1.f, 1.f, 1.f, 1.f);
     glClearStencil(0x0);
-    glEnable(GL_STENCIL_TEST);
+    // glEnable(GL_STENCIL_TEST);
 
     InitVertexBuffer();
     InitProgram();
@@ -27,7 +27,7 @@ class RawGLGemTest : public test::TestApp {
       exit(-1);
     }
 
-    glColorMask(0, 0, 0, 0);
+    // glColorMask(0, 0, 0, 0);
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
     glDrawArrays(GL_PATCHES, 3, 3);
@@ -69,7 +69,7 @@ class RawGLGemTest : public test::TestApp {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                           (void*)0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glBindVertexArray(0);
   }

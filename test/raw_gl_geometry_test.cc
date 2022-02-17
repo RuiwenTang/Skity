@@ -40,9 +40,9 @@ class RawGLGemTest : public test::TestApp {
  private:
   void InitVertexBuffer() {
     std::vector<float> raw_points{
-        350.f,       300.f,       0.f, 1.f,  // p0
-        349.99996f,  320.710663f, 0.f, 1.f,  // p1
-        335.355316f, 335.355316f, 0.f, 1.f,  // p2
+        50.f,  300.f, 0.f, 1.f,  // p0
+        300.f, 100.f, 0.f, 1.f,  // p1
+        350.f, 300.f, 0.f, 1.f,  // p2
     };
 
     glGenVertexArrays(1, &vao);
