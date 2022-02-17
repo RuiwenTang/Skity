@@ -451,9 +451,14 @@ void HWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
     Paint working_paint{paint};
     working_paint.setStyle(Paint::kFill_Style);
 
+    bool need_path_fill = paint.getTextSize() >= paint.getFontThreshold();
     float offset_x = 0.f;
     for (auto const& run : blob->getTextRun()) {
-      offset_x += FillTextRun(x + offset_x, y, run, working_paint);
+      if (need_path_fill) {
+        offset_x += FillTextRunWithPath(x + offset_x, y, run, working_paint);
+      } else {
+        offset_x += FillTextRun(x + offset_x, y, run, working_paint);
+      }
     }
   }
 
@@ -625,6 +630,52 @@ float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
   draw->SetFontTexture(font_texture->GetHWTexture());
 
   EnqueueDrawOp(std::move(draw));
+
+  return offset_x - x;
+}
+
+float HWCanvas::FillTextRunWithPath(float x, float y, TextRun const& run,
+                                    Paint const& paint) {
+  auto typeface = run.lockTypeface();
+
+  if (typeface == nullptr) {
+    return 0.f;
+  }
+
+  float offset_x = x;
+
+  Rect bounds;
+  for (auto const& info : run.getGlyphInfo()) {
+    Path path = info.path;
+    if (path.isEmpty() || info.path_font_size != paint.getTextSize()) {
+      path = typeface->getGlyphInfo(info.id, paint.getTextSize(), true).path;
+    }
+
+    if (bounds.isEmpty()) {
+      bounds = path.getBounds();
+    } else {
+      bounds.join(path.getBounds());
+    }
+
+    glm::mat4 transform =
+        glm::translate(glm::identity<glm::mat4>(), {offset_x, y, 0.f});
+
+    HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
+    raster.FillPath(path.copyWithMatrix(transform));
+
+    raster.FlushRaster();
+
+    auto draw = GenerateColorOp(paint, false, bounds);
+
+    draw->SetStencilRange(
+        {raster.StencilFrontStart(), raster.StencilFrontCount()},
+        {raster.StencilBackStart(), raster.StencilBackCount()});
+    draw->SetColorRange({raster.ColorStart(), raster.ColorCount()});
+
+    EnqueueDrawOp(std::move(draw));
+
+    offset_x += info.advance_x;
+  }
 
   return offset_x - x;
 }

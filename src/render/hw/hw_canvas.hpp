@@ -105,6 +105,8 @@ class HWCanvas : public Canvas {
   HWRenderTarget* QueryRenderTarget(Rect const& bounds);
 
   float FillTextRun(float x, float y, TextRun const& run, Paint const& paint);
+  float FillTextRunWithPath(float x, float y, TextRun const& run,
+                            Paint const& paint);
   float StrokeTextRun(float x, float y, TextRun const& run, Paint const& paint);
 
   void ClearClipMask();

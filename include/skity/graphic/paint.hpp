@@ -20,6 +20,10 @@ class Typeface;
  * Controls options applied when drawing.
  */
 class SK_API Paint {
+  enum {
+    DEFAULT_FONT_FILL_THRESHOLD = 256,
+  };
+
  public:
   Paint();
   ~Paint();
@@ -142,6 +146,15 @@ class SK_API Paint {
   }
 
   /**
+   * @brief Get the Font Threshold object
+   *        If font size is larger than this value, the backend renderer may use
+   *        path instead of font-texture to draw text.
+   *
+   * @return float
+   */
+  float getFontThreshold() const { return font_fill_threshold_; }
+
+  /**
    * Retrieves alpha from the color used when stroking and filling.
    * @return alpha ranging from zero, fully transparent, to 255, fully opaque
    */
@@ -187,6 +200,7 @@ class SK_API Paint {
   float stroke_width_ = 1.0f;
   float miter_limit_ = 0.f;
   float text_size_ = 14.f;
+  float font_fill_threshold_ = DEFAULT_FONT_FILL_THRESHOLD;
   float global_alpha_ = 1.f;
   Vector fill_color_ = {1, 1, 1, 1};
   Vector stroke_color_ = {1, 1, 1, 1};

@@ -166,7 +166,8 @@ std::vector<TextRun> TextBlobBuilder::GenerateTextRuns(
   auto prev_typeface = typeface;
   auto current_typeface = typeface;
 
-  bool need_path = paint.getStyle() != Paint::kFill_Style;
+  bool need_path = paint.getStyle() != Paint::kFill_Style ||
+                   font_size >= paint.getFontThreshold();
 
   std::vector<GlyphInfo> infos = {};
   for (auto glyph_id : glyphs) {
