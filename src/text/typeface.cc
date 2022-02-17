@@ -103,6 +103,7 @@ class Typeface::Impl {
 
     glyph_info.id = glyph_id;
     glyph_info.path = ft_info.path;
+    glyph_info.path_font_size = ft_info.path_font_size;
     glyph_info.advance_x = ft_info.advance_x;
     glyph_info.advance_y = ft_info.advance_y;
     glyph_info.ascent = ft_info.bearing_y;

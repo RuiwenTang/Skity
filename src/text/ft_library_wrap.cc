@@ -166,6 +166,7 @@ FTGlyphInfo FTTypeFace::LoadGlyph(GlyphID glyph_id, float font_size,
 
   if (load_path) {
     info.path = ExtractOutLine();
+    info.path_font_size = current_font_size_;
   }
 
   return info;

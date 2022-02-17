@@ -15,6 +15,7 @@ class Typeface;
 struct SK_API GlyphInfo {
   GlyphID id;
   Path path;
+  float path_font_size;
   float advance_x;
   float advance_y;
   float ascent;

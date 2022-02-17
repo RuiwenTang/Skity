@@ -16,6 +16,7 @@ class FTTypeFace;
 struct FTGlyphInfo {
   GlyphID glyph_id;
   Path path;
+  float path_font_size;
   float advance_x;
   float advance_y;
   float width;
