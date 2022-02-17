@@ -238,7 +238,7 @@ canvas->drawPath(path /* previouse created star path */, paint);
 
 - [x] Support mask filters like [SkMaskFilter](https://api.skia.org/classSkMaskFilter.html)
 
-- [ ] Use [Geometry Shader]() if possible to optimize GPU raster (Working in progress)
+- [x] Use [Geometry Shader]() if possible to optimize GPU raster
 
 - [ ] CPU backend support (planning)
 
