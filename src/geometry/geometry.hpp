@@ -10,6 +10,10 @@
 
 namespace skity {
 
+enum {
+  GEOMETRY_CURVE_RASTER_LIMIT = 16,
+};
+
 enum class RotationDirection {
   kCW,
   kCCW,
@@ -56,6 +60,8 @@ struct QuadCoeff {
 
   explicit QuadCoeff(std::array<Point, 3> const& src);
 
+  explicit QuadCoeff(std::array<glm::vec2, 3> const& src);
+
   Point evalAt(float t);
 
   glm::vec2 eval(float t);
@@ -68,6 +74,9 @@ struct QuadCoeff {
                          Vector* outTangent);
 
   static Vector EvalQuadTangentAt(std::array<Point, 3> const& src, float t);
+
+  static glm::vec2 EvalQuadTangentAt(glm::vec2 const& p1, glm::vec2 const& p2,
+                                     glm::vec2 const& p3, float t);
 
   static void ChopQuadAt(const Point src[3], Point dst[5], float t);
 };

@@ -1,5 +1,7 @@
 #include "src/render/hw/hw_path_raster.hpp"
 
+#include <array>
+
 #include "src/geometry/geometry.hpp"
 #include "src/render/hw/hw_mesh.hpp"
 
@@ -139,64 +141,33 @@ void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
 
   float stroke_radius = StrokeWidth() * 0.5f;
 
-  glm::vec2 start_dir = glm::normalize(p2 - p1);
-  glm::vec2 start_vertical_line = glm::vec2{start_dir.y, -start_dir.x};
-  glm::vec2 start_pt1 = p1 + start_vertical_line * stroke_radius;
-  glm::vec2 start_pt2 = p1 - start_vertical_line * stroke_radius;
+  QuadCoeff coeff(std::array<glm::vec2, 3>{p1, p2, p3});
 
-  glm::vec2 end_dir = glm::normalize(p3 - p2);
-  glm::vec2 end_vertical_line = glm::vec2{end_dir.y, -end_dir.x};
-  glm::vec2 end_pt1 = p3 + end_vertical_line * stroke_radius;
-  glm::vec2 end_pt2 = p3 - end_vertical_line * stroke_radius;
+  float step = 1.f / float(GEOMETRY_CURVE_RASTER_LIMIT - 1);
+  float u = 0.f;
 
-  glm::vec2 control_dir = glm::normalize(start_dir + end_dir);
-  glm::vec2 control_vertical_line = {control_dir.y, -control_dir.x};
+  std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes1{};
+  std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes2{};
 
-  glm::vec2 outerStart = start_pt1;
-  glm::vec2 outerStartControl = start_pt1 + start_dir;
-  glm::vec2 outerControl;
-  IntersectLineLine(outerStart, outerStartControl, end_pt1, end_pt1 - end_dir,
-                    outerControl);
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT; i++) {
+    auto p = coeff.eval(u);
 
-  glm::vec2 innerStart = start_pt2;
-  glm::vec2 innerStartControl = start_pt2 + start_dir;
-  glm::vec2 innerControl;
-  IntersectLineLine(innerStart, innerStartControl, end_pt2, end_pt2 - end_dir,
-                    innerControl);
+    auto t = QuadCoeff::EvalQuadTangentAt(p1, p2, p3, u);
+    auto n = glm::vec2(t.y, -t.x);
 
-  if (glm::length(outerControl - (outerStart + end_pt1) * 0.5f) >=
-      stroke_radius * 50.f) {
-    // Fixme to solve cubic stroke bad case
-    prev_pt_ = p2;
-    curr_pt_ = p3;
-    return;
+    auto up = p + n * stroke_radius;
+    auto dp = p - n * stroke_radius;
+
+    indexes1[i] = AppendLineVertex(up);
+    indexes2[i] = AppendLineVertex(dp);
+
+    u += step;
   }
 
-  glm::vec2 control_pt1 = outerControl;
-  glm::vec2 control_pt2 = innerControl;
-
-  std::array<glm::vec2, 3> outer_quad{};
-  std::array<glm::vec2, 3> inner_quad{};
-
-  if (orientation == Orientation::kAntiClockWise) {
-    outer_quad[0] = start_pt1;
-    outer_quad[1] = control_pt1;
-    outer_quad[2] = end_pt1;
-
-    inner_quad[0] = start_pt2;
-    inner_quad[1] = control_pt2;
-    inner_quad[2] = end_pt2;
-  } else {
-    inner_quad[0] = start_pt1;
-    inner_quad[1] = control_pt1;
-    inner_quad[2] = end_pt1;
-
-    outer_quad[0] = start_pt2;
-    outer_quad[1] = control_pt2;
-    outer_quad[2] = end_pt2;
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT - 1; i++) {
+    AppendFrontTriangle(indexes1[i], indexes2[i], indexes1[i + 1]);
+    AppendFrontTriangle(indexes2[i], indexes1[i + 1], indexes2[i + 1]);
   }
-
-  AppendQuadOrSplitRecursively(outer_quad, inner_quad);
 
   prev_pt_ = p2;
   curr_pt_ = p3;
@@ -280,16 +251,12 @@ void HWPathRaster::FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
     }
   }
 
-  uint32_t i1 = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
-  uint32_t i2 = AppendVertex(p2.x, p2.y, HW_VERTEX_TYPE_QUAD_IN, 0.5f, 0.f);
-  uint32_t i3 = AppendVertex(p3.x, p3.y, HW_VERTEX_TYPE_QUAD_IN, 1.f, 1.f);
-
   Orientation quad_orientation = CalculateOrientation(p1, p2, p3);
 
-  if (quad_orientation == Orientation::kAntiClockWise) {
-    AppendFrontTriangle(i1, i2, i3);
+  if (UseGeometryShader()) {
+    GSFillQuad(quad_orientation, p1, p2, p3);
   } else {
-    AppendBackTriangle(i1, i2, i3);
+    NormalFillQuad(quad_orientation, p1, p2, p3);
   }
 }
 
@@ -406,51 +373,42 @@ void HWPathRaster::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
   AppendFrontTriangle(a, e, c);
 }
 
-void HWPathRaster::AppendQuadOrSplitRecursively(
-    std::array<Vec2, 3> const& outer, std::array<Vec2, 3> const& inner) {
-  if (PointInTriangle(inner[1], outer[0], outer[1], outer[2])) {
-    // overlap need split
-    std::array<Vec2, 3> outer_1;
-    std::array<Vec2, 3> outer_2;
-    std::array<Vec2, 3> inner_1;
-    std::array<Vec2, 3> inner_2;
-    // TODO maybe inner no need to be subdivided
-    SubDividedQuad(outer.data(), outer_1.data(), outer_2.data());
-    SubDividedQuad(inner.data(), inner_1.data(), inner_2.data());
+void HWPathRaster::NormalFillQuad(Orientation orientation, glm::vec2 const& p1,
+                                  glm::vec2 const& p2, glm::vec2 const& p3) {
+  QuadCoeff coeff(std::array<glm::vec2, 3>{p1, p2, p3});
 
-    AppendQuadOrSplitRecursively(outer_1, inner_1);
-    AppendQuadOrSplitRecursively(outer_2, inner_2);
+  float step = 1.f / float(GEOMETRY_CURVE_RASTER_LIMIT - 1);
+  float u = 0.f;
+
+  std::array<glm::vec2, GEOMETRY_CURVE_RASTER_LIMIT> points{};
+  std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes{};
+
+  auto p1_i = AppendLineVertex(p1);
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT; i++) {
+    points[i] = coeff.eval(u);
+    indexes[i] = AppendLineVertex(points[i]);
+    u += step;
+  }
+
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT - 1; i++) {
+    if (orientation == Orientation::kAntiClockWise) {
+      AppendFrontTriangle(p1_i, indexes[i], indexes[i + 1]);
+    } else {
+      AppendBackTriangle(p1_i, indexes[i], indexes[i + 1]);
+    }
+  }
+}
+
+void HWPathRaster::GSFillQuad(Orientation orientation, glm::vec2 const& p1,
+                              glm::vec2 const& p2, glm::vec2 const& p3) {
+  uint32_t i1 = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+  uint32_t i2 = AppendVertex(p2.x, p2.y, HW_VERTEX_TYPE_QUAD_IN, 0.5f, 0.f);
+  uint32_t i3 = AppendVertex(p3.x, p3.y, HW_VERTEX_TYPE_QUAD_IN, 1.f, 1.f);
+
+  if (orientation == Orientation::kAntiClockWise) {
+    AppendFrontTriangle(i1, i2, i3);
   } else {
-    // add quad triangle
-    int32_t o_p1 =
-        AppendVertex(outer[0].x, outer[0].y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
-    int32_t o_p2 =
-        AppendVertex(outer[1].x, outer[1].y, HW_VERTEX_TYPE_QUAD_IN, 0.5f, 0.f);
-    int32_t o_p3 =
-        AppendVertex(outer[2].x, outer[2].y, HW_VERTEX_TYPE_QUAD_IN, 1.f, 1.f);
-
-    int32_t i_p1 =
-        AppendVertex(inner[0].x, inner[0].y, HW_VERTEX_TYPE_QUAD_OUT, 0.f, 0.f);
-    int32_t i_p2 =
-        AppendVertex(inner[1].x, inner[1].y, HW_VERTEX_TYPE_QUAD_OUT, .5f, 0.f);
-    int32_t i_p3 =
-        AppendVertex(inner[2].x, inner[2].y, HW_VERTEX_TYPE_QUAD_OUT, 1.f, 1.f);
-
-    AppendFrontTriangle(o_p1, o_p2, o_p3);
-    AppendFrontTriangle(i_p1, i_p2, i_p3);
-
-    // add normal triangle
-
-    int32_t on_p1 = AppendLineVertex(outer[0]);
-    int32_t on_p2 = AppendLineVertex(outer[2]);
-
-    int32_t in_p1 = AppendLineVertex(inner[0]);
-    int32_t in_p2 = AppendLineVertex(inner[1]);
-    int32_t in_p3 = AppendLineVertex(inner[2]);
-
-    AppendFrontTriangle(on_p1, in_p1, in_p2);
-    AppendFrontTriangle(on_p1, in_p2, on_p2);
-    AppendFrontTriangle(on_p2, in_p2, in_p3);
+    AppendBackTriangle(i1, i2, i3);
   }
 }
 

@@ -254,16 +254,6 @@ void main() {
     if (r > StrokeWidth / 2.0) {
       discard;
     }
-  } else if (vertex_type == VERTEX_TYPE_QUAD_IN ||
-             vertex_type == VERTEX_TYPE_QUAD_OUT) {
-    float f_x = vPosInfo.y * vPosInfo.y - vPosInfo.z;
-    if (vertex_type == VERTEX_TYPE_QUAD_IN && f_x > 0.0) {
-      discard;
-    }
-
-    if (vertex_type == VERTEX_TYPE_QUAD_OUT && f_x < 0.0) {
-      discard;
-    }
   }
 
   if (ColorType == PIPELINE_MODE_STENCIL) {

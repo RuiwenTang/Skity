@@ -9,6 +9,8 @@ namespace skity {
 
 class HWMesh;
 
+enum class Orientation;
+
 class HWPathRaster : public HWPathVisitor {
  public:
   HWPathRaster(HWMesh* mesh, Paint const& paint, bool use_gs)
@@ -49,8 +51,10 @@ class HWPathRaster : public HWPathVisitor {
   void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
 
-  void AppendQuadOrSplitRecursively(std::array<Vec2, 3> const& outer,
-                                    std::array<Vec2, 3> const& inner);
+  void NormalFillQuad(Orientation orientation, glm::vec2 const& p1,
+                      glm::vec2 const& p2, glm::vec2 const& p3);
+  void GSFillQuad(Orientation orientation, glm::vec2 const& p1,
+                  glm::vec2 const& p2, glm::vec2 const& p3);
 
  private:
   bool stroke_ = false;

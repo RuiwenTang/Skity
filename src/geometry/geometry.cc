@@ -45,6 +45,14 @@ QuadCoeff::QuadCoeff(std::array<Point, 3> const& src) {
   A = P2 - Times2(P1) + C;
 }
 
+QuadCoeff::QuadCoeff(std::array<glm::vec2, 3> const& src) {
+  C = src[0];
+  glm::vec2 P1 = src[1];
+  glm::vec2 P2 = src[2];
+  B = Times2(P1 - C);
+  A = P2 - Times2(P1) + C;
+}
+
 Point QuadCoeff::evalAt(float t) { return Point{eval(t), 0, 1}; }
 
 glm::vec2 QuadCoeff::eval(float t) { return eval(glm::vec2{t, t}); }
@@ -87,6 +95,15 @@ Vector QuadCoeff::EvalQuadTangentAt(std::array<Point, 3> const& src, float t) {
   glm::vec2 T = A * glm::vec2{t, t} + B;
 
   return Vector{T + T, 0, 0};
+}
+
+glm::vec2 QuadCoeff::EvalQuadTangentAt(glm::vec2 const& p1, glm::vec2 const& p2,
+                                       glm::vec2 const& p3, float t) {
+  glm::vec2 B = p2 - p1;
+  glm::vec2 A = p3 - p2 - B;
+  glm::vec2 T = A * glm::vec2{t, t} + B;
+
+  return glm::normalize(T);
 }
 
 void QuadCoeff::ChopQuadAt(const Point src[3], Point dst[5], float t) {
