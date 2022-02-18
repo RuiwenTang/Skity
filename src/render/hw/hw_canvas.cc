@@ -718,6 +718,7 @@ float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
 
     offset_x += info.advance_x;
 
+    draw->SetStrokeWidth(paint.getStrokeWidth());
     draw->SetStencilRange(
         {raster.StencilFrontStart(), raster.StencilFrontCount()},
         {raster.StencilBackStart(), raster.StencilBackCount()});
