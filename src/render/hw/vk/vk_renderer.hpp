@@ -121,6 +121,9 @@ class VkRenderer : public HWRenderer {
 
   AbsPipelineWrapper* PickColorPipeline();
   AbsPipelineWrapper* PickStencilPipeline();
+  AbsPipelineWrapper* PickOSStencilPipeline();
+  AbsPipelineWrapper* PickBackStencilPipeline();
+  AbsPipelineWrapper* PickReplaceStencilPipeline();
   AbsPipelineWrapper* PickGradientPipeline();
   AbsPipelineWrapper* PickImagePipeline();
   AbsPipelineWrapper* PickBlurPipeline();
