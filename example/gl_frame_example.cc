@@ -44,9 +44,6 @@ class GLFrameApp : public example::GLApp {
 
     render_frame_demo(GetCanvas(), images_, typeface_, emoji_typeface_, mx, my,
                       ScreenWidth(), ScreenHeight(), time_);
-
-    GetCanvas()->flush();
-
     cpu_time_ = glfwGetTime() - time_;
     fpsGraph.RenderGraph(GetCanvas(), 5, 5);
     cpuGraph.RenderGraph(GetCanvas(), 5 + 200 + 5, 5);
