@@ -107,27 +107,7 @@ void HWDraw::DoStencilIfNeed() {
 }
 
 void HWDraw::DoColorFill() {
-  bool has_stencil_discard =
-      stencil_back_range_.count != 0 || stencil_front_range_.count != 0;
-
-  if (has_stencil_discard) {
-    renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
-    if (has_clip_) {
-      renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
-      renderer_->UpdateStencilMask(0x0F);
-    } else {
-      renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
-      renderer_->UpdateStencilMask(0x0F);
-    }
-  } else {
-    if (has_clip_) {
-      renderer_->EnableStencilTest();
-      renderer_->UpdateStencilOp(HWStencilOp::KEEP);
-      renderer_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
-    } else {
-      renderer_->DisableStencilTest();
-    }
-  }
+  HandleStencilDiscard();
 
   if (font_texture_) {
     // slot 1 is font texture
@@ -153,14 +133,9 @@ void HWDraw::DoColorFill() {
   } else if (pipeline_mode_ >= kImageTexture ||
              pipeline_mode_ <= kInnerBlurMix) {
     renderer_->SetPipelineColorMode((HWPipelineColorMode)pipeline_mode_);
-    // slot 0 is image texture
-    // slot 1 is font texture
-    renderer_->BindTexture(texture_, 0);
-    texture_->Bind();
-    if (pipeline_mode_ >= kSolidBlurMix && pipeline_mode_ <= kInnerBlurMix) {
-      renderer_->BindTexture(font_texture_, 1);
-      font_texture_->Bind();
-    }
+
+    BindTexture();
+
     renderer_->SetGradientBoundInfo(*gradient_bounds_);
   }
 
@@ -225,6 +200,41 @@ void HWDraw::DoStencilBufferMoveInternal() {
     renderer_->UpdateStencilMask(0x0F);
     renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x00, 0x0F);
     renderer_->DrawIndex(color_range_.start, color_range_.count);
+  }
+}
+
+void HWDraw::HandleStencilDiscard() {
+  bool has_stencil_discard =
+      stencil_back_range_.count != 0 || stencil_front_range_.count != 0;
+
+  if (has_stencil_discard) {
+    renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
+    if (has_clip_) {
+      renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
+      renderer_->UpdateStencilMask(0x0F);
+    } else {
+      renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
+      renderer_->UpdateStencilMask(0x0F);
+    }
+  } else {
+    if (has_clip_) {
+      renderer_->EnableStencilTest();
+      renderer_->UpdateStencilOp(HWStencilOp::KEEP);
+      renderer_->UpdateStencilFunc(HWStencilFunc::EQUAL, 0x10, 0x1F);
+    } else {
+      renderer_->DisableStencilTest();
+    }
+  }
+}
+
+void HWDraw::BindTexture() {
+  // slot 0 is image texture
+  // slot 1 is font texture
+  renderer_->BindTexture(texture_, 0);
+  texture_->Bind();
+  if (pipeline_mode_ >= kSolidBlurMix && pipeline_mode_ <= kInnerBlurMix) {
+    renderer_->BindTexture(font_texture_, 1);
+    font_texture_->Bind();
   }
 }
 

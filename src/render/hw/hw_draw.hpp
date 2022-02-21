@@ -69,6 +69,9 @@ class HWDraw {
 
   void DoStencilBufferMoveInternal();
 
+  void HandleStencilDiscard();
+  void BindTexture();
+
  private:
   HWRenderer* renderer_;
   bool has_clip_;
