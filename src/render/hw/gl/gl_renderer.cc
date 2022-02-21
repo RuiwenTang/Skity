@@ -62,6 +62,8 @@ void GLRenderer::Init() {
   GLInterface::InitGlobalInterface(ctx_->proc_loader);
   InitShader();
   InitBufferObject();
+
+  GL_CALL(GetIntegerv, GL_FRAMEBUFFER_BINDING, &root_fbo_);
 }
 
 void GLRenderer::Destroy() {}
@@ -216,6 +218,10 @@ void GLRenderer::UnBindRenderTarget(HWRenderTarget* render_target) {
   GLRenderTarget* fbo = (GLRenderTarget*)render_target;
 
   fbo->UnBind();
+
+  if (root_fbo_ != 0) {
+    GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, root_fbo_);
+  }
 
   // restore saved viewport
   GL_CALL(Viewport, saved_viewport_[0], saved_viewport_[1], saved_viewport_[2],

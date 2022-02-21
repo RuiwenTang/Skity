@@ -85,6 +85,7 @@ class GLRenderer : public HWRenderer {
   std::array<uint32_t, 2> buffers_ = {};
   std::array<size_t, 2> buffer_sizes_ = {};
   glm::ivec4 saved_viewport_ = {};
+  int32_t root_fbo_ = 0;
 };
 
 }  // namespace skity
