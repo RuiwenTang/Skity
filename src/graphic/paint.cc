@@ -48,6 +48,10 @@ void Paint::SetStrokeColor(float r, float g, float b, float a) {
   stroke_color_[3] = a;
 }
 
+void Paint::SetStrokeColor(const Vector& color) {
+  SetStrokeColor(color.x, color.y, color.z, color.w);
+}
+
 Vector Paint::GetStrokeColor() const { return stroke_color_; }
 
 void Paint::SetFillColor(float r, float g, float b, float a) {
@@ -55,6 +59,10 @@ void Paint::SetFillColor(float r, float g, float b, float a) {
   fill_color_[1] = g;
   fill_color_[2] = b;
   fill_color_[3] = a;
+}
+
+void Paint::SetFillColor(const Vector& color) {
+  SetFillColor(color.x, color.y, color.z, color.w);
 }
 
 Vector Paint::GetFillColor() const { return fill_color_; }

@@ -104,9 +104,13 @@ class SK_API Paint {
 
   void SetStrokeColor(float r, float g, float b, float a);
 
+  void SetStrokeColor(Vector const& color);
+
   Vector GetStrokeColor() const;
 
   void SetFillColor(float r, float g, float b, float a);
+
+  void SetFillColor(Vector const& color);
 
   Vector GetFillColor() const;
 
