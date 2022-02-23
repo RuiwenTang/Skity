@@ -700,7 +700,8 @@ float HWCanvas::StrokeTextRun(float x, float y, TextRun const& run,
 
     if (path.isEmpty() || info.path_font_size != paint.getTextSize()) {
       // Solve reused TextBlob without path info
-      path = typeface->getGlyphInfo(info.id, paint.getTextSize(), true).path;
+      path = typeface->getGlyphInfo(info.id, paint.getTextSize(), true)
+                 .path.copyWithMatrix(transform);
     }
 
     if (path.isEmpty()) {
