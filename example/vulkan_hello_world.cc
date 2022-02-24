@@ -40,7 +40,7 @@ class HelloVulkanApp : public example::VkApp {
     paint.setStyle(skity::Paint::kFill_Style);
     paint.setAntiAlias(true);
     paint.setStrokeWidth(4.f);
-    paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+    paint.setFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
 
     skity::Rect rect = skity::Rect::MakeXYWH(10, 10, 100, 160);
     GetCanvas()->drawRect(rect, paint);
@@ -48,14 +48,14 @@ class HelloVulkanApp : public example::VkApp {
     skity::RRect oval;
     oval.setOval(rect);
     oval.offset(40, 80);
-    paint.SetFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
+    paint.setFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
     GetCanvas()->drawRRect(oval, paint);
 
-    paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
+    paint.setFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
     GetCanvas()->drawCircle(180, 50, 25, paint);
 
     rect.offset(80, 50);
-    paint.SetStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
+    paint.setStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
     paint.setStyle(skity::Paint::kStroke_Style);
     GetCanvas()->drawRoundRect(rect, 10, 10, paint);
 

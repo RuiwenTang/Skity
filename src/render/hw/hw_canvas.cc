@@ -159,9 +159,9 @@ std::unique_ptr<HWDraw> HWCanvas::GenerateColorOp(Paint const& paint,
   } else {
     draw->SetPipelineColorMode(HWPipelineColorMode::kUniformColor);
     if (stroke) {
-      draw->SetUniformColor(paint.GetStrokeColor());
+      draw->SetUniformColor(paint.getStrokeColor());
     } else {
-      draw->SetUniformColor(paint.GetFillColor());
+      draw->SetUniformColor(paint.getFillColor());
     }
   }
 

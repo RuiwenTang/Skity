@@ -102,17 +102,17 @@ class SK_API Paint {
 
   static constexpr const float DefaultMiterLimit = float(4);
 
-  void SetStrokeColor(float r, float g, float b, float a);
+  void setStrokeColor(float r, float g, float b, float a);
 
-  void SetStrokeColor(Vector const& color);
+  void setStrokeColor(Vector const& color);
 
-  Vector GetStrokeColor() const;
+  Vector getStrokeColor() const;
 
-  void SetFillColor(float r, float g, float b, float a);
+  void setFillColor(float r, float g, float b, float a);
 
-  void SetFillColor(Vector const& color);
+  void setFillColor(Vector const& color);
 
-  Vector GetFillColor() const;
+  Vector getFillColor() const;
 
   /**
    * Sets alpha and RGB used when stroking and filling. The color is a 32-bit

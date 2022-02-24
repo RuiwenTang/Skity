@@ -11,7 +11,7 @@ static void draw_basic_example(skity::Canvas* canvas) {
   paint.setStyle(skity::Paint::kFill_Style);
   paint.setAntiAlias(true);
   paint.setStrokeWidth(4.f);
-  paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+  paint.setFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
 
   skity::Rect rect = skity::Rect::MakeXYWH(10, 10, 100, 160);
   canvas->drawRect(rect, paint);
@@ -19,14 +19,14 @@ static void draw_basic_example(skity::Canvas* canvas) {
   skity::RRect oval;
   oval.setOval(rect);
   oval.offset(40, 80);
-  paint.SetFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
+  paint.setFillColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
   canvas->drawRRect(oval, paint);
 
-  paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
+  paint.setFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
   canvas->drawCircle(180, 50, 25, paint);
 
   rect.offset(80, 50);
-  paint.SetStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
+  paint.setStrokeColor(0xF4 / 255.f, 0xB4 / 255.f, 0x0, 1.f);
   paint.setStyle(skity::Paint::kStroke_Style);
   canvas->drawRoundRect(rect, 10, 10, paint);
 }
@@ -46,7 +46,7 @@ static void draw_path_effect_example(skity::Canvas* canvas) {
   paint.setStyle(skity::Paint::kStroke_Style);
   paint.setStrokeWidth(2.f);
   paint.setAntiAlias(true);
-  paint.SetStrokeColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+  paint.setStrokeColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
   canvas->drawPath(path, paint);
 }
 
@@ -68,8 +68,8 @@ static void draw_dash_start_example(skity::Canvas* canvas) {
   paint.setStrokeWidth(3.f);
   paint.setStrokeJoin(skity::Paint::kRound_Join);
   paint.setStrokeCap(skity::Paint::kRound_Cap);
-  paint.SetStrokeColor(0, 0, 1, 1);
-  paint.SetFillColor(150.f / 255.f, 150.f / 255.f, 1.f, 1.f);
+  paint.setStrokeColor(0, 0, 1, 1);
+  paint.setFillColor(150.f / 255.f, 150.f / 255.f, 1.f, 1.f);
   paint.setAntiAlias(true);
   paint.setStyle(skity::Paint::kStrokeAndFill_Style);
   float pattern[2] = {10.f, 10.f};
@@ -141,7 +141,7 @@ void draw_simple_text(skity::Canvas* canvas) {
 
   paint.setTextSize(64.f);
   paint.setAntiAlias(true);
-  paint.SetFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
+  paint.setFillColor(0x42 / 255.f, 0x85 / 255.f, 0xF4 / 255.f, 1.f);
   paint.setStyle(skity::Paint::kFill_Style);
 
   skity::TextBlobBuilder builder;
@@ -151,12 +151,12 @@ void draw_simple_text(skity::Canvas* canvas) {
   canvas->drawTextBlob(blob.get(), 20.f, 64.f, paint);
 
   paint.setStyle(skity::Paint::kStroke_Style);
-  paint.SetStrokeColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
+  paint.setStrokeColor(0xDB / 255.f, 0x44 / 255.f, 0x37 / 255.f, 1.f);
   paint.setStrokeWidth(2.f);
 
   canvas->drawTextBlob(blob.get(), 20.f, 144.f, paint);
 
-  paint.SetFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
+  paint.setFillColor(0x0F / 255.f, 0x9D / 255.f, 0x58 / 255.f, 1.f);
   paint.setStyle(skity::Paint::kFill_Style);
 
   canvas->save();

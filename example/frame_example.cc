@@ -210,7 +210,7 @@ void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
   dy *= ey * 0.5f;
 
   bg.setShader(nullptr);
-  bg.SetFillColor(32.f / 255.f, 32.f / 255.f, 32.f / 255.f, 1.f);
+  bg.setFillColor(32.f / 255.f, 32.f / 255.f, 32.f / 255.f, 1.f);
   canvas->drawOval(
       skity::Rect::MakeLTRB(
           lx + dx - br, ly + dy + ey * 0.25f * (1 - blink) - br * blink,
@@ -329,7 +329,7 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
   }
   paint.setShader(nullptr);
   paint.setStyle(skity::Paint::kStroke_Style);
-  paint.SetStrokeColor(0.f, 0.f, 0.f, 32.f / 255.f);
+  paint.setStrokeColor(0.f, 0.f, 0.f, 32.f / 255.f);
   paint.setStrokeWidth(3.f);
 
   canvas->drawPath(graph_line, paint);
@@ -340,7 +340,7 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
     graph_line2.cubicTo(sx[i - 1] + dx * 0.5f, sy[i - 1], sx[i] - dx * 0.5f,
                         sy[i], sx[i], sy[i]);
   }
-  paint.SetStrokeColor(0.f, 160.f / 255.f, 192.f / 255.f, 1.f);
+  paint.setStrokeColor(0.f, 160.f / 255.f, 192.f / 255.f, 1.f);
   canvas->drawPath(graph_line2, paint);
 
   // graph sample pos
@@ -361,12 +361,12 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
   }
 
   paint.setShader(nullptr);
-  paint.SetFillColor(0.f, 160.f / 255.f, 192.f / 255.f, 1.f);
+  paint.setFillColor(0.f, 160.f / 255.f, 192.f / 255.f, 1.f);
   for (int32_t i = 0; i < 6; i++) {
     canvas->drawCircle(sx[i], sy[i], 4.f, paint);
   }
 
-  paint.SetFillColor(220.f / 255.f, 220.f / 255.f, 220.f / 255.f, 1.f);
+  paint.setFillColor(220.f / 255.f, 220.f / 255.f, 220.f / 255.f, 1.f);
   for (int32_t i = 0; i < 6; i++) {
     canvas->drawCircle(sx[i], sy[i], 2.f, paint);
   }
