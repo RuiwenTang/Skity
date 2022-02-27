@@ -2,9 +2,8 @@
 
 target_sources(skity
     PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/codec/codec.cc
-        ${CMAKE_CURRENT_LIST_DIR}/codec/data.cc
-        ${CMAKE_CURRENT_LIST_DIR}/codec/pixmap.cc
+        ${CMAKE_CURRENT_LIST_DIR}/io/data.cc
+        ${CMAKE_CURRENT_LIST_DIR}/io/pixmap.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.cc
         ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.hpp
         ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.cc
@@ -45,23 +44,6 @@ target_sources(skity
         ${CMAKE_CURRENT_LIST_DIR}/text/utf.cc
         ${CMAKE_CURRENT_LIST_DIR}/utils/lazy.hpp
 )
-
-# codec backends
-if (${PNG_FOUND})
-  target_sources(skity
-    PRIVATE
-      ${CMAKE_CURRENT_LIST_DIR}/codec/png_codec.cc
-      ${CMAKE_CURRENT_LIST_DIR}/codec/png_codec.hpp
-  )
-endif()
-
-if (${JPEG_FOUND})
-  target_sources(skity
-    PRIVATE
-      ${CMAKE_CURRENT_LIST_DIR}/codec/jpeg_codec.cc
-      ${CMAKE_CURRENT_LIST_DIR}/codec/jpeg_codec.hpp
-  )
-endif()
 
 # freetype
 if (${FREETYPE_FOUND})

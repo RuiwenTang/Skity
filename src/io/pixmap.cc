@@ -1,5 +1,5 @@
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
+#include <skity/io/data.hpp>
+#include <skity/io/pixmap.hpp>
 #include <utility>
 
 namespace skity {

@@ -1,5 +1,5 @@
 #include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
+#include <skity/io/data.hpp>
 #include <vector>
 
 #ifdef SKITY_HAS_PNG

@@ -60,6 +60,10 @@ if (${BUILD_SVG_MODULE})
     add_subdirectory(module/svg)
 endif()
 
+if (${BUILD_CODEC_MODULE})
+    add_subdirectory(module/codec)
+endif()
+
 
 # header files
 add_subdirectory(include)

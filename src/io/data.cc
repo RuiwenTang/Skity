@@ -3,7 +3,7 @@
 #include <fstream>
 #include <functional>
 #include <mutex>
-#include <skity/codec/data.hpp>
+#include <skity/io/data.hpp>
 #include <vector>
 
 namespace skity {

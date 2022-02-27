@@ -6,6 +6,7 @@
 #include <example_config.hpp>
 #endif
 #include <glm/glm.hpp>
+#include <skity/codec/codec.hpp>
 #include <skity/skity.hpp>
 #include <string>
 

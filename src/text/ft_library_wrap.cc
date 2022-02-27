@@ -2,7 +2,7 @@
 
 #include <codecvt>
 #include <locale>
-#include <skity/codec/data.hpp>
+#include <skity/io/data.hpp>
 
 #include "src/geometry/math.hpp"
 #include "src/logging.hpp"

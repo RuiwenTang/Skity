@@ -1,10 +1,10 @@
 #include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
 #include <skity/effect/shader.hpp>
 #include <skity/gpu/gpu_context.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
+#include <skity/io/data.hpp>
+#include <skity/io/pixmap.hpp>
 #include <skity/render/canvas.hpp>
 
 #include "test/common/test_common.hpp"

@@ -7,9 +7,8 @@ target_include_directories(
 )
 
 set(SKITY_PUBLIC_HEADERS
-    ${CMAKE_CURRENT_LIST_DIR}/skity/codec/codec.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/skity/codec/data.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/skity/codec/pixmap.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/skity/io/data.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/skity/io/pixmap.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/effect/mask_filter.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/effect/path_effect.hpp
     ${CMAKE_CURRENT_LIST_DIR}/skity/effect/shader.hpp
