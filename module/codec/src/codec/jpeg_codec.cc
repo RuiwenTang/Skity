@@ -5,7 +5,6 @@
 #include <skity/io/data.hpp>
 #include <skity/io/pixmap.hpp>
 
-#include "src/logging.hpp"
 
 struct TJHandlerWrapper {
   explicit TJHandlerWrapper(tjhandle h) : handle(h) {}
@@ -38,7 +37,6 @@ bool JPEGCodec::RecognizeFileType(const char* header, size_t size) {
     return true;
   } else {
     char* err = tjGetErrorStr2(hw.handle);
-    LOG_ERROR("jpeg decode header failed: [{}]", err);
     return false;
   }
 }
@@ -59,7 +57,6 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
 
   if (ret != 0) {
     char* err = tjGetErrorStr2(hw.handle);
-    LOG_ERROR("jpeg decode header failed: [{}]", err);
     return nullptr;
   }
 
@@ -71,7 +68,6 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
   if (ret != 0) {
     tjFree(buffer);
     char* err = tjGetErrorStr2(hw.handle);
-    LOG_ERROR("jpeg decode image failed: [{}]", err);
     return nullptr;
   }
 
