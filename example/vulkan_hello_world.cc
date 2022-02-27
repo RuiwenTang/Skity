@@ -4,6 +4,7 @@
 #include <example_config.hpp>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <skity/codec/codec.hpp>
 #include <skity/skity.hpp>
 #include <vector>
 

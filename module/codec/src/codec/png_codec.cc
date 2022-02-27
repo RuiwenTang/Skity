@@ -1,8 +1,8 @@
 #include "src/codec/png_codec.hpp"
 
 #include <cstring>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
+#include <skity/io/data.hpp>
+#include <skity/io/pixmap.hpp>
 #include <vector>
 
 namespace skity {
@@ -69,7 +69,7 @@ std::shared_ptr<Data> skity::PNGCodec::Encode(const Pixmap* pixmap) {
   if (!pixmap) {
     return nullptr;
   }
-  
+
   png_structp png_ptr;
   png_infop info_ptr;
 

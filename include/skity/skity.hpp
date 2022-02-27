@@ -5,10 +5,9 @@
 #include <skity/config.hpp>
 // all macros
 #include <skity/macros.hpp>
-// codec
-#include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
+// io
+#include <skity/io/data.hpp>
+#include <skity/io/pixmap.hpp>
 // effect
 #include <skity/effect/mask_filter.hpp>
 #include <skity/effect/path_effect.hpp>

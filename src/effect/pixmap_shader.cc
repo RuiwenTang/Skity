@@ -1,6 +1,6 @@
 #include "src/effect/pixmap_shader.hpp"
 
-#include <skity/codec/pixmap.hpp>
+#include <skity/io/pixmap.hpp>
 
 namespace skity {
 
