@@ -986,7 +986,7 @@ Path& Path::addPath(const Path& src, const Matrix& matrix, AddMode mode) {
     // add points
     //    points_.insert(points_.end(), src.points_.begin(), src.points_.end());
     for (const auto& p : src.points_) {
-      points_.emplace_back(p * matrix);
+      points_.emplace_back(matrix * p);
     }
 
     return *this;
