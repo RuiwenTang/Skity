@@ -4,9 +4,9 @@
 #include <cstdlib>
 #ifndef SKITY_ANDROID
 #include <example_config.hpp>
+#include <skity/codec/codec.hpp>
 #endif
 #include <glm/glm.hpp>
-#include <skity/codec/codec.hpp>
 #include <skity/skity.hpp>
 #include <string>
 
