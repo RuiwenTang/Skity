@@ -152,7 +152,7 @@ class SK_API Rect {
 
   static Rect MakeEmpty() { return Rect{0, 0, 0, 0}; }
 
-  static Rect MakeHW(float width, float height) {
+  static Rect MakeWH(float width, float height) {
     return Rect{0, 0, width, height};
   }
 
