@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/config.hpp>
 #include <skity/effect/path_effect.hpp>
+#include <skity/effect/shader.hpp>
 #include <skity/io/pixmap.hpp>
 #include <skity/text/text_blob.hpp>
 #include <skity/text/text_run.hpp>
