@@ -616,8 +616,8 @@ float HWCanvas::FillTextRun(float x, float y, TextRun const& run,
 
     glm::vec4 bounds = {rx, ry, rx + rw, ry + rh};
     glm::vec2 uv_lt = font_texture->CalculateUV(region.x, region.y);
-    glm::vec2 uv_rb =
-        font_texture->CalculateUV(region.x + region.z, region.y + region.w);
+    glm::vec2 uv_rb = font_texture->CalculateUV(region.x + region.z - 1.f,
+                                                region.y + region.w - 1.f);
 
     raster.FillTextRect(bounds, uv_lt, uv_rb);
   }
