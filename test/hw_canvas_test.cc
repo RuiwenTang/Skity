@@ -168,6 +168,25 @@ class HWCanvasTest : public test::TestApp {
     paint.setStrokeWidth(2.f);
     canvas_->drawLine(500, 300, 600, 300, paint);
 
+    paint.setStyle(skity::Paint::kStroke_Style);
+    paint.setStrokeWidth(3.f);
+
+    for (auto sweep :
+         {skity::Path::Direction::kCCW, skity::Path::Direction::kCW}) {
+      for (auto arcSize : {skity::Path::kSmall, skity::Path::kLarge}) {
+        skity::Path path;
+        path.moveTo(120, 50);
+        path.arcTo(70, 40, 30, arcSize, sweep, 120.1f, 50);
+        if (skity::Path::Direction::kCCW == sweep &&
+            skity::Path::kLarge == arcSize) {
+          paint.setColor(skity::Color_BLUE);
+        } else {
+          paint.setColor(skity::Color_BLACK);
+        }
+        canvas_->drawPath(path, paint);
+      }
+    }
+
     canvas_->flush();
   }
 

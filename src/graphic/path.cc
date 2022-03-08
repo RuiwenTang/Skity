@@ -496,6 +496,8 @@ Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius) {
 
 Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
                   Direction sweep, float x, float y) {
+  // convert degree to angle
+  xAxisRotate = glm::radians(xAxisRotate);
   this->injectMoveToIfNeed();
   std::array<Point, 2> src_pts{};
   this->getLastPt(src_pts.data());
