@@ -1,64 +1,65 @@
-
-
-target_sources(skity
-    PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/io/data.cc
-        ${CMAKE_CURRENT_LIST_DIR}/io/pixmap.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/effect/mask_filter.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/path_effect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.cc
-        ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/effect/shader.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/conic.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/conic.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/contour_measure.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/contour_measure.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/geometry.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/geometry.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/math.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/point_priv.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/rect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/geometry/rrect.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/color.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/paint.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/path.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/path_measure.cc
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/path_measure.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/graphic/path_priv.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/logging.cc
-        ${CMAKE_CURRENT_LIST_DIR}/logging.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/canvas.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/text/text_blob.cc
-        ${CMAKE_CURRENT_LIST_DIR}/text/text_run.cc
-        ${CMAKE_CURRENT_LIST_DIR}/text/typeface.cc
-        ${CMAKE_CURRENT_LIST_DIR}/text/utf.cc
-        ${CMAKE_CURRENT_LIST_DIR}/utils/lazy.hpp
+target_sources(
+  skity
+  PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/io/data.cc
+  ${CMAKE_CURRENT_LIST_DIR}/io/pixmap.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/dash_path_effect.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/discrete_path_effect.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/gradient_shader.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/effect/mask_filter.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/path_effect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.cc
+  ${CMAKE_CURRENT_LIST_DIR}/effect/pixmap_shader.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/effect/shader.cc
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/conic.cc
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/conic.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/contour_measure.cc
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/contour_measure.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/geometry.cc
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/geometry.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/math.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/point_priv.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/rect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/geometry/rrect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/color.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/paint.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/path.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/path_measure.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/path_measure.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/path_priv.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/logging.cc
+  ${CMAKE_CURRENT_LIST_DIR}/logging.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/render/canvas.cc
+  ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.cc
+  ${CMAKE_CURRENT_LIST_DIR}/render/text/font_texture.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.cc
+  ${CMAKE_CURRENT_LIST_DIR}/render/texture_atlas.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/text/text_blob.cc
+  ${CMAKE_CURRENT_LIST_DIR}/text/text_run.cc
+  ${CMAKE_CURRENT_LIST_DIR}/text/typeface.cc
+  ${CMAKE_CURRENT_LIST_DIR}/text/utf.cc
+  ${CMAKE_CURRENT_LIST_DIR}/utils/lazy.hpp
 )
 
 # freetype
-if (${FREETYPE_FOUND})
-  target_sources(skity
+if(${FREETYPE_FOUND})
+  target_sources(
+    skity
     PRIVATE
-      ${CMAKE_CURRENT_LIST_DIR}/text/ft_library_wrap.cc
-      ${CMAKE_CURRENT_LIST_DIR}/text/ft_library_wrap.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/text/ft_library_wrap.cc
+    ${CMAKE_CURRENT_LIST_DIR}/text/ft_library_wrap.hpp
   )
 endif()
 
 
 # hardware backends
-if (${ENABLE_HW_RENDER})
+if(${ENABLE_HW_RENDER})
 
-  target_sources(skity
+  target_sources(
+    skity
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_canvas.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/hw/hw_canvas.hpp
@@ -82,76 +83,80 @@ if (${ENABLE_HW_RENDER})
   )
 
   # OpenGL backends
-  if (${OPENGL_BACKEND})
-    target_sources(skity
+  if(${OPENGL_BACKEND})
+    target_sources(
+      skity
       PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_canvas.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_canvas.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_font_texture.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_font_texture.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_canvas.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_canvas.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_font_texture.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_font_texture.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_interface.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_render_target.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_renderer.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_shader.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/gl/gl_texture.hpp
     )
   endif()
 
-  if (${VULKAN_BACKEND})
-    target_sources(skity
+  if(${VULKAN_BACKEND})
+    target_sources(
+      skity
       PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/gradient_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/gradient_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/image_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/image_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/static_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/static_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/stencil_pipeline.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/stencil_pipeline.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_canvas.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_canvas.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_font_texture.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_font_texture.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_framebuffer.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_framebuffer.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_interface.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_interface.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.cc
-        ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/blur_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/color_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/gradient_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/gradient_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/image_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/image_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/static_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/static_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/stencil_pipeline.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/pipelines/stencil_pipeline.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_canvas.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_canvas.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_font_texture.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_font_texture.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_framebuffer.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_framebuffer.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_interface.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_interface.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_memory.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_pipeline_wrapper.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_render_target.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_renderer.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_texture.hpp
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.cc
+      ${CMAKE_CURRENT_LIST_DIR}/render/hw/vk/vk_utils.hpp
     )
   endif()
 
 endif()
 
 # install library
-install(TARGETS skity EXPORT skity-targets
+install(
+  TARGETS skity EXPORT skity-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 # install config file
-install(EXPORT skity-targets
-  FILE        skityTargets.cmake
-  NAMESPACE   skity::
+install(
+  EXPORT skity-targets
+  FILE skityTargets.cmake
+  NAMESPACE skity::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
 )

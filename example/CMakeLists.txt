@@ -1,16 +1,16 @@
 project(skity_example)
 
-if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
   add_library(glad OBJECT ../third_party/glad/src/glad.c)
 endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 #GLFW
-if (WIN32)
+if(WIN32)
   set(glfw3_DIR "C:/Program Files (x86)/GLFW")
   set(GLFW_INCLUDE_DIRS ${glfw3_DIR}/include)
-  
+
   find_package(OpenGL REQUIRED)
   set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
   include_directories(${GLFW_INCLUDE_DIRS})
@@ -20,8 +20,8 @@ if (WIN32)
   add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
   add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 else()
-find_package(PkgConfig)
-  if (PkgConfig_FOUND)
+  find_package(PkgConfig)
+  if(PkgConfig_FOUND)
     message("Pkg found")
     pkg_search_module(GLFW REQUIRED glfw3)
 
@@ -40,7 +40,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # glad
 include_directories(../third_party/glad/include)
 
-add_library(gl_app OBJECT 
+add_library(
+  gl_app OBJECT
   gl/gl_app.cc
   gl/gl_app.hpp
 )
@@ -64,13 +65,14 @@ add_executable(gl_filter_example gl_filter_example.cc filter_example.cc $<TARGET
 target_link_libraries(gl_filter_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # vulkan examples
-if (VULKAN_BACKEND)
+if(VULKAN_BACKEND)
 
   # spdlog
   include_directories(../third_party/spdlog/include)
 
-  add_library(vk_app OBJECT 
-    vk/vk_app.cc 
+  add_library(
+    vk_app OBJECT
+    vk/vk_app.cc
     vk/vk_app.hpp
   )
 
@@ -89,7 +91,7 @@ if (VULKAN_BACKEND)
   add_executable(vk_svg_example vk_svg_example.cc svg_example.cc $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vk_svg_example skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
-  add_executable(vulkan_hello_world vulkan_hello_world.cc  $<TARGET_OBJECTS:vk_app>)
+  add_executable(vulkan_hello_world vulkan_hello_world.cc $<TARGET_OBJECTS:vk_app>)
   target_link_libraries(vulkan_hello_world skity skity-codec ${GLFW_LIBRARIES} Vulkan::Vulkan)
 
   add_executable(vk_clip_example vk_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:vk_app>)
