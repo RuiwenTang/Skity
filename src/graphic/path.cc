@@ -622,8 +622,8 @@ Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,
     unit_pts[0].y += -t * cos_end_theta;
 
     std::array<Point, 2> mapped;
-    mapped[0] = unit_pts[0] * point_transform;
-    mapped[1] = unit_pts[1] * point_transform;
+    mapped[0] = point_transform * unit_pts[0];
+    mapped[1] = point_transform * unit_pts[1];
 
     if (expect_integers) {
       for (auto& point : mapped) {
