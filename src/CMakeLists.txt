@@ -145,18 +145,3 @@ if(${ENABLE_HW_RENDER})
 
 endif()
 
-# install library
-install(
-  TARGETS skity EXPORT skity-targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-# install config file
-install(
-  EXPORT skity-targets
-  FILE skityTargets.cmake
-  NAMESPACE skity::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
-)
