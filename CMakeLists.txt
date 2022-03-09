@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10.0)
 
 project(Skity)
 
@@ -105,5 +105,21 @@ install(
   FILES
   ${CMAKE_CURRENT_BINARY_DIR}/skityConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/skityConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
+)
+
+# install library
+install(
+  TARGETS skity EXPORT skity-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# install config file
+install(
+  EXPORT skity-targets
+  FILE skityTargets.cmake
+  NAMESPACE skity::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
 )
