@@ -56,6 +56,8 @@ class HWDraw {
 
   void SetHasClip(bool has_clip) { has_clip_ = has_clip; }
 
+  void SetEvenOddFill(bool is_even_odd) { even_odd_fill_ = is_even_odd; }
+
  protected:
   HWRenderer* GetPipeline() { return renderer_; }
   bool HasClip() { return has_clip_; }
@@ -82,6 +84,7 @@ class HWDraw {
   HWDrawRange stencil_front_range_ = {};
   HWDrawRange stencil_back_range_ = {};
   HWDrawRange color_range_ = {};
+  bool even_odd_fill_ = false;
   Lazy<float> stroke_width_ = {};
   Lazy<glm::vec4> uniform_color_ = {};
   Lazy<glm::mat4> transform_matrix_ = {};

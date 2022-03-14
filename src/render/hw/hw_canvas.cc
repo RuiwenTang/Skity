@@ -315,6 +315,8 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
 
     auto draw = GenerateColorOp(working_paint, false, raster.RasterBounds());
 
+    draw->SetEvenOddFill(path.getFillType() == Path::PathFillType::kEvenOdd);
+
     draw->SetStencilRange(
         {raster.StencilFrontStart(), raster.StencilFrontCount()},
         {raster.StencilBackStart(), raster.StencilBackCount()});

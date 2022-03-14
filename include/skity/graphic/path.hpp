@@ -51,6 +51,13 @@ class SK_API Path {
     kDone,
   };
 
+  enum class PathFillType {
+    // "inside" is computed by a non-zero sum of signed edge crossings
+    kWinding,
+    // "inside" is computed by an odd number of edge crossings
+    kEvenOdd,
+  };
+
   class Iter {
    public:
     /**
@@ -417,6 +424,21 @@ class SK_API Path {
   inline Direction getFirstDirection() { return first_direction_; }
   inline void setFirstDirection(Direction dir) { this->first_direction_ = dir; }
 
+  /**
+   * @brief Sets FillType, the rule used to fill Path.
+   *        Default value is PathFillType::kWinding
+   *
+   * @param type FillType
+   */
+  void setFillType(PathFillType type) { fill_type_ = type; }
+
+  /**
+   * @brief Returns PathFillType, the rule used to fill Path.
+   *
+   * @return PathFillType
+   */
+  PathFillType getFillType() const { return fill_type_; }
+
   Rect getBounds() const {
     computeBounds();
     return bounds_;
@@ -465,6 +487,7 @@ class SK_API Path {
   std::vector<float> conic_weights_;
   mutable bool is_finite_ = true;
   mutable Rect bounds_;
+  PathFillType fill_type_ = PathFillType::kWinding;
 };
 
 }  // namespace skity
