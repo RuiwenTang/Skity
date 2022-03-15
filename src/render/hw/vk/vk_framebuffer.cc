@@ -182,7 +182,8 @@ VkDescriptorSet SKVkFrameBufferData::ObtainUniformBufferSet(
   auto result =
       VK_CALL(vkAllocateDescriptorSets, ctx->GetDevice(), &allocate_info, &ret);
 
-  if (result == VK_ERROR_OUT_OF_POOL_MEMORY) {
+  if (result == VK_ERROR_OUT_OF_POOL_MEMORY ||
+      result == VK_ERROR_INITIALIZATION_FAILED) {
     AppendUniformBufferPool(ctx);
 
     allocate_info.descriptorPool =
