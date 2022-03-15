@@ -28,6 +28,8 @@ struct VKInterface {
   PFN_vkCmdPushConstants fvkCmdPushConstants = {};
   PFN_vkCmdSetScissor fvkCmdSetScissor = {};
   PFN_vkCmdSetStencilReference fvkCmdSetStencilReference = {};
+  PFN_vkCmdSetStencilCompareMask fvkCmdSetStencilCompareMask = {};
+  PFN_vkCmdSetStencilWriteMask fvkCmdSetStencilWriteMask = {};
   PFN_vkCmdSetViewport fvkCmdSetViewport = {};
   PFN_vkCreateCommandPool fvkCreateCommandPool = {};
   PFN_vkCreateComputePipelines fvkCreateComputePipelines = {};

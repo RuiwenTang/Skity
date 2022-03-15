@@ -72,7 +72,8 @@ class AbsPipelineWrapper : public VkInterfaceClient {
 
   virtual VkDescriptorSetLayout GetFontSetLayout() { return VK_NULL_HANDLE; }
 
-  virtual void UpdateStencilInfo(uint32_t reference, GPUVkContext* ctx) {}
+  virtual void UpdateStencilInfo(uint32_t reference, uint32_t compare_mask,
+                                 uint32_t write_mask, GPUVkContext* ctx) {}
 
   virtual void UploadFontSet(VkDescriptorSet set, GPUVkContext* ctx) {}
 
@@ -277,7 +278,7 @@ class RenderPipeline : public AbsPipelineWrapper {
   VkCommandBuffer GetBindCMD() { return bind_cmd_; }
 
   static VkPipelineDepthStencilStateCreateInfo StencilDiscardInfo();
-  static VkPipelineDepthStencilStateCreateInfo StencilClipDiscardInfo();
+  static VkPipelineDepthStencilStateCreateInfo StencilLessDiscardInfo();
   static VkPipelineDepthStencilStateCreateInfo StencilKeepInfo();
 
  private:

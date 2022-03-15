@@ -837,7 +837,8 @@ void VkRenderer::UpdateCommonSetIfNeed(AbsPipelineWrapper* pipeline) {
 }
 
 void VkRenderer::UpdateStencilConfigIfNeed(AbsPipelineWrapper* pipeline) {
-  pipeline->UpdateStencilInfo(stencil_value_, ctx_);
+  pipeline->UpdateStencilInfo(stencil_value_, stencil_compare_mask_,
+                              stencil_write_mask_, ctx_);
 }
 
 void VkRenderer::UpdateColorInfoIfNeed(AbsPipelineWrapper* pipeline) {

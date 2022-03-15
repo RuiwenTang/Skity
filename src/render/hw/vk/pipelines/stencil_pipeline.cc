@@ -315,15 +315,23 @@ StencilRecursiveClipPipeline::GetDepthStencilStateCreateInfo() {
 }
 
 void StencilReplacePipeline::UpdateStencilInfo(uint32_t reference,
+                                               uint32_t compare_mask,
+                                               uint32_t write_mask,
                                                GPUVkContext* ctx) {
   VK_CALL(vkCmdSetStencilReference, GetBindCMD(),
           VK_STENCIL_FACE_FRONT_AND_BACK, reference);
+  VK_CALL(vkCmdSetStencilCompareMask, GetBindCMD(),
+          VK_STENCIL_FACE_FRONT_AND_BACK, compare_mask);
+  VK_CALL(vkCmdSetStencilWriteMask, GetBindCMD(),
+          VK_STENCIL_FACE_FRONT_AND_BACK, write_mask);
 }
 
 std::vector<VkDynamicState> StencilReplacePipeline::GetDynamicStates() {
   auto dynamic_state = StencilPipeline::GetDynamicStates();
 
   dynamic_state.emplace_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
+  dynamic_state.emplace_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
+  dynamic_state.emplace_back(VK_DYNAMIC_STATE_STENCIL_WRITE_MASK);
 
   return dynamic_state;
 }

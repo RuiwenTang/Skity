@@ -43,7 +43,11 @@ class StencilClipImagePipeline : public StaticImagePipeline {
       : StaticImagePipeline(use_gs, push_const_size) {}
   ~StencilClipImagePipeline() override = default;
 
+  void UpdateStencilInfo(uint32_t reference, uint32_t compare_mask,
+                         uint32_t write_mask, GPUVkContext* ctx) override;
+
  protected:
+  std::vector<VkDynamicState> GetDynamicStates() override;
   VkPipelineDepthStencilStateCreateInfo GetDepthStencilStateCreateInfo()
       override;
 };

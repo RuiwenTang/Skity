@@ -25,6 +25,8 @@ VKInterface* VKInterface::InitInterface(VkDevice device,
   GET_PROC(vkCmdPushConstants);
   GET_PROC(vkCmdSetScissor);
   GET_PROC(vkCmdSetStencilReference);
+  GET_PROC(vkCmdSetStencilCompareMask);
+  GET_PROC(vkCmdSetStencilWriteMask);
   GET_PROC(vkCmdSetViewport);
   GET_PROC(vkCreateCommandPool);
   GET_PROC(vkCreateComputePipelines);

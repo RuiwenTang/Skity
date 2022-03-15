@@ -342,7 +342,7 @@ VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilDiscardInfo() {
   return depth_stencil_state;
 }
 
-VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilClipDiscardInfo() {
+VkPipelineDepthStencilStateCreateInfo RenderPipeline::StencilLessDiscardInfo() {
   auto depth_stencil_state = VKUtils::PipelineDepthStencilStateCreateInfo(
       VK_FALSE, VK_FALSE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
