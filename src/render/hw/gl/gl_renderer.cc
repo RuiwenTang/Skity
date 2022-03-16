@@ -15,6 +15,8 @@ static GLenum hw_stencil_func_to_gl(HWStencilFunc func) {
       return GL_ALWAYS;
     case HWStencilFunc::LESS:
       return GL_LESS;
+    case HWStencilFunc::GREAT:
+      return GL_GREATER;
     case HWStencilFunc::LESS_OR_EQUAL:
       return GL_LEQUAL;
     case HWStencilFunc::GREAT_OR_EQUAL:

@@ -6,7 +6,7 @@ void draw_canvas(skity::Canvas* canvas);
 class VKExample : public example::VkApp {
  public:
   VKExample()
-      : example::VkApp(800, 800, "Vulkan Example", {1.f, 1.f, 1.f, 1.f}) {}
+      : example::VkApp(1000, 800, "Vulkan Example", {1.f, 1.f, 1.f, 1.f}) {}
   ~VKExample() override = default;
 
  protected:

@@ -70,8 +70,11 @@ class HWDraw {
   void DoStencilBufferMove();
 
   void DoStencilBufferMoveInternal();
+  void DoStencilBufferClearIfNeed();
 
   void HandleStencilDiscard();
+  void HandleNormalStencilDiscard();
+  void HandleEvenOddStencilDiscard();
   void BindTexture();
 
  private:

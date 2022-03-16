@@ -179,6 +179,31 @@ void draw_simple_text(skity::Canvas* canvas) {
   canvas->restore();
 }
 
+void draw_even_odd_fill(skity::Canvas* canvas) {
+  skity::Paint paint;
+  paint.setStyle(skity::Paint::kFill_Style);
+  paint.setColor(skity::ColorSetA(skity::Color_RED, 64));
+
+  skity::Path path;
+  path.moveTo(100, 10);
+  path.lineTo(40, 180);
+  path.lineTo(190, 60);
+  path.lineTo(10, 60);
+  path.lineTo(160, 180);
+  path.close();
+
+  canvas->drawPath(path, paint);
+
+  canvas->save();
+
+  canvas->translate(0, 200);
+
+  path.setFillType(skity::Path::PathFillType::kEvenOdd);
+  canvas->drawPath(path, paint);
+
+  canvas->restore();
+}
+
 void draw_canvas(skity::Canvas* canvas) {
   draw_basic_example(canvas);
 
@@ -200,5 +225,10 @@ void draw_canvas(skity::Canvas* canvas) {
   canvas->save();
   canvas->translate(400, 300);
   draw_linear_gradient_example(canvas);
+  canvas->restore();
+
+  canvas->save();
+  canvas->translate(800, 0);
+  draw_even_odd_fill(canvas);
   canvas->restore();
 }

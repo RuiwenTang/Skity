@@ -12,7 +12,7 @@
 
 namespace example {
 
-#define ENABLE_VALIDATION
+// #define ENABLE_VALIDATION
 
 #ifdef ENABLE_VALIDATION
 static bool g_enable_validation = true;

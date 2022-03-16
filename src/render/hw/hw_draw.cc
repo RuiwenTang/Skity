@@ -144,6 +144,8 @@ void HWDraw::DoColorFill() {
   if (texture_) {
     texture_->UnBind();
   }
+
+  DoStencilBufferClearIfNeed();
 }
 
 void HWDraw::DoStencilBufferMove() {
@@ -203,19 +205,35 @@ void HWDraw::DoStencilBufferMoveInternal() {
   }
 }
 
+void HWDraw::DoStencilBufferClearIfNeed() {
+  if (!even_odd_fill_) {
+    return;
+  }
+
+  // since even-odd fill only replace part of covered stencil buffer
+  // we should clear other no-event stencil buffer in this step
+  // and this need another draw for color fill range
+  renderer_->DisableColorOutput();
+  renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
+  renderer_->UpdateStencilMask(0x0F);
+  renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x00, 0x0F);
+  renderer_->DrawIndex(color_range_.start, color_range_.count);
+
+  renderer_->EnableColorOutput();
+}
+
 void HWDraw::HandleStencilDiscard() {
   bool has_stencil_discard =
       stencil_back_range_.count != 0 || stencil_front_range_.count != 0;
 
   if (has_stencil_discard) {
     renderer_->UpdateStencilOp(HWStencilOp::REPLACE);
-    if (has_clip_) {
-      renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
-      renderer_->UpdateStencilMask(0x0F);
+    if (even_odd_fill_) {
+      HandleEvenOddStencilDiscard();
     } else {
-      renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
-      renderer_->UpdateStencilMask(0x0F);
+      HandleNormalStencilDiscard();
     }
+    renderer_->UpdateStencilMask(0x0F);
   } else {
     if (has_clip_) {
       renderer_->EnableStencilTest();
@@ -224,6 +242,22 @@ void HWDraw::HandleStencilDiscard() {
     } else {
       renderer_->DisableStencilTest();
     }
+  }
+}
+
+void HWDraw::HandleNormalStencilDiscard() {
+  if (has_clip_) {
+    renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x1F);
+  } else {
+    renderer_->UpdateStencilFunc(HWStencilFunc::NOT_EQUAL, 0x0, 0x0F);
+  }
+}
+
+void HWDraw::HandleEvenOddStencilDiscard() {
+  if (has_clip_) {
+    renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x10, 0x11);
+  } else {
+    renderer_->UpdateStencilFunc(HWStencilFunc::LESS, 0x00, 0x01);
   }
 }
 

@@ -9,7 +9,7 @@ class FillRuleTest : public test::TestApp {
   ~FillRuleTest() override = default;
 
   void OnInit() override {
-    glClearColor(0.3f, 0.4f, 0.5f, 1.f);
+    glClearColor(1.f, 1.f, 1.f, 1.f);
     glClearStencil(0x0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -29,7 +29,7 @@ class FillRuleTest : public test::TestApp {
 
     skity::Paint paint;
     paint.setStyle(skity::Paint::kFill_Style);
-    paint.setColor(skity::Color_RED);
+    paint.setColor(skity::ColorSetA(skity::Color_RED, 64));
 
     skity::Path path;
     path.moveTo(100, 10);
