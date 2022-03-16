@@ -192,7 +192,7 @@ canvas->drawPath(path /* previouse created star path */, paint);
 
 ## Current status:
 
-- Fill (only stencil, no even-odd support)
+- Fill (stencil, even-odd supported)
 
 - Stroke (done)
 
