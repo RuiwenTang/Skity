@@ -4,13 +4,98 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <skity/graphic/path.hpp>
 #include <sstream>
+#include <tuple>
 
+#include "src/geometry/conic.hpp"
 #include "src/geometry/geometry.hpp"
 #include "src/geometry/math.hpp"
 #include "src/geometry/point_priv.hpp"
 #include "src/logging.hpp"
 
 namespace skity {
+
+static bool arc_is_long_point(Rect const& oval, float start_angle,
+                              float sweep_angle, Point* pt) {
+  if (0 == sweep_angle && (0 == start_angle || 360.f == start_angle)) {
+    // Chrome uses this path to move into and out of ovals. If not
+    // treated as a special case the moves can distort the oval's
+    // bounding box (and break the circle special case).
+    PointSet(*pt, oval.right(), oval.centerY());
+    return true;
+  } else if (0 == oval.width() && 0 == oval.height()) {
+    // Chrome will sometimes create 0 radius round rects. Having degenerate
+    // quad segments in the path prevents the path from being recognized as
+    // a rect.
+    // TODO: optimizing the case where only one of width or height is zero
+    // should also be considered. This case, however, doesn't seem to be
+    // as common as the single point case.
+    PointSet(*pt, oval.right(), oval.top());
+    return true;
+  }
+  return false;
+}
+
+static std::tuple<Vec2, Vec2, RotationDirection> angles_to_unit_vectors(
+    float startAngle, float sweepAngle) {
+  float startRad = glm::radians(startAngle),
+        stopRad = glm::radians(startAngle + sweepAngle);
+
+  Vec2 startV;
+  Vec2 stopV;
+  RotationDirection dir;
+
+  startV.y = FloatSinSnapToZero(startRad);
+  startV.x = FloatCosSnapToZero(startRad);
+  stopV.y = FloatSinSnapToZero(stopRad);
+  stopV.x = FloatCosSnapToZero(stopRad);
+
+  /*  If the sweep angle is nearly (but less than) 360, then due to precision
+     loss in radians-conversion and/or sin/cos, we may end up with coincident
+     vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
+     of drawing a nearly complete circle (good).
+     e.g. canvas.drawArc(0, 359.99, ...)
+     -vs- canvas.drawArc(0, 359.9, ...)
+     We try to detect this edge case, and tweak the stop vector
+     */
+  if (startV == stopV) {
+    float sw = glm::abs(sweepAngle);
+    if (sw < 360.f && sw > 359.f) {
+      // make a guess at a tiny angle (in radians) to tweak by
+      float deltaRad = FloatCopySign(Float1 / 512, sweepAngle);
+      // not sure how much will be enough, so we use a loop
+      do {
+        stopRad -= deltaRad;
+        stopV.y = FloatSinSnapToZero(stopRad);
+        stopV.x = FloatCosSnapToZero(stopRad);
+      } while (startV == stopV);
+    }
+  }
+
+  dir = sweepAngle > 0 ? RotationDirection::kCW : RotationDirection::kCCW;
+
+  return {startV, stopV, dir};
+}
+
+/**
+ *  If this returns 0, then the caller should just line-to the singlePt, else it
+ * should ignore singlePt and append the specified number of conics.
+ */
+static int build_arc_conics(const Rect& oval, const Vec2& start,
+                            const Vec2& stop, RotationDirection dir,
+                            Conic conics[Conic::kMaxConicsForArc],
+                            Point* singlePt) {
+  Matrix matrix = glm::translate(glm::mat4(1.f),
+                                 Vec3{oval.centerX(), oval.centerY(), 0.f}) *
+                  glm::scale(glm::mat4(1.f), Vec3{oval.width() * 0.5f,
+                                                  oval.height() * 0.5f, 1.f});
+
+  int count = Conic::BuildUnitArc(Vec4{start, 0, 1}, Vec4{stop, 0, 1}, dir,
+                                  &matrix, conics);
+  if (0 == count) {
+    *singlePt = matrix * Vec4{stop.x, stop.y, 0.f, 1.f};
+  }
+  return count;
+}
 
 template <size_t N>
 class Path_PointIterator {
@@ -492,6 +577,71 @@ Path& Path::arcTo(float x1, float y1, float x2, float y2, float radius) {
   float weight = glm::sqrt(static_cast<float>(FloatHalf + cosh * 0.5));
 
   return conicTo(x1, y1, x1 + after.x, y1 + after.y, weight);
+}
+
+Path& Path::arcTo(Rect const& oval, float startAngle, float sweepAngle,
+                  bool forceMove) {
+  if (oval.width() < 0 || oval.height() < 0) {
+    return *this;
+  }
+
+  if (countVerbs() == 0) {
+    forceMove = true;
+  }
+
+  Point long_pt;
+  if (arc_is_long_point(oval, startAngle, sweepAngle, &long_pt)) {
+    return forceMove ? this->moveTo(long_pt) : this->lineTo(long_pt);
+  }
+
+  Vec2 startV, stopV;
+  RotationDirection dir;
+  std::tie(startV, stopV, dir) = angles_to_unit_vectors(startAngle, sweepAngle);
+
+  Point singlePt;
+
+  // Adds a move-to to 'pt' if forceMoveTo is true. Otherwise a lineTo unless
+  // we're sufficiently close to 'pt' currently. This prevents spurious lineTos
+  // when adding a series of contiguous arcs from the same oval.
+  auto addPt = [&forceMove, this](const Point& pt) {
+    Point lastPt;
+    if (forceMove) {
+      this->moveTo(pt);
+    } else if (!this->getLastPt(&lastPt) || !FloatNearlyZero(lastPt.x - pt.x) ||
+               !FloatNearlyZero(lastPt.y - pt.y)) {
+      this->lineTo(pt);
+    }
+  };
+
+  // At this point, we know that the arc is not a lone point, but startV ==
+  // stopV indicates that the sweepAngle is too small such that
+  // angles_to_unit_vectors cannot handle it.
+  if (startV == stopV) {
+    float endAngle = glm::radians(startAngle + sweepAngle);
+    float radiusX = oval.width() / 2;
+    float radiusY = oval.height() / 2;
+    // We do not use SkScalar[Sin|Cos]SnapToZero here. When sin(startAngle) is 0
+    // and sweepAngle is very small and radius is huge, the expected behavior
+    // here is to draw a line. But calling SkScalarSinSnapToZero will make
+    // sin(endAngle) be 0 which will then draw a dot.
+    PointSet(singlePt, oval.centerX() + radiusX * glm::cos(endAngle),
+             oval.centerY() + radiusY * glm::sin(endAngle));
+    addPt(singlePt);
+    return *this;
+  }
+
+  Conic conics[Conic::kMaxConicsForArc];
+  int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
+  if (count) {
+    const Point& pt = conics[0].pts[0];
+    addPt(pt);
+    for (int i = 0; i < count; ++i) {
+      this->conicTo(conics[i].pts[1], conics[i].pts[2], conics[i].w);
+    }
+  } else {
+    addPt(singlePt);
+  }
+  return *this;
 }
 
 Path& Path::arcTo(float rx, float ry, float xAxisRotate, ArcSize largeArc,

@@ -271,6 +271,22 @@ class SK_API Path {
   }
   Path& arcTo(float x1, float y1, float x2, float y2, float radius);
 
+  /**
+   * @brief Appends arc to Path.
+   *        arc added is part of ellipse bounded by oval, from startAngle
+   *        through sweepAngle. Both startAngle and sweepAngle are measured in
+   *        degrees, where zero degrees is aligned with the positive x-axis, and
+   *        positive sweeps extends arc clockwise.
+   *
+   * @param oval        bounds of ellipse containing arc
+   * @param startAngle  starting angle of arc in degrees
+   * @param sweepAngle  in degrees. Positive is clockwise; treated modulo 360
+   * @param forceMove   true to start a new contour with arc
+   * @return Path&      reference to self.
+   */
+  Path& arcTo(Rect const& oval, float startAngle, float sweepAngle,
+              bool forceMove);
+
   enum ArcSize {
     kSmall,
     kLarge,

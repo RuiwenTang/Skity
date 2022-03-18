@@ -2,6 +2,7 @@
 #define SKITY_INCLUDE_SKITY_GEOMETRY_MATH_HPP_
 
 #include <algorithm>
+#include <cmath>
 #include <glm/glm.hpp>
 #include <limits>
 
@@ -56,6 +57,10 @@ static inline float FloatSinSnapToZero(float radians) {
 static inline float FloatCosSnapToZero(float radians) {
   float v = std::cos(radians);
   return FloatNearlyZero(v) ? 0.f : v;
+}
+
+static inline float FloatCopySign(float v1, float v2) {
+  return std::copysignf(v1, v2);
 }
 
 static inline float CrossProduct(glm::vec4 const& a, glm::vec4 const& b) {

@@ -187,6 +187,24 @@ class HWCanvasTest : public test::TestApp {
       }
     }
 
+    canvas_->save();
+    canvas_->translate(300, 20);
+    paint.setColor(skity::Color_RED);
+    skity::Path path2;
+    skity::Rect oval{20, 20, 120, 120};
+    path2.moveTo(0, 0);
+    path2.arcTo(oval, -80, 90, false);
+    canvas_->drawPath(path2, paint);
+    path2.reset();
+    path2.arcTo({120, 20, 220, 120}, -90, 100, false);
+    canvas_->drawPath(path2, paint);
+
+    path2.reset();
+    path2.moveTo(0, 0);
+    path2.arcTo({20, 120, 120, 220}, -90, 90, true);
+    canvas_->drawPath(path2, paint);
+    canvas_->restore();
+
     canvas_->flush();
   }
 
