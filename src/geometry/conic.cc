@@ -67,7 +67,7 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
                         Conic dst[kMaxConicsForArc]) {
   // rotate by x,y so that uStart is (1.0)
   //  float x = glm::dot(start, stop);
-  float x = start.x * stop.x + start.y * stop.y;
+  float x = glm::dot(Vec2{start}, Vec2{stop});
   float y = CrossProduct(start, stop);
 
   float absY = glm::abs(y);
@@ -89,9 +89,9 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
   //      3 == [270..360)
   //
   int quadrant = 0;
-  if (y == 0) {
+  if (FloatNearlyZero(y)) {
     quadrant = 2;
-  } else if (x == 0) {
+  } else if (FloatNearlyZero(x)) {
     quadrant = y > 0 ? 1 : 3;
   } else {
     if (y < 0) {
@@ -135,9 +135,14 @@ int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
 
   // now handle counter-clockwise and the initial unitStart rotation
   Matrix matrix = glm::identity<Matrix>();
-  // float angle = glm::acos(CrossProduct(start, stop) /
-  //                         (glm::length(start) * glm::length(stop)));
-  // matrix = glm::rotate(glm::identity<Matrix>(), angle, {0, 0, 1});
+  // set sin cos
+  // sin = start.y
+  // cos = start.x
+  matrix[0][0] = start.x;
+  matrix[0][1] = start.y;
+  matrix[1][0] = -start.y;
+  matrix[1][1] = start.x;
+
   if (dir == RotationDirection::kCCW) {
     matrix = glm::scale(matrix, {Float1, -Float1, 1});
   }
