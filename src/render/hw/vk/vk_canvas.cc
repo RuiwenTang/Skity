@@ -22,6 +22,7 @@ void VKCanvas::OnInit(GPUContext* ctx) {
   }
 
   ctx_ = (GPUVkContext*)ctx;
+  vk_phy_features_ = ctx_->GetPhysicalDeviceFeatures();
 }
 
 bool VKCanvas::SupportGeometryShader() {
