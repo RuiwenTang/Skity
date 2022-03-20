@@ -85,7 +85,8 @@ void VkRenderer::Bind() {
 
   // update empty_font_set_
   empty_font_set_ = CurrentFrameBuffer()->ObtainUniformBufferSet(
-      ctx_, static_color_pipeline_->GetFontSetLayout());
+      ctx_,
+      color_pipeline_family_->ChoosePipeline(false, false)->GetFontSetLayout());
 
   // update this empty_font_set_ for future usage
   auto image_info = VKUtils::DescriptorImageInfo(
@@ -431,10 +432,7 @@ void VkRenderer::DestroySampler() {
 }
 
 void VkRenderer::DestroyPipelines() {
-  static_color_pipeline_->Destroy(ctx_);
-  stencil_color_pipeline_->Destroy(ctx_);
-  stencil_clip_color_pipeline_->Destroy(ctx_);
-  stencil_keep_color_pipeline_->Destroy(ctx_);
+  color_pipeline_family_->Destroy(ctx_);
   static_gradient_pipeline_->Destroy(ctx_);
   stencil_gradient_pipeline_->Destroy(ctx_);
   stencil_clip_gradient_pipeline_->Destroy(ctx_);
@@ -451,8 +449,6 @@ void VkRenderer::DestroyPipelines() {
   stencil_clip_pipeline_->Destroy(ctx_);
   stencil_rec_clip_pipeline_->Destroy(ctx_);
   stencil_replace_pipeline_->Destroy(ctx_);
-  os_static_color_pipeline_->Destroy(ctx_);
-  os_stencil_color_pipeline_->Destroy(ctx_);
   os_stencil_front_pipeline_->Destroy(ctx_);
   os_stencil_back_pipeline_->Destroy(ctx_);
   compute_blur_pipeline_->Destroy(ctx_);
@@ -479,16 +475,10 @@ VkCommandBuffer VkRenderer::GetCurrentCMD() {
 }
 
 void VkRenderer::InitPipelines() {
-  static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_color_pipeline_ = AbsPipelineWrapper::CreateStencilColorPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_clip_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipColorPipeline(GetInterface(), ctx_,
-                                                         use_gs_);
-  stencil_keep_color_pipeline_ =
-      AbsPipelineWrapper::CreateStencilKeepColorPipeline(GetInterface(), ctx_,
-                                                         use_gs_);
+  color_pipeline_family_ = PipelineFamily::CreateColorPipelineFamily();
+  color_pipeline_family_->SetInterface(GetInterface());
+  color_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
+
   static_gradient_pipeline_ = AbsPipelineWrapper::CreateStaticGradientPipeline(
       GetInterface(), ctx_, use_gs_);
   stencil_gradient_pipeline_ =
@@ -532,10 +522,6 @@ void VkRenderer::InitPipelines() {
       GetInterface(), ctx_, use_gs_);
 
   // off screen pipelines
-  os_static_color_pipeline_ = AbsPipelineWrapper::CreateStaticColorPipeline(
-      GetInterface(), ctx_, use_gs_, os_render_pass_);
-  os_stencil_color_pipeline_ = AbsPipelineWrapper::CreateStencilColorPipeline(
-      GetInterface(), ctx_, use_gs_, os_render_pass_);
   os_stencil_front_pipeline_ = AbsPipelineWrapper::CreateStencilFrontPipeline(
       GetInterface(), ctx_, use_gs_, os_render_pass_);
   os_stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(
@@ -645,29 +631,10 @@ void VkRenderer::InitOffScreenRenderPass() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickColorPipeline() {
-  // need to pick off screen pipeline
-  if (current_target_) {
-    if (!enable_stencil_test_) {
-      return os_static_color_pipeline_.get();
-    } else {
-      return os_stencil_color_pipeline_.get();
-    }
+  color_pipeline_family_->UpdateStencilFunc(stencil_func_);
 
-    return nullptr;
-  }
-
-  // pick normal pipeline
-  if (!enable_stencil_test_) {
-    return static_color_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
-    return stencil_color_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::LESS) {
-    return stencil_clip_color_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
-    return stencil_keep_color_pipeline_.get();
-  }
-
-  return nullptr;
+  return color_pipeline_family_->ChoosePipeline(enable_stencil_test_,
+                                                current_target_ != nullptr);
 }
 
 AbsPipelineWrapper* VkRenderer::PickStencilPipeline() {

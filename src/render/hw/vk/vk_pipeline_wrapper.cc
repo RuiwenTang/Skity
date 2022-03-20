@@ -10,6 +10,13 @@
 #include "src/render/hw/vk/vk_texture.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
+#define SAFE_DESTROY(pipeline, ctx) \
+  do {                              \
+    if (pipeline) {                 \
+      pipeline->Destroy(ctx);       \
+    }                               \
+  } while (false)
+
 namespace skity {
 
 void RenderPipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,
@@ -453,6 +460,73 @@ void ComputePipeline::InitPipelineLayout(GPUVkContext* ctx) {
 
   VK_CALL(vkCreatePipelineLayout, ctx->GetDevice(), &pipeline_ci, nullptr,
           &pipeline_layout_);
+}
+
+void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
+                          VkRenderPass os_renderpass) {
+  os_render_pass_ = os_renderpass;
+  use_geometry_shader_ = use_geometry_shader;
+
+  OnInit(ctx);
+
+  static_pipeline_ = CreateStaticPipeline(ctx);
+  stencil_discard_pipeline_ = CreateStencilDiscardPipeline(ctx);
+  stencil_clip_pipeline_ = CreateStencilClipPipeline(ctx);
+  stencil_keep_pipeline_ = CreateStencilKeepPipeline(ctx);
+
+  if (os_render_pass_) {
+    os_static_pipeline_ = CreateOSStaticPipeline(ctx);
+    os_stencil_pipeline_ = CreateOSStencilPipeline(ctx);
+  }
+
+  OnAfterInit(ctx);
+}
+
+void PipelineFamily::Destroy(GPUVkContext* ctx) {
+  SAFE_DESTROY(static_pipeline_, ctx);
+  SAFE_DESTROY(stencil_discard_pipeline_, ctx);
+  SAFE_DESTROY(stencil_clip_pipeline_, ctx);
+  SAFE_DESTROY(stencil_keep_pipeline_, ctx);
+  SAFE_DESTROY(os_static_pipeline_, ctx);
+  SAFE_DESTROY(os_stencil_pipeline_, ctx);
+}
+
+void PipelineFamily::UpdateStencilFunc(HWStencilFunc func) {
+  stencil_func_ = func;
+}
+
+AbsPipelineWrapper* PipelineFamily::ChoosePipeline(bool enable_stencil,
+                                                   bool off_screen) {
+  if (off_screen) {
+    return ChooseOffScreenPiepline(enable_stencil);
+  } else {
+    return ChooseRenderPipeline(enable_stencil);
+  }
+}
+
+AbsPipelineWrapper* PipelineFamily::ChooseOffScreenPiepline(
+    bool enable_stencil) {
+  if (enable_stencil) {
+    return os_stencil_pipeline_.get();
+  } else {
+    return os_static_pipeline_.get();
+  }
+}
+
+AbsPipelineWrapper* PipelineFamily::ChooseRenderPipeline(bool enable_stencil) {
+  if (!enable_stencil) {
+    return static_pipeline_.get();
+  }
+
+  if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
+    return stencil_discard_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::LESS) {
+    return stencil_clip_pipeline_.get();
+  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
+    return stencil_keep_pipeline_.get();
+  }
+
+  return nullptr;
 }
 
 }  // namespace skity

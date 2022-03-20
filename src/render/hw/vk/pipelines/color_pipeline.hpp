@@ -59,6 +59,34 @@ class StencilKeepColorPipeline : public StaticColorPipeline {
       override;
 };
 
+class ColorPipelineFamily : public PipelineFamily {
+ public:
+  ColorPipelineFamily() = default;
+  ~ColorPipelineFamily() override = default;
+
+ protected:
+  void OnInit(GPUVkContext* ctx) override;
+  void OnAfterInit(GPUVkContext* ctx) override;
+
+  std::unique_ptr<AbsPipelineWrapper> CreateStaticPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilDiscardPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateOSStaticPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateOSStencilPipeline(
+      GPUVkContext* ctx) override;
+
+ private:
+  VkShaderModule vs_shader_ = VK_NULL_HANDLE;
+  VkShaderModule fs_shader_ = VK_NULL_HANDLE;
+  VkShaderModule gs_shader_ = VK_NULL_HANDLE;
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_COLOR_PIPELINE_HPP
