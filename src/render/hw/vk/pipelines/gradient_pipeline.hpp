@@ -58,6 +58,29 @@ class StencilKeepGradientPipeline : public StaticGradientPipeline {
       override;
 };
 
+class GradientPipelineFamily : public PipelineFamily {
+ public:
+  GradientPipelineFamily() = default;
+  ~GradientPipelineFamily() override = default;
+
+ protected:
+  std::tuple<const char*, size_t> GetFragmentShaderInfo() override;
+
+  std::unique_ptr<AbsPipelineWrapper> CreateStaticPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilDiscardPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateOSStaticPipeline(
+      GPUVkContext* ctx) override;
+  std::unique_ptr<AbsPipelineWrapper> CreateOSStencilPipeline(
+      GPUVkContext* ctx) override;
+
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_GRADIENT_PIPELINE_HPP

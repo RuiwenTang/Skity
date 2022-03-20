@@ -433,10 +433,8 @@ void VkRenderer::DestroySampler() {
 
 void VkRenderer::DestroyPipelines() {
   color_pipeline_family_->Destroy(ctx_);
-  static_gradient_pipeline_->Destroy(ctx_);
-  stencil_gradient_pipeline_->Destroy(ctx_);
-  stencil_clip_gradient_pipeline_->Destroy(ctx_);
-  stencil_keep_gradient_pipeline_->Destroy(ctx_);
+  gradient_pipeline_family_->Destroy(ctx_);
+
   static_image_pipeline_->Destroy(ctx_);
   stencil_image_pipeline_->Destroy(ctx_);
   stencil_clip_image_pipeline_->Destroy(ctx_);
@@ -456,8 +454,6 @@ void VkRenderer::DestroyPipelines() {
   os_static_blur_pipeline_->Destroy(ctx_);
   os_static_image_pipeline_->Destroy(ctx_);
   os_stencil_image_pipeline_->Destroy(ctx_);
-  os_static_gradient_pipeline_->Destroy(ctx_);
-  os_stencil_gradient_pipeline_->Destroy(ctx_);
 }
 
 void VkRenderer::DestroyFrameBuffers() {
@@ -479,22 +475,14 @@ void VkRenderer::InitPipelines() {
   color_pipeline_family_->SetInterface(GetInterface());
   color_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
 
-  static_gradient_pipeline_ = AbsPipelineWrapper::CreateStaticGradientPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GetInterface(),
-                                                               ctx_, use_gs_);
-  stencil_clip_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipGradientPipeline(GetInterface(),
-                                                            ctx_, use_gs_);
-  stencil_keep_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilKeepGradientPipeline(GetInterface(),
-                                                            ctx_, use_gs_);
+  gradient_pipeline_family_ = PipelineFamily::CreateGradientPipelineFamily();
+  gradient_pipeline_family_->SetInterface(GetInterface());
+  gradient_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
+
   static_image_pipeline_ = AbsPipelineWrapper::CreateStaticImagePipeline(
       GetInterface(), ctx_, use_gs_);
-  stencil_image_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(GetInterface(),
-                                                               ctx_, use_gs_);
+  stencil_image_pipeline_ = AbsPipelineWrapper::CreateStencilImagePipeline(
+      GetInterface(), ctx_, use_gs_);
   stencil_clip_image_pipeline_ =
       AbsPipelineWrapper::CreateStencilClipImagePipeline(GetInterface(), ctx_,
                                                          use_gs_);
@@ -530,12 +518,6 @@ void VkRenderer::InitPipelines() {
       GetInterface(), ctx_, use_gs_, os_render_pass_);
   os_stencil_image_pipeline_ = AbsPipelineWrapper::CreateStencilImagePipeline(
       GetInterface(), ctx_, use_gs_, os_render_pass_);
-  os_static_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStaticGradientPipeline(
-          GetInterface(), ctx_, use_gs_, os_render_pass_);
-  os_stencil_gradient_pipeline_ =
-      AbsPipelineWrapper::CreateStencilDiscardGradientPipeline(
-          GetInterface(), ctx_, use_gs_, os_render_pass_);
 
   // effect pipelines
   static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(
@@ -698,26 +680,10 @@ AbsPipelineWrapper* VkRenderer::PickReplaceStencilPipeline() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
-  if (current_target_) {
-    if (!enable_stencil_test_) {
-      return os_static_gradient_pipeline_.get();
-    } else {
-      return os_stencil_gradient_pipeline_.get();
-    }
-    return nullptr;
-  }
+  gradient_pipeline_family_->UpdateStencilFunc(stencil_func_);
 
-  if (!enable_stencil_test_) {
-    return static_gradient_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
-    return stencil_gradient_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::LESS) {
-    return stencil_clip_gradient_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
-    return stencil_keep_gradient_pipeline_.get();
-  }
-
-  return nullptr;
+  return gradient_pipeline_family_->ChoosePipeline(enable_stencil_test_,
+                                                   current_target_ != nullptr);
 }
 
 AbsPipelineWrapper* VkRenderer::PickImagePipeline() {

@@ -65,8 +65,7 @@ class ColorPipelineFamily : public PipelineFamily {
   ~ColorPipelineFamily() override = default;
 
  protected:
-  void OnInit(GPUVkContext* ctx) override;
-  void OnAfterInit(GPUVkContext* ctx) override;
+  std::tuple<const char*, size_t> GetFragmentShaderInfo() override;
 
   std::unique_ptr<AbsPipelineWrapper> CreateStaticPipeline(
       GPUVkContext* ctx) override;
@@ -80,11 +79,6 @@ class ColorPipelineFamily : public PipelineFamily {
       GPUVkContext* ctx) override;
   std::unique_ptr<AbsPipelineWrapper> CreateOSStencilPipeline(
       GPUVkContext* ctx) override;
-
- private:
-  VkShaderModule vs_shader_ = VK_NULL_HANDLE;
-  VkShaderModule fs_shader_ = VK_NULL_HANDLE;
-  VkShaderModule gs_shader_ = VK_NULL_HANDLE;
 };
 
 }  // namespace skity

@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 
+#include "shader.hpp"
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
@@ -467,7 +468,9 @@ void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
   os_render_pass_ = os_renderpass;
   use_geometry_shader_ = use_geometry_shader;
 
-  OnInit(ctx);
+  vs_shader_ = GenerateVertexShader(ctx);
+  fs_shader_ = GenerateFragmentShader(ctx);
+  gs_shader_ = GenerateGeometryShader(ctx);
 
   static_pipeline_ = CreateStaticPipeline(ctx);
   stencil_discard_pipeline_ = CreateStencilDiscardPipeline(ctx);
@@ -479,7 +482,12 @@ void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
     os_stencil_pipeline_ = CreateOSStencilPipeline(ctx);
   }
 
-  OnAfterInit(ctx);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vs_shader_, VK_NULL_HANDLE);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fs_shader_, VK_NULL_HANDLE);
+  if (UseGeometryShader()) {
+    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), gs_shader_,
+            VK_NULL_HANDLE);
+  }
 }
 
 void PipelineFamily::Destroy(GPUVkContext* ctx) {
@@ -502,6 +510,16 @@ AbsPipelineWrapper* PipelineFamily::ChoosePipeline(bool enable_stencil,
   } else {
     return ChooseRenderPipeline(enable_stencil);
   }
+}
+
+VkShaderModule PipelineFamily::GenerateGeometryShader(GPUVkContext* ctx) {
+  if (!UseGeometryShader()) {
+    return VK_NULL_HANDLE;
+  }
+
+  return VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
+                               (const char*)vk_gs_geometry_geom_spv,
+                               vk_gs_geometry_geom_spv_size);
 }
 
 AbsPipelineWrapper* PipelineFamily::ChooseOffScreenPiepline(
@@ -527,6 +545,34 @@ AbsPipelineWrapper* PipelineFamily::ChooseRenderPipeline(bool enable_stencil) {
   }
 
   return nullptr;
+}
+
+std::tuple<const char*, size_t> PipelineFamily::GetVertexShaderInfo() {
+  if (use_geometry_shader_) {
+    return {(const char*)vk_gs_common_vert_spv, vk_gs_common_vert_spv_size};
+  } else {
+    return {(const char*)vk_common_vert_spv, vk_common_vert_spv_size};
+  }
+}
+
+VkShaderModule PipelineFamily::GenerateVertexShader(GPUVkContext* ctx) {
+  const char* shader_source;
+  size_t shader_size;
+
+  std::tie(shader_source, shader_size) = GetVertexShaderInfo();
+
+  return VKUtils::CreateShader(GetInterface(), ctx->GetDevice(), shader_source,
+                               shader_size);
+}
+
+VkShaderModule PipelineFamily::GenerateFragmentShader(GPUVkContext* ctx) {
+  const char* shader_source;
+  size_t shader_size;
+
+  std::tie(shader_source, shader_size) = GetFragmentShaderInfo();
+
+  return VKUtils::CreateShader(GetInterface(), ctx->GetDevice(), shader_source,
+                               shader_size);
 }
 
 }  // namespace skity

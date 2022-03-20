@@ -85,41 +85,9 @@ StencilKeepColorPipeline::GetDepthStencilStateCreateInfo() {
   return RenderPipeline::StencilKeepInfo();
 }
 
-void ColorPipelineFamily::OnInit(GPUVkContext* ctx) {
-  const char* vs_shader_source = nullptr;
-  size_t vs_shader_size = 0;
-  const char* fs_shader_source = (const char*)vk_uniform_color_frag_spv;
-  size_t fs_shader_size = vk_uniform_color_frag_spv_size;
-  const char* gs_shader_source = nullptr;
-  size_t gs_shader_size = 0;
-  if (UseGeometryShader()) {
-    vs_shader_source = (const char*)vk_gs_common_vert_spv;
-    vs_shader_size = vk_gs_common_vert_spv_size;
-
-    gs_shader_source = (const char*)vk_gs_geometry_geom_spv;
-    gs_shader_size = vk_gs_geometry_geom_spv_size;
-  } else {
-    vs_shader_source = (const char*)vk_common_vert_spv;
-    vs_shader_size = vk_common_vert_spv_size;
-  }
-
-  vs_shader_ = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
-                                     vs_shader_source, vs_shader_size);
-  fs_shader_ = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
-                                     fs_shader_source, fs_shader_size);
-  if (UseGeometryShader()) {
-    gs_shader_ = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
-                                       gs_shader_source, gs_shader_size);
-  }
-}
-
-void ColorPipelineFamily::OnAfterInit(GPUVkContext* ctx) {
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vs_shader_, VK_NULL_HANDLE);
-  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fs_shader_, VK_NULL_HANDLE);
-  if (UseGeometryShader()) {
-    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), gs_shader_,
-            VK_NULL_HANDLE);
-  }
+std::tuple<const char*, size_t> ColorPipelineFamily::GetFragmentShaderInfo() {
+  return {(const char*)vk_uniform_color_frag_spv,
+          vk_uniform_color_frag_spv_size};
 }
 
 std::unique_ptr<AbsPipelineWrapper> ColorPipelineFamily::CreateStaticPipeline(
@@ -129,7 +97,8 @@ std::unique_ptr<AbsPipelineWrapper> ColorPipelineFamily::CreateStaticPipeline(
 
   pipeline->SetInterface(GetInterface());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }
@@ -141,7 +110,8 @@ ColorPipelineFamily::CreateStencilDiscardPipeline(GPUVkContext* ctx) {
 
   pipeline->SetInterface(GetInterface());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }
@@ -153,7 +123,8 @@ ColorPipelineFamily::CreateStencilClipPipeline(GPUVkContext* ctx) {
 
   pipeline->SetInterface(GetInterface());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }
@@ -165,7 +136,8 @@ ColorPipelineFamily::CreateStencilKeepPipeline(GPUVkContext* ctx) {
 
   pipeline->SetInterface(GetInterface());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }
@@ -179,7 +151,8 @@ std::unique_ptr<AbsPipelineWrapper> ColorPipelineFamily::CreateOSStaticPipeline(
 
   pipeline->SetRenderPass(OffScreenRenderPass());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }
@@ -193,7 +166,8 @@ ColorPipelineFamily::CreateOSStencilPipeline(GPUVkContext* ctx) {
 
   pipeline->SetRenderPass(OffScreenRenderPass());
 
-  pipeline->Init(ctx, vs_shader_, fs_shader_, gs_shader_);
+  pipeline->Init(ctx, GetVertexShader(), GetFragmentShader(),
+                 GetGeometryShader());
 
   return pipeline;
 }

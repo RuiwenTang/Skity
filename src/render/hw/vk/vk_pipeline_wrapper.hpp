@@ -8,6 +8,7 @@
 #include <memory>
 #include <skity/gpu/gpu_vk_context.hpp>
 #include <vector>
+#include <tuple>
 
 #include "src/render/hw/hw_renderer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
@@ -105,28 +106,6 @@ class AbsPipelineWrapper : public VkInterfaceClient {
   virtual void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
                               SKVkFrameBufferData* frame_buffer,
                               VKMemoryAllocator* allocator) {}
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStaticGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
-      VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper>
-  CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
-                                       GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper>
-  CreateStencilDiscardGradientPipeline(VKInterface* vk_interface,
-                                       GPUVkContext* ctx, bool use_gs,
-                                       VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepGradientPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
       VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
@@ -379,12 +358,14 @@ class PipelineFamily : public VkInterfaceClient {
                                              bool off_screen);
 
   static std::unique_ptr<PipelineFamily> CreateColorPipelineFamily();
+  static std::unique_ptr<PipelineFamily> CreateGradientPipelineFamily();
+
  protected:
   VkRenderPass OffScreenRenderPass() { return os_render_pass_; }
   bool UseGeometryShader() { return use_geometry_shader_; }
 
-  virtual void OnInit(GPUVkContext* ctx) {}
-  virtual void OnAfterInit(GPUVkContext* ctx) {}
+  virtual std::tuple<const char*, size_t> GetVertexShaderInfo();
+  virtual std::tuple<const char*, size_t> GetFragmentShaderInfo() = 0;
 
   virtual std::unique_ptr<AbsPipelineWrapper> CreateStaticPipeline(
       GPUVkContext* ctx) = 0;
@@ -399,14 +380,26 @@ class PipelineFamily : public VkInterfaceClient {
   virtual std::unique_ptr<AbsPipelineWrapper> CreateOSStencilPipeline(
       GPUVkContext* ctx) = 0;
 
+  VkShaderModule GetVertexShader() { return vs_shader_; }
+  VkShaderModule GetFragmentShader() { return fs_shader_; }
+  VkShaderModule GetGeometryShader() { return gs_shader_; }
+
+
  private:
   AbsPipelineWrapper* ChooseOffScreenPiepline(bool enable_stencil);
   AbsPipelineWrapper* ChooseRenderPipeline(bool enable_stencil);
+
+  VkShaderModule GenerateVertexShader(GPUVkContext* ctx);
+  VkShaderModule GenerateFragmentShader(GPUVkContext* ctx);
+  VkShaderModule GenerateGeometryShader(GPUVkContext* ctx);
 
  private:
   bool use_geometry_shader_ = false;
   HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
   VkRenderPass os_render_pass_ = VK_NULL_HANDLE;
+  VkShaderModule vs_shader_ = VK_NULL_HANDLE;
+  VkShaderModule fs_shader_ = VK_NULL_HANDLE;
+  VkShaderModule gs_shader_ = VK_NULL_HANDLE;
   std::unique_ptr<AbsPipelineWrapper> static_pipeline_ = {};
   std::unique_ptr<AbsPipelineWrapper> stencil_discard_pipeline_ = {};
   std::unique_ptr<AbsPipelineWrapper> stencil_clip_pipeline_ = {};
