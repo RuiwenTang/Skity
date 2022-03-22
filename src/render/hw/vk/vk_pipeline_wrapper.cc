@@ -463,11 +463,7 @@ void ComputePipeline::InitPipelineLayout(GPUVkContext* ctx) {
           &pipeline_layout_);
 }
 
-void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
-                          VkRenderPass os_renderpass) {
-  os_render_pass_ = os_renderpass;
-  use_geometry_shader_ = use_geometry_shader;
-
+void RenderPipelineFamily::OnInit(GPUVkContext* ctx) {
   vs_shader_ = GenerateVertexShader(ctx);
   fs_shader_ = GenerateFragmentShader(ctx);
   gs_shader_ = GenerateGeometryShader(ctx);
@@ -477,7 +473,7 @@ void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
   stencil_clip_pipeline_ = CreateStencilClipPipeline(ctx);
   stencil_keep_pipeline_ = CreateStencilKeepPipeline(ctx);
 
-  if (os_render_pass_) {
+  if (OffScreenRenderPass()) {
     os_static_pipeline_ = CreateOSStaticPipeline(ctx);
     os_stencil_pipeline_ = CreateOSStencilPipeline(ctx);
   }
@@ -490,7 +486,7 @@ void PipelineFamily::Init(GPUVkContext* ctx, bool use_geometry_shader,
   }
 }
 
-void PipelineFamily::Destroy(GPUVkContext* ctx) {
+void RenderPipelineFamily::OnDestroy(GPUVkContext* ctx) {
   SAFE_DESTROY(static_pipeline_, ctx);
   SAFE_DESTROY(stencil_discard_pipeline_, ctx);
   SAFE_DESTROY(stencil_clip_pipeline_, ctx);
@@ -499,12 +495,8 @@ void PipelineFamily::Destroy(GPUVkContext* ctx) {
   SAFE_DESTROY(os_stencil_pipeline_, ctx);
 }
 
-void PipelineFamily::UpdateStencilFunc(HWStencilFunc func) {
-  stencil_func_ = func;
-}
-
-AbsPipelineWrapper* PipelineFamily::ChoosePipeline(bool enable_stencil,
-                                                   bool off_screen) {
+AbsPipelineWrapper* RenderPipelineFamily::ChoosePipeline(bool enable_stencil,
+                                                         bool off_screen) {
   if (off_screen) {
     return ChooseOffScreenPiepline(enable_stencil);
   } else {
@@ -512,7 +504,7 @@ AbsPipelineWrapper* PipelineFamily::ChoosePipeline(bool enable_stencil,
   }
 }
 
-VkShaderModule PipelineFamily::GenerateGeometryShader(GPUVkContext* ctx) {
+VkShaderModule RenderPipelineFamily::GenerateGeometryShader(GPUVkContext* ctx) {
   if (!UseGeometryShader()) {
     return VK_NULL_HANDLE;
   }
@@ -522,7 +514,7 @@ VkShaderModule PipelineFamily::GenerateGeometryShader(GPUVkContext* ctx) {
                                vk_gs_geometry_geom_spv_size);
 }
 
-AbsPipelineWrapper* PipelineFamily::ChooseOffScreenPiepline(
+AbsPipelineWrapper* RenderPipelineFamily::ChooseOffScreenPiepline(
     bool enable_stencil) {
   if (enable_stencil) {
     return os_stencil_pipeline_.get();
@@ -531,31 +523,32 @@ AbsPipelineWrapper* PipelineFamily::ChooseOffScreenPiepline(
   }
 }
 
-AbsPipelineWrapper* PipelineFamily::ChooseRenderPipeline(bool enable_stencil) {
+AbsPipelineWrapper* RenderPipelineFamily::ChooseRenderPipeline(
+    bool enable_stencil) {
   if (!enable_stencil) {
     return static_pipeline_.get();
   }
 
-  if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
+  if (StencilFunc() == HWStencilFunc::NOT_EQUAL) {
     return stencil_discard_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::LESS) {
+  } else if (StencilFunc() == HWStencilFunc::LESS) {
     return stencil_clip_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
+  } else if (StencilFunc() == HWStencilFunc::EQUAL) {
     return stencil_keep_pipeline_.get();
   }
 
   return nullptr;
 }
 
-std::tuple<const char*, size_t> PipelineFamily::GetVertexShaderInfo() {
-  if (use_geometry_shader_) {
+std::tuple<const char*, size_t> RenderPipelineFamily::GetVertexShaderInfo() {
+  if (UseGeometryShader()) {
     return {(const char*)vk_gs_common_vert_spv, vk_gs_common_vert_spv_size};
   } else {
     return {(const char*)vk_common_vert_spv, vk_common_vert_spv_size};
   }
 }
 
-VkShaderModule PipelineFamily::GenerateVertexShader(GPUVkContext* ctx) {
+VkShaderModule RenderPipelineFamily::GenerateVertexShader(GPUVkContext* ctx) {
   const char* shader_source;
   size_t shader_size;
 
@@ -565,7 +558,7 @@ VkShaderModule PipelineFamily::GenerateVertexShader(GPUVkContext* ctx) {
                                shader_size);
 }
 
-VkShaderModule PipelineFamily::GenerateFragmentShader(GPUVkContext* ctx) {
+VkShaderModule RenderPipelineFamily::GenerateFragmentShader(GPUVkContext* ctx) {
   const char* shader_source;
   size_t shader_size;
 

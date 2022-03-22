@@ -466,11 +466,12 @@ VkCommandBuffer VkRenderer::GetCurrentCMD() {
 }
 
 void VkRenderer::InitPipelines() {
-  color_pipeline_family_ = PipelineFamily::CreateColorPipelineFamily();
+  color_pipeline_family_ = RenderPipelineFamily::CreateColorPipelineFamily();
   color_pipeline_family_->SetInterface(GetInterface());
   color_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
 
-  gradient_pipeline_family_ = PipelineFamily::CreateGradientPipelineFamily();
+  gradient_pipeline_family_ =
+      RenderPipelineFamily::CreateGradientPipelineFamily();
   gradient_pipeline_family_->SetInterface(GetInterface());
   gradient_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
 
@@ -598,7 +599,7 @@ void VkRenderer::InitOffScreenRenderPass() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickColorPipeline() {
-  color_pipeline_family_->UpdateStencilFunc(stencil_func_);
+  color_pipeline_family_->UpdateStencilFunc(stencil_func_, stencil_op_);
 
   return color_pipeline_family_->ChoosePipeline(enable_stencil_test_,
                                                 current_target_ != nullptr);
@@ -665,14 +666,14 @@ AbsPipelineWrapper* VkRenderer::PickReplaceStencilPipeline() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
-  gradient_pipeline_family_->UpdateStencilFunc(stencil_func_);
+  gradient_pipeline_family_->UpdateStencilFunc(stencil_func_, stencil_op_);
 
   return gradient_pipeline_family_->ChoosePipeline(enable_stencil_test_,
                                                    current_target_ != nullptr);
 }
 
 AbsPipelineWrapper* VkRenderer::PickImagePipeline() {
-  image_pipeline_family_->UpdateStencilFunc(stencil_func_);
+  image_pipeline_family_->UpdateStencilFunc(stencil_func_, stencil_op_);
 
   return image_pipeline_family_->ChoosePipeline(enable_stencil_test_,
                                                 current_target_ != nullptr);

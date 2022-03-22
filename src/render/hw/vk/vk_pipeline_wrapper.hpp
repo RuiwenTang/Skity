@@ -323,27 +323,61 @@ class ComputePipeline : public AbsPipelineWrapper {
 
 class PipelineFamily : public VkInterfaceClient {
  public:
-  PipelineFamily() = default;
-
   virtual ~PipelineFamily() = default;
 
   void Init(GPUVkContext* ctx, bool use_geometry_shader,
-            VkRenderPass os_renderpass = VK_NULL_HANDLE);
+            VkRenderPass os_renderpass = VK_NULL_HANDLE) {
+    use_geometry_shader_ = use_geometry_shader;
+    os_render_pass_ = os_renderpass;
 
-  void Destroy(GPUVkContext* ctx);
+    OnInit(ctx);
+  }
 
-  void UpdateStencilFunc(HWStencilFunc func);
+  void Destroy(GPUVkContext* ctx) { OnDestroy(ctx); }
+
+  void UpdateStencilFunc(HWStencilFunc func, HWStencilOp op) {
+    stencil_func_ = func;
+    stencil_op_ = op;
+  }
 
   virtual AbsPipelineWrapper* ChoosePipeline(bool enable_stencil,
-                                             bool off_screen);
+                                             bool off_screen) = 0;
 
   static std::unique_ptr<PipelineFamily> CreateColorPipelineFamily();
   static std::unique_ptr<PipelineFamily> CreateGradientPipelineFamily();
   static std::unique_ptr<PipelineFamily> CreateImagePipelineFamily();
 
  protected:
-  VkRenderPass OffScreenRenderPass() { return os_render_pass_; }
-  bool UseGeometryShader() { return use_geometry_shader_; }
+  VkRenderPass OffScreenRenderPass() const { return os_render_pass_; }
+
+  bool UseGeometryShader() const { return use_geometry_shader_; }
+
+  HWStencilFunc StencilFunc() const { return stencil_func_; }
+
+  HWStencilOp StencilOp() const { return stencil_op_; }
+
+  virtual void OnInit(GPUVkContext* ctx) = 0;
+  virtual void OnDestroy(GPUVkContext* ctx) = 0;
+
+ private:
+  bool use_geometry_shader_ = false;
+  VkRenderPass os_render_pass_ = VK_NULL_HANDLE;
+  HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
+  HWStencilOp stencil_op_ = HWStencilOp::KEEP;
+};
+
+class RenderPipelineFamily : public PipelineFamily {
+ public:
+  RenderPipelineFamily() = default;
+
+  virtual ~RenderPipelineFamily() = default;
+
+  AbsPipelineWrapper* ChoosePipeline(bool enable_stencil,
+                                     bool off_screen) override;
+
+ protected:
+  void OnInit(GPUVkContext* ctx) override;
+  void OnDestroy(GPUVkContext* ctx) override;
 
   virtual std::tuple<const char*, size_t> GetVertexShaderInfo();
   virtual std::tuple<const char*, size_t> GetFragmentShaderInfo() = 0;
@@ -374,9 +408,6 @@ class PipelineFamily : public VkInterfaceClient {
   VkShaderModule GenerateGeometryShader(GPUVkContext* ctx);
 
  private:
-  bool use_geometry_shader_ = false;
-  HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
-  VkRenderPass os_render_pass_ = VK_NULL_HANDLE;
   VkShaderModule vs_shader_ = VK_NULL_HANDLE;
   VkShaderModule fs_shader_ = VK_NULL_HANDLE;
   VkShaderModule gs_shader_ = VK_NULL_HANDLE;

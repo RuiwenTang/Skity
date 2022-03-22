@@ -58,7 +58,7 @@ class StencilKeepGradientPipeline : public StaticGradientPipeline {
       override;
 };
 
-class GradientPipelineFamily : public PipelineFamily {
+class GradientPipelineFamily : public RenderPipelineFamily {
  public:
   GradientPipelineFamily() = default;
   ~GradientPipelineFamily() override = default;
@@ -78,7 +78,6 @@ class GradientPipelineFamily : public PipelineFamily {
       GPUVkContext* ctx) override;
   std::unique_ptr<AbsPipelineWrapper> CreateOSStencilPipeline(
       GPUVkContext* ctx) override;
-
 };
 
 }  // namespace skity

@@ -63,7 +63,7 @@ class StencilKeepImagePipeline : public StaticImagePipeline {
       override;
 };
 
-class ImagePipelineFamily : public PipelineFamily {
+class ImagePipelineFamily : public RenderPipelineFamily {
  public:
   ImagePipelineFamily() = default;
   ~ImagePipelineFamily() override = default;

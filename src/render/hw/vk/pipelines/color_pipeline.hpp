@@ -59,7 +59,7 @@ class StencilKeepColorPipeline : public StaticColorPipeline {
       override;
 };
 
-class ColorPipelineFamily : public PipelineFamily {
+class ColorPipelineFamily : public RenderPipelineFamily {
  public:
   ColorPipelineFamily() = default;
   ~ColorPipelineFamily() override = default;
