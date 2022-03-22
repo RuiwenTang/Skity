@@ -7,8 +7,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <skity/gpu/gpu_vk_context.hpp>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 #include "src/render/hw/hw_renderer.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
@@ -106,26 +106,6 @@ class AbsPipelineWrapper : public VkInterfaceClient {
   virtual void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
                               SKVkFrameBufferData* frame_buffer,
                               VKMemoryAllocator* allocator) {}
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStaticImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
-      VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
-      VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilKeepImagePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
       VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
@@ -359,6 +339,7 @@ class PipelineFamily : public VkInterfaceClient {
 
   static std::unique_ptr<PipelineFamily> CreateColorPipelineFamily();
   static std::unique_ptr<PipelineFamily> CreateGradientPipelineFamily();
+  static std::unique_ptr<PipelineFamily> CreateImagePipelineFamily();
 
  protected:
   VkRenderPass OffScreenRenderPass() { return os_render_pass_; }
@@ -383,7 +364,6 @@ class PipelineFamily : public VkInterfaceClient {
   VkShaderModule GetVertexShader() { return vs_shader_; }
   VkShaderModule GetFragmentShader() { return fs_shader_; }
   VkShaderModule GetGeometryShader() { return gs_shader_; }
-
 
  private:
   AbsPipelineWrapper* ChooseOffScreenPiepline(bool enable_stencil);

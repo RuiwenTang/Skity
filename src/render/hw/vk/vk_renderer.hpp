@@ -165,12 +165,7 @@ class VkRenderer : public HWRenderer {
   // gradient pipelines
   std::unique_ptr<PipelineFamily> gradient_pipeline_family_ = {};
   // image pipelines
-  std::unique_ptr<AbsPipelineWrapper> static_image_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_image_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_clip_image_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_keep_image_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> os_static_image_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> os_stencil_image_pipeline_ = {};
+  std::unique_ptr<PipelineFamily> image_pipeline_family_ = {};
   // stencil pipelines
   std::unique_ptr<AbsPipelineWrapper> stencil_front_pipeline_ = {};
   std::unique_ptr<AbsPipelineWrapper> stencil_clip_front_pipeline_ = {};
