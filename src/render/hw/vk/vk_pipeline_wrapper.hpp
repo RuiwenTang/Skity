@@ -14,6 +14,13 @@
 #include "src/render/hw/vk/vk_interface.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
+#define SAFE_DESTROY(pipeline, ctx) \
+  do {                              \
+    if (pipeline) {                 \
+      pipeline->Destroy(ctx);       \
+    }                               \
+  } while (false)
+
 namespace skity {
 
 class VKMemoryAllocator;
@@ -106,38 +113,6 @@ class AbsPipelineWrapper : public VkInterfaceClient {
   virtual void UploadBlurInfo(glm::ivec4 const& info, GPUVkContext* ctx,
                               SKVkFrameBufferData* frame_buffer,
                               VKMemoryAllocator* allocator) {}
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
-      VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipFrontPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs,
-      VkRenderPass render_pass);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipBackPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilClipPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilRecClipPipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
-
-  static std::unique_ptr<AbsPipelineWrapper> CreateStencilReplacePipeline(
-      VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
 
   static std::unique_ptr<AbsPipelineWrapper> CreateStaticBlurPipeline(
       VKInterface* vk_interface, GPUVkContext* ctx, bool use_gs);
@@ -340,12 +315,33 @@ class PipelineFamily : public VkInterfaceClient {
     stencil_op_ = op;
   }
 
+  void UpdateStencilMask(uint8_t write_mask, uint8_t compare_mask) {
+    stencil_write_mask_ = write_mask;
+    stencil_compare_mask_ = compare_mask;
+  }
+
   virtual AbsPipelineWrapper* ChoosePipeline(bool enable_stencil,
                                              bool off_screen) = 0;
 
   static std::unique_ptr<PipelineFamily> CreateColorPipelineFamily();
   static std::unique_ptr<PipelineFamily> CreateGradientPipelineFamily();
   static std::unique_ptr<PipelineFamily> CreateImagePipelineFamily();
+  static std::unique_ptr<PipelineFamily> CreateStencilPipelineFamily();
+
+  template <class T>
+  std::unique_ptr<T> CreatePipeline(GPUVkContext* ctx, VkShaderModule vs_shader,
+                                    VkShaderModule fs_shader,
+                                    VkShaderModule gs_shader,
+                                    VkRenderPass render_pass = VK_NULL_HANDLE) {
+    auto pipeline =
+        std::make_unique<T>(UseGeometryShader(), sizeof(GlobalPushConst));
+    pipeline->SetInterface(GetInterface());
+    pipeline->SetRenderPass(render_pass);
+
+    pipeline->Init(ctx, vs_shader, fs_shader, gs_shader);
+
+    return pipeline;
+  }
 
  protected:
   VkRenderPass OffScreenRenderPass() const { return os_render_pass_; }
@@ -356,6 +352,9 @@ class PipelineFamily : public VkInterfaceClient {
 
   HWStencilOp StencilOp() const { return stencil_op_; }
 
+  uint8_t WriteMask() const { return stencil_write_mask_; }
+  uint8_t CompareMask() const { return stencil_compare_mask_; }
+
   virtual void OnInit(GPUVkContext* ctx) = 0;
   virtual void OnDestroy(GPUVkContext* ctx) = 0;
 
@@ -364,6 +363,8 @@ class PipelineFamily : public VkInterfaceClient {
   VkRenderPass os_render_pass_ = VK_NULL_HANDLE;
   HWStencilFunc stencil_func_ = HWStencilFunc::ALWAYS;
   HWStencilOp stencil_op_ = HWStencilOp::KEEP;
+  uint8_t stencil_write_mask_ = 0xFF;
+  uint8_t stencil_compare_mask_ = 0xFF;
 };
 
 class RenderPipelineFamily : public PipelineFamily {

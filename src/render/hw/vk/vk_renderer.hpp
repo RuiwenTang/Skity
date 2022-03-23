@@ -121,9 +121,6 @@ class VkRenderer : public HWRenderer {
 
   AbsPipelineWrapper* PickColorPipeline();
   AbsPipelineWrapper* PickStencilPipeline();
-  AbsPipelineWrapper* PickOSStencilPipeline();
-  AbsPipelineWrapper* PickBackStencilPipeline();
-  AbsPipelineWrapper* PickReplaceStencilPipeline();
   AbsPipelineWrapper* PickGradientPipeline();
   AbsPipelineWrapper* PickImagePipeline();
   AbsPipelineWrapper* PickBlurPipeline();
@@ -167,16 +164,7 @@ class VkRenderer : public HWRenderer {
   // image pipelines
   std::unique_ptr<PipelineFamily> image_pipeline_family_ = {};
   // stencil pipelines
-  std::unique_ptr<AbsPipelineWrapper> stencil_front_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_clip_front_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_back_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_clip_back_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_rec_clip_back_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_clip_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_rec_clip_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> stencil_replace_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> os_stencil_front_pipeline_ = {};
-  std::unique_ptr<AbsPipelineWrapper> os_stencil_back_pipeline_ = {};
+  std::unique_ptr<PipelineFamily> stencil_pipeline_family_ = {};
   // blur pipelines
   std::unique_ptr<AbsPipelineWrapper> static_blur_pipeline_ = {};
   std::unique_ptr<AbsPipelineWrapper> os_static_blur_pipeline_ = {};

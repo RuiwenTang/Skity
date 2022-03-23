@@ -113,6 +113,40 @@ class StencilReplacePipeline : public StencilPipeline {
       override;
 };
 
+class StencilPipelineFamily : public PipelineFamily {
+ public:
+  StencilPipelineFamily() = default;
+  ~StencilPipelineFamily() override = default;
+
+  AbsPipelineWrapper* ChoosePipeline(bool enable_stencil,
+                                     bool off_screen) override;
+
+ protected:
+  void OnInit(GPUVkContext* ctx) override;
+  void OnDestroy(GPUVkContext* ctx) override;
+
+ private:
+  std::tuple<VkShaderModule, VkShaderModule, VkShaderModule> GenerateShader(
+      GPUVkContext* ctx);
+
+  AbsPipelineWrapper* PickOS();
+  AbsPipelineWrapper* PickFront();
+  AbsPipelineWrapper* PickBack();
+  AbsPipelineWrapper* PickReplace();
+
+ private:
+  std::unique_ptr<StencilFrontPipeline> front_ = {};
+  std::unique_ptr<StencilFrontPipeline> os_front_ = {};
+  std::unique_ptr<StencilClipFrontPipeline> clip_front_ = {};
+  std::unique_ptr<StencilBackPipeline> back_ = {};
+  std::unique_ptr<StencilBackPipeline> os_back_ = {};
+  std::unique_ptr<StencilClipBackPipeline> clip_back_ = {};
+  std::unique_ptr<StencilClipPipeline> clip_ = {};
+  std::unique_ptr<StencilRecursiveClipPipeline> recursive_ = {};
+  std::unique_ptr<StencilRecursiveClipBackPipeline> recursive_back_ = {};
+  std::unique_ptr<StencilReplacePipeline> replace_ = {};
+};
+
 }  // namespace skity
 
 #endif  // SKITY_SRC_RENDER_HW_VK_PIPELINES_STENCIL_PIPELINE_HPP

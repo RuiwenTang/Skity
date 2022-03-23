@@ -11,13 +11,6 @@
 #include "src/render/hw/vk/vk_texture.hpp"
 #include "src/render/hw/vk/vk_utils.hpp"
 
-#define SAFE_DESTROY(pipeline, ctx) \
-  do {                              \
-    if (pipeline) {                 \
-      pipeline->Destroy(ctx);       \
-    }                               \
-  } while (false)
-
 namespace skity {
 
 void RenderPipeline::Init(GPUVkContext* ctx, VkShaderModule vertex,

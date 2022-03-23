@@ -6,173 +6,6 @@
 
 namespace skity {
 
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
-                                               GPUVkContext* ctx, bool use_gs) {
-  return PipelineBuilder<StencilFrontPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilFrontPipeline(VKInterface* vk_interface,
-                                               GPUVkContext* ctx, bool use_gs,
-                                               VkRenderPass render_pass) {
-  return PipelineBuilder<StencilFrontPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-      render_pass}();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipFrontPipeline(VKInterface* vk_interface,
-                                                   GPUVkContext* ctx,
-                                                   bool use_gs) {
-  return PipelineBuilder<StencilClipFrontPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx, bool use_gs) {
-  return PipelineBuilder<StencilBackPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilBackPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx, bool use_gs,
-                                              VkRenderPass render_pass) {
-  return PipelineBuilder<StencilBackPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-      render_pass}();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipBackPipeline(VKInterface* vk_interface,
-                                                  GPUVkContext* ctx,
-                                                  bool use_gs) {
-  return PipelineBuilder<StencilClipBackPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilRecClipBackPipeline(VKInterface* vk_interface,
-                                                     GPUVkContext* ctx,
-                                                     bool use_gs) {
-  return PipelineBuilder<StencilRecursiveClipBackPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilClipPipeline(VKInterface* vk_interface,
-                                              GPUVkContext* ctx, bool use_gs) {
-  return PipelineBuilder<StencilClipPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilRecClipPipeline(VKInterface* vk_interface,
-                                                 GPUVkContext* ctx,
-                                                 bool use_gs) {
-  return PipelineBuilder<StencilRecursiveClipPipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
-std::unique_ptr<AbsPipelineWrapper>
-AbsPipelineWrapper::CreateStencilReplacePipeline(VKInterface* vk_interface,
-                                                 GPUVkContext* ctx,
-                                                 bool use_gs) {
-  return PipelineBuilder<StencilReplacePipeline>{
-      vk_interface,
-      use_gs ? (const char*)vk_gs_common_vert_spv
-             : (const char*)vk_common_vert_spv,
-      use_gs ? vk_gs_common_vert_spv_size : vk_common_vert_spv_size,
-      (const char*)vk_stencil_discard_frag_spv,
-      vk_stencil_discard_frag_spv_size,
-      use_gs ? (const char*)vk_gs_geometry_geom_spv : nullptr,
-      use_gs ? vk_gs_geometry_geom_spv_size : 0,
-      ctx,
-  }();
-}
-
 VkDescriptorSetLayout StencilPipeline::GenerateColorSetLayout(
     GPUVkContext* ctx) {
   return VK_NULL_HANDLE;
@@ -351,6 +184,159 @@ StencilReplacePipeline::GetDepthStencilStateCreateInfo() {
   depth_stencil_state.back = depth_stencil_state.front;
 
   return depth_stencil_state;
+}
+
+AbsPipelineWrapper* StencilPipelineFamily::ChoosePipeline(bool enable_stencil,
+                                                          bool off_screen) {
+  if (!enable_stencil) {
+    return nullptr;
+  }
+
+  if (off_screen) {
+    return PickOS();
+  }
+
+  if (StencilOp() == HWStencilOp::INCR_WRAP) {
+    return PickFront();
+  }
+
+  if (StencilOp() == HWStencilOp::DECR_WRAP) {
+    return PickBack();
+  }
+
+  if (StencilOp() == HWStencilOp::REPLACE) {
+    return PickReplace();
+  }
+
+  return nullptr;
+}
+
+void StencilPipelineFamily::OnInit(GPUVkContext* ctx) {
+  // shader
+  VkShaderModule vs_shader = VK_NULL_HANDLE;
+  VkShaderModule fs_shader = VK_NULL_HANDLE;
+  VkShaderModule gs_shader = VK_NULL_HANDLE;
+
+  std::tie(vs_shader, fs_shader, gs_shader) = GenerateShader(ctx);
+
+  front_ = CreatePipeline<StencilFrontPipeline>(ctx, vs_shader, fs_shader,
+                                                gs_shader);
+  os_front_ = CreatePipeline<StencilFrontPipeline>(
+      ctx, vs_shader, fs_shader, gs_shader, OffScreenRenderPass());
+  clip_front_ = CreatePipeline<StencilClipFrontPipeline>(ctx, vs_shader,
+                                                         fs_shader, gs_shader);
+
+  back_ =
+      CreatePipeline<StencilBackPipeline>(ctx, vs_shader, fs_shader, gs_shader);
+  os_back_ = CreatePipeline<StencilBackPipeline>(
+      ctx, vs_shader, fs_shader, gs_shader, OffScreenRenderPass());
+  clip_back_ = CreatePipeline<StencilClipBackPipeline>(ctx, vs_shader,
+                                                       fs_shader, gs_shader);
+
+  clip_ =
+      CreatePipeline<StencilClipPipeline>(ctx, vs_shader, fs_shader, gs_shader);
+
+  recursive_ = CreatePipeline<StencilRecursiveClipPipeline>(
+      ctx, vs_shader, fs_shader, gs_shader);
+  recursive_back_ = CreatePipeline<StencilRecursiveClipBackPipeline>(
+      ctx, vs_shader, fs_shader, gs_shader);
+
+  replace_ = CreatePipeline<StencilReplacePipeline>(ctx, vs_shader, fs_shader,
+                                                    gs_shader);
+}
+
+void StencilPipelineFamily::OnDestroy(GPUVkContext* ctx) {
+  SAFE_DESTROY(front_, ctx);
+  SAFE_DESTROY(os_front_, ctx);
+  SAFE_DESTROY(clip_front_, ctx);
+
+  SAFE_DESTROY(back_, ctx);
+  SAFE_DESTROY(os_back_, ctx);
+  SAFE_DESTROY(clip_back_, ctx);
+
+  SAFE_DESTROY(recursive_, ctx);
+  SAFE_DESTROY(recursive_back_, ctx);
+
+  SAFE_DESTROY(replace_, ctx);
+}
+
+std::tuple<VkShaderModule, VkShaderModule, VkShaderModule>
+StencilPipelineFamily::GenerateShader(GPUVkContext* ctx) {
+  VkShaderModule vs_shader = VK_NULL_HANDLE;
+  VkShaderModule fs_shader = VK_NULL_HANDLE;
+  VkShaderModule gs_shader = VK_NULL_HANDLE;
+
+  if (UseGeometryShader()) {
+    vs_shader = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
+                                      (const char*)vk_gs_common_vert_spv,
+                                      vk_gs_common_vert_spv_size);
+  } else {
+    vs_shader = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
+                                      (const char*)vk_common_vert_spv,
+                                      vk_common_vert_spv_size);
+  }
+
+  fs_shader = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
+                                    (const char*)vk_stencil_discard_frag_spv,
+                                    vk_stencil_discard_frag_spv_size);
+
+  if (UseGeometryShader()) {
+    gs_shader = VKUtils::CreateShader(GetInterface(), ctx->GetDevice(),
+                                      (const char*)vk_gs_geometry_geom_spv,
+                                      vk_gs_geometry_geom_spv_size);
+  }
+
+  return {vs_shader, fs_shader, gs_shader};
+}
+
+AbsPipelineWrapper* StencilPipelineFamily::PickOS() {
+  if (StencilOp() == HWStencilOp::INCR_WRAP) {
+    return os_front_.get();
+  } else if (StencilOp() == HWStencilOp::DECR_WRAP) {
+    return os_back_.get();
+  }
+
+  return nullptr;
+}
+
+AbsPipelineWrapper* StencilPipelineFamily::PickFront() {
+  if (StencilFunc() == HWStencilFunc::ALWAYS) {
+    return front_.get();
+  }
+
+  return clip_front_.get();
+}
+
+AbsPipelineWrapper* StencilPipelineFamily::PickBack() {
+  if (StencilFunc() == HWStencilFunc::ALWAYS) {
+    return back_.get();
+  } else if (StencilFunc() == HWStencilFunc::LESS_OR_EQUAL) {
+    return clip_back_.get();
+  } else if (StencilFunc() == HWStencilFunc::EQUAL) {
+    return recursive_back_.get();
+  }
+
+  return nullptr;
+}
+
+AbsPipelineWrapper* StencilPipelineFamily::PickReplace() {
+  if (StencilFunc() == HWStencilFunc::ALWAYS) {
+    return replace_.get();
+  }
+
+  if (StencilFunc() == HWStencilFunc::NOT_EQUAL) {
+    if (WriteMask() == 0xFF) {
+      return clip_.get();
+    } else {
+      return recursive_.get();
+    }
+  }
+
+  return nullptr;
+}
+
+std::unique_ptr<PipelineFamily> PipelineFamily::CreateStencilPipelineFamily() {
+  return std::make_unique<StencilPipelineFamily>();
 }
 
 }  // namespace skity

@@ -435,17 +435,8 @@ void VkRenderer::DestroyPipelines() {
   color_pipeline_family_->Destroy(ctx_);
   gradient_pipeline_family_->Destroy(ctx_);
   image_pipeline_family_->Destroy(ctx_);
+  stencil_pipeline_family_->Destroy(ctx_);
 
-  stencil_front_pipeline_->Destroy(ctx_);
-  stencil_clip_front_pipeline_->Destroy(ctx_);
-  stencil_back_pipeline_->Destroy(ctx_);
-  stencil_clip_back_pipeline_->Destroy(ctx_);
-  stencil_rec_clip_back_pipeline_->Destroy(ctx_);
-  stencil_clip_pipeline_->Destroy(ctx_);
-  stencil_rec_clip_pipeline_->Destroy(ctx_);
-  stencil_replace_pipeline_->Destroy(ctx_);
-  os_stencil_front_pipeline_->Destroy(ctx_);
-  os_stencil_back_pipeline_->Destroy(ctx_);
   compute_blur_pipeline_->Destroy(ctx_);
   static_blur_pipeline_->Destroy(ctx_);
   os_static_blur_pipeline_->Destroy(ctx_);
@@ -479,31 +470,9 @@ void VkRenderer::InitPipelines() {
   image_pipeline_family_->SetInterface(GetInterface());
   image_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
 
-  stencil_front_pipeline_ = AbsPipelineWrapper::CreateStencilFrontPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_clip_front_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipFrontPipeline(GetInterface(), ctx_,
-                                                         use_gs_);
-  stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_clip_back_pipeline_ =
-      AbsPipelineWrapper::CreateStencilClipBackPipeline(GetInterface(), ctx_,
-                                                        use_gs_);
-  stencil_rec_clip_back_pipeline_ =
-      AbsPipelineWrapper::CreateStencilRecClipBackPipeline(GetInterface(), ctx_,
-                                                           use_gs_);
-  stencil_clip_pipeline_ = AbsPipelineWrapper::CreateStencilClipPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_rec_clip_pipeline_ = AbsPipelineWrapper::CreateStencilRecClipPipeline(
-      GetInterface(), ctx_, use_gs_);
-  stencil_replace_pipeline_ = AbsPipelineWrapper::CreateStencilReplacePipeline(
-      GetInterface(), ctx_, use_gs_);
-
-  // off screen pipelines
-  os_stencil_front_pipeline_ = AbsPipelineWrapper::CreateStencilFrontPipeline(
-      GetInterface(), ctx_, use_gs_, os_render_pass_);
-  os_stencil_back_pipeline_ = AbsPipelineWrapper::CreateStencilBackPipeline(
-      GetInterface(), ctx_, use_gs_, os_render_pass_);
+  stencil_pipeline_family_ = PipelineFamily::CreateStencilPipelineFamily();
+  stencil_pipeline_family_->SetInterface(GetInterface());
+  stencil_pipeline_family_->Init(ctx_, use_gs_, os_render_pass_);
 
   // effect pipelines
   static_blur_pipeline_ = AbsPipelineWrapper::CreateStaticBlurPipeline(
@@ -606,63 +575,12 @@ AbsPipelineWrapper* VkRenderer::PickColorPipeline() {
 }
 
 AbsPipelineWrapper* VkRenderer::PickStencilPipeline() {
-  // pick off screen pipeline
-  if (current_target_) {
-    return PickOSStencilPipeline();
-  }
+  stencil_pipeline_family_->UpdateStencilMask(stencil_write_mask_,
+                                              stencil_compare_mask_);
+  stencil_pipeline_family_->UpdateStencilFunc(stencil_func_, stencil_op_);
 
-  // pick normal pipeline
-  if (stencil_op_ == HWStencilOp::INCR_WRAP) {
-    if (stencil_func_ == HWStencilFunc::ALWAYS) {
-      return stencil_front_pipeline_.get();
-    } else {
-      return stencil_clip_front_pipeline_.get();
-    }
-  } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
-    return PickBackStencilPipeline();
-  } else if (stencil_op_ == HWStencilOp::REPLACE) {
-    return PickReplaceStencilPipeline();
-  }
-
-  return nullptr;
-}
-
-AbsPipelineWrapper* VkRenderer::PickOSStencilPipeline() {
-  if (stencil_op_ == HWStencilOp::INCR_WRAP) {
-    return os_stencil_front_pipeline_.get();
-  } else if (stencil_op_ == HWStencilOp::DECR_WRAP) {
-    return os_stencil_back_pipeline_.get();
-  }
-
-  return nullptr;
-}
-
-AbsPipelineWrapper* VkRenderer::PickBackStencilPipeline() {
-  if (stencil_func_ == HWStencilFunc::ALWAYS) {
-    return stencil_back_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::LESS_OR_EQUAL) {
-    return stencil_clip_back_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::EQUAL) {
-    return stencil_rec_clip_back_pipeline_.get();
-  }
-
-  return nullptr;
-}
-
-AbsPipelineWrapper* VkRenderer::PickReplaceStencilPipeline() {
-  if (stencil_func_ == HWStencilFunc::ALWAYS) {
-    return stencil_replace_pipeline_.get();
-  } else if (stencil_func_ == HWStencilFunc::NOT_EQUAL) {
-    if (stencil_write_mask_ == 0xFF) {
-      // this is a normal clip stencil replace
-      return stencil_clip_pipeline_.get();
-    } else if (stencil_write_mask_ == 0x0F) {
-      // this is recursive clip stencil replace
-      return stencil_rec_clip_pipeline_.get();
-    }
-  }
-
-  return nullptr;
+  return stencil_pipeline_family_->ChoosePipeline(enable_stencil_test_,
+                                                  current_target_ != nullptr);
 }
 
 AbsPipelineWrapper* VkRenderer::PickGradientPipeline() {
