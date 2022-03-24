@@ -28,6 +28,8 @@ class HWRenderTarget {
 
   virtual void BindColorTexture() = 0;
 
+  virtual void BlitColorTexture() = 0;
+
   virtual void BindHorizontalTexture() = 0;
 
   virtual void BindVerticalTexture() = 0;
@@ -36,9 +38,14 @@ class HWRenderTarget {
 
   virtual void Destroy() = 0;
 
+  void SetEnableMultiSample(bool enable) { msaa_ = enable; }
+
+  bool EnableMultiSample() const { return msaa_; }
+
  private:
   uint32_t width_ = 0;
   uint32_t height_ = 0;
+  bool msaa_ = false;
 };
 
 class HWRenderTargetCache final {

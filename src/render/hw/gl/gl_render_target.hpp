@@ -22,6 +22,8 @@ class GLRenderTarget : public HWRenderTarget {
 
   void BindColorTexture() override;
 
+  void BlitColorTexture() override;
+
   void BindHorizontalTexture() override;
 
   void BindVerticalTexture() override;

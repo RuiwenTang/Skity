@@ -40,6 +40,10 @@ void GLRenderTarget::Init() {
 
 void GLRenderTarget::Bind() { GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_); }
 
+void GLRenderTarget::BlitColorTexture() {
+  // TODO implement multi-sample render target
+}
+
 void GLRenderTarget::BindColorTexture() {
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
           GL_TEXTURE_2D, color_texture_.GetTextureID(), 0);

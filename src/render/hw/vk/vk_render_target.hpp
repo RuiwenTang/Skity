@@ -82,6 +82,8 @@ class VKRenderTarget : public HWRenderTarget, public VkInterfaceClient {
 
   void BindColorTexture() override;
 
+  void BlitColorTexture() override;
+
   void BindHorizontalTexture() override;
 
   void BindVerticalTexture() override;

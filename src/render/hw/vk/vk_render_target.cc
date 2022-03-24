@@ -41,6 +41,10 @@ void VKRenderTarget::BindColorTexture() {
   BeginCurrentRenderPass();
 }
 
+void VKRenderTarget::BlitColorTexture() {
+  // TODO implement multi-sample render target
+}
+
 void VKRenderTarget::BindHorizontalTexture() {
   VK_CALL(vkCmdEndRenderPass, vk_cmd_);
 
