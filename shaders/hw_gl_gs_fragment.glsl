@@ -225,8 +225,9 @@ vec4 calculate_solid_blur(vec2 uv) {
 vec4 calculate_outer_blur(vec2 uv) {
   uv = vec2(uv.x, 1.0 - uv.y);
   vec4 raw_color = texture(FontTexture, uv);
+  vec4 blur_color = texture(UserTexture, uv);
 
-  if (raw_color.a > 0.0) {
+  if (raw_color.a > 0.0 && raw_color.a >= blur_color.a) {
     return vec4(0.0, 0.0, 0.0, 0.0);
   } else {
     return texture(UserTexture, uv);
