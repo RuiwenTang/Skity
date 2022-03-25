@@ -324,6 +324,8 @@ void PostProcessDraw::DrawToRenderTarget() {
     op->SetHasClip(false);
     op->Draw();
   }
+
+  render_target_->BlitColorTexture();
 }
 
 void PostProcessDraw::DoFilter() {

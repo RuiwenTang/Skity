@@ -71,6 +71,9 @@ std::unique_ptr<HWRenderTarget> GLCanvas::GenerateBackendRenderTarget(
     uint32_t width, uint32_t height) {
   auto fbo = std::make_unique<GLRenderTarget>(width, height);
 
+  // always enable multisample fbo
+  fbo->SetEnableMultiSample(true);
+
   fbo->Init();
 
   return fbo;

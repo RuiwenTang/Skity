@@ -10,6 +10,8 @@ class GLTexture : public HWTexture {
   GLTexture() = default;
   ~GLTexture() override;
 
+  void SetMultisample(uint32_t msaa_count) { msaa_count_ = msaa_count; }
+
   void Init(HWTexture::Type type, HWTexture::Format format) override;
 
   void Destroy() override;
@@ -32,6 +34,7 @@ class GLTexture : public HWTexture {
   uint32_t GetTextureID() const { return texture_id_; }
 
  private:
+  uint32_t msaa_count_ = 0;
   uint32_t texture_id_ = 0;
   uint32_t format_ = 0;
   uint32_t width_ = 0;

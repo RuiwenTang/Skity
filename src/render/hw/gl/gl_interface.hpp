@@ -75,6 +75,8 @@ struct GLInterface {
   PFNGLSTENCILMASKPROC fStencilMask = nullptr;
   PFNGLSTENCILOPPROC fStencilOp = nullptr;
   PFNGLTEXIMAGE2DPROC fTexImage2D = nullptr;
+  PFNGLTEXIMAGE2DMULTISAMPLEPROC fTexImage2DMultisample = nullptr;
+  PFNGLBLITFRAMEBUFFERPROC fBlitFramebuffer = nullptr;
   PFNGLTEXPARAMETERIPROC fTexParameteri = nullptr;
   PFNGLTEXSUBIMAGE2DPROC fTexSubImage2D = nullptr;
   PFNGLUNIFORM1FPROC fUniform1f = nullptr;

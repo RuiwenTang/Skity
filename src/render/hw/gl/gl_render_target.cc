@@ -15,40 +15,56 @@ void check_fbo_state(GLuint fbo) {
 }
 
 void GLRenderTarget::Init() {
+  int32_t max_sample_count = 0;
+  GL_CALL(GetIntegerv, GL_MAX_SAMPLES, &max_sample_count);
+  msaa_sample_count_ = std::min((uint32_t)max_sample_count, msaa_sample_count_);
   // step 1 init all internal textures
   InitTextures();
 
   // step 2 bind texture to framebuffer
   // during init stage, only stencil buffer is bind
-  GL_CALL(GenFramebuffers, 1, &fbo_);
+  InitFBO();
+}
 
-  if (fbo_ == 0) {
-    LOG_ERROR("Failed to create gl frame buffer object!!");
+void GLRenderTarget::Bind() {
+  if (EnableMultiSample()) {
+    GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, msaa_fbo_);
+  } else {
+    GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
+  }
+}
+
+void GLRenderTarget::BlitColorTexture() {
+  if (!EnableMultiSample()) {
     return;
   }
 
+  // make sure fbo bound a normal color texture
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
-
-  // bind stencil attachment
-  GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-          GL_TEXTURE_2D, stencil_texture_.GetTextureID(), 0);
-
-  check_fbo_state(fbo_);
-
-  GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
-}
-
-void GLRenderTarget::Bind() { GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_); }
-
-void GLRenderTarget::BlitColorTexture() {
-  // TODO implement multi-sample render target
-}
-
-void GLRenderTarget::BindColorTexture() {
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
           GL_TEXTURE_2D, color_texture_.GetTextureID(), 0);
 
   check_fbo_state(fbo_);
+  Clear();
+
+  GL_CALL(BindFramebuffer, GL_READ_FRAMEBUFFER, msaa_fbo_);
+
+  check_fbo_state(msaa_fbo_);
+
+  GL_CALL(BlitFramebuffer, 0, 0, Width(), Height(), 0, 0, Width(), Height(),
+          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+  // make sure draw and read fbo bind to normal target
+  GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
+}
+
+void GLRenderTarget::BindColorTexture() {
+  if (!EnableMultiSample()) {
+    GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D, color_texture_.GetTextureID(), 0);
+    check_fbo_state(fbo_);
+  }
+
   Clear();
 }
 
@@ -101,12 +117,65 @@ void GLRenderTarget::InitTextures() {
   vertical_texture_.Resize(Width(), Height());
 
   // init stencil texture
+  if (EnableMultiSample()) {
+    stencil_texture_.SetMultisample(msaa_sample_count_);
+  }
   stencil_texture_.Init(HWTexture::Type::kStencilTexture,
                         HWTexture::Format::kS);
   stencil_texture_.Bind();
   stencil_texture_.Resize(Width(), Height());
 
   stencil_texture_.UnBind();
+
+  if (EnableMultiSample()) {
+    InitMultiSampleTexture();
+  }
+}
+
+void GLRenderTarget::InitFBO() {
+  GL_CALL(GenFramebuffers, 1, &fbo_);
+
+  if (fbo_ == 0) {
+    LOG_ERROR("Failed to create gl frame buffer object!!");
+    return;
+  }
+
+  if (!EnableMultiSample()) {
+    GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
+
+    // bind stencil attachment
+    GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+            GL_TEXTURE_2D, stencil_texture_.GetTextureID(), 0);
+
+    check_fbo_state(fbo_);
+    GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
+
+    return;
+  }
+
+  // init a msaa fbo
+  GL_CALL(GenFramebuffers, 1, &msaa_fbo_);
+  GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, msaa_fbo_);
+  GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+          GL_TEXTURE_2D_MULTISAMPLE, msaa_target_, 0);
+
+  // bind stencil attachment
+  GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+          GL_TEXTURE_2D_MULTISAMPLE, stencil_texture_.GetTextureID(), 0);
+
+  check_fbo_state(msaa_fbo_);
+  GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
+}
+
+void GLRenderTarget::InitMultiSampleTexture() {
+  GL_CALL(GenTextures, 1, &msaa_target_);
+
+  GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, msaa_target_);
+
+  GL_CALL(TexImage2DMultisample, GL_TEXTURE_2D_MULTISAMPLE, msaa_sample_count_,
+          color_texture_.GetInternalFormat(), Width(), Height(), GL_TRUE);
+
+  GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, 0);
 }
 
 void GLRenderTarget::Clear() {

@@ -73,6 +73,8 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(StencilMask);
   GET_PROC(StencilOp);
   GET_PROC(TexImage2D);
+  GET_PROC(TexImage2DMultisample);
+  GET_PROC(BlitFramebuffer);
   GET_PROC(TexParameteri);
   GET_PROC(TexSubImage2D);
   GET_PROC(Uniform1f);

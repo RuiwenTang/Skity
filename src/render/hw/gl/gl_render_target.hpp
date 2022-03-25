@@ -38,11 +38,16 @@ class GLRenderTarget : public HWRenderTarget {
 
  private:
   void InitTextures();
+  void InitFBO();
+  void InitMultiSampleTexture();
 
   void Clear();
 
  private:
   uint32_t fbo_ = {};
+  uint32_t msaa_fbo_ = {};
+  uint32_t msaa_sample_count_ = 8;
+  uint32_t msaa_target_ = {};
   GLTexture color_texture_;
   GLTexture horizontal_texture_;
   GLTexture vertical_texture_;

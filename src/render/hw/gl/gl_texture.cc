@@ -32,7 +32,7 @@ void GLTexture::Init(HWTexture::Type type, HWTexture::Format format) {
   format_ = hw_texture_format_to_gl(format);
 
   Bind();
-  if (format_ != GL_DEPTH_STENCIL) {
+  if (format_ != GL_DEPTH_STENCIL && msaa_count_ == 0) {
     // texture common config
     GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     GL_CALL(TexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -48,9 +48,21 @@ void GLTexture::Init(HWTexture::Type type, HWTexture::Format format) {
 
 void GLTexture::Destroy() { GL_CALL(DeleteTextures, 1, &texture_id_); }
 
-void GLTexture::Bind() { GL_CALL(BindTexture, GL_TEXTURE_2D, texture_id_); }
+void GLTexture::Bind() {
+  if (msaa_count_ > 0) {
+    GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, texture_id_);
+  } else {
+    GL_CALL(BindTexture, GL_TEXTURE_2D, texture_id_);
+  }
+}
 
-void GLTexture::UnBind() { GL_CALL(BindTexture, GL_TEXTURE_2D, 0); }
+void GLTexture::UnBind() {
+  if (msaa_count_) {
+    GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, 0);
+  } else {
+    GL_CALL(BindTexture, GL_TEXTURE_2D, 0);
+  }
+}
 
 uint32_t GLTexture::GetWidth() { return width_; }
 
@@ -59,13 +71,21 @@ uint32_t GLTexture::GetHeight() { return height_; }
 void GLTexture::Resize(uint32_t width, uint32_t height) {
   width_ = width;
   height_ = height;
-
-  GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, GetInternalFormat(), width, height, 0,
-          format_, GetInternalType(), nullptr);
+  if (msaa_count_ > 0) {
+    GL_CALL(TexImage2DMultisample, GL_TEXTURE_2D_MULTISAMPLE, msaa_count_,
+            GetInternalFormat(), width, height, GL_TRUE);
+  } else {
+    GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, GetInternalFormat(), width, height, 0,
+            format_, GetInternalType(), nullptr);
+  }
 }
 
 void GLTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
                            uint32_t height, void *data) {
+  if (msaa_count_ > 0) {
+    return;
+  }
+
   GL_CALL(TexSubImage2D, GL_TEXTURE_2D, 0, offset_x, offset_y, width, height,
           format_, GetInternalType(), data);
 }
