@@ -259,30 +259,6 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
   EnqueueDrawOp(std::move(draw), raster.RasterBounds(), paint.getMaskFilter());
 }
 
-void HWCanvas::onDrawCircle(float cx, float cy, float radius,
-                            Paint const& paint) {
-  if (paint.getStyle() != Paint::kFill_Style || SupportGeometryShader()) {
-    Path path;
-    path.addCircle(cx, cy, radius);
-    onDrawPath(path, paint);
-
-    return;
-  }
-
-  HWPathRaster raster{GetMesh(), paint, SupportGeometryShader()};
-  raster.FillCircle(cx, cy, radius);
-
-  raster.FlushRaster();
-
-  HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
-
-  auto draw = GenerateColorOp(paint, false, raster.RasterBounds());
-  draw->SetColorRange(range);
-  draw->SetStrokeWidth(radius * 2.f);
-
-  EnqueueDrawOp(std::move(draw), raster.RasterBounds(), paint.getMaskFilter());
-}
-
 void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
   bool need_fill = paint.getStyle() != Paint::kStroke_Style;
   bool need_stroke = paint.getStyle() != Paint::kFill_Style;
