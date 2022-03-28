@@ -6,7 +6,7 @@ Skity is a light weight library for drawing 2D Vector Image in GPU context, curr
 
 The answer is [Stencil buffer](https://en.wikipedia.org/wiki/Stencil_buffer). Yes, the core magic inside this library is using **Stencil buffer**. Instead of using complex geometric algorithms, all geometry processing is using a **Stencil buffer**.
 
-### Filling Convex Polygon with Triangles
+### Filling Convex Polygon with GPU and Triangles
 
 In most GPU graphics API, the basic drawing unit is the triangle. So first, let's use triangles to generate some [Convex Polygon](https://en.wikipedia.org/wiki/Convex_polygon).
 
@@ -23,7 +23,7 @@ For `Convex Polygon` like above, pick a point first, go through every edge from 
     <img src="images/pentagon_triangles.png" width="610"/>
 </p>
 
-### Filling Complex Polygon with Triangles and Stencil Buffer
+### Filling Complex Polygon with GPU and Stencil Buffer
 
 When with `Complex Polygon`, things become a little tricky. Like below, let's look at a [Complex Polygon](https://en.wikipedia.org/wiki/Complex_polygon).
 
