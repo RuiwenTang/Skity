@@ -176,65 +176,6 @@ static inline int FindUnitQuadRoots(float A, float B, float C, float roots[2]) {
   return return_check_zero(static_cast<int>(r - roots));
 }
 
-/*  Solve coeff(t) == 0, returning the number of roots that
-    lie withing 0 < t < 1.
-    coeff[0]t^3 + coeff[1]t^2 + coeff[2]t + coeff[3]
-
-    Eliminates repeated roots (so that all tValues are distinct, and are always
-    in increasing order.
-*/
-inline static int solve_cubic_poly(const float coeff[4], float tValues[3]) {
-  if (FloatNearlyZero(coeff[0])) {  // we're just a quadratic
-    return FindUnitQuadRoots(coeff[1], coeff[2], coeff[3], tValues);
-  }
-
-  float a, b, c, Q, R;
-  {
-    float inva = FloatInvert(coeff[0]);
-    a = coeff[1] * inva;
-    b = coeff[2] * inva;
-    c = coeff[3] * inva;
-  }
-
-  Q = (a * a - b * 3) / 9;
-  R = (2 * a * a * a - 9 * a * b + 27 * c) / 54;
-
-  float Q3 = Q * Q * Q;
-  float R2MinusQ3 = R * R - Q3;
-  float adiv3 = a / 3;
-
-  if (R2MinusQ3 < 0) {
-    // we have 3 real roots
-    // the divide/root can, due to finite precisions, be slightly outside of
-    // -1...1
-    float theta = glm::acos(TPin(R / glm::sqrt(Q3), -1.0f, 1.0f));
-    float neg2RootQ = -2 * glm::sqrt(Q);
-
-    tValues[0] = TPin(neg2RootQ * glm::cos(theta / 3) - adiv3, 0.0f, 1.0f);
-    tValues[1] =
-        TPin(neg2RootQ * glm::cos((theta + 2 * glm::pi<float>()) / 3) - adiv3,
-             0.0f, 1.0f);
-    tValues[2] =
-        TPin(neg2RootQ * glm::cos((theta - 2 * glm::pi<float>()) / 3) - adiv3,
-             0.0f, 1.0f);
-
-    BubbleSort(tValues, 3);
-    return CollapsDuplicates(tValues, 3);
-  } else {
-    // we have 1 real root
-    float A = glm::abs(R) + glm::sqrt(R2MinusQ3);
-    A = CubeRoot(A);
-    if (R > 0) {
-      A = -A;
-    }
-    if (A != 0) {
-      A += Q / A;
-    }
-    tValues[0] = TPin(A - adiv3, 0.0f, 1.0f);
-    return 1;
-  }
-}
-
 /*  Looking for F' dot F'' == 0
 
     A = b - a
@@ -256,8 +197,6 @@ inline static void formulate_F1DotF2(const float src[], float coeff[4]) {
   coeff[2] = 2 * b * b + c * a;
   coeff[3] = a * b;
 }
-
-bool DegenerateVector(Vector const& v);
 
 /**
  * Returns the distance squared from the point to the line segment
@@ -285,40 +224,6 @@ void SubDividedQuad(const Point quad[3], Point sub_quad1[3],
 void SubDividedQuad(const Vec2 quad[3], Vec2 sub_quad1[3], Vec2 sub_quad2[3]);
 
 void CubicToQuadratic(const Point cubic[4], Point quad[3]);
-
-void CalculateQuadPQ(Vec2 const& A, Vec2 const& B, Vec2 const& C, Vec2 const& P,
-                     Vec2& out);
-
-/**
- * @brief calculate intersect point of two line p1p2, p3p4
- *
- * @param p1        start point of line1
- * @param p2        end point of line1
- * @param p3        start point of line2
- * @param p4        end point of line2
- * @param result    result point
- * @return int32_t  2 means 180, 0 parallel
- */
-int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
-                          Point const& p4, Point& result);
-
-int32_t IntersectLineLine(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
-                          Vec2 const& p4, Vec2& result);
-
-template <class T>
-bool PointInTriangle(T const& p, T const& p0, T const& p1, T const& p2) {
-  // https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
-  float dx = p.x - p2.x;
-  float dy = p.y - p2.y;
-  float dx21 = p2.x - p1.x;
-  float dy12 = p1.y - p2.y;
-  float D = dy12 * (p0.x - p2.x) + dx21 * (p0.y - p2.y);
-  float s = dy12 * dx + dx21 * dy;
-  float t = (p2.y - p0.y) * dx + (p0.x - p2.x) * dy;
-
-  if (D < 0.f) return s <= 0.f && t <= 0 && (s + t) >= D;
-  return s >= 0 && t >= 0 && (s + t) <= D;
-}
 
 }  // namespace skity
 

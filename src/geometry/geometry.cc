@@ -221,8 +221,6 @@ glm::vec2 ConicCoeff::eval(float t) {
   return n / d;
 }
 
-bool DegenerateVector(Vector const& v) { return !PointCanNormalize(v.x, v.y); }
-
 float pt_to_line(Point const& pt, Point const& lineStart,
                  Point const& lineEnd) {
   Vector dxy = lineEnd - lineStart;
@@ -315,101 +313,6 @@ void CubicToQuadratic(const Point cubic[4], Point quad[3]) {
   quad[0] = cubic[0];
   quad[1] = (3.f * (cubic[1] + cubic[2]) - (cubic[0] + cubic[3])) / 4.f;
   quad[2] = cubic[3];
-}
-
-void CalculateQuadPQ(Vec2 const& A, Vec2 const& B, Vec2 const& C, Vec2 const& P,
-                     Vec2& out) {
-  float a = -2.f * glm::dot(A, A);
-  float b = -3.f * glm::dot(A, B);
-  float c = 2.f * glm::dot(P, A) - 2.f * glm::dot(C, A) - glm::dot(B, B);
-  float d = glm::dot(P, B) - glm::dot(C, B);
-
-  out.x = (3.f * a * c - b * b) / (3.f * a * a);
-  out.y = (2.f * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-}
-
-int32_t IntersectLineLine(Point const& p1, Point const& p2, Point const& p3,
-                          Point const& p4, Point& result) {
-  double mua, mub;
-  double denom, numera, numberb;
-
-  denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
-  numera = (p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x);
-  numberb = (p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x);
-
-  if (glm::abs(numera) < NearlyZero && glm::abs(numberb) < NearlyZero &&
-      glm::abs(denom) < NearlyZero) {
-    result = (p1 + p2) * 0.5f;
-
-    return 2;  // lines coincide aka 180deg
-  }
-
-  if (glm::abs(denom) < NearlyZero) {
-    result.x = 0;
-    result.y = 0;
-    result.z = 0;
-    result.w = 0;
-    return 0;  // lines are parallel
-  }
-
-  mua = numera / denom;
-  mub = numberb / denom;
-  result.x = p1.x + mua * (p2.x - p1.x);
-  result.y = p1.y + mua * (p2.y - p1.y);
-
-  bool out1 = mua < 0 || mua > 1;
-  bool out2 = mub < 0 || mub > 1;
-
-  if (out1 & out2) {
-    return 5;  // the intersection lines outside both segments
-  } else if (out1) {
-    return 3;  // the intersection lines outside segment 1
-  } else if (out2) {
-    return 4;  // the intersection lines outside segment2
-  } else {
-    return 1;
-  }
-}
-
-int32_t IntersectLineLine(Vec2 const& p1, Vec2 const& p2, Vec2 const& p3,
-                          Vec2 const& p4, Vec2& result) {
-  double mua, mub;
-  double denom, numera, numberb;
-
-  denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
-  numera = (p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x);
-  numberb = (p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x);
-
-  if (glm::abs(numera) < NearlyZero && glm::abs(numberb) < NearlyZero &&
-      glm::abs(denom) < NearlyZero) {
-    result = (p1 + p2) * 0.5f;
-
-    return 2;  // lines coincide aka 180deg
-  }
-
-  if (glm::abs(denom) < NearlyZero) {
-    result.x = 0;
-    result.y = 0;
-    return 0;  // lines are parallel
-  }
-
-  mua = numera / denom;
-  mub = numberb / denom;
-  result.x = p1.x + mua * (p2.x - p1.x);
-  result.y = p1.y + mua * (p2.y - p1.y);
-
-  bool out1 = mua < 0 || mua > 1;
-  bool out2 = mub < 0 || mub > 1;
-
-  if (out1 & out2) {
-    return 5;  // the intersection lines outside both segments
-  } else if (out1) {
-    return 3;  // the intersection lines outside segment 1
-  } else if (out2) {
-    return 4;  // the intersection lines outside segment2
-  } else {
-    return 1;
-  }
 }
 
 }  // namespace skity
