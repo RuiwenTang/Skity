@@ -5,7 +5,6 @@
 #include <skity/io/data.hpp>
 #include <skity/io/pixmap.hpp>
 
-
 struct TJHandlerWrapper {
   explicit TJHandlerWrapper(tjhandle h) : handle(h) {}
 
@@ -80,7 +79,21 @@ std::shared_ptr<Pixmap> JPEGCodec::Decode() {
 }
 
 std::shared_ptr<Data> JPEGCodec::Encode(const Pixmap* pixmap) {
-  return nullptr;
+  TJHandlerWrapper hw{tjInitCompress()};
+
+  uint8_t* buf = nullptr;
+  unsigned long size = 0;
+
+  int32_t ret =
+      tjCompress2(hw.handle, (const unsigned char*)pixmap->Addr(),
+                  pixmap->Width(), pixmap->Width() * 4, pixmap->Height(),
+                  TJPF_BGRA, &buf, &size, TJSAMP_444, 50, 0);
+
+  if (ret != 0) {
+    return nullptr;
+  }
+
+  return Data::MakeWithCopy(buf, size);
 }
 
 }  // namespace skity
