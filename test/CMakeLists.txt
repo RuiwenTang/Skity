@@ -90,7 +90,4 @@ if(${FREETYPE_FOUND})
   target_link_libraries(freetype_path_test ${FREETYPE_LIBRARIES})
 endif()
 
-if(${PNG_FOUND})
-  add_executable(png_decode_test png_decode_test.cc)
-  target_link_libraries(png_decode_test skity ${PNG_LIBRARIES})
-endif()
+

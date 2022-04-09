@@ -1,0 +1,5 @@
+
+if(${PNG_FOUND})
+  add_executable(png_decode_test png_decode_test.cc)
+  target_link_libraries(png_decode_test skity::codec ${PNG_LIBRARIES})
+endif()
