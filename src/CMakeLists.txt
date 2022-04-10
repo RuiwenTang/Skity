@@ -24,6 +24,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/geometry/point_priv.hpp
   ${CMAKE_CURRENT_LIST_DIR}/geometry/rect.cc
   ${CMAKE_CURRENT_LIST_DIR}/geometry/rrect.cc
+  ${CMAKE_CURRENT_LIST_DIR}/graphic/bitmap.cc
   ${CMAKE_CURRENT_LIST_DIR}/graphic/color.cc
   ${CMAKE_CURRENT_LIST_DIR}/graphic/paint.cc
   ${CMAKE_CURRENT_LIST_DIR}/graphic/path.cc
