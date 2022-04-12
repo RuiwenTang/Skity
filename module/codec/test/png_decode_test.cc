@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <skity/codec/codec.hpp>
-#include <skity/codec/data.hpp>
-#include <skity/codec/pixmap.hpp>
+#include <skity/io/data.hpp>
+#include <skity/io/pixmap.hpp>
 #include <vector>
 
 // ./png_decode_test path_to_png_file

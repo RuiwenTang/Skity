@@ -6,7 +6,7 @@ endif()
 
 if(${PNG_FOUND})
   add_executable(png_decode_test png_decode_test.cc)
-  target_link_libraries(png_decode_test skity::codec ${PNG_LIBRARIES})
+  target_link_libraries(png_decode_test skity::skity skity::codec)
 endif()
 
 if(${JPEG_FOUND})
