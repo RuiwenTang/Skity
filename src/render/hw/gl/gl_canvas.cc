@@ -45,7 +45,7 @@ bool GLCanvas::SupportGeometryShader() {
   return gl_major_ == 3 && gl_minor_ == 2;
 #else
   // just return true since OpenGL 3.3+ support Geometry Shader by default
-  return true;
+  return false;
 #endif
 }
 

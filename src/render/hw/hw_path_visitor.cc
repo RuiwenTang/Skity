@@ -6,6 +6,34 @@
 
 namespace skity {
 
+static void split_cubic(glm::vec2* base) {
+  glm::vec2 a, b, c;
+
+  base[6] = base[3];
+  a = base[0] + base[1];
+  b = base[1] + base[2];
+  c = base[2] + base[3];
+
+  base[5] = c / 2.f;
+  c += b;
+  base[4] = c / 4.f;
+  base[1] = a / 2.f;
+  a += b;
+  base[2] = a / 4.f;
+  base[3] = (a + c) / 8.f;
+}
+
+static void split_quad(glm::vec2* base) {
+  glm::vec2 a, b;
+
+  base[4] = base[2];
+  a = base[0] + base[1];
+  b = base[1] + base[2];
+  base[3] = b / 2.f;
+  base[2] = (a + b) / 4.f;
+  base[1] = a / 2.f;
+}
+
 void HWPathVisitor::VisitPath(Path const& path, bool force_close) {
   Path::Iter iter{path, force_close};
   std::array<Point, 4> pts = {};
@@ -45,7 +73,7 @@ DONE:
 
 void HWPathVisitor::HandleMoveTo(const glm::vec2& p) {
   first_pt_ = p;
-
+  prev_pt_ = p;
   this->OnMoveTo(p);
 }
 
@@ -54,12 +82,53 @@ void HWPathVisitor::HandleLineTo(const glm::vec2& p1, const glm::vec2& p2) {
 
   // update prev_dir_ and pt
   prev_dir_ = glm::normalize(p2 - p1);
+  prev_pt_ = p2;
 }
 
 void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
                                  const glm::vec2& p3) {
-  this->OnQuadTo(p1, p2, p3);
-  prev_dir_ = glm::normalize(p3 - p2);
+  std::array<glm::vec2, 33 * 3 + 1> bez_stack{};
+  std::array<int32_t, 33> level_stack{};
+
+  int32_t top, level;
+  int32_t* levels = level_stack.data();
+
+  auto arc = bez_stack.data();
+  arc[0] = p3;
+  arc[1] = p2;
+  arc[2] = p1;
+
+  top = 0;
+
+  glm::vec2 delta = glm::abs(arc[2] + arc[0] - 2.f * arc[1]);
+
+  float d = glm::min(delta.x, delta.y);
+
+  if (d < 0.25f) {
+    goto Draw;
+  }
+
+  level = 0;
+  do {
+    d = d / 4.f;
+    level++;
+  } while (d > 0.25f);
+
+  levels[0] = level;
+  do {
+    level = levels[top];
+    if (level > 0) {
+      split_quad(arc);
+      arc += 2;
+      top++;
+      levels[top] = levels[top - 1] = level - 1;
+      continue;
+    }
+  Draw:
+    HandleLineTo(prev_pt_, arc[0]);
+    top--;
+    arc -= 2;
+  } while (top >= 0);
 }
 
 void HWPathVisitor::HandleConicTo(glm::vec2 const& p1, glm::vec2 const& p2,
@@ -76,29 +145,43 @@ void HWPathVisitor::HandleConicTo(glm::vec2 const& p1, glm::vec2 const& p2,
   HandleQuadTo(quads[0], quads[1], quads[2]);
   HandleQuadTo(quads[2], quads[3], quads[4]);
 
-  prev_dir_ = glm::normalize(p3 - p2);
+  //prev_dir_ = glm::normalize(p3 - p2);
 }
 
 void HWPathVisitor::HandleCubicTo(glm::vec2 const& p1, glm::vec2 const& p2,
                                   glm::vec2 const& p3, glm::vec2 const& p4) {
-  Point start = {p1.x, p1.y, 0.f, 1.f};
-  Point control1 = {p2.x, p2.y, 0.f, 1.f};
-  Point control2 = {p3.x, p3.y, 0.f, 1.f};
-  Point end = {p4.x, p4.y, 0.f, 1.f};
+  std::array<glm::vec2, 32 * 3 + 1> bez_stack;
 
-  std::array<Point, 4> cubic{start, control1, control2, end};
+  auto arc = bez_stack.data();
 
-  std::array<Point, 32> sub_cubic{};
+  arc[0] = p4;
+  arc[1] = p3;
+  arc[2] = p2;
+  arc[3] = p1;
 
-  SubDividedCubic8(cubic.data(), sub_cubic.data());
+  glm::vec2 from = p1;
+  for (;;) {
+    auto delta1 = glm::abs(2.f * arc[0] - 3.f * arc[1] + arc[3]);
+    auto delta2 = glm::abs(arc[0] - 3.f * arc[2] + 2.f * arc[3]);
 
-  for (int i = 0; i < 8; i++) {
-    std::array<skity::Point, 3> quad{};
-    skity::CubicToQuadratic(sub_cubic.data() + i * 4, quad.data());
-    HandleQuadTo(quad[0], quad[1], quad[2]);
+    if (std::min(delta1.x, delta1.y) > 0.5f ||
+        std::min(delta2.x, delta2.y) > 0.5f) {
+      goto SPLIT;
+    }
+
+    HandleLineTo(prev_pt_, arc[0]);
+    if (arc == bez_stack.data()) {
+      return;
+    }
+
+    arc -= 3;
+    from = arc[0];
+    continue;
+
+  SPLIT:
+    split_cubic(arc);
+    arc += 3;
   }
-
-  prev_dir_ = glm::normalize(p4 - p3);
 }
 
 void HWPathVisitor::HandleClose() {}
