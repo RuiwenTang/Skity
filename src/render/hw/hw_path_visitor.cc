@@ -152,7 +152,6 @@ void HWPathVisitor::HandleConicTo(glm::vec2 const& p1, glm::vec2 const& p2,
 
   HandleQuadTo(quads[0], quads[1], quads[2]);
   HandleQuadTo(quads[2], quads[3], quads[4]);
-
 }
 
 void HWPathVisitor::HandleCubicTo(glm::vec2 const& p1, glm::vec2 const& p2,
