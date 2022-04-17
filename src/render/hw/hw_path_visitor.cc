@@ -102,7 +102,15 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
 
   glm::vec2 delta = glm::abs(arc[2] + arc[0] - 2.f * arc[1]);
 
-  float d = glm::min(delta.x, delta.y);
+  // If delta.x or delta.y is zero maybe this is a circle approximate
+  float d = 0.f;
+  if (FloatNearlyZero(delta.x)) {
+    d = delta.y;
+  } else if (FloatNearlyZero(delta.y)) {
+    d = delta.x;
+  } else {
+    d = glm::min(delta.x, delta.y);
+  }
 
   if (d < 0.25f) {
     goto Draw;
@@ -145,7 +153,6 @@ void HWPathVisitor::HandleConicTo(glm::vec2 const& p1, glm::vec2 const& p2,
   HandleQuadTo(quads[0], quads[1], quads[2]);
   HandleQuadTo(quads[2], quads[3], quads[4]);
 
-  //prev_dir_ = glm::normalize(p3 - p2);
 }
 
 void HWPathVisitor::HandleCubicTo(glm::vec2 const& p1, glm::vec2 const& p2,
