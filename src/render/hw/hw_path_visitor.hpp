@@ -49,6 +49,7 @@ class HWPathVisitor : public HWGeometryRaster {
  private:
   glm::vec2 first_pt_ = {};
   glm::vec2 prev_dir_ = {};
+  glm::vec2 prev_pt_ = {};
 };
 
 }  // namespace skity

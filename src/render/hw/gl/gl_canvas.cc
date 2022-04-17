@@ -44,8 +44,9 @@ bool GLCanvas::SupportGeometryShader() {
 #ifdef SKITY_ANDROID
   return gl_major_ == 3 && gl_minor_ == 2;
 #else
-  // just return true since OpenGL 3.3+ support Geometry Shader by default
-  return true;
+  // FIXME
+  // disable geometry shader while during refact
+  return false;
 #endif
 }
 

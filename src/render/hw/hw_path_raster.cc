@@ -7,6 +7,22 @@
 
 namespace skity {
 
+static int32_t calculate_quad_level(glm::vec2 const& p1, glm::vec2 const& p2,
+                                    glm::vec2 const& p3) {
+  glm::vec2 delta = glm::abs(p1 + p3 - p2 * 2.f);
+
+  float d = glm::min(delta.x, delta.y);
+
+  int32_t level = 0;
+
+  do {
+    d /= 4.f;
+    level++;
+  } while (d > 0.25f);
+
+  return level;
+}
+
 void HWPathRaster::FillPath(const Path& path) {
   SetBufferType(BufferType::kStencilFront);
   stroke_ = false;
@@ -377,20 +393,27 @@ void HWPathRaster::NormalFillQuad(Orientation orientation, glm::vec2 const& p1,
                                   glm::vec2 const& p2, glm::vec2 const& p3) {
   QuadCoeff coeff(std::array<glm::vec2, 3>{p1, p2, p3});
 
-  float step = 1.f / float(GEOMETRY_CURVE_RASTER_LIMIT - 1);
+  int32_t quad_level = calculate_quad_level(p1, p2, p3);
+
+  quad_level =
+      std::min(quad_level, static_cast<int32_t>(GEOMETRY_CURVE_RASTER_LIMIT));
+
+  quad_level = std::max(quad_level, 2);
+
+  float step = 1.f / float(quad_level - 1);
   float u = 0.f;
 
   std::array<glm::vec2, GEOMETRY_CURVE_RASTER_LIMIT> points{};
   std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes{};
 
   auto p1_i = AppendLineVertex(p1);
-  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT; i++) {
+  for (int i = 0; i < quad_level; i++) {
     points[i] = coeff.eval(u);
     indexes[i] = AppendLineVertex(points[i]);
     u += step;
   }
 
-  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT - 1; i++) {
+  for (int i = 0; i < quad_level - 1; i++) {
     if (orientation == Orientation::kAntiClockWise) {
       AppendFrontTriangle(p1_i, indexes[i], indexes[i + 1]);
     } else {
