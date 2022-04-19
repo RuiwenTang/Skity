@@ -146,3 +146,16 @@ if(${ENABLE_HW_RENDER})
 
 endif()
 
+if(EMSCRIPTEN)
+  target_sources(skity
+    PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/render/wasm/wasm_gpu_context.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/wasm/wasm_gpu_context.cc
+  )
+
+  add_executable(skity_wasm ${CMAKE_CURRENT_LIST_DIR}/render/wasm/wasm_binding.cc)
+  target_link_libraries(skity_wasm skity::skity)
+  # output dir
+  set_target_properties(skity_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+  set_target_properties(skity_wasm PROPERTIES LINK_FLAGS "-sMAX_WEBGL_VERSION=2 --bind")
+endif()

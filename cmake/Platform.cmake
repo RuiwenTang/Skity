@@ -1,4 +1,7 @@
-if(WIN32)
+if (EMSCRIPTEN)
+  # Build Skity with emsdk
+  add_definitions(-DSKITY_WASM)
+elseif(WIN32)
   add_definitions(-DSKITY_WIN)
   set(BUILD_SHARED_LIBS TRUE)
 
