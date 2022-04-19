@@ -13,6 +13,11 @@
 #include "src/render/hw/hw_path_raster.hpp"
 #include "src/render/hw/hw_renderer.hpp"
 
+#ifdef SKITY_WASM
+#include <EGL/egl.h>
+#include <emscripten/html5_webgl.h>
+#endif
+
 #ifdef SKITY_OPENGL
 #include "src/render/hw/gl/gl_canvas.hpp"
 #endif
@@ -28,14 +33,16 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
                                                              float density,
                                                              GPUContext* ctx) {
   glm::mat4 mvp;
-  if (ctx->type == GPUBackendType::kOpenGL) {
+  if (ctx->type == GPUBackendType::kOpenGL ||
+      ctx->type == GPUBackendType::kWebGL2) {
     mvp = glm::ortho<float>(0, width, height, 0);
   } else if (ctx->type == GPUBackendType::kVulkan) {
     mvp = glm::ortho<float>(0, width, 0, height);
   }
 
   std::unique_ptr<HWCanvas> canvas;
-  if (ctx->type == GPUBackendType::kOpenGL) {
+  if (ctx->type == GPUBackendType::kOpenGL ||
+      ctx->type == GPUBackendType::kWebGL2) {
 #ifdef SKITY_OPENGL
     canvas = std::make_unique<GLCanvas>(mvp, width, height, density);
 #endif
@@ -54,6 +61,25 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
 
   return canvas;
 }
+
+#ifdef SKITY_WASM
+std::unique_ptr<Canvas> Canvas::MakeWebGLCanvas(std::string const& name,
+                                                uint32_t width, uint32_t height,
+                                                float density) {
+  EmscriptenWebGLContextAttributes attrs;
+  emscripten_webgl_init_context_attributes(&attrs);
+  attrs.majorVersion = 2;
+  attrs.minorVersion = 0;
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context = emscripten_webgl_create_context(name.c_str(), &attrs);
+
+  emscripten_webgl_make_context_current(context);
+
+  GPUContext ctx(GPUBackendType::kWebGL2,
+                 (void*)emscripten_webgl_get_proc_address);
+
+  return MakeHardwareAccelationCanvas(width, height, density, &ctx);
+}
+#endif
 
 HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
     : Canvas(),

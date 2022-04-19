@@ -157,5 +157,5 @@ if(EMSCRIPTEN)
   target_link_libraries(skity_wasm skity::skity)
   # output dir
   set_target_properties(skity_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-  set_target_properties(skity_wasm PROPERTIES LINK_FLAGS "-sMAX_WEBGL_VERSION=2 --bind")
+  set_target_properties(skity_wasm PROPERTIES LINK_FLAGS "-s WASM=1 -sSINGLE_FILE -sMAX_WEBGL_VERSION=2 -sFULL_ES3 -s MODULARIZE=1 -sGL_PREINITIALIZED_CONTEXT --bind")
 endif()

@@ -236,6 +236,12 @@ class SK_API Canvas {
                                                               float density,
                                                               GPUContext* ctx);
 
+#ifdef SKITY_WASM
+  static std::unique_ptr<Canvas> MakeWebGLCanvas(std::string const& name, uint32_t width,
+                                                              uint32_t height,
+                                                              float density);
+#endif
+
  protected:
   // default implement dispatch this to onClipPath
   virtual void onClipRect(Rect const& rect, ClipOp op);

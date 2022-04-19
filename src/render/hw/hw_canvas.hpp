@@ -6,6 +6,7 @@
 #include <skity/geometry/point.hpp>
 #include <skity/render/canvas.hpp>
 #include <vector>
+#include <string>
 
 #include "src/render/hw/hw_canvas_state.hpp"
 #include "src/render/hw/hw_draw.hpp"
