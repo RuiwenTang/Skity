@@ -154,8 +154,9 @@ if(EMSCRIPTEN)
   )
 
   add_executable(skity_wasm ${CMAKE_CURRENT_LIST_DIR}/render/wasm/wasm_binding.cc)
+  target_compile_options(skity_wasm PUBLIC "-s" "USE_FREETYPE=1")
   target_link_libraries(skity_wasm skity::skity)
   # output dir
   set_target_properties(skity_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-  set_target_properties(skity_wasm PROPERTIES LINK_FLAGS "-s WASM=1 -sSINGLE_FILE -sMAX_WEBGL_VERSION=2 -sFULL_ES3 -s MODULARIZE=1 -sGL_PREINITIALIZED_CONTEXT --bind")
+  set_target_properties(skity_wasm PROPERTIES LINK_FLAGS "-s WASM=1 -sSINGLE_FILE -sMAX_WEBGL_VERSION=2 -sFULL_ES3 -s MODULARIZE=1 -sGL_PREINITIALIZED_CONTEXT -s USE_FREETYPE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 --bind")
 endif()

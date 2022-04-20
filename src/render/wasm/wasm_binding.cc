@@ -2,6 +2,7 @@
 
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
+#include <skity/graphic/path.hpp>
 #include <skity/render/canvas.hpp>
 
 using namespace emscripten;
@@ -15,10 +16,18 @@ EMSCRIPTEN_BINDINGS(skity) {
       .class_function("MakeXYWH", &skity::Rect::MakeXYWH)
       .class_function("MakeWH", &skity::Rect::MakeWH)
       .function("setLTRB", &skity::Rect::setLTRB)
+      .function("offset", &skity::Rect::offset)
       .property("left", &skity::Rect::left)
       .property("right", &skity::Rect::right)
       .property("top", &skity::Rect::top)
       .property("bottom", &skity::Rect::bottom);
+    
+  class_<skity::RRect>("RRect")
+  .constructor()
+  .function("setRect", &skity::RRect::setRect)
+  .function("setRectXY", &skity::RRect::setRectXY)
+  .function("setOval", &skity::RRect::setOval)
+  .function("offset", &skity::RRect::offset);
 
   enum_<skity::Paint::Style>("Style")
       .value("Fill", skity::Paint::kFill_Style)
@@ -36,6 +45,14 @@ EMSCRIPTEN_BINDINGS(skity) {
 
   function("ColorSetARGB", &skity::ColorSetARGB);
 
+  class_<skity::Path>("Path")
+  .constructor()
+  .function("moveTo", select_overload<skity::Path&(float, float)>(&skity::Path::moveTo))
+  .function("lineTo", select_overload<skity::Path&(float, float)>(&skity::Path::lineTo))
+  .function("quadTo", select_overload<skity::Path&(float, float, float, float)>(&skity::Path::quadTo))
+  .function("close", &skity::Path::close);
+  ;
+
   class_<skity::Paint>("Paint")
       .constructor()
       .function("setStyle", &skity::Paint::setStyle)
@@ -47,5 +64,9 @@ EMSCRIPTEN_BINDINGS(skity) {
   class_<skity::Canvas>("Canvas")
       .class_function("Make", &skity::Canvas::MakeWebGLCanvas)
       .function("drawRect", &skity::Canvas::drawRect)
+      .function("drawPath", &skity::Canvas::drawPath)
+      .function("drawRRect", &skity::Canvas::drawRRect)
+      .function("drawRoundRect", &skity::Canvas::drawRoundRect)
+      .function("drawCircle", &skity::Canvas::drawCircle)
       .function("flush", &skity::Canvas::flush);
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Skity WebGL Example</title>
+  </head>
+  <body>
+    Check browser console.
+  </body>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    var Module = {
+      canvas: (function () {
+        console.log("get canvas");
+        let ele = document.getElementById("canvas");
+        return ele;
+      })(),
+    };
+    Module["preinitializedWebGLContext"] = Module["canvas"].getContext("webgl2", {stencil: true});
+  </script>
+  <script type="text/javascript" src="skity_wasm.js"></script>
+  <script type="text/javascript" src="webgl_example.js"></script>
+  <script>
+    Module().then((skity) => {
+      let ele = document.getElementById("canvas");
+      let gl = ele.getContext("webgl2");
+      
+      // function in webgl_example.js
+      let canvas = init_canvas(gl, skity, "#canvas");
+      render(gl, skity, canvas);
+
+    });
+  </script>
+</html>

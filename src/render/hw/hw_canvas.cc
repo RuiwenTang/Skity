@@ -70,14 +70,22 @@ std::unique_ptr<Canvas> Canvas::MakeWebGLCanvas(std::string const& name,
   emscripten_webgl_init_context_attributes(&attrs);
   attrs.majorVersion = 2;
   attrs.minorVersion = 0;
-  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context = emscripten_webgl_create_context(name.c_str(), &attrs);
+  attrs.stencil = 1;
+  attrs.enableExtensionsByDefault = 1;
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context =
+      emscripten_webgl_create_context(name.c_str(), &attrs);
+
+  double pdr = emscripten_get_device_pixel_ratio();
+
+  emscripten_set_element_css_size(name.c_str(), width, height);
+  emscripten_set_canvas_element_size(name.c_str(), width * pdr, height * pdr);
 
   emscripten_webgl_make_context_current(context);
 
   GPUContext ctx(GPUBackendType::kWebGL2,
                  (void*)emscripten_webgl_get_proc_address);
 
-  return MakeHardwareAccelationCanvas(width, height, density, &ctx);
+  return MakeHardwareAccelationCanvas(width * pdr, height * pdr, density, &ctx);
 }
 #endif
 
