@@ -38,9 +38,11 @@ endif()
 if (EMSCRIPTEN)
   # use emsd port freetype
   add_definitions(-DENABLE_TEXT_RENDER=1)
+  # use emscripten port freetype
+  set(FREETYPE_FOUND True)
 
   target_compile_options(skity PUBLIC "-s" "USE_FREETYPE=1")
-  set_target_properties(skity PROPERTIES LINK_FLAGS "-s USE_FREETYPE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+  set_target_properties(skity PROPERTIES LINK_FLAGS "-s USE_FREETYPE=1")
 elseif(ANDROID)
   # TODO support android build
   message("build for Android")

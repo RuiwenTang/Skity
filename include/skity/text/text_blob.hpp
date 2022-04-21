@@ -4,6 +4,7 @@
 #include <skity/graphic/paint.hpp>
 #include <skity/macros.hpp>
 #include <skity/text/text_run.hpp>
+#include <string>
 #include <vector>
 
 namespace skity {
@@ -51,6 +52,9 @@ class SK_API TextBlobBuilder final {
 
   std::shared_ptr<TextBlob> buildTextBlob(const char* text, Paint const& paint,
                                           TypefaceDelegate* delegate = nullptr);
+
+  std::shared_ptr<TextBlob> buildTextBlob(std::string const& text,
+                                          Paint const& paint);
 
  private:
   std::shared_ptr<TextBlob> GenerateBlobWithoutDelegate(const char* text,

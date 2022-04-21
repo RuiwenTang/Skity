@@ -104,6 +104,10 @@ std::shared_ptr<TextBlob> TextBlobBuilder::buildTextBlob(
   }
 }
 
+std::shared_ptr<TextBlob> TextBlobBuilder::buildTextBlob(const std::string &text, const Paint &paint) {
+  return buildTextBlob(text.c_str(), paint, nullptr);
+}
+
 std::shared_ptr<TextBlob> TextBlobBuilder::GenerateBlobWithDelegate(
     const char *text, Paint const &paint, TypefaceDelegate *delegate) {
   auto typeface = paint.getTypeface();
