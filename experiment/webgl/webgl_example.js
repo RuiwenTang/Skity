@@ -84,15 +84,68 @@ function draw_simple_text(skity, canvas, typeface) {
 
         canvas.drawTextBlob(blob, 20, 64, paint);
 
-        
+
         paint.setStyle(skity.Style.Stroke);
         paint.setColor(skity.ColorSetARGB(255, 0xDB, 0x44, 0x37));
         paint.setStrokeWidth(2.0);
 
         canvas.drawTextBlob(blob, 20, 144, paint);
 
+        let x1 = y1 = y2 = 0;
+        let x2 = 200;
 
+        let colors = new skity.VectorUint32();
+        colors.push_back(skity.ColorSetARGB(255, 0, 255, 255));
+        colors.push_back(skity.ColorSetARGB(255, 0, 0, 255));
+        colors.push_back(skity.ColorSetARGB(255, 255, 0, 0));
+        let shader = skity.Shader.MakeLinear(x1, y1, x2, y2, colors);
+
+
+        paint.setShader(shader);
+        paint.setStyle(skity.Style.Fill);
+
+        canvas.drawTextBlob(blob, 20, 224, paint);
+
+        shader.delete();
         blob.delete();
+}
+
+function draw_dash_start_example(skity, canvas) {
+        let path = new skity.Path();
+        path.moveTo(199, 34);
+        path.lineTo(253, 143);
+        path.lineTo(374, 160);
+        path.lineTo(287, 244);
+        path.lineTo(307, 365);
+        path.lineTo(199, 309);
+        path.lineTo(97, 365);
+        path.lineTo(112, 245);
+        path.lineTo(26, 161);
+        path.lineTo(146, 143);
+        path.close();
+
+        let paint = new skity.Paint();
+        paint.setStyle(skity.Style.Fill);
+        paint.setColor(skity.ColorSetARGB(255, 150, 150, 255));
+
+        canvas.drawPath(path, paint);
+
+        let pattern = new skity.VectorFloat();
+        pattern.push_back(10);
+        pattern.push_back(10);
+
+        let effect = skity.PathEffect.MakeDashEffect(pattern);
+
+        paint.setStrokeCap(skity.LineCap.Round);
+        paint.setStrokeJoin(skity.LineJoin.Round);
+        paint.setColor(skity.ColorSetARGB(255, 0, 0, 255));
+        paint.setStrokeWidth(3.0);
+        paint.setStyle(skity.Style.Stroke);
+        paint.setPathEffect(effect);
+
+        canvas.drawPath(path, paint);
+
+        effect.delete();
 }
 
 /**
@@ -104,9 +157,13 @@ function render(gl, skity, canvas, typeface) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         draw_basic_example(skity, canvas);
-        
-        canvas.save();
 
+        canvas.save();
+        canvas.translate(0, 300);
+        draw_dash_start_example(skity, canvas);
+        canvas.restore();
+
+        canvas.save();
         canvas.translate(300, 0);
         draw_path_effect(skity, canvas);
         canvas.restore();

@@ -1,6 +1,7 @@
 #include <emscripten/bind.h>
 
 #include <skity/effect/path_effect.hpp>
+#include <skity/effect/shader.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
@@ -13,6 +14,7 @@ using namespace emscripten;
 
 // handle data convert
 namespace skity {
+
 std::shared_ptr<Data> MakeCopyWithString(std::string const& str) {
   if (str.empty()) {
     return nullptr;
@@ -20,11 +22,42 @@ std::shared_ptr<Data> MakeCopyWithString(std::string const& str) {
 
   return Data::MakeWithCopy(str.c_str(), str.length());
 }
+
+std::shared_ptr<Shader> MakeLinearShader(float x1, float y1, float x2, float y2,
+                                         std::vector<uint32_t> const& colors) {
+  if (colors.size() < 2) {
+    return nullptr;
+  }
+
+  std::array<skity::Point, 2> pts{skity::Point{x1, y1, 0.f, 1.f},
+                                  skity::Point{x2, y2, 0.f, 1.f}};
+
+  std::vector<Color4f> f_colors;
+
+  for (auto c : colors) {
+    f_colors.emplace_back(Color4fFromColor(c));
+  }
+
+  return Shader::MakeLinear(pts.data(), f_colors.data(), nullptr,
+                            f_colors.size());
+}
+
+std::shared_ptr<PathEffect> MakeDashEffect(std::vector<float> const& pattern) {
+  return PathEffect::MakeDashPathEffect(pattern.data(), pattern.size(), 0);
+}
+
 }  // namespace skity
 
 // canvas binding
 
 EMSCRIPTEN_BINDINGS(skity) {
+  register_vector<uint32_t>("VectorUint32");
+  register_vector<float>("VectorFloat");
+
+  class_<skity::Shader>("Shader")
+      .smart_ptr<std::shared_ptr<skity::Shader>>("Shader")
+      .class_function("MakeLinear", &skity::MakeLinearShader);
+
   class_<skity::Data>("Data")
       .smart_ptr<std::shared_ptr<skity::Data>>("Data")
       .property("size", &skity::Data::Size)
@@ -33,7 +66,8 @@ EMSCRIPTEN_BINDINGS(skity) {
   class_<skity::PathEffect>("PathEffect")
       .smart_ptr<std::shared_ptr<skity::PathEffect>>("PathEffect")
       .class_function("MakeDiscretePathEffect",
-                      &skity::PathEffect::MakeDiscretePathEffect);
+                      &skity::PathEffect::MakeDiscretePathEffect)
+      .class_function("MakeDashEffect", &skity::MakeDashEffect);
 
   class_<skity::TextBlob>("TextBlob")
       .smart_ptr<std::shared_ptr<skity::TextBlob>>("TextBlob");
@@ -104,6 +138,7 @@ EMSCRIPTEN_BINDINGS(skity) {
       .function("setColor", &skity::Paint::setColor)
       .function("setTypeface", &skity::Paint::setTypeface)
       .function("setTextSize", &skity::Paint::setTextSize)
+      .function("setShader", &skity::Paint::setShader)
       .function("setPathEffect", &skity::Paint::setPathEffect);
 
   class_<skity::Canvas>("Canvas")
