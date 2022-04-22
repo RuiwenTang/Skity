@@ -392,7 +392,7 @@ void HWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {
 
     HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
 
-    auto draw = GenerateColorOp(work_paint, false, raster.RasterBounds());
+    auto draw = GenerateColorOp(work_paint, true, raster.RasterBounds());
 
     draw->SetStrokeWidth(work_paint.getStrokeWidth());
     draw->SetColorRange(range);
