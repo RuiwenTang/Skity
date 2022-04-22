@@ -239,7 +239,8 @@ void HWPathRaster::HandleBevelJoinInternal(Vec2 const& center, Vec2 const& p1,
 void HWPathRaster::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                            Vec2 const& d1, Vec2 const& p2,
                                            Vec2 const& d2) {
-  Vec2 out_point = center + (d1 - d2) * StrokeWidth() * FloatRoot2Over2;
+  Vec2 out_point =
+      center + glm::normalize(d1 - d2) * StrokeWidth() * FloatRoot2Over2;
 
   auto a = AppendCircleVertex(center, center);
   auto b = AppendCircleVertex(p1, center);
