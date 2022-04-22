@@ -26,41 +26,46 @@
   <script type="text/javascript" src="build/skity_wasm.js"></script>
   <script type="text/javascript" src="webgl_example.js"></script>
   <script>
-    // fetch font
-    let font_req = new XMLHttpRequest();
-    font_req.open(
-      "GET",
-      "https://raw.githubusercontent.com/RuiwenTang/Skity/main/resources/Roboto%20Mono%20Nerd%20Font%20Complete.ttf",
-      true
-    );
-    font_req.responseType = "arraybuffer";
-    font_req.onload = function () {
-      // ArrayBuffer
-      let font_binary = new Uint8Array(font_req.response);
-      
-      console.log('font.buffer = ', font_binary.buffer);
-      console.log('font.size = ', font_binary.byteLength);
+    Module().then((skity) => {
+      let ele = document.getElementById("canvas");
+      let gl = ele.getContext("webgl2");
 
-      Module().then((skity) => {
-        let ele = document.getElementById("canvas");
-        let gl = ele.getContext("webgl2");
+      // function in webgl_example.js
+      let canvas = init_canvas(gl, skity, "#canvas");
 
-        // function in webgl_example.js
-        let canvas = init_canvas(gl, skity, "#canvas");
+      render(gl, skity, canvas, null);
+
+      // fetch font
+      let font_req = new XMLHttpRequest();
+      font_req.open(
+        "GET",
+        "https://raw.githubusercontent.com/RuiwenTang/Skity/main/resources/Roboto%20Mono%20Nerd%20Font%20Complete.ttf",
+        true
+      );
+      font_req.responseType = "arraybuffer";
+      font_req.onload = function () {
+        if (font_req.status != 200) {
+          return;
+        }
+        
+        // ArrayBuffer
+        let font_binary = new Uint8Array(font_req.response);
+
+        console.log("font.buffer = ", font_binary.buffer);
+        console.log("font.size = ", font_binary.byteLength);
 
         let font_data = skity.Data.MakeWithCopy(font_binary);
 
         let typeface = skity.Typeface.MakeFromData(font_data);
-
 
         render(gl, skity, canvas, typeface);
 
         // Fixme to solve embind warning
         typeface.delete();
         font_data.delete();
-      });
-    };
+      };
 
-    font_req.send();
+      font_req.send();
+    });
   </script>
 </html>

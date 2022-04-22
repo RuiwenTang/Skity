@@ -252,10 +252,12 @@ function render(gl, skity, canvas, typeface) {
         draw_path_effect(skity, canvas);
         canvas.restore();
 
-        canvas.save();
-        canvas.translate(520, 0);
-        draw_simple_text(skity, canvas, typeface);
-        canvas.restore();
+        if (typeface) {
+                canvas.save();
+                canvas.translate(520, 0);
+                draw_simple_text(skity, canvas, typeface);
+                canvas.restore();
+        }
 
         canvas.save();
         canvas.translate(400, 300);
