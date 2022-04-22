@@ -23,6 +23,24 @@ std::shared_ptr<Data> MakeCopyWithString(std::string const& str) {
   return Data::MakeWithCopy(str.c_str(), str.length());
 }
 
+std::shared_ptr<Shader> MakeRadialShader(float cx, float cy, float radius,
+                                         std::vector<uint32_t> const& colors) {
+  if (colors.size() < 2) {
+    return nullptr;
+  }
+
+  Point center{cx, cy, 0.f, 1.f};
+
+  std::vector<Color4f> f_colors;
+
+  for (auto c : colors) {
+    f_colors.emplace_back(Color4fFromColor(c));
+  }
+
+  return Shader::MakeRadial(center, radius, f_colors.data(), nullptr,
+                            f_colors.size());
+}
+
 std::shared_ptr<Shader> MakeLinearShader(float x1, float y1, float x2, float y2,
                                          std::vector<uint32_t> const& colors) {
   if (colors.size() < 2) {
@@ -42,8 +60,45 @@ std::shared_ptr<Shader> MakeLinearShader(float x1, float y1, float x2, float y2,
                             f_colors.size());
 }
 
+std::shared_ptr<Shader> MakeLinearShaderWithPos(
+    float x1, float y1, float x2, float y2, std::vector<uint32_t> const& colors,
+    std::vector<float> const& pos) {
+  if (colors.size() < 2) {
+    return nullptr;
+  }
+
+  if (colors.size() != pos.size()) {
+    return nullptr;
+  }
+
+  std::array<skity::Point, 2> pts{skity::Point{x1, y1, 0.f, 1.f},
+                                  skity::Point{x2, y2, 0.f, 1.f}};
+
+  std::vector<Color4f> f_colors;
+
+  for (auto c : colors) {
+    f_colors.emplace_back(Color4fFromColor(c));
+  }
+
+  return Shader::MakeLinear(pts.data(), f_colors.data(), pos.data(),
+                            f_colors.size());
+}
+
 std::shared_ptr<PathEffect> MakeDashEffect(std::vector<float> const& pattern) {
   return PathEffect::MakeDashPathEffect(pattern.data(), pattern.size(), 0);
+}
+
+glm::mat4 MatrixTranslate(glm::mat4 const& m, float x, float y) {
+  return glm::translate(m, glm::vec3(x, y, 0.f));
+}
+
+glm::mat4 MatrixRotate(glm::mat4 const& m, float angle, float x, float y,
+                       float z) {
+  return glm::rotate(m, angle, glm::vec3(x, y, z));
+}
+
+glm::mat4 MatrixMultiply(glm::mat4 const& m1, glm::mat4 const& m2) {
+  return m1 * m2;
 }
 
 }  // namespace skity
@@ -54,9 +109,18 @@ EMSCRIPTEN_BINDINGS(skity) {
   register_vector<uint32_t>("VectorUint32");
   register_vector<float>("VectorFloat");
 
+  class_<skity::Matrix>("Matrix")
+      .constructor(&glm::identity<glm::mat4>)
+      .class_function("Translate", &skity::MatrixTranslate)
+      .class_function("Rotate", &skity::MatrixRotate)
+      .class_function("Multiply", &skity::MatrixMultiply);
+
   class_<skity::Shader>("Shader")
       .smart_ptr<std::shared_ptr<skity::Shader>>("Shader")
-      .class_function("MakeLinear", &skity::MakeLinearShader);
+      .function("setLocalMatrix", &skity::Shader::SetLocalMatrix)
+      .class_function("MakeLinear", &skity::MakeLinearShader)
+      .class_function("MakeLinearWithPos", &skity::MakeLinearShaderWithPos)
+      .class_function("MakeRadial", &skity::MakeRadialShader);
 
   class_<skity::Data>("Data")
       .smart_ptr<std::shared_ptr<skity::Data>>("Data")
@@ -84,6 +148,7 @@ EMSCRIPTEN_BINDINGS(skity) {
       .constructor<float, float, float, float>()
       .class_function("MakeXYWH", &skity::Rect::MakeXYWH)
       .class_function("MakeWH", &skity::Rect::MakeWH)
+      .class_function("MakeLTRB", &skity::Rect::MakeLTRB)
       .function("setLTRB", &skity::Rect::setLTRB)
       .function("offset", &skity::Rect::offset)
       .property("left", &skity::Rect::left)
@@ -112,10 +177,19 @@ EMSCRIPTEN_BINDINGS(skity) {
       .value("Mitter", skity::Paint::kMiter_Join)
       .value("Miter", skity::Paint::kMiter_Join);
 
+  enum_<skity::Path::Direction>("PathDirection")
+      .value("CW", skity::Path::Direction::kCW)
+      .value("CCW", skity::Path::Direction::kCCW);
+
+  enum_<skity::Path::PathFillType>("PathFillType")
+      .value("Winding", skity::Path::PathFillType::kWinding)
+      .value("EvenOdd", skity::Path::PathFillType::kEvenOdd);
+
   function("ColorSetARGB", &skity::ColorSetARGB);
 
   class_<skity::Path>("Path")
       .constructor()
+      .function("setFillType", &skity::Path::setFillType)
       .function("moveTo", select_overload<skity::Path&(float, float)>(
                               &skity::Path::moveTo))
       .function("lineTo", select_overload<skity::Path&(float, float)>(
@@ -123,6 +197,7 @@ EMSCRIPTEN_BINDINGS(skity) {
       .function("quadTo",
                 select_overload<skity::Path&(float, float, float, float)>(
                     &skity::Path::quadTo))
+      .function("addCircle", &skity::Path::addCircle)
       .function("close", &skity::Path::close);
 
   class_<skity::Typeface>("Typeface")

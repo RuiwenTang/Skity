@@ -1,4 +1,8 @@
 
+function degree_to_radius(deg) {
+        return deg * 0.01745329251994329576923690768489;
+}
+
 /**
  * 
  * @param {WebGL2RenderingContext} gl 
@@ -148,6 +152,86 @@ function draw_dash_start_example(skity, canvas) {
         effect.delete();
 }
 
+function draw_linear_gradient_example(skity, canvas) {
+        let paint = new skity.Paint();
+        paint.setStyle(skity.Style.Fill);
+
+        let colors = new skity.VectorUint32();
+
+        colors.push_back(skity.ColorSetARGB(0, 0, 255, 255));
+        colors.push_back(skity.ColorSetARGB(255, 0, 0, 255));
+        colors.push_back(skity.ColorSetARGB(255, 255, 0, 0));
+
+        let pos = new skity.VectorFloat();
+        pos.push_back(0);
+        pos.push_back(0.65);
+        pos.push_back(1);
+
+        for (let i = 0; i < 4; i++) {
+                let block_x = (i % 2) * 100.0;
+                // Fixme to solev float division
+                let block_y = parseInt(i / 2) * 100.0;
+
+                let matrix = new skity.Matrix();
+
+                if (i / 2 == 1) {
+                        matrix = skity.Matrix.Multiply(matrix, skity.Matrix.Translate(new skity.Matrix(), block_x, block_y));
+                        matrix = skity.Matrix.Multiply(matrix, skity.Matrix.Rotate(new skity.Matrix(), degree_to_radius(45.0), 0, 0, 1));
+                        matrix = skity.Matrix.Multiply(matrix, skity.Matrix.Translate(new skity.Matrix(), -block_x, -block_y));
+                }
+
+                let lgs = skity.Shader.MakeLinearWithPos(block_x, block_y, block_x + 50, block_y + 100, colors, pos);
+                lgs.setLocalMatrix(matrix);
+                paint.setShader(lgs);
+
+                let rect = skity.Rect.MakeXYWH(block_x, block_y, 100, 100);
+
+                canvas.drawRect(rect, paint);
+
+                lgs.delete();
+        }
+
+        let radial_colors = new skity.VectorUint32();
+        radial_colors.push_back(skity.ColorSetARGB(255, 255, 255, 255));
+        radial_colors.push_back(skity.ColorSetARGB(255, 0, 0, 0));
+
+        let path = new skity.Path();
+        path.addCircle(220, 350, 100, skity.PathDirection.CW);
+
+        let radial_shader = skity.Shader.MakeRadial(220, 350, 150, radial_colors);
+        paint.setShader(radial_shader);
+
+        canvas.drawPath(path, paint);
+
+        radial_shader.delete();
+}
+
+function draw_even_odd_fill(skity, canvas) {
+        let paint = new skity.Paint();
+        paint.setStyle(skity.Style.Fill);
+        paint.setColor(skity.ColorSetARGB(64, 255, 0, 0));
+
+        let path = new skity.Path();
+
+        path.moveTo(100, 10);
+        path.lineTo(40, 180);
+        path.lineTo(190, 60);
+        path.lineTo(10, 60);
+        path.lineTo(160, 180);
+        path.close();
+
+        canvas.drawPath(path, paint);
+
+        canvas.save();
+        canvas.translate(0, 200);
+
+        path.setFillType(skity.PathFillType.EvenOdd);
+
+        canvas.drawPath(path, paint);
+
+        canvas.restore();
+}
+
 /**
  * 
  * @param {WebGL2RenderingContext} gl 
@@ -171,6 +255,16 @@ function render(gl, skity, canvas, typeface) {
         canvas.save();
         canvas.translate(520, 0);
         draw_simple_text(skity, canvas, typeface);
+        canvas.restore();
+
+        canvas.save();
+        canvas.translate(400, 300);
+        draw_linear_gradient_example(skity, canvas);
+        canvas.restore();
+
+        canvas.save();
+        canvas.translate(800, 0);
+        draw_even_odd_fill(skity, canvas);
         canvas.restore();
 
         canvas.flush();
