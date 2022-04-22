@@ -10,7 +10,7 @@
 
 namespace skity {
 
-#ifdef SKITY_ANDROID
+#if defined(SKITY_ANDROID) || defined(SKITY_WASM)
 #define SHADER_HEADER "#version 300 es \n precision mediump float;\n"
 #define SHADER_HEADER_320 "#version 320 es \n precision mediump float;\n"
 #else

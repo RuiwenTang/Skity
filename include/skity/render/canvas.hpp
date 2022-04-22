@@ -214,6 +214,11 @@ class SK_API Canvas {
 
   void drawTextBlob(const TextBlob* blob, float x, float y, Paint const& paint);
 
+  void drawTextBlob(std::shared_ptr<TextBlob> const& blob, float x, float y,
+                    Paint const& paint) {
+    drawTextBlob(blob.get(), x, y, paint);
+  }
+
   inline void drawDebugLine(bool debug) { draw_debug_line_ = debug; }
 
   void updateViewport(uint32_t width, uint32_t height);
@@ -235,6 +240,13 @@ class SK_API Canvas {
                                                               uint32_t height,
                                                               float density,
                                                               GPUContext* ctx);
+
+#ifdef SKITY_WASM
+  static std::unique_ptr<Canvas> MakeWebGLCanvas(std::string const& name,
+                                                 uint32_t width,
+                                                 uint32_t height,
+                                                 float density);
+#endif
 
  protected:
   // default implement dispatch this to onClipPath

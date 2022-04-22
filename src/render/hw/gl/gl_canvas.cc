@@ -56,6 +56,10 @@ std::unique_ptr<HWRenderer> GLCanvas::CreateRenderer() {
 
   gl_renderer_ = renderer.get();
 
+#ifdef SKITY_WASM
+  GL_CALL(Viewport, 0, 0, onGetWidth(), onGetHeight());
+#endif
+
   return renderer;
 }
 

@@ -28,14 +28,16 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
                                                              float density,
                                                              GPUContext* ctx) {
   glm::mat4 mvp;
-  if (ctx->type == GPUBackendType::kOpenGL) {
+  if (ctx->type == GPUBackendType::kOpenGL ||
+      ctx->type == GPUBackendType::kWebGL2) {
     mvp = glm::ortho<float>(0, width, height, 0);
   } else if (ctx->type == GPUBackendType::kVulkan) {
     mvp = glm::ortho<float>(0, width, 0, height);
   }
 
   std::unique_ptr<HWCanvas> canvas;
-  if (ctx->type == GPUBackendType::kOpenGL) {
+  if (ctx->type == GPUBackendType::kOpenGL ||
+      ctx->type == GPUBackendType::kWebGL2) {
 #ifdef SKITY_OPENGL
     canvas = std::make_unique<GLCanvas>(mvp, width, height, density);
 #endif

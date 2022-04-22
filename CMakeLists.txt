@@ -15,7 +15,11 @@ set(SKITY_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 # define library
-add_library(skity SHARED)
+if (EMSCRIPTEN)
+  add_library(skity STATIC)
+else()
+  add_library(skity SHARED)
+endif()
 
 # public header include
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

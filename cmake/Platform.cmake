@@ -1,4 +1,7 @@
-if(WIN32)
+if (EMSCRIPTEN)
+  # Build Skity with emsdk
+  add_definitions(-DSKITY_WASM)
+elseif(WIN32)
   add_definitions(-DSKITY_WIN)
   set(BUILD_SHARED_LIBS TRUE)
 
@@ -31,9 +34,16 @@ else()
 
 endif()
 
-
 # dependencies
-if(ANDROID)
+if (EMSCRIPTEN)
+  # use emsd port freetype
+  add_definitions(-DENABLE_TEXT_RENDER=1)
+  # use emscripten port freetype
+  set(FREETYPE_FOUND True)
+
+  target_compile_options(skity PUBLIC "-s" "USE_FREETYPE=1")
+  set_target_properties(skity PROPERTIES LINK_FLAGS "-s USE_FREETYPE=1")
+elseif(ANDROID)
   # TODO support android build
   message("build for Android")
   add_definitions(-DSKITY_ANDROID=1)

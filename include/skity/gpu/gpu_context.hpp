@@ -9,6 +9,7 @@ enum class GPUBackendType {
   kNone,
   kOpenGL,
   kVulkan,
+  kWebGL2,
 };
 
 /**
