@@ -3,9 +3,10 @@
 ## build with emsdk
 
 ```
+cd experiment/webgl
 mkdir build
 cd build
-emcmake cmake ../ -DBUILD_EXAMPLE=OFF -DBUILD_TEST=OFF -DBUILD_SVG_MODULE=OFF  -DBUILD_CODEC_MODULE=OFF -DVULKAN_BACKEND=OFF
+emcmake cmake ../../../ -DBUILD_EXAMPLE=OFF -DBUILD_TEST=OFF -DBUILD_SVG_MODULE=OFF  -DBUILD_CODEC_MODULE=OFF -DVULKAN_BACKEND=OFF
 
 emmake make skity_wasm
 ```

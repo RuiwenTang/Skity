@@ -18,7 +18,7 @@ function init_canvas(gl, skity, name) {
 
         console.log('Canvas = ', skity.Canvas);
 
-        let canvas = skity.Canvas.Make(name, 800, 600, 1);
+        let canvas = skity.Canvas.Make(name, 1000, 800, 1);
 
         console.log('canvas = ', canvas);
 
