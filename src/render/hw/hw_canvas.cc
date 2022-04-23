@@ -324,6 +324,12 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
 
     raster.FlushRaster();
 
+    // handle hairline
+    if (paint.getStrokeWidth() < 0.5f) {
+      float alpha = paint.getStrokeWidth() / 0.5f;
+      working_paint.setAlphaF(alpha * paint.getAlphaF());
+    }
+
     auto draw = GenerateColorOp(working_paint, true, raster.RasterBounds());
 
     draw->SetStrokeWidth(paint.getStrokeWidth());
