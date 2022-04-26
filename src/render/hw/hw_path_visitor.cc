@@ -6,6 +6,8 @@
 
 namespace skity {
 
+#define QUAD_BEVEL_LIMIT 0.01f
+
 static void split_cubic(glm::vec2* base) {
   glm::vec2 a, b, c;
 
@@ -87,6 +89,9 @@ void HWPathVisitor::HandleLineTo(const glm::vec2& p1, const glm::vec2& p2) {
 
 void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
                                  const glm::vec2& p3) {
+  auto saved_join = LineJoin();
+  ChangeLineJoin(Paint::kRound_Join);
+
   std::array<glm::vec2, 33 * 3 + 1> bez_stack{};
   std::array<int32_t, 33> level_stack{};
 
@@ -112,7 +117,7 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
     d = glm::min(delta.x, delta.y);
   }
 
-  if (d < 0.25f) {
+  if (d < QUAD_BEVEL_LIMIT) {
     goto Draw;
   }
 
@@ -120,7 +125,7 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
   do {
     d = d / 4.f;
     level++;
-  } while (d > 0.25f);
+  } while (d > QUAD_BEVEL_LIMIT);
 
   levels[0] = level;
   do {
@@ -137,6 +142,8 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
     top--;
     arc -= 2;
   } while (top >= 0);
+
+  ChangeLineJoin(saved_join);
 }
 
 void HWPathVisitor::HandleConicTo(glm::vec2 const& p1, glm::vec2 const& p2,

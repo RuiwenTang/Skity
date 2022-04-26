@@ -176,6 +176,8 @@ void HWPathRaster::HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
     curr_join = p1 + current_normal * stroke_radius;
   }
 
+  float delta = glm::length(prev_join - curr_join);
+
   switch (LineJoin()) {
     case Paint::kMiter_Join:
       HandleMiterJoinInternal(p1, prev_join, prev_dir, curr_join, -curr_dir);
@@ -185,7 +187,12 @@ void HWPathRaster::HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
                               glm::normalize(prev_dir - curr_dir));
       break;
     case Paint::kRound_Join:
-      HandleRoundJoinInternal(p1, prev_join, prev_dir, curr_join, curr_dir);
+      if (delta < 1.f) {
+        HandleBevelJoinInternal(p1, prev_join, curr_join,
+                                glm::normalize(prev_dir - curr_dir));
+      } else {
+        HandleRoundJoinInternal(p1, prev_join, prev_dir, curr_join, curr_dir);
+      }
       break;
     default:
       break;

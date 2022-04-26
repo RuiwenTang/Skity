@@ -52,6 +52,8 @@ class HWGeometryRaster {
   Paint::Cap LineCap() const { return paint_.getStrokeCap(); }
   Paint::Join LineJoin() const { return paint_.getStrokeJoin(); }
 
+  void ChangeLineJoin(Paint::Join join) { paint_.setStrokeJoin(join); }
+
   void HandleLineCap(glm::vec2 const& center, glm::vec2 const& p0,
                      glm::vec2 const& p1, glm::vec2 const& out_dir,
                      float stroke_radius);
