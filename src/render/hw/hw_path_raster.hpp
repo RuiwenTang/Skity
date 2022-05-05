@@ -32,7 +32,13 @@ class HWPathRaster : public HWPathVisitor {
 
  private:
   void StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                    glm::vec2 const& p3);
+  void GSStrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                      glm::vec2 const& p3);
   void FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2);
+  void FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                  glm::vec2 const& p3);
   void HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
                       float stroke_radius);
 
@@ -44,6 +50,9 @@ class HWPathRaster : public HWPathVisitor {
 
   void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
+
+  void GSFillQuad(Orientation orientation, glm::vec2 const& p1,
+                  glm::vec2 const& p2, glm::vec2 const& p3);
 
  private:
   bool stroke_ = false;

@@ -45,8 +45,8 @@ bool GLCanvas::SupportGeometryShader() {
   return gl_major_ == 3 && gl_minor_ == 2;
 #else
   // FIXME
-  // disable geometry shader while during refact
-  return false;
+  // enable GS Shader by default in OpenGL
+  return true;
 #endif
 }
 

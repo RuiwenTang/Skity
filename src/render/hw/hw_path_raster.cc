@@ -84,7 +84,13 @@ void HWPathRaster::OnLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
 
 void HWPathRaster::OnQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
                             glm::vec2 const& p3) {
-  // no used
+  if (stroke_) {
+    if (UseGeometryShader()) {
+      GSStrokeQuadTo(p1, p2, p3);
+    }
+  } else {
+    FillQuadTo(p1, p2, p3);
+  }
 }
 
 void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
@@ -116,6 +122,95 @@ void HWPathRaster::StrokeLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
   curr_pt_ = p2;
 }
 
+void HWPathRaster::StrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                                glm::vec2 const& p3) {
+  if (p1 == first_pt_) {
+    // first point
+    prev_pt_ = first_pt_;
+    curr_pt_ = p2;
+    first_pt_dir_ = glm::normalize(p2 - p1);
+  }
+
+  Orientation orientation = CalculateOrientation(p1, p2, p3);
+  if (orientation == Orientation::kLinear) {
+    StrokeLineTo(p1, p3);
+    return;
+  }
+
+  float stroke_radius = StrokeWidth() * 0.5f;
+
+  QuadCoeff coeff(std::array<glm::vec2, 3>{p1, p2, p3});
+
+  float step = 1.f / float(GEOMETRY_CURVE_RASTER_LIMIT - 1);
+  float u = 0.f;
+
+  std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes1{};
+  std::array<size_t, GEOMETRY_CURVE_RASTER_LIMIT> indexes2{};
+
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT; i++) {
+    auto p = coeff.eval(u);
+
+    auto t = QuadCoeff::EvalQuadTangentAt(p1, p2, p3, u);
+    auto n = glm::vec2(t.y, -t.x);
+
+    auto up = p + n * stroke_radius;
+    auto dp = p - n * stroke_radius;
+
+    indexes1[i] = AppendLineVertex(up);
+    indexes2[i] = AppendLineVertex(dp);
+
+    u += step;
+  }
+
+  for (int i = 0; i < GEOMETRY_CURVE_RASTER_LIMIT - 1; i++) {
+    AppendFrontTriangle(indexes1[i], indexes2[i], indexes1[i + 1]);
+    AppendFrontTriangle(indexes2[i], indexes1[i + 1], indexes2[i + 1]);
+  }
+
+  prev_pt_ = p2;
+  curr_pt_ = p3;
+}
+
+void HWPathRaster::GSStrokeQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                                  glm::vec2 const& p3) {
+  if (p1 == first_pt_) {
+    // first point
+    prev_pt_ = first_pt_;
+    curr_pt_ = p2;
+    first_pt_dir_ = glm::normalize(p2 - p1);
+  }
+
+  Orientation orientation = CalculateOrientation(p1, p2, p3);
+  if (orientation == Orientation::kLinear) {
+    StrokeLineTo(p1, p3);
+    return;
+  }
+
+  auto a = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+  auto b = AppendVertex(p2.x, p2.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+  auto c = AppendVertex(p3.x, p3.y, HW_VERTEX_TYPE_QUAD_STROKE, 0.f, 0.f);
+
+  AppendFrontTriangle(a, b, c);
+
+  float stroke_radius = StrokeWidth() * 0.5f;
+
+  auto p1_dir = glm::normalize(p2 - p1);
+  auto p2_dir = glm::normalize((p2 - p1 + p2 - p3) * 0.5f);
+  auto p3_dir = glm::normalize(p3 - p2);
+
+  auto p1_n = glm::vec2(p1_dir.y, -p1_dir.x);
+  auto p3_n = glm::vec2(p3_dir.y, -p3_dir.x);
+
+  ExpandBounds(p1 + p1_n * stroke_radius);
+  ExpandBounds(p1 - p1_n * stroke_radius);
+  ExpandBounds(p3 + p3_n * stroke_radius);
+  ExpandBounds(p3 - p3_n * stroke_radius);
+  ExpandBounds(p2 + p2_dir * stroke_radius);
+
+  prev_pt_ = p2;
+  curr_pt_ = p3;
+}
+
 void HWPathRaster::FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
   if (p1 == first_pt_) {
     return;
@@ -135,6 +230,32 @@ void HWPathRaster::FillLineTo(glm::vec2 const& p1, glm::vec2 const& p2) {
   } else {
     AppendBackTriangle(first_pt_index_, i1, i2);
   }
+}
+
+void HWPathRaster::FillQuadTo(glm::vec2 const& p1, glm::vec2 const& p2,
+                              glm::vec2 const& p3) {
+  if (!UseGeometryShader()) {
+    return;
+  }
+
+  if (p1 != first_pt_) {
+    // need to handle outer stencil
+    Orientation orientation = CalculateOrientation(first_pt_, p1, p3);
+    if (orientation != Orientation::kLinear) {
+      uint32_t n_start_index = AppendLineVertex(p1);
+      uint32_t n_end_index = AppendLineVertex(p3);
+
+      if (orientation == Orientation::kAntiClockWise) {
+        AppendFrontTriangle(first_pt_index_, n_start_index, n_end_index);
+      } else {
+        AppendBackTriangle(first_pt_index_, n_start_index, n_end_index);
+      }
+    }
+  }
+
+  Orientation quad_orientation = CalculateOrientation(p1, p2, p3);
+
+  GSFillQuad(quad_orientation, p1, p2, p3);
 }
 
 void HWPathRaster::HandleLineJoin(glm::vec2 const& p1, glm::vec2 const& p2,
@@ -256,6 +377,19 @@ void HWPathRaster::HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
 
   AppendFrontTriangle(a, b, e);
   AppendFrontTriangle(a, e, c);
+}
+
+void HWPathRaster::GSFillQuad(Orientation orientation, glm::vec2 const& p1,
+                              glm::vec2 const& p2, glm::vec2 const& p3) {
+  uint32_t i1 = AppendVertex(p1.x, p1.y, HW_VERTEX_TYPE_QUAD_IN, 0.f, 0.f);
+  uint32_t i2 = AppendVertex(p2.x, p2.y, HW_VERTEX_TYPE_QUAD_IN, 0.5f, 0.f);
+  uint32_t i3 = AppendVertex(p3.x, p3.y, HW_VERTEX_TYPE_QUAD_IN, 1.f, 1.f);
+
+  if (orientation == Orientation::kAntiClockWise) {
+    AppendFrontTriangle(i1, i2, i3);
+  } else {
+    AppendBackTriangle(i1, i2, i3);
+  }
 }
 
 }  // namespace skity

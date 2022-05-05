@@ -89,6 +89,11 @@ void HWPathVisitor::HandleLineTo(const glm::vec2& p1, const glm::vec2& p2) {
 
 void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
                                  const glm::vec2& p3) {
+  if (UseGeometryShader()) {
+    OnQuadTo(p1, p2, p3);
+    return;
+  }
+
   auto saved_join = LineJoin();
   ChangeLineJoin(Paint::kRound_Join);
 
