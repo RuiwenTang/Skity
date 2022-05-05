@@ -251,7 +251,7 @@ void HWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
   raster.RasterLine({x0, y0}, {x1, y1});
   raster.FlushRaster();
 
-  HWDrawRange range{raster.ColorStart(), raster.ColorCount()};
+  HWDrawRange range{raster.StencilFrontStart(), raster.StencilFrontCount()};
 
   auto draw = GenerateColorOp(paint, true, raster.RasterBounds());
 

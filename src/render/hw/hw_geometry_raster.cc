@@ -12,6 +12,7 @@ HWGeometryRaster::HWGeometryRaster(HWMesh* mesh, Paint const& paint,
     : mesh_(mesh), paint_(paint), use_gs_(use_gs) {}
 
 void HWGeometryRaster::RasterLine(const glm::vec2& p0, const glm::vec2& p1) {
+  SetBufferType(kStencilFront);
   if (paint_.getStyle() == Paint::kFill_Style) {
     // single line can not do fill operation
     return;
@@ -337,6 +338,7 @@ void HWGeometryRaster::HandleGSRoundCap(glm::vec2 const& center,
   glm::vec2 b = p1 + out_dir * stroke_radius;
 
   glm::vec2 ab = (a + b) * 0.5f;
+  glm::vec2 ab2 = center + out_dir * stroke_radius;
 
   auto n_p0_i = AppendLineVertex(p0);
   auto n_ab_i = AppendLineVertex(ab);

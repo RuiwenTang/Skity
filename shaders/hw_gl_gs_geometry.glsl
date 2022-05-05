@@ -24,6 +24,25 @@ out vec3 fPosInfo;
 
 #define MAX_QUAD_STEP 16
 
+int calculate_quad_level(vec2 p0, vec2 p1, vec2 p2) {
+  vec2 delta = abs(p0 + p2 - 2.0 * p1);
+
+  float d = min(delta.x, delta.y);
+
+  int level = 0;
+  for(int i = 0; i < 16; i++) {
+    level++;
+
+    if (d < 0.01) {
+      break;
+    }
+
+    d = d / 4.0;
+  }
+
+  return max(8, level);
+}
+
 vec2 quad_bezier(float u, vec2 p0, vec2 p1, vec2 p2) {
   float b0 = (1.0 - u) * (1.0 - u);
   float b1 = 2.0 * u * (1.0 - u);
@@ -89,6 +108,8 @@ void generate_normal_triangle() {
   fPos = vPos[2];
   fPosInfo = vPosInfo[2];
   EmitVertex();
+
+  EndPrimitive();
 }
 
 void generate_bezier(int quad_in) {
@@ -96,18 +117,20 @@ void generate_bezier(int quad_in) {
   vec2 p1 = gl_in[1].gl_Position.xy;
   vec2 p2 = gl_in[2].gl_Position.xy;
 
-  float step = 1.0 / float(MAX_QUAD_STEP - 1);
+  int total_step = calculate_quad_level(p0, p1, p2);
+
+  float step = 1.0 / float(total_step - 1);
   float u = 0.0;
   vec2 points[MAX_QUAD_STEP];
 
-  for (int i = 0; i < MAX_QUAD_STEP - 1; i++) {
+  for (int i = 0; i < total_step - 1; i++) {
     points[i] = quad_bezier(u, p0, p1, p2);
     u += step;
   }
 
-  points[MAX_QUAD_STEP - 1] = quad_bezier(1.0, p0, p1, p2);
+  points[total_step - 1] = quad_bezier(1.0, p0, p1, p2);
 
-  for (int i = 0; i < MAX_QUAD_STEP - 1; i++) {
+  for (int i = 0; i < total_step - 1; i++) {
     if (quad_in == 1) {
       gl_Position = mvp * UserTransform * vec4(p0, 0.0, 1.0);
       fPos = p0;
@@ -138,9 +161,11 @@ void generate_bezier_stroke() {
 
   fPosInfo = vPosInfo[0];
 
-  float step = 1.0 / float(MAX_QUAD_STEP - 1);
+  int total_step = calculate_quad_level(p0, p1, p2);
+
+  float step = 1.0 / float(total_step - 1);
   float u = 0.0;
-  for (int i = 0; i < MAX_QUAD_STEP; i++) {
+  for (int i = 0; i < total_step; i++) {
     vec2 p = quad_bezier(u, p0, p1, p2);
 
     vec2 tangent = quad_bezier_tangent(u, p0, p1, p2);
