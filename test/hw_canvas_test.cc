@@ -1,11 +1,6 @@
 #include <skity/codec/codec.hpp>
-#include <skity/effect/shader.hpp>
 #include <skity/gpu/gpu_context.hpp>
-#include <skity/graphic/paint.hpp>
-#include <skity/graphic/path.hpp>
-#include <skity/io/data.hpp>
-#include <skity/io/pixmap.hpp>
-#include <skity/render/canvas.hpp>
+#include <skity/skity.hpp>
 
 #include "test/common/test_common.hpp"
 #include "test_config.hpp"
