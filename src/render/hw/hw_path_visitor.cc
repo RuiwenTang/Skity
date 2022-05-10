@@ -113,6 +113,7 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
   glm::vec2 delta = glm::abs(arc[2] + arc[0] - 2.f * arc[1]);
 
   // If delta.x or delta.y is zero maybe this is a circle approximate
+  // And need to make sure at least 3 split to make curve smooth
   float d = 0.f;
   if (FloatNearlyZero(delta.x)) {
     d = delta.y;
@@ -122,17 +123,13 @@ void HWPathVisitor::HandleQuadTo(const glm::vec2& p1, const glm::vec2& p2,
     d = glm::min(delta.x, delta.y);
   }
 
-  if (d < QUAD_BEVEL_LIMIT) {
-    goto Draw;
-  }
-
   level = 0;
   do {
     d = d / 4.f;
     level++;
   } while (d > QUAD_BEVEL_LIMIT);
 
-  levels[0] = level;
+  levels[0] = std::max(3, level);
   do {
     level = levels[top];
     if (level > 0) {
