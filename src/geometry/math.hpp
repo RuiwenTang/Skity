@@ -63,10 +63,6 @@ static inline float FloatCopySign(float v1, float v2) {
   return std::copysignf(v1, v2);
 }
 
-static inline float CrossProduct(glm::vec4 const& a, glm::vec4 const& b) {
-  return a.x * b.y - a.y * b.x;
-}
-
 static inline float DotProduct(glm::vec4 const& a, glm::vec4 const& b) {
   return a.x * b.x + a.y * b.y;
 }
@@ -76,6 +72,11 @@ static inline glm::vec2 Times2(glm::vec2 const& value) { return value + value; }
 template <class T>
 T Interp(T const& v0, T const& v1, T const& t) {
   return v0 + (v1 - v0) * t;
+}
+
+template<class T>
+float CrossProduct(T const& a, T const& b) {
+  return a.x * b.y - a.y * b.x;
 }
 
 enum class Orientation {

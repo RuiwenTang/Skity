@@ -14,13 +14,10 @@ struct Conic {
     kMaxConicToQuadPOW2 = 5,
   };
 
-  static int BuildUnitArc(Vector const& start, Vector const& stop,
+  static int BuildUnitArc(Vec2 const& start, Vec2 const& stop,
                           RotationDirection dir, Matrix* matrix,
                           Conic conics[kMaxConicsForArc]);
 
-  static int BuildUnitArc(glm::vec3 const& start, glm::vec3 const& stop,
-                          RotationDirection dir, glm::mat3* matrix,
-                          Conic conics[kMaxConicsForArc]);
   Conic() = default;
 
   Conic(Point const& p0, Point const& p1, Point const& p2, float weight)

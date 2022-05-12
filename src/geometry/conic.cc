@@ -62,12 +62,12 @@ static Point* subdivided(Conic const& src, Point* pts, uint32_t level) {
 Conic::Conic(Point const p[3], float weight)
     : pts{p[0], p[1], p[2]}, w(weight) {}
 
-int Conic::BuildUnitArc(Vector const& start, Vector const& stop,
+int Conic::BuildUnitArc(Vec2 const& start, Vec2 const& stop,
                         RotationDirection dir, Matrix* userMatrix,
                         Conic dst[kMaxConicsForArc]) {
   // rotate by x,y so that uStart is (1.0)
   //  float x = glm::dot(start, stop);
-  float x = glm::dot(Vec2{start}, Vec2{stop});
+  float x = glm::dot(start, stop);
   float y = CrossProduct(start, stop);
 
   float absY = glm::abs(y);
