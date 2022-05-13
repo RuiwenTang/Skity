@@ -243,6 +243,12 @@ void StencilPipelineFamily::OnInit(GPUVkContext* ctx) {
 
   replace_ = CreatePipeline<StencilReplacePipeline>(ctx, vs_shader, fs_shader,
                                                     gs_shader);
+
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), vs_shader, VK_NULL_HANDLE);
+  VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), fs_shader, VK_NULL_HANDLE);
+  if (gs_shader) {
+    VK_CALL(vkDestroyShaderModule, ctx->GetDevice(), gs_shader, VK_NULL_HANDLE);
+  }
 }
 
 void StencilPipelineFamily::OnDestroy(GPUVkContext* ctx) {
@@ -253,6 +259,8 @@ void StencilPipelineFamily::OnDestroy(GPUVkContext* ctx) {
   SAFE_DESTROY(back_, ctx);
   SAFE_DESTROY(os_back_, ctx);
   SAFE_DESTROY(clip_back_, ctx);
+
+  SAFE_DESTROY(clip_, ctx);
 
   SAFE_DESTROY(recursive_, ctx);
   SAFE_DESTROY(recursive_back_, ctx);
