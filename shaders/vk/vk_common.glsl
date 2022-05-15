@@ -11,6 +11,8 @@
 #define VERTEX_TYPE_QUAD_OUT 4
 #define VERTEX_TYPE_TEXT 5
 
+layout(early_fragment_tests) in;
+
 // global pipeline info
 layout(push_constant) uniform constants {
   mat4 mvp;
