@@ -332,7 +332,7 @@ void HWCanvas::onDrawPath(const Path& path, const Paint& paint) {
 
     auto draw = GenerateColorOp(working_paint, true, raster.RasterBounds());
 
-    draw->SetStrokeWidth(paint.getStrokeWidth());
+    draw->SetStrokeWidth(std::max(paint.getStrokeWidth(), 0.5f));
 
     draw->SetStencilRange(
         {raster.StencilFrontStart(), raster.StencilFrontCount()},
