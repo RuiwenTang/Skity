@@ -133,23 +133,10 @@ void HWGeometryRaster::HandleLineCap(glm::vec2 const& center,
 
   glm::vec2 a = p0 + out_dir * stroke_radius;
   glm::vec2 b = p1 + out_dir * stroke_radius;
+  glm::vec2 c = center + out_dir * stroke_radius;
 
-  uint32_t i1, i2, i3, i4;
-  if (paint_.getStrokeCap() == Paint::kRound_Cap) {
-    i1 = AppendCircleVertex(p0, center);
-    i2 = AppendCircleVertex(p1, center);
-
-    i3 = AppendCircleVertex(a, center);
-    i4 = AppendCircleVertex(b, center);
-  } else {
-    i1 = AppendLineVertex(p0);
-    i2 = AppendLineVertex(p1);
-
-    i3 = AppendLineVertex(a);
-    i4 = AppendLineVertex(b);
-  }
-
-  AppendRect(i1, i2, i3, i4);
+  GenerateCircleMesh(center, p0, c);
+  GenerateCircleMesh(center, c, p1);
 }
 
 std::array<glm::vec2, 4> HWGeometryRaster::ExpandLine(glm::vec2 const& p0,
@@ -355,6 +342,26 @@ void HWGeometryRaster::HandleGSRoundCap(glm::vec2 const& center,
 
   AppendFrontTriangle(q_p0_i, q_a_i, q_ab_i);
   AppendFrontTriangle(q_ab_i, q_b_i, q_p1_i);
+}
+
+void HWGeometryRaster::GenerateCircleMesh(Vec2 const& center, Vec2 const& p1,
+                                          Vec2 const& p2) {
+  auto c_i = AppendLineVertex(center);
+
+  auto d = glm::normalize(p2 - p1);
+
+  float step = 1.f / 15;
+  auto prev_i = AppendLineVertex(p1);
+  for (int32_t i = 1; i < 16; i++) {
+    float u = step * i;
+    auto q1 = glm::mix(p1, p2, u);
+    auto p = center + glm::normalize(q1 - center) * StrokeWidth() * 0.5f;
+
+    auto curr_i = AppendLineVertex(p);
+
+    AppendFrontTriangle(c_i, prev_i, curr_i);
+    prev_i = curr_i;
+  }
 }
 
 }  // namespace skity

@@ -51,6 +51,9 @@ class HWPathRaster : public HWPathVisitor {
   void HandleRoundJoinInternal(Vec2 const& center, Vec2 const& p1,
                                Vec2 const& d1, Vec2 const& p2, Vec2 const& d2);
 
+  void HandleRoundJoinWithGS(Vec2 const& center, Vec2 const& p1, Vec2 const& d1,
+                             Vec2 const& p2, Vec2 const& d2);
+
   void GSFillQuad(Orientation orientation, glm::vec2 const& p1,
                   glm::vec2 const& p2, glm::vec2 const& p3);
 

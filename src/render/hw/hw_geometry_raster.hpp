@@ -82,6 +82,8 @@ class HWGeometryRaster {
 
   void ExpandBounds(glm::vec2 const& p);
 
+  void GenerateCircleMesh(Vec2 const& center, Vec2 const& p1, Vec2 const& p2);
+
  private:
   std::vector<uint32_t>& CurrentIndexBuffer();
 
