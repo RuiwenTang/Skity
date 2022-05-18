@@ -27,18 +27,18 @@ class RawGLGemTest : public test::TestApp {
       exit(-1);
     }
 
-    // glColorMask(0, 0, 0, 0);
+    // glColorMask(1, 1, 1, 1);
     glStencilFunc(GL_ALWAYS, 0x01, 0x0F);
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP);
-    glDrawArrays(GL_PATCHES, 3, 3);
-
-    glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
     glDrawArrays(GL_PATCHES, 0, 3);
 
-    glColorMask(1, 1, 1, 1);
-    glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glDrawArrays(GL_PATCHES, 3, 3);
+    // glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    // glDrawArrays(GL_PATCHES, 0, 3);
+
+    // glColorMask(1, 1, 1, 1);
+    // glStencilFunc(GL_NOTEQUAL, 0x00, 0x0F);
+    // glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    // glDrawArrays(GL_PATCHES, 0, 3);
 
     glBindVertexArray(0);
 
