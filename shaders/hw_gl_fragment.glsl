@@ -250,13 +250,6 @@ vec4 calculate_inner_blur(vec2 uv) {
 void main() {
   int vertex_type = int(vPosInfo.x);
 
-  if (vertex_type == VERTEX_TYPE_CIRCLE) {
-    float r = length(vPos - vPosInfo.yz);
-    if (r > StrokeWidth / 2.0) {
-      discard;
-    }
-  }
-
   if (ColorType == PIPELINE_MODE_STENCIL) {
     FragColor = vec4(0, 0, 0, 0);
   } else if (ColorType == PIPELINE_MODE_UNIFORM_COLOR) {

@@ -38,13 +38,3 @@ layout(location = 0) out vec4 outColor;
 
 float StrokeWidth() { return AlphaStroke.info.g; }
 
-void calculate_discard() {
-  int vertex_type = int(vPosInfo.x);
-
-  if (vertex_type == VERTEX_TYPE_CIRCLE) {
-    float r = length(vPos - vPosInfo.yz);
-    if (r > AlphaStroke.info.g / 2.0) {
-      discard;
-    }
-  }
-}

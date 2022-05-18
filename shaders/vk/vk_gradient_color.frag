@@ -125,8 +125,6 @@ vec4 calculate_gradient_color() {
 }
 
 void main() {
-  // do discard if need
-  calculate_discard();
   vec4 gadient_color = calculate_gradient_color();
   if (GlobalInfo.premulAlpha == 0) {
     outColor = vec4(gadient_color.rgb, gadient_color.a * AlphaStroke.info.r);

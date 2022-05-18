@@ -25,8 +25,6 @@ vec2 calculate_uv() {
 }
 
 void main() {
-  // do discard if need
-  calculate_discard();
 
   vec2 uv = calculate_uv();
 
