@@ -3,6 +3,7 @@
 #define SKITY_RENDER_CANVAS_HPP
 
 #include <memory>
+#include <skity/config.hpp>
 #include <skity/geometry/rect.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
@@ -11,6 +12,7 @@
 
 namespace skity {
 
+class Bitmap;
 class TextBlob;
 class GPUContext;
 
@@ -246,6 +248,10 @@ class SK_API Canvas {
                                                  uint32_t width,
                                                  uint32_t height,
                                                  float density);
+#endif
+
+#ifdef SKITY_CPU
+  static std::unique_ptr<Canvas> MakeSoftwareCanvas(Bitmap* bitmap);
 #endif
 
  protected:

@@ -60,6 +60,10 @@ if(${OPENGL_BACKEND})
   set(SKITY_OPENGL 1)
 endif()
 
+if(${CPU_BACKEND})
+  set(SKITY_CPU 1)
+endif()
+
 # svg module
 if(${BUILD_SVG_MODULE})
   add_subdirectory(module/svg)

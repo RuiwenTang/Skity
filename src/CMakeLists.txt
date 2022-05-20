@@ -146,6 +146,14 @@ if(${ENABLE_HW_RENDER})
 
 endif()
 
+if (${CPU_BACKEND})
+  target_sources(skity
+    PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_canvas.cc
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_canvas.hpp
+  )
+endif()
+
 if(EMSCRIPTEN)
   target_sources(skity
     PRIVATE

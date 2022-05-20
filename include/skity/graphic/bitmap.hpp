@@ -45,6 +45,10 @@ class SK_API Bitmap {
   uint32_t width() const;
   uint32_t height() const;
 
+  uint32_t* getPixelAddr() const { return pixel_addr_; }
+
+  const Pixmap* getPixmap() const { return pixmap_.get(); }
+
  private:
   std::shared_ptr<Pixmap> pixmap_;
   uint32_t* pixel_addr_;

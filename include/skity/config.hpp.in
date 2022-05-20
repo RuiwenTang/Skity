@@ -7,5 +7,7 @@
 #cmakedefine SKITY_VULKAN
 // opengl backend
 #cmakedefine SKITY_OPENGL
+// cpu backend
+#cmakedefine SKITY_CPU
 
 #endif  // SKITY_CONFIG_HPP

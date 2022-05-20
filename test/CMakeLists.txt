@@ -90,4 +90,8 @@ if(${FREETYPE_FOUND})
   target_link_libraries(freetype_path_test ${FREETYPE_LIBRARIES})
 endif()
 
+if (${CPU_BACKEND})
+  add_executable(sw_canvas_test sw_canvas_test.cc $<TARGET_OBJECTS:test_common> $<TARGET_OBJECTS:glad>)
+  target_link_libraries(sw_canvas_test skity skity-codec ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
 
+endif()

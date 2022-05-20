@@ -9,4 +9,5 @@ option(ENABLE_LOG "option for logging" ON)
 option(ENABLE_HW_RENDER "option for hardware backends" ON)
 option(VULKAN_BACKEND "option for vulkan backend" OFF)
 option(OPENGL_BACKEND "option for opengl backend" ON)
+option(CPU_BACKEND "option for cpu raster" ON)
 

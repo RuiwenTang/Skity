@@ -15,6 +15,8 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code,
 GLuint create_shader_program(const char* vs_code, const char* fs_code,
                              const char* tcs_code, const char* tes_code);
 
+GLuint create_texture(void* data, uint32_t width, uint32_t height);
+
 class TestApp {
  public:
   TestApp(uint32_t width = 800, uint32_t height = 600)

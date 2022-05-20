@@ -17,6 +17,7 @@
 #include <skity/geometry/rect.hpp>
 #include <skity/geometry/rrect.hpp>
 // graphic
+#include <skity/graphic/bitmap.hpp>
 #include <skity/graphic/color.hpp>
 #include <skity/graphic/paint.hpp>
 #include <skity/graphic/path.hpp>
