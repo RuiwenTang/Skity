@@ -1,3 +1,4 @@
+#include <skity/codec/codec.hpp>
 #include <skity/skity.hpp>
 #include <vector>
 
@@ -106,6 +107,13 @@ class SWCanvasTest : public test::TestApp {
 
     texture_ = test::create_texture(bitmap.getPixelAddr(), bitmap.width(),
                                     bitmap.height());
+
+#ifdef SKITY_HAS_JPEG
+    auto jpeg_codec = skity::Codec::MakeJPEGCodec();
+    auto jpeg_data = jpeg_codec->Encode(bitmap.getPixmap());
+
+    jpeg_data->WriteToFile("sw_canvas_test.jpg");
+#endif
   }
 
   void DrawTexture() {
