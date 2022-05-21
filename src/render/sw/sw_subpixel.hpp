@@ -7,8 +7,8 @@ namespace skity {
 
 enum {
   SW_PIXEL_BITS = 8,
-  SW_ONE_PIXEL = 1 << PIXEL_BITS,
-  SW_PIXEL_MAXK = ONE_PIXEL - 1,
+  SW_ONE_PIXEL = 1 << SW_PIXEL_BITS,
+  SW_PIXEL_MAXK = SW_ONE_PIXEL - 1,
 };
 
 template <class T>

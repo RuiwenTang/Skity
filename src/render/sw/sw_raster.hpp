@@ -4,6 +4,7 @@
 #include <array>
 #include <glm/glm.hpp>
 #include <limits>
+#include <skity/graphic/path.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -22,15 +23,17 @@ class SWRaster final {
   SWRaster() = default;
   ~SWRaster() = default;
 
+  void RastePath(Path const& path);
+
+  std::vector<Span> const& CurrentSpans() const { return spans_; }
+
+ private:
   void MoveTo(float x, float y);
 
   void LineTo(float x, float y);
 
   void DoRasteration();
 
-  std::vector<Span> const& CurrentSpans() const { return spans_; }
-
- private:
   void StartCell(int32_t ex, int32_t ey);
 
   void SetCell(int32_t ex, int32_t ey);

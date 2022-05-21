@@ -84,7 +84,8 @@ class SWCanvasTest : public test::TestApp {
         out vec4 FragColor;
 
         void main() {
-            FragColor = texture(UserTexture, aUV);
+            vec4 c = texture(UserTexture, aUV);
+            FragColor = vec4(c.y, c.z, c.w, c.x);
         }
    )";
 

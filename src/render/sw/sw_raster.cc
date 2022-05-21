@@ -4,6 +4,33 @@
 
 namespace skity {
 
+void SWRaster::RastePath(Path const& path) {
+  Path::Iter iter{path, true};
+  std::array<Point, 4> pts = {};
+
+  for (;;) {
+    Path::Verb verb = iter.next(pts.data());
+    switch (verb) {
+      case Path::Verb::kMove:
+        MoveTo(pts[0].x, pts[0].y);
+        break;
+      case Path::Verb::kLine:
+        LineTo(pts[1].x, pts[1].y);
+        break;
+      case Path::Verb::kQuad:
+      case Path::Verb::kConic:
+      case Path::Verb::kCubic:
+      case Path::Verb::kClose:
+        break;
+      case Path::Verb::kDone:
+        goto DONE;
+        break;
+    }
+  }
+DONE:
+  DoRasteration();
+}
+
 void SWRaster::MoveTo(float x, float y) {
   int32_t pox_x = 0;
   int32_t pox_y = 0;

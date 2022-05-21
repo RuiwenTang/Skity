@@ -4,6 +4,8 @@
 #include <skity/config.hpp>
 #include <skity/render/canvas.hpp>
 
+#include "src/render/sw/sw_subpixel.hpp"
+
 #ifndef SKITY_CPU
 #error "NOT Enable CPU Backend"
 #endif
@@ -11,6 +13,8 @@
 namespace skity {
 
 class Bitmap;
+
+class SWSpanBrush;
 
 class SWCanvas : public Canvas {
  public:
@@ -20,8 +24,6 @@ class SWCanvas : public Canvas {
  protected:
   void onDrawLine(float x0, float y0, float x1, float y1,
                   Paint const& paint) override;
-
-  void onDrawRect(Rect const& rect, Paint const& paint) override;
 
   void onClipPath(const Path& path, ClipOp op) override;
 
@@ -53,6 +55,11 @@ class SWCanvas : public Canvas {
   uint32_t onGetHeight() const override;
 
   void onUpdateViewport(uint32_t width, uint32_t height) override;
+
+ private:
+  std::unique_ptr<SWSpanBrush> GenerateBrush(std::vector<Span> const& spans,
+                                             skity::Paint const& paint,
+                                             bool stroke);
 
  private:
   Bitmap* bitmap_;
