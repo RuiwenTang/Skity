@@ -151,6 +151,9 @@ if (${CPU_BACKEND})
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_canvas.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_canvas.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_raster.cc
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_raster.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_subpixel.hpp
   )
 endif()
 
