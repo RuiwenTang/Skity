@@ -153,6 +153,8 @@ if (${CPU_BACKEND})
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_canvas.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_raster.cc
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_raster.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_span_brush.cc
+    ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_span_brush.hpp
     ${CMAKE_CURRENT_LIST_DIR}/render/sw/sw_subpixel.hpp
   )
 endif()

@@ -26,7 +26,9 @@ class SWRaster final {
 
   void LineTo(float x, float y);
 
-  void Sweep();
+  void DoRasteration();
+
+  std::vector<Span> const& CurrentSpans() const { return spans_; }
 
  private:
   void StartCell(int32_t ex, int32_t ey);
@@ -50,7 +52,7 @@ class SWRaster final {
   std::array<glm::ivec2, 32 * 3 + 1> bez_stack_ = {};
   std::array<size_t, 32> lev_stack_ = {};
   bool curr_cell_invalid = true;
-  bool even_odd = false;
+  bool even_odd_ = false;
   int32_t x_ = -1;
   int32_t y_ = -1;
   int32_t ex_ = -1;
