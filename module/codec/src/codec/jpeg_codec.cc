@@ -87,7 +87,7 @@ std::shared_ptr<Data> JPEGCodec::Encode(const Pixmap* pixmap) {
   int32_t ret =
       tjCompress2(hw.handle, (const unsigned char*)pixmap->Addr(),
                   pixmap->Width(), pixmap->Width() * 4, pixmap->Height(),
-                  TJPF_BGRA, &buf, &size, TJSAMP_444, 50, 0);
+                  TJPF_BGRA, &buf, &size, TJSAMP_444, 100, 0);
 
   if (ret != 0) {
     return nullptr;

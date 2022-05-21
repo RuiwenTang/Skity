@@ -134,8 +134,7 @@ void SWRaster::RenderLine(int32_t to_x, int32_t to_y) {
 
   if (ex1 == ex2 && ey1 == ey2) {
     // in one cell
-  } else if (dy == 0) {
-    // horizontal line
+  } else if (dy == 0) {  // horizontal line
     ex1 = ex2;
     SetCell(ex1, ey1);
   } else if (dx == 0) {

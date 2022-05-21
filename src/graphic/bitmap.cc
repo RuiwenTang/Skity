@@ -73,14 +73,14 @@ void Bitmap::blendPixel(uint32_t x, uint32_t y, Color src, BlendMode blend) {
   float src_alpha = float(ColorGetA(src)) / 255.f;
   float one_minus_alpha = 1.f - src_alpha;
 
-  uint8_t r =
-      ColorGetR(src) + static_cast<uint8_t>(ColorGetR(dst) * one_minus_alpha);
-  uint8_t g =
-      ColorGetG(src) + static_cast<uint8_t>(ColorGetG(dst) * one_minus_alpha);
-  uint8_t b =
-      ColorGetB(src) + static_cast<uint8_t>(ColorGetB(dst) * one_minus_alpha);
-  uint8_t a =
-      ColorGetA(src) + static_cast<uint8_t>(ColorGetA(dst) * one_minus_alpha);
+  uint8_t r = ColorGetR(src) * src_alpha +
+              static_cast<uint8_t>(ColorGetR(dst) * one_minus_alpha);
+  uint8_t g = ColorGetG(src) * src_alpha +
+              static_cast<uint8_t>(ColorGetG(dst) * one_minus_alpha);
+  uint8_t b = ColorGetB(src) * src_alpha +
+              static_cast<uint8_t>(ColorGetB(dst) * one_minus_alpha);
+  uint8_t a = ColorGetA(src) * src_alpha +
+              static_cast<uint8_t>(ColorGetA(dst) * one_minus_alpha);
 
   setPixel(x, y, ColorSetARGB(a, r, g, b));
 }
