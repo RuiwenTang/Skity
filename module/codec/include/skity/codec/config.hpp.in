@@ -1,0 +1,7 @@
+#ifndef SKITY_CODEC_CONFIG_HPP
+#define SKITY_CODEC_CONFIG_HPP
+
+#cmakedefine SKITY_HAS_PNG 1
+#cmakedefine SKITY_HAS_JPEG 1
+
+#endif  // SKITY_CODEC_CONFIG_HPP

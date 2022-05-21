@@ -2,6 +2,7 @@
 #define SKITY_CODEC_CODEC_HPP
 
 #include <memory>
+#include <skity/codec/config.hpp>
 #include <skity/macros.hpp>
 #include <utility>
 

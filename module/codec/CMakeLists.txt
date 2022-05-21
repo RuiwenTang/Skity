@@ -10,6 +10,7 @@ target_include_directories(
   skity-codec
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 )
 
@@ -49,6 +50,7 @@ if(${PNG_FOUND})
 
   add_definitions(${PNG_DEFINITIONS})
   add_definitions(-DSKITY_HAS_PNG)
+  set(SKITY_HAS_PNG 1)
 
   target_link_libraries(skity-codec PRIVATE ${PNG_LIBRARIES})
 else()
@@ -60,6 +62,8 @@ if(${JPEG_FOUND})
   target_include_directories(skity-codec PRIVATE ${JPEG_INCLUDE_DIRS})
 
   add_definitions(-DSKITY_HAS_JPEG)
+  set(SKITY_HAS_JPEG 1)
+
   target_link_libraries(skity-codec PRIVATE ${JPEG_LIBRARIES})
   if(WIN32)
     # Fixme to solve windows link problem
@@ -68,6 +72,10 @@ if(${JPEG_FOUND})
 else()
   message(WARNING "libjpeg not found, the jpg file codec will not enable")
 endif()
+
+# config file
+configure_file(include/skity/codec/config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/skity/codec/config.hpp)
+
 
 # codec backends
 if(${PNG_FOUND})
@@ -94,6 +102,12 @@ install(
   "${CMAKE_CURRENT_LIST_DIR}/include/skity"
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.hpp"
+)
+
+install(
+  FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/include/skity/codec/config.hpp"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/skity/codec/
 )
 
 # install library
