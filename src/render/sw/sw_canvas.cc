@@ -2,6 +2,9 @@
 
 #include <skity/graphic/bitmap.hpp>
 
+#include "src/render/sw/sw_raster.hpp"
+#include "src/render/sw/sw_span_brush.hpp"
+
 namespace skity {
 
 std::unique_ptr<Canvas> Canvas::MakeSoftwareCanvas(Bitmap* bitmap) {
@@ -21,11 +24,23 @@ SWCanvas::SWCanvas(Bitmap* bitmap) : Canvas(), bitmap_(bitmap) {}
 void SWCanvas::onDrawLine(float x0, float y0, float x1, float y1,
                           Paint const& paint) {}
 
-void SWCanvas::onDrawRect(Rect const& rect, Paint const& paint) {}
-
 void SWCanvas::onClipPath(const Path& path, ClipOp op) {}
 
-void SWCanvas::onDrawPath(const Path& path, const Paint& paint) {}
+void SWCanvas::onDrawPath(const Path& path, const Paint& paint) {
+  bool need_fill = paint.getStyle() != Paint::kStroke_Style;
+  bool need_stroke = paint.getStyle() != Paint::kFill_Style;
+
+  // Fill first
+  if (need_fill) {
+    SWRaster raster;
+
+    raster.RastePath(path);
+
+    auto brush = GenerateBrush(raster.CurrentSpans(), paint, false);
+
+    brush->Brush();
+  }
+}
 
 void SWCanvas::onDrawBlob(const TextBlob* blob, float x, float y,
                           Paint const& paint) {}
@@ -53,5 +68,14 @@ uint32_t SWCanvas::onGetWidth() const { return bitmap_->width(); }
 uint32_t SWCanvas::onGetHeight() const { return bitmap_->height(); }
 
 void SWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {}
+
+std::unique_ptr<SWSpanBrush> SWCanvas::GenerateBrush(
+    std::vector<Span> const& spans, skity::Paint const& paint, bool stroke) {
+  // TODO handle gradient and image
+
+  Color4f color = stroke ? paint.getStrokeColor() : paint.getFillColor();
+
+  return std::make_unique<SolidColorBrush>(spans, bitmap_, color);
+}
 
 }  // namespace skity
