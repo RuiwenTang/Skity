@@ -13,7 +13,11 @@ namespace skity {
 
 static void png_write_callback(png_structp png_ptr, png_bytep data,
                                png_size_t length) {
-  png_get_io_ptr(png_ptr);
+  auto encoded_data = (std::vector<uint8_t>*)png_get_io_ptr(png_ptr);
+
+  for (size_t i = 0; i < length; i++) {
+    encoded_data->emplace_back(data[i]);
+  }
 }
 
 PNGCodec::PNGCodec() = default;
@@ -86,11 +90,19 @@ std::shared_ptr<Data> skity::PNGCodec::Encode(const Pixmap* pixmap) {
                PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-  png_set_rows(png_ptr, info_ptr, (png_bytepp)pixmap->Addr());
+  std::vector<uint8_t*> bytepp(pixmap->Height());
+  for (size_t i = 0; i < bytepp.size(); i++) {
+    bytepp[i] = ((uint8_t*)pixmap->Addr()) + pixmap->Width() * i * 4;
+  }
+
+  png_set_rows(png_ptr, info_ptr, (png_bytepp)bytepp.data());
 
   std::vector<uint8_t> encode_data{};
   png_set_write_fn(png_ptr, &encode_data, png_write_callback, nullptr);
+
+  png_write_info(png_ptr, info_ptr);
   png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+  png_write_end(png_ptr, info_ptr);
 
   return Data::MakeWithCopy(encode_data.data(), encode_data.size());
 }
