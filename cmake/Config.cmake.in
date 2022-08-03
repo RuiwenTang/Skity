@@ -8,20 +8,4 @@ include("${CMAKE_CURRENT_LIST_DIR}/skitySVGTargets.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/skityCodecTargets.cmake")
 
-find_package(PNG 1.6.0)
-
-if (WIN32)
-  include(FindJPEG)
-else()
-  find_package(PkgConfig)
-  if (PkgConfig_FOUND)
-      if (APPLE)
-          link_directories("/usr/local/opt/jpeg-turbo/lib")
-          set(ENV{PKG_CONFIG_PATH} "/usr/local/opt/jpeg-turbo/lib/pkgconfig")
-      endif()
-      pkg_search_module(JPEG QUIET libturbojpeg)
-  endif()
-endif()
-
-
 check_required_components(skity)
