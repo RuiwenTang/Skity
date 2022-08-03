@@ -22,32 +22,29 @@ target_sources(
 )
 
 
-if(WIN32)
-  # libjpeg for win32
-  # Fixme to solve windows can not find libjpeg
-  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
+if(NOT WIN32)
+  # Fixme to solve can not fild zlib
+  # libpng
+  add_definitions(${PNG_DEFINITIONS})
+  add_definitions(-DSKITY_HAS_PNG)
+  set(SKITY_HAS_PNG 1)
+  target_link_libraries(skity-codec PRIVATE libpng)
 endif()
 
-
-# libpng
-add_definitions(${PNG_DEFINITIONS})
-add_definitions(-DSKITY_HAS_PNG)
-set(SKITY_HAS_PNG 1)
-
-target_link_libraries(skity-codec PRIVATE libpng)
 
 # libjpeg
 add_definitions(-DSKITY_HAS_JPEG)
 set(SKITY_HAS_JPEG 1)
 
 target_link_libraries(skity-codec PRIVATE turbojpeg)
+target_include_directories(skity-codec PRIVATE ${CMAKE_SOURCE_DIR}/third_party/libjpeg-turbo)
 
 # config file
 configure_file(include/skity/codec/config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/skity/codec/config.hpp)
 
 
 # codec backends
-if(${PNG_FOUND})
+if(NOT WIN32)
   target_sources(
     skity-codec
     PRIVATE
@@ -56,14 +53,14 @@ if(${PNG_FOUND})
   )
 endif()
 
-if(${JPEG_FOUND})
-  target_sources(
-    skity-codec
-    PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.cc
-    ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.hpp
-  )
-endif()
+
+target_sources(
+  skity-codec
+  PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.cc
+  ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.hpp
+)
+
 
 # install header
 install(
