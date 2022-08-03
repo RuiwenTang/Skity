@@ -70,6 +70,12 @@ if(${BUILD_SVG_MODULE})
 endif()
 
 if(${BUILD_CODEC_MODULE})
+  if(NOT WIN32)
+    set(PNG_SHARED ON CACHE INTERNAL "build shared libpng" FORCE)
+    add_subdirectory(third_party/libpng)
+  endif()
+  set(WITH_SIMD OFF CACHE INTERNAL "disable simd build" FORCE)
+  add_subdirectory(third_party/libjpeg-turbo)
   add_subdirectory(module/codec)
 endif()
 
@@ -84,6 +90,9 @@ get_target_property(SKITY_SRC skity SOURCES)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SKITY_SRC})
 
+if (${BUILD_TEST} OR ${BUILD_EXAMPLE})
+  add_subdirectory(third_party/glfw)
+endif()
 
 if(${BUILD_TEST} AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_subdirectory(third_party/gtest)

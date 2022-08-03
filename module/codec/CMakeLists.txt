@@ -22,63 +22,29 @@ target_sources(
 )
 
 
-if(WIN32)
-  # libjpeg for win32
-  # Fixme to solve windows can not find libjpeg
-  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{JPEG_PREFIX}")
-endif()
-
-# include(FindPNG)
-find_package(PNG 1.6.0)
-
-if(WIN32)
-  include(FindJPEG)
-else()
-  find_package(PkgConfig)
-  if(PkgConfig_FOUND)
-    if(APPLE)
-      target_link_directories(skity-codec PUBLIC "/usr/local/opt/jpeg-turbo/lib")
-      set(ENV{PKG_CONFIG_PATH} "/usr/local/opt/jpeg-turbo/lib/pkgconfig")
-    endif()
-    pkg_search_module(JPEG QUIET libturbojpeg)
-  endif()
-endif()
-
-# libpng
-if(${PNG_FOUND})
-  target_include_directories(skity-codec PRIVATE ${PNG_INCLUDE_DIRS})
-
+if(NOT WIN32)
+  # Fixme to solve can not fild zlib
+  # libpng
   add_definitions(${PNG_DEFINITIONS})
   add_definitions(-DSKITY_HAS_PNG)
   set(SKITY_HAS_PNG 1)
-
-  target_link_libraries(skity-codec PRIVATE ${PNG_LIBRARIES})
-else()
-  message(WARNING "libpng not found, the png file codec will not enable")
+  target_link_libraries(skity-codec PRIVATE png)
 endif()
+
 
 # libjpeg
-if(${JPEG_FOUND})
-  target_include_directories(skity-codec PRIVATE ${JPEG_INCLUDE_DIRS})
+add_definitions(-DSKITY_HAS_JPEG)
+set(SKITY_HAS_JPEG 1)
 
-  add_definitions(-DSKITY_HAS_JPEG)
-  set(SKITY_HAS_JPEG 1)
-
-  target_link_libraries(skity-codec PRIVATE ${JPEG_LIBRARIES})
-  if(WIN32)
-    # Fixme to solve windows link problem
-    target_link_libraries(skity-codec PRIVATE "$ENV{JPEG_PREFIX}/lib/turbojpeg-static.lib")
-  endif()
-else()
-  message(WARNING "libjpeg not found, the jpg file codec will not enable")
-endif()
+target_link_libraries(skity-codec PRIVATE turbojpeg)
+target_include_directories(skity-codec PRIVATE ${CMAKE_SOURCE_DIR}/third_party/libjpeg-turbo)
 
 # config file
 configure_file(include/skity/codec/config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/skity/codec/config.hpp)
 
 
 # codec backends
-if(${PNG_FOUND})
+if(NOT WIN32)
   target_sources(
     skity-codec
     PRIVATE
@@ -87,14 +53,14 @@ if(${PNG_FOUND})
   )
 endif()
 
-if(${JPEG_FOUND})
-  target_sources(
-    skity-codec
-    PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.cc
-    ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.hpp
-  )
-endif()
+
+target_sources(
+  skity-codec
+  PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.cc
+  ${CMAKE_CURRENT_LIST_DIR}/src/codec/jpeg_codec.hpp
+)
+
 
 # install header
 install(

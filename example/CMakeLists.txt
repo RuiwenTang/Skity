@@ -8,26 +8,13 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 #GLFW
 if(WIN32)
-  set(glfw3_DIR "C:/Program Files (x86)/GLFW")
-  set(GLFW_INCLUDE_DIRS ${glfw3_DIR}/include)
 
   find_package(OpenGL REQUIRED)
-  set(GLFW_LIBRARIES ${glfw3_DIR}/lib/glfw3.lib OpenGL::GL)
-  include_directories(${GLFW_INCLUDE_DIRS})
   # Fixme to solve visual studio can not find dll lib
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SKITY_DLL_DIR})
   # Fix visual studio unicode charset error
   add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
   add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-else()
-  find_package(PkgConfig)
-  if(PkgConfig_FOUND)
-    message("Pkg found")
-    pkg_search_module(GLFW REQUIRED glfw3)
-
-    link_directories("/usr/local/lib")
-    include_directories(${GLFW_INCLUDE_DIRS})
-  endif()
 endif()
 
 #example_config.h
@@ -46,23 +33,24 @@ add_library(
   gl/gl_app.hpp
 )
 
-target_link_libraries(gl_app skity::skity)
+
+target_link_libraries(gl_app skity::skity glfw)
 
 add_executable(gl_example gl_example.cc example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
 
-target_link_libraries(gl_example skity ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_example skity glfw ${CMAKE_DL_LIBS})
 
 add_executable(gl_frame_example gl_frame_example.cc frame_example.cc perf.cc perf.hpp $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(gl_frame_example skity skity-codec ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_frame_example skity skity-codec glfw ${CMAKE_DL_LIBS})
 
 add_executable(gl_svg_example gl_svg_example.cc svg_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(gl_svg_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_svg_example skity::skity skity::svg glfw ${CMAKE_DL_LIBS})
 
 add_executable(gl_clip_example gl_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(gl_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_clip_example skity::skity skity::svg glfw ${CMAKE_DL_LIBS})
 
 add_executable(gl_filter_example gl_filter_example.cc filter_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:gl_app>)
-target_link_libraries(gl_filter_example skity::skity skity::svg ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(gl_filter_example skity::skity skity::svg glfw ${CMAKE_DL_LIBS})
 
 # vulkan examples
 if(VULKAN_BACKEND)
@@ -83,20 +71,20 @@ if(VULKAN_BACKEND)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
   add_executable(vk_example vk_example.cc example.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_example skity ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_example skity glfw Vulkan::Vulkan)
 
   add_executable(vk_frame_example vk_frame_example.cc perf.cc frame_example.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_frame_example skity skity-codec ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_frame_example skity skity-codec glfw Vulkan::Vulkan)
 
   add_executable(vk_svg_example vk_svg_example.cc svg_example.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_svg_example skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_svg_example skity skity::svg glfw Vulkan::Vulkan)
 
   add_executable(vulkan_hello_world vulkan_hello_world.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vulkan_hello_world skity skity-codec ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vulkan_hello_world skity skity-codec glfw Vulkan::Vulkan)
 
   add_executable(vk_clip_example vk_clip_example.cc clip_example.cc $<TARGET_OBJECTS:glad> $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_clip_example skity::skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_clip_example skity::skity skity::svg glfw Vulkan::Vulkan)
 
   add_executable(vk_filter_example vk_filter_example.cc filter_example.cc $<TARGET_OBJECTS:vk_app>)
-  target_link_libraries(vk_filter_example skity::skity skity::svg ${GLFW_LIBRARIES} Vulkan::Vulkan)
+  target_link_libraries(vk_filter_example skity::skity skity::svg glfw Vulkan::Vulkan)
 endif()
