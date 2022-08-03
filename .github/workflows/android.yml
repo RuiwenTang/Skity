@@ -45,7 +45,7 @@ jobs:
         run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install 'ndk;21.3.6528147'
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_EXAMPLE=OFF -DBUILD_TEST=OFF -DVULKAN_BACKEND=ON -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.3.6528147/build/cmake/android.toolchain.cmake -DANDROID_ABR=arm64-v8a -DANDROID_PLATFORM=android-29 -DANDROID_STL=c++_shared -DCMAKE_SYSTEM_NAME=Android
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_EXAMPLE=OFF -DBUILD_TEST=OFF -DVULKAN_BACKEND=ON -DBUILD_CODEC_MODULE=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_HOME}/ndk/21.3.6528147/build/cmake/android.toolchain.cmake -DANDROID_ABR=arm64-v8a -DANDROID_PLATFORM=android-29 -DANDROID_STL=c++_shared -DCMAKE_SYSTEM_NAME=Android
 
       - name: Build
         # Build your program with the given configuration
