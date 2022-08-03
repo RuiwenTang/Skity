@@ -71,6 +71,7 @@ endif()
 
 if(${BUILD_CODEC_MODULE})
   if(NOT WIN32)
+    set(PNG_SHARED ON CACHE INTERNAL "build shared libpng" FORCE)
     add_subdirectory(third_party/libpng)
   endif()
   set(WITH_SIMD OFF CACHE INTERNAL "disable simd build" FORCE)

@@ -28,7 +28,7 @@ if(NOT WIN32)
   add_definitions(${PNG_DEFINITIONS})
   add_definitions(-DSKITY_HAS_PNG)
   set(SKITY_HAS_PNG 1)
-  target_link_libraries(skity-codec PRIVATE libpng)
+  target_link_libraries(skity-codec PRIVATE png)
 endif()
 
 
