@@ -66,7 +66,6 @@ int Conic::BuildUnitArc(Vec2 const& start, Vec2 const& stop,
                         RotationDirection dir, Matrix* userMatrix,
                         Conic dst[kMaxConicsForArc]) {
   // rotate by x,y so that uStart is (1.0)
-  //  float x = glm::dot(start, stop);
   float x = glm::dot(start, stop);
   float y = CrossProduct(start, stop);
 
@@ -118,7 +117,7 @@ int Conic::BuildUnitArc(Vec2 const& start, Vec2 const& stop,
   // Now compute any remaing (sub-90-degree) arc for the last conic
   const Point finalP = {x, y, 0, 1};
   const Point& lastQ = quadrantPts[quadrant * 2];
-  const float dot = glm::dot(lastQ, finalP);
+  const float dot = glm::dot(glm::vec2(lastQ), glm::vec2(finalP));
 
   if (dot < 1) {
     Vector offCurve = {lastQ.x + x, lastQ.y + y, 0, 0};
@@ -126,7 +125,7 @@ int Conic::BuildUnitArc(Vec2 const& start, Vec2 const& stop,
     PointSetLength<false>(offCurve, offCurve.x, offCurve.y,
                           FloatInvert(cosThetaOver2));
     offCurve.z = 0;
-    offCurve.w = 0;
+    offCurve.w = 1.f;
     if (!PointEqualsWithinTolerance(lastQ, offCurve)) {
       dst[conicCount].set(lastQ, offCurve, finalP, cosThetaOver2);
       conicCount += 1;
