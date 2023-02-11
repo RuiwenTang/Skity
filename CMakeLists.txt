@@ -13,6 +13,12 @@ endif()
 
 set(SKITY_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
+if (UNIX AND NOT APPLE)
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+endif()
 
 # define library
 if (EMSCRIPTEN)

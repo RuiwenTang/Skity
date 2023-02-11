@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstring>
 #include <skity/text/text_blob.hpp>
 #include <skity/text/text_run.hpp>
 #include <skity/text/typeface.hpp>
@@ -104,7 +105,8 @@ std::shared_ptr<TextBlob> TextBlobBuilder::buildTextBlob(
   }
 }
 
-std::shared_ptr<TextBlob> TextBlobBuilder::buildTextBlob(const std::string &text, const Paint &paint) {
+std::shared_ptr<TextBlob> TextBlobBuilder::buildTextBlob(
+    const std::string &text, const Paint &paint) {
   return buildTextBlob(text.c_str(), paint, nullptr);
 }
 
