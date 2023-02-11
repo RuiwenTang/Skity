@@ -1,5 +1,6 @@
 #include "src/codec/png_codec.hpp"
 
+#include <cstdlib>
 #include <cstring>
 #include <skity/io/data.hpp>
 #include <skity/io/pixmap.hpp>

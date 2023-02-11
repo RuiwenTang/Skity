@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <skity/graphic/bitmap.hpp>
 #include <skity/io/data.hpp>
 

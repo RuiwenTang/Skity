@@ -5,6 +5,7 @@
 #include <skity/gpu/gpu_vk_context.hpp>
 
 #include "src/render/hw/hw_renderer.hpp"
+#include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_framebuffer.hpp"
 #include "src/render/hw/vk/vk_memory.hpp"
 #include "src/render/hw/vk/vk_pipeline_wrapper.hpp"
@@ -12,7 +13,6 @@
 namespace skity {
 
 class VKTexture;
-class VKFontTexture;
 class VKRenderTarget;
 struct VKInterface;
 

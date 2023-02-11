@@ -64,7 +64,7 @@ if(VULKAN_BACKEND)
     vk/vk_app.hpp
   )
 
-  target_link_libraries(vk_app skity::skity)
+  target_link_libraries(vk_app skity::skity glfw)
 
   find_package(Vulkan REQUIRED)
 

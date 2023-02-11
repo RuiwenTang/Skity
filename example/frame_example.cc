@@ -1,6 +1,7 @@
 
+#include <math.h>
+
 #include <array>
-#include <cmath>
 #include <cstdlib>
 #ifndef SKITY_ANDROID
 #include <example_config.hpp>
@@ -153,7 +154,7 @@ void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
   float ry = y + ey;
   float dx, dy, d;
   float br = (ex < ey ? ex : ey) * 0.5f;
-  float blink = 1.f - std::pow(std::sinf(t * 0.5f), 200.f) * 0.8f;
+  float blink = 1.f - pow(sinf(t * 0.5f), 200.f) * 0.8f;
 
   // bg
   std::shared_ptr<skity::Shader> bg_gradient;
@@ -201,7 +202,7 @@ void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
 
   dx = (mx - rx) / (ex * 10.f);
   dy = (my - ry) / (ey * 10.f);
-  d = std::sqrtf(dx * dx + dy * dy);
+  d = sqrtf(dx * dx + dy * dy);
   if (d > 1.f) {
     dx /= d;
     dy /= d;
@@ -220,7 +221,7 @@ void draw_eyes(skity::Canvas* canvas, float x, float y, float w, float h,
 
   dx = (mx - rx) / (ex * 10.f);
   dy = (my - ry) / (ey * 10.f);
-  d = std::sqrtf(dx * dx + dy * dy);
+  d = sqrtf(dx * dx + dy * dy);
   if (d > 1.f) {
     dx /= d;
     dy /= d;
@@ -275,18 +276,12 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
   std::array<float, 6> sy{};
   float dx = w / 5.f;
 
-  samples[0] =
-      (1.f + std::sinf(t * 1.2345f + std::cosf(t * 0.3345f) * 0.44f)) * 0.5f;
-  samples[1] =
-      (1.f + std::sinf(t * 0.68363f + std::cosf(t * 1.3f) * 1.55f)) * 0.5f;
-  samples[2] =
-      (1.f + std::sinf(t * 1.1642f + std::cosf(t * 0.33457) * 1.24f)) * 0.5f;
-  samples[3] =
-      (1.f + std::sinf(t * 0.56345f + std::cosf(t * 1.63f) * 0.14f)) * 0.5f;
-  samples[4] =
-      (1.f + std::sinf(t * 1.6245f + std::cosf(t * 0.254f) * 0.3f)) * 0.5f;
-  samples[5] =
-      (1.f + std::sinf(t * 0.345f + std::cosf(t * 0.03f) * 0.6f)) * 0.5f;
+  samples[0] = (1.f + sinf(t * 1.2345f + cosf(t * 0.3345f) * 0.44f)) * 0.5f;
+  samples[1] = (1.f + sinf(t * 0.68363f + cosf(t * 1.3f) * 1.55f)) * 0.5f;
+  samples[2] = (1.f + sinf(t * 1.1642f + cosf(t * 0.33457) * 1.24f)) * 0.5f;
+  samples[3] = (1.f + sinf(t * 0.56345f + cosf(t * 1.63f) * 0.14f)) * 0.5f;
+  samples[4] = (1.f + sinf(t * 1.6245f + cosf(t * 0.254f) * 0.3f)) * 0.5f;
+  samples[5] = (1.f + sinf(t * 0.345f + cosf(t * 0.03f) * 0.6f)) * 0.5f;
 
   for (int32_t i = 0; i < 6; i++) {
     sx[i] = x + i * dx;
@@ -376,7 +371,7 @@ void draw_graph(skity::Canvas* canvas, float x, float y, float w, float h,
 void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
                       float t) {
   float r0, r1, ax, ay, bx, by, cx, cy, aeps, r;
-  float hue = std::sinf(t * 0.12f);
+  float hue = sinf(t * 0.12f);
 
   cx = x + w * 0.5f;
   cy = y + h * 0.5f;
@@ -399,7 +394,7 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     skity::Vec2 p2r = glm::normalize((p1r + p3r) * 0.5f);
     p2r = skity::Vec2{cx, cy} +
           (r0 + r0 * glm::pi<float>() * 0.1f *
-                    std::powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
+                    powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
               p2r;
 
     float p4_x = cx + std::cos(a0) * r1;
@@ -413,7 +408,7 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     skity::Vec2 p5r = glm::normalize((p6r + p4r) * 0.5f);
     p5r = skity::Vec2{cx, cy} +
           (r1 + r1 * glm::pi<float>() * 0.1f *
-                    std::powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
+                    powf((a1 - a0) * 2.f / glm::pi<float>(), 2)) *
               p5r;
 
     skity::Vec2 p1c = skity::Vec2{p1_x - cx, p1_y - cy};
@@ -425,10 +420,10 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     path.quadTo(p5r.x, p5r.y, p4_x, p4_y);
     path.close();
 
-    ax = cx + std::cosf(a0) * (r0 + r1) * 0.5f;
-    ay = cy + std::sinf(a0) * (r0 + r1) * 0.5f;
-    bx = cx + std::cosf(a1) * (r0 + r1) * 0.5f;
-    by = cy + std::sinf(a1) * (r0 + r1) * 0.5f;
+    ax = cx + cosf(a0) * (r0 + r1) * 0.5f;
+    ay = cy + sinf(a0) * (r0 + r1) * 0.5f;
+    bx = cx + cosf(a1) * (r0 + r1) * 0.5f;
+    by = cy + sinf(a1) * (r0 + r1) * 0.5f;
 
     skity::Paint paint;
     paint.setAntiAlias(true);
@@ -492,10 +487,10 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
   // Center triangle
   {
     r = r0 - 6.f;
-    ax = std::cosf(120.0f / 180.0f * glm::pi<float>()) * r;
-    ay = std::sinf(120.0f / 180.0f * glm::pi<float>()) * r;
-    bx = std::cosf(-120.0f / 180.0f * glm::pi<float>()) * r;
-    by = std::sinf(-120.0f / 180.0f * glm::pi<float>()) * r;
+    ax = cosf(120.0f / 180.0f * glm::pi<float>()) * r;
+    ay = sinf(120.0f / 180.0f * glm::pi<float>()) * r;
+    bx = cosf(-120.0f / 180.0f * glm::pi<float>()) * r;
+    by = sinf(-120.0f / 180.0f * glm::pi<float>()) * r;
     skity::Path triangle;
     triangle.moveTo(r, 0.f);
     triangle.lineTo(ax, ay);
@@ -534,8 +529,8 @@ void draw_color_wheel(skity::Canvas* canvas, float x, float y, float w, float h,
     canvas->drawPath(triangle, paint);
 
     // Select circle on triangle
-    ax = std::cosf(120.0f / 180.0f * glm::pi<float>()) * r * 0.3f;
-    ay = std::sinf(120.0f / 180.0f * glm::pi<float>()) * r * 0.4f;
+    ax = cosf(120.0f / 180.0f * glm::pi<float>()) * r * 0.3f;
+    ay = sinf(120.0f / 180.0f * glm::pi<float>()) * r * 0.4f;
     paint.setStyle(skity::Paint::kStroke_Style);
     paint.setStrokeWidth(2.f);
     skity::Path circle;
@@ -569,14 +564,14 @@ void draw_lines(skity::Canvas* canvas, float x, float y, float w, float h,
                                skity::Paint::kRound_Cap,
                                skity::Paint::kSquare_Cap};
 
-  pts[0] = -s * 0.25f + std::cosf(t * 0.3f) * s * 0.5f;
-  pts[1] = std::sinf(t * 0.3f) * s * 0.5f;
+  pts[0] = -s * 0.25f + cosf(t * 0.3f) * s * 0.5f;
+  pts[1] = sinf(t * 0.3f) * s * 0.5f;
   pts[2] = -s * 0.25f;
   pts[3] = 0.f;
   pts[4] = s * 0.25f;
   pts[5] = 0.f;
-  pts[6] = s * 0.25f + std::cosf(-t * 0.3f) * s * 0.5f;
-  pts[7] = std::sinf(-t * 0.3f) * s * 0.5f;
+  pts[6] = s * 0.25f + cosf(-t * 0.3f) * s * 0.5f;
+  pts[7] = sinf(-t * 0.3f) * s * 0.5f;
 
   for (int32_t i = 0; i < 3; i++) {
     for (int32_t j = 0; j < 3; j++) {
@@ -1044,8 +1039,8 @@ void draw_thumbnails(skity::Canvas* canvas,
   int imgw, imgh;
   float stackh = (images.size() / 2.f) * (thumb + 10) + 10;
 
-  float u = (1.f + std::cosf(t * 0.5f)) * 0.5f;
-  float u2 = (1.f - std::cosf(t * 0.2f)) * 0.5f;
+  float u = (1.f + cosf(t * 0.5f)) * 0.5f;
+  float u2 = (1.f - cosf(t * 0.2f)) * 0.5f;
   float scrollh, dv;
 
   // Fake shadow
@@ -1183,10 +1178,10 @@ void draw_spinner(skity::Canvas* canvas, float cx, float cy, float r, float t) {
     std::array<skity::Color4f, 2> colors{};
     std::array<skity::Point, 2> pts{};
 
-    ax = cx + std::cosf(a0) * (r0 + r1) * 0.5f;
-    ay = cy + std::sinf(a0) * (r0 + r1) * 0.5f;
-    bx = cx + std::cosf(a1) * (r0 + r1) * 0.5f;
-    by = cy + std::sinf(a1) * (r0 + r1) * 0.5f;
+    ax = cx + cosf(a0) * (r0 + r1) * 0.5f;
+    ay = cy + sinf(a0) * (r0 + r1) * 0.5f;
+    bx = cx + cosf(a1) * (r0 + r1) * 0.5f;
+    by = cy + sinf(a1) * (r0 + r1) * 0.5f;
 
     colors[0] = skity::Color4fFromColor(skity::ColorSetARGB(0, 0, 0, 0));
     colors[1] = skity::Color4fFromColor(skity::ColorSetARGB(128, 0, 0, 0));

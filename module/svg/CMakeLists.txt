@@ -1,6 +1,8 @@
 add_library(skity-svg STATIC)
 add_library(skity::svg ALIAS skity-svg)
 
+set(CMAKE_CXX_STANDARD 17)
+
 target_link_libraries(skity-svg PUBLIC skity)
 target_link_libraries(skity-svg PUBLIC pugixml::pugixml)
 

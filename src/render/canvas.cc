@@ -1,5 +1,6 @@
 #include "skity/render/canvas.hpp"
 
+#include <cstring>
 #include <skity/text/text_blob.hpp>
 #include <skity/text/utf.hpp>
 

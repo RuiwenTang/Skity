@@ -1,6 +1,8 @@
 #ifndef SKITY_SRC_RENDER_HW_HW_MESH_HPP
 #define SKITY_SRC_RENDER_HW_HW_MESH_HPP
 
+#include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace skity {

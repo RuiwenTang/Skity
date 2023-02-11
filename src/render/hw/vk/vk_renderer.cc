@@ -4,6 +4,8 @@
 #undef SKITY_LOG
 #endif
 
+#include <cstring>
+
 #include "src/logging.hpp"
 #include "src/render/hw/vk/vk_font_texture.hpp"
 #include "src/render/hw/vk/vk_interface.hpp"
