@@ -35,10 +35,12 @@ endif()
 # libjpeg
 add_definitions(-DSKITY_HAS_JPEG)
 set(SKITY_HAS_JPEG 1)
-
-target_link_libraries(skity-codec PRIVATE turbojpeg)
-target_include_directories(skity-codec PRIVATE ${CMAKE_SOURCE_DIR}/third_party/libjpeg-turbo)
-
+if (${SKITY_VCPKG})
+  target_link_libraries(skity-codec PRIVATE libjpeg-turbo::turbojpeg-static)
+else()
+  target_link_libraries(skity-codec PRIVATE turbojpeg)
+  target_include_directories(skity-codec PRIVATE ${CMAKE_SOURCE_DIR}/third_party/libjpeg-turbo)
+endif()
 # config file
 configure_file(include/skity/codec/config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/skity/codec/config.hpp)
 
@@ -92,6 +94,6 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/skity
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${BUILD_TEST})
   add_subdirectory(test)
 endif()

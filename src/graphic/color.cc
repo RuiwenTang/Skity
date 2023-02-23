@@ -20,7 +20,7 @@ static float hsla_hue(float h, float m1, float m2) {
 
 Color ColorMakeFromHSLA(float h, float s, float l, uint8_t a) {
   float m1, m2;
-  h = fmodf(h, 1.f);
+  h = glm::mod(h, 1.f);
   if (h < 0.f) h += 1.f;
   s = glm::clamp(s, 0.f, 1.f);
   l = glm::clamp(l, 0.f, 1.f);
