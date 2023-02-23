@@ -57,11 +57,16 @@ Add the following registry info to vcpkg-configuration.json as a git [registry](
 
 ```
 {
+  "default-registry": {
+      "kind": "git",
+      "repository": "https://github.com/microsoft/vcpkg.git",
+      "baseline": "82e03905f54fc49d11346e5148e3860747604d86"
+  },
   "registries": [
     {
       "kind": "git",
       "repository": "https://github.com/RuiwenTang/vcpkg-skity.git",
-      "baseline": "cf125cc8a08423432b70c240cfdd66e7002abbbf",
+      "baseline": "8223a29413aaa1869e6d106d341eaf90ddf7ca47",
       "packages": [ "skity" ]
     }
   ]
