@@ -27,6 +27,19 @@ else()
   add_library(skity SHARED)
 endif()
 
+if(ANDROID)
+  find_library(
+          gles-lib
+          GLESv3
+  )
+  find_library(
+          EGL-lib
+          EGL
+  )
+  target_link_libraries(skity PRIVATE ${gles-lib} ${EGL-lib})
+
+ENDIF()
+
 # public header include
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

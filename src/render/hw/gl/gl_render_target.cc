@@ -15,10 +15,15 @@ void check_fbo_state(GLuint fbo) {
 }
 
 void GLRenderTarget::Init() {
+#if defined(__ANDROID__) || defined(ANDROID)
+  msaa_sample_count_ = 0;
+#else
   int32_t max_sample_count = 0;
   GL_CALL(GetIntegerv, GL_MAX_SAMPLES, &max_sample_count);
   msaa_sample_count_ = std::min((uint32_t)max_sample_count, msaa_sample_count_);
   // step 1 init all internal textures
+#endif
+
   InitTextures();
 
   // step 2 bind texture to framebuffer
@@ -38,7 +43,7 @@ void GLRenderTarget::BlitColorTexture() {
   if (!EnableMultiSample()) {
     return;
   }
-
+#if !defined(__ANDROID__) && !defined(ANDROID)
   // make sure fbo bound a normal color texture
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -56,6 +61,7 @@ void GLRenderTarget::BlitColorTexture() {
 
   // make sure draw and read fbo bind to normal target
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
+#endif
 }
 
 void GLRenderTarget::BindColorTexture() {
@@ -143,9 +149,15 @@ void GLRenderTarget::InitFBO() {
   if (!EnableMultiSample()) {
     GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, fbo_);
 
+#if defined(__ANDROID__) || defined(ANDROID)
+    // bind stencil attachment
+    GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+            GL_TEXTURE_2D, stencil_texture_.GetTextureID(), 0);
+#else
     // bind stencil attachment
     GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
             GL_TEXTURE_2D, stencil_texture_.GetTextureID(), 0);
+#endif
 
     check_fbo_state(fbo_);
     GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
@@ -159,15 +171,23 @@ void GLRenderTarget::InitFBO() {
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
           GL_TEXTURE_2D_MULTISAMPLE, msaa_target_, 0);
 
+#if defined(__ANDROID__) || defined(ANDROID)
+  // bind stencil attachment
+  GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+          GL_TEXTURE_2D_MULTISAMPLE, stencil_texture_.GetTextureID(), 0);
+#else
   // bind stencil attachment
   GL_CALL(FramebufferTexture2D, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
           GL_TEXTURE_2D_MULTISAMPLE, stencil_texture_.GetTextureID(), 0);
+#endif
+
 
   check_fbo_state(msaa_fbo_);
   GL_CALL(BindFramebuffer, GL_FRAMEBUFFER, 0);
 }
 
 void GLRenderTarget::InitMultiSampleTexture() {
+#if !defined(__ANDROID__) && !defined(ANDROID)
   GL_CALL(GenTextures, 1, &msaa_target_);
 
   GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, msaa_target_);
@@ -176,9 +196,11 @@ void GLRenderTarget::InitMultiSampleTexture() {
           color_texture_.GetInternalFormat(), Width(), Height(), GL_TRUE);
 
   GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, 0);
+#endif
 }
 
 void GLRenderTarget::Clear() {
+#if !defined(__ANDROID__) && !defined(ANDROID)
   static const GLenum color_buffer = GL_COLOR_ATTACHMENT0;
   static const GLenum stencil_buffer = GL_DEPTH_STENCIL_ATTACHMENT;
 
@@ -191,6 +213,11 @@ void GLRenderTarget::Clear() {
 
   // clear stencil
   GL_CALL(ClearBufferfi, GL_STENCIL, 0, 0.f, 0);
+#else
+  GL_CALL(ClearColor,0,0,0,0);
+  GL_CALL(ClearStencil,0);
+  GL_CALL(Clear,GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#endif
 }
 
 }  // namespace skity

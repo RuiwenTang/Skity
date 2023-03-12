@@ -16,7 +16,7 @@ GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 void GLCanvas::OnInit(GPUContext* ctx) {
   ctx_ = ctx;
-#ifdef SKITY_ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   const char* version;
   std::vector<const char*> prefixes = {
       "OpenGL ES-CM ",
@@ -24,9 +24,7 @@ void GLCanvas::OnInit(GPUContext* ctx) {
       "OpenGL ES ",
   };
 
-  PFNGLGETSTRINGPROC gl_get_string = reinterpret_cast<PFNGLGETSTRINGPROC>(
-      ((GLInterface::GLGetProc)ctx->proc_loader)("glGetString"));
-  version = (const char*)gl_get_string(GL_VERSION);
+  version = (const char*)glGetString(GL_VERSION);
 
   for (auto pref : prefixes) {
     size_t length = std::strlen(pref);
@@ -41,8 +39,12 @@ void GLCanvas::OnInit(GPUContext* ctx) {
 }
 
 bool GLCanvas::SupportGeometryShader() {
-#ifdef SKITY_ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
+#ifdef SKITY_USE_GLES3
   return gl_major_ == 3 && gl_minor_ == 2;
+#else
+  return false;
+#endif
 #else
   // FIXME
   // enable GS Shader by default in OpenGL
@@ -77,7 +79,11 @@ std::unique_ptr<HWRenderTarget> GLCanvas::GenerateBackendRenderTarget(
   auto fbo = std::make_unique<GLRenderTarget>(width, height);
 
   // always enable multisample fbo
+#if defined(__ANDROID__) || defined(ANDROID)
+  fbo->SetEnableMultiSample(false);
+#else
   fbo->SetEnableMultiSample(true);
+#endif
 
   fbo->Init();
 

@@ -129,18 +129,18 @@ SK_API Color4f Color4fFromColor(Color color);
 
 namespace Colors {
 
-constexpr Color4f kTransparent = {0, 0, 0, 0};
-constexpr Color4f kBlack = {0, 0, 0, 1.f};
-constexpr Color4f kDkGray = {0.25f, 0.25f, 0.25f, 1.f};
-constexpr Color4f kGray = {0.50f, 0.50f, 0.50f, 1};
-constexpr Color4f kLtGray = {0.75f, 0.75f, 0.75f, 1};
-constexpr Color4f kWhite = {1, 1, 1, 1};
-constexpr Color4f kRed = {1, 0, 0, 1};
-constexpr Color4f kGreen = {0, 1, 0, 1};
-constexpr Color4f kBlue = {0, 0, 1, 1};
-constexpr Color4f kYellow = {1, 1, 0, 1};
-constexpr Color4f kCyan = {0, 1, 1, 1};
-constexpr Color4f kMagenta = {1, 0, 1, 1};
+static Color4f kTransparent = {0, 0, 0, 0};
+static Color4f kBlack = {0, 0, 0, 1.f};
+static Color4f kDkGray = {0.25f, 0.25f, 0.25f, 1.f};
+static Color4f kGray = {0.50f, 0.50f, 0.50f, 1};
+static Color4f kLtGray = {0.75f, 0.75f, 0.75f, 1};
+static Color4f kWhite = {1, 1, 1, 1};
+static Color4f kRed = {1, 0, 0, 1};
+static Color4f kGreen = {0, 1, 0, 1};
+static Color4f kBlue = {0, 0, 1, 1};
+static Color4f kYellow = {1, 1, 0, 1};
+static Color4f kCyan = {0, 1, 1, 1};
+static Color4f kMagenta = {1, 0, 1, 1};
 
 }  // namespace Colors
 

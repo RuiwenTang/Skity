@@ -58,6 +58,7 @@ void GLTexture::Bind() {
 
 void GLTexture::UnBind() {
   if (msaa_count_) {
+
     GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, 0);
   } else {
     GL_CALL(BindTexture, GL_TEXTURE_2D, 0);
@@ -72,8 +73,10 @@ void GLTexture::Resize(uint32_t width, uint32_t height) {
   width_ = width;
   height_ = height;
   if (msaa_count_ > 0) {
+#if !defined(__ANDROID__) && !defined(ANDROID)
     GL_CALL(TexImage2DMultisample, GL_TEXTURE_2D_MULTISAMPLE, msaa_count_,
             GetInternalFormat(), width, height, GL_TRUE);
+#endif
   } else {
     GL_CALL(TexImage2D, GL_TEXTURE_2D, 0, GetInternalFormat(), width, height, 0,
             format_, GetInternalType(), nullptr);
