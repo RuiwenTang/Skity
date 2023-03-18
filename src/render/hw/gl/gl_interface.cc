@@ -4,13 +4,8 @@ namespace skity {
 
 GLInterface* g_interface = nullptr;
 
-#if defined(__ANDROID__) || defined(ANDROID)
-#define GET_PROC(F) \
-  g_interface->f##F = (decltype(g_interface->f##F))(gl##F)
-#else
 #define GET_PROC(F) \
   g_interface->f##F = (decltype(g_interface->f##F))loader("gl" #F)
-#endif
 
 
 void GLInterface::InitGlobalInterface(void* proc_loader) {
@@ -28,12 +23,15 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
 #if defined(__ANDROID__) || defined(ANDROID)
 //  GET_PROC(BindSampler);
   GET_PROC(BindVertexArray);
-  g_interface->fBlend = glBlendFunc; //GET_PROC(Blend);
+  GET_PROC(Blend);
   GET_PROC(DeleteVertexArrays);
-  g_interface->fDisableVertexArrayAttrib = glDisableVertexAttribArray;//GET_PROC(DisableVertexArrayAttrib);
+  GET_PROC(DisableVertexArrayAttrib);
+  //g_interface->fDisableVertexArrayAttrib = GET_PROC(DisableVertexArrayAttrib);
 #ifdef SKITY_USE_GLES3
-  g_interface->fBlitFramebuffer = glBlitFramebuffer;
-  g_interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
+  GET_PROC(BlitFramebuffer);
+  GET_PROC(RenderbufferStorageMultisample);
+  //g_interface->fBlitFramebuffer = glBlitFramebuffer;
+  //g_interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
 #endif
   //GET_PROC(DrawArraysIndirect);
   //g_interface->fDrawArraysInstanced = glDrawArraysInstancedEXT;//  GET_PROC(DrawArraysInstanced);

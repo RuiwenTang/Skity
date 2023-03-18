@@ -24,7 +24,9 @@ void GLCanvas::OnInit(GPUContext* ctx) {
       "OpenGL ES ",
   };
 
-  version = (const char*)glGetString(GL_VERSION);
+  PFNGLGETSTRINGPROC gl_get_string = reinterpret_cast<PFNGLGETSTRINGPROC>(
+          ((GLInterface::GLGetProc)ctx->proc_loader)("glGetString"));
+  version = (const char*)gl_get_string(GL_VERSION);
 
   for (auto pref : prefixes) {
     size_t length = std::strlen(pref);

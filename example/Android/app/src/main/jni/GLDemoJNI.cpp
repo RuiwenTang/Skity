@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <skity/skity.hpp>
 #include <skity/gpu/gpu_context.hpp>
-
+#include <EGL/egl.h>
 
 //
 // Created by caichao on 2023/3/12.
@@ -15,7 +15,7 @@ public:
     explicit GLExample(int wid, int hei){
         assert(wid > 0 && hei > 0);
         skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
-                              nullptr};
+                              (void*)eglGetProcAddress};
         mCanvas = skity::Canvas::MakeHardwareAccelationCanvas(wid,hei,1, &ctx);
         mCanvas->setDefaultTypeface(
                 skity::Typeface::MakeFromFile("/sdcard/SkityDemo/Roboto Mono Nerd Font Complete.ttf"));
