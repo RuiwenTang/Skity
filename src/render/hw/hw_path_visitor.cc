@@ -179,8 +179,8 @@ void HWPathVisitor::HandleCubicTo(glm::vec2 const& p1, glm::vec2 const& p2,
     auto delta1 = glm::abs(2.f * arc[0] - 3.f * arc[1] + arc[3]);
     auto delta2 = glm::abs(arc[0] - 3.f * arc[2] + 2.f * arc[3]);
 
-    if (std::min(delta1.x, delta1.y) > 0.5f ||
-        std::min(delta2.x, delta2.y) > 0.5f) {
+    if (std::max(delta1.x, delta1.y) > 0.5f ||
+        std::max(delta2.x, delta2.y) > 0.5f) {
       goto SPLIT;
     }
 
