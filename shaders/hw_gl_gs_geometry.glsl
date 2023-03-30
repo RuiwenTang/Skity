@@ -1,7 +1,7 @@
 
 layout(triangles) in;
-// 16 * 3 = 48
-layout(triangle_strip, max_vertices = 48) out;
+// 32 * 3 = 96
+layout(triangle_strip, max_vertices = 96) out;
 
 uniform mat4 mvp;
 uniform mat4 UserTransform;
@@ -22,7 +22,7 @@ out vec3 fPosInfo;
 #define VERTEX_TYPE_QUAD_OUT 4
 #define VERTEX_TYPE_QUAD_STROKE 6
 
-#define MAX_QUAD_STEP 16
+#define MAX_QUAD_STEP 32
 
 vec2 quad_bezier(float u, vec2 p0, vec2 p1, vec2 p2) {
   float b0 = (1.0 - u) * (1.0 - u);
