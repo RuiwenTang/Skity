@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.skitydemo'
+//    namespace 'com.example.skitydemo'
     compileSdk 29
 
     defaultConfig {
