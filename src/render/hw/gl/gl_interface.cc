@@ -7,7 +7,6 @@ GLInterface* g_interface = nullptr;
 #define GET_PROC(F) \
   g_interface->f##F = (decltype(g_interface->f##F))loader("gl" #F)
 
-
 void GLInterface::InitGlobalInterface(void* proc_loader) {
   g_interface = new GLInterface;
 
@@ -19,46 +18,10 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(BindBuffer);
   GET_PROC(BindFramebuffer);
   GET_PROC(BindRenderbuffer);
-  GET_PROC(BindTexture);
-#if defined(__ANDROID__) || defined(ANDROID)
-//  GET_PROC(BindSampler);
-  GET_PROC(BindVertexArray);
-  GET_PROC(Blend);
-  GET_PROC(DeleteVertexArrays);
-  GET_PROC(DisableVertexArrayAttrib);
-  //g_interface->fDisableVertexArrayAttrib = GET_PROC(DisableVertexArrayAttrib);
-#ifdef SKITY_USE_GLES3
-  GET_PROC(BlitFramebuffer);
-  GET_PROC(RenderbufferStorageMultisample);
-  //g_interface->fBlitFramebuffer = glBlitFramebuffer;
-  //g_interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
-#endif
-  //GET_PROC(DrawArraysIndirect);
-  //g_interface->fDrawArraysInstanced = glDrawArraysInstancedEXT;//  GET_PROC(DrawArraysInstanced);
-  //GET_PROC(DrawBuffer);
-  //GET_PROC(DrawBuffers);
-  GET_PROC(GenVertexArrays);
-  //GET_PROC(TexImage2DMultisample);
-  //GET_PROC(BlitFramebuffer);
-  //GET_PROC(ClearBufferfv);
-  //GET_PROC(ClearBufferfi);
-#else
   GET_PROC(BindSampler);
+  GET_PROC(BindTexture);
   GET_PROC(BindVertexArray);
   GET_PROC(Blend);
-  GET_PROC(DeleteVertexArrays);
-  GET_PROC(DisableVertexArrayAttrib);
-  GET_PROC(DrawArraysIndirect);
-  GET_PROC(DrawArraysInstanced);
-  GET_PROC(DrawBuffer);
-  GET_PROC(DrawBuffers);
-  GET_PROC(GenVertexArrays);
-  GET_PROC(TexImage2DMultisample);
-  GET_PROC(BlitFramebuffer);
-  GET_PROC(ClearBufferfv);
-  GET_PROC(ClearBufferfi);
-#endif
-
   GET_PROC(BlendColor);
   GET_PROC(BlendEquation);
   GET_PROC(BufferData);
@@ -79,13 +42,16 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(DeleteRenderbuffers);
   GET_PROC(DeleteShader);
   GET_PROC(DeleteTextures);
-
+  GET_PROC(DeleteVertexArrays);
   GET_PROC(DepthMask);
   GET_PROC(Disable);
-
+  GET_PROC(DisableVertexArrayAttrib);
   GET_PROC(DisableVertexAttribArray);
   GET_PROC(DrawArrays);
-
+  GET_PROC(DrawArraysIndirect);
+  GET_PROC(DrawArraysInstanced);
+  GET_PROC(DrawBuffer);
+  GET_PROC(DrawBuffers);
   GET_PROC(DrawElements);
   GET_PROC(Enable);
   GET_PROC(EnableVertexAttribArray);
@@ -93,7 +59,7 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(FramebufferTexture2D);
   GET_PROC(GenBuffers);
   GET_PROC(GenTextures);
-
+  GET_PROC(GenVertexArrays);
   GET_PROC(GetError);
   GET_PROC(GetProgramInfoLog);
   GET_PROC(GetProgramiv);
@@ -107,7 +73,8 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(StencilMask);
   GET_PROC(StencilOp);
   GET_PROC(TexImage2D);
-
+  GET_PROC(TexImage2DMultisample);
+  GET_PROC(BlitFramebuffer);
   GET_PROC(TexParameteri);
   GET_PROC(TexSubImage2D);
   GET_PROC(Uniform1f);
@@ -126,7 +93,8 @@ void GLInterface::InitGlobalInterface(void* proc_loader) {
   GET_PROC(UseProgram);
   GET_PROC(VertexAttribPointer);
   GET_PROC(Viewport);
-
+  GET_PROC(ClearBufferfv);
+  GET_PROC(ClearBufferfi);
   GET_PROC(GetIntegerv);
 }
 

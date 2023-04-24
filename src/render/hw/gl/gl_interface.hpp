@@ -1,35 +1,7 @@
 #ifndef SKITY_SRC_RENDER_GL_GL_INTERFACE_HPP
 #define SKITY_SRC_RENDER_GL_GL_INTERFACE_HPP
 
-#if defined(__ANDROID__) || defined(ANDROID)
-#define SKITY_USE_GLES3 1
-#ifdef SKITY_USE_GLES3
-#include <GLES3/gl32.h>
-#include <GLES3/gl3ext.h>
-#define PFNGLDISABLEVERTEXARRAYATTRIBEXTPROC PFNGLDISABLEVERTEXATTRIBARRAYPROC
-#else
-#define GL_GLEXT_PROTOTYPES
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#define glGenVertexArrays glGenVertexArraysOES
-#define glBindVertexArray glBindVertexArrayOES
-#define glDeleteVertexArrays glDeleteVertexArraysOES
-#define PFNGLGENVERTEXARRAYSPROC PFNGLGENVERTEXARRAYSOESPROC
-#define PFNGLDELETEVERTEXARRAYSPROC PFNGLDELETEVERTEXARRAYSOESPROC
-#define PFNGLBINDVERTEXARRAYPROC PFNGLBINDVERTEXARRAYOESPROC
-#define PFNGLDISABLEVERTEXARRAYATTRIBEXTPROC PFNGLDISABLEVERTEXATTRIBARRAYPROC
-#define PFNGLDRAWARRAYSINSTANCEDPROC  PFNGLDRAWARRAYSINSTANCEDEXTPROC
-#define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
-#define GL_UNSIGNED_INT_24_8 GL_UNSIGNED_INT_24_8_OES
-#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
-#define GL_R8 GL_R8_EXT
-#define GL_RED GL_RED_EXT
-#define GL_RGBA8 GL_RGBA8_OES
-#endif
-#else
 #include <GL/glcorearb.h>
-#endif
-
 
 namespace skity {
 
@@ -48,9 +20,7 @@ struct GLInterface {
   PFNGLBINDBUFFERPROC fBindBuffer = nullptr;
   PFNGLBINDFRAMEBUFFERPROC fBindFramebuffer = nullptr;
   PFNGLBINDRENDERBUFFERPROC fBindRenderbuffer = nullptr;
-#if !defined(__ANDROID__) && !defined(ANDROID)
   PFNGLBINDSAMPLERPROC fBindSampler = nullptr;
-#endif
   PFNGLBINDTEXTUREPROC fBindTexture = nullptr;
   PFNGLBINDVERTEXARRAYPROC fBindVertexArray = nullptr;
   PFNGLBLENDCOLORPROC fBlendColor = nullptr;
@@ -79,16 +49,11 @@ struct GLInterface {
   PFNGLDISABLEPROC fDisable = nullptr;
   PFNGLDISABLEVERTEXARRAYATTRIBEXTPROC fDisableVertexArrayAttrib = nullptr;
   PFNGLDISABLEVERTEXATTRIBARRAYPROC fDisableVertexAttribArray = nullptr;
-
-#if !defined(__ANDROID__) && !defined(ANDROID)
   PFNGLDRAWARRAYSINDIRECTPROC fDrawArraysIndirect = nullptr;
-#endif
-  PFNGLDRAWARRAYSPROC fDrawArrays = nullptr;
-#if !defined(__ANDROID__) && !defined(ANDROID)
   PFNGLDRAWARRAYSINSTANCEDPROC fDrawArraysInstanced = nullptr;
+  PFNGLDRAWARRAYSPROC fDrawArrays = nullptr;
   PFNGLDRAWBUFFERPROC fDrawBuffer = nullptr;
   PFNGLDRAWBUFFERSPROC fDrawBuffers = nullptr;
-#endif
   PFNGLDRAWELEMENTSPROC fDrawElements = nullptr;
   PFNGLENABLEPROC fEnable = nullptr;
   PFNGLENABLEVERTEXATTRIBARRAYPROC fEnableVertexAttribArray = nullptr;
@@ -110,15 +75,8 @@ struct GLInterface {
   PFNGLSTENCILMASKPROC fStencilMask = nullptr;
   PFNGLSTENCILOPPROC fStencilOp = nullptr;
   PFNGLTEXIMAGE2DPROC fTexImage2D = nullptr;
-#if !defined(__ANDROID__) && !defined(ANDROID)
   PFNGLTEXIMAGE2DMULTISAMPLEPROC fTexImage2DMultisample = nullptr;
   PFNGLBLITFRAMEBUFFERPROC fBlitFramebuffer = nullptr;
-#else
-#ifdef SKITY_USE_GLES3
-        PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC fRenderbufferStorageMultisample = nullptr;
-        PFNGLBLITFRAMEBUFFERPROC fBlitFramebuffer = nullptr;
-#endif
-#endif
   PFNGLTEXPARAMETERIPROC fTexParameteri = nullptr;
   PFNGLTEXSUBIMAGE2DPROC fTexSubImage2D = nullptr;
   PFNGLUNIFORM1FPROC fUniform1f = nullptr;
@@ -137,12 +95,8 @@ struct GLInterface {
   PFNGLUNIFORMMATRIX4FVPROC fUniformMatrix4fv = nullptr;
   PFNGLUSEPROGRAMPROC fUseProgram = nullptr;
   PFNGLVERTEXATTRIBPOINTERPROC fVertexAttribPointer = nullptr;
-#if !defined(__ANDROID__) && !defined(ANDROID)
   PFNGLCLEARBUFFERFVPROC fClearBufferfv = nullptr;
   PFNGLCLEARBUFFERFIPROC fClearBufferfi = nullptr;
-#else
-
-#endif
   PFNGLVIEWPORTPROC fViewport = nullptr;
   PFNGLGETINTEGERVPROC fGetIntegerv = nullptr;
 };
