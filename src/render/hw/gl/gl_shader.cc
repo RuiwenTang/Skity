@@ -68,7 +68,6 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code) {
 
 GLuint create_shader_program(const char* vs_code, const char* fs_code,
                              const char* gs_code) {
-#if (SKITY_USE_GLES3 && ( defined(__ANDROID__) || defined(ANDROID))) || (!defined(__ANDROID__) || !defined(ANDROID))
   GLuint program = GL_CALL(CreateProgram);
   GLint success;
 
@@ -95,9 +94,6 @@ GLuint create_shader_program(const char* vs_code, const char* fs_code,
   GL_CALL(DeleteShader, gs);
 
   return program;
-#else
-  return 0;
-#endif
 }
 
 GLShader::~GLShader() {

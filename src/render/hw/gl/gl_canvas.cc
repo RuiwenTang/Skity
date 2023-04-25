@@ -42,11 +42,7 @@ void GLCanvas::OnInit(GPUContext* ctx) {
 
 bool GLCanvas::SupportGeometryShader() {
 #if defined(__ANDROID__) || defined(ANDROID)
-#ifdef SKITY_USE_GLES3
   return gl_major_ == 3 && gl_minor_ == 2;
-#else
-  return false;
-#endif
 #else
   // FIXME
   // enable GS Shader by default in OpenGL
@@ -81,11 +77,7 @@ std::unique_ptr<HWRenderTarget> GLCanvas::GenerateBackendRenderTarget(
   auto fbo = std::make_unique<GLRenderTarget>(width, height);
 
   // always enable multisample fbo
-#if defined(__ANDROID__) || defined(ANDROID)
-  fbo->SetEnableMultiSample(false);
-#else
   fbo->SetEnableMultiSample(true);
-#endif
 
   fbo->Init();
 
