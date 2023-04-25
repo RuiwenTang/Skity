@@ -30,7 +30,7 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
   glm::mat4 mvp;
   if (ctx->type == GPUBackendType::kOpenGL ||
       ctx->type == GPUBackendType::kWebGL2) {
-      mvp = glm::ortho<float>(0, width, height, 0);
+    mvp = glm::ortho<float>(0, width, height, 0);
   } else if (ctx->type == GPUBackendType::kVulkan) {
     mvp = glm::ortho<float>(0, width, 0, height);
   }
