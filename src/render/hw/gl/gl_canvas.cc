@@ -16,7 +16,7 @@ GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
 
 void GLCanvas::OnInit(GPUContext* ctx) {
   ctx_ = ctx;
-#ifdef SKITY_ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   const char* version;
   std::vector<const char*> prefixes = {
       "OpenGL ES-CM ",
@@ -24,8 +24,7 @@ void GLCanvas::OnInit(GPUContext* ctx) {
       "OpenGL ES ",
   };
 
-  PFNGLGETSTRINGPROC gl_get_string = reinterpret_cast<PFNGLGETSTRINGPROC>(
-      ((GLInterface::GLGetProc)ctx->proc_loader)("glGetString"));
+  PFNGLGETSTRINGPROC gl_get_string = reinterpret_cast<PFNGLGETSTRINGPROC>(((GLInterface::GLGetProc)ctx->proc_loader)("glGetString"));
   version = (const char*)gl_get_string(GL_VERSION);
 
   for (auto pref : prefixes) {
@@ -41,7 +40,7 @@ void GLCanvas::OnInit(GPUContext* ctx) {
 }
 
 bool GLCanvas::SupportGeometryShader() {
-#ifdef SKITY_ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   return gl_major_ == 3 && gl_minor_ == 2;
 #else
   // FIXME

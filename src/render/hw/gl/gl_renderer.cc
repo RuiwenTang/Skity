@@ -128,6 +128,7 @@ void GLRenderer::UploadVertexBuffer(void* data, size_t data_size) {
   }
 
   GL_CALL(BufferSubData, GL_ARRAY_BUFFER, 0, data_size, data);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER, 0);
 }
 
 void GLRenderer::UploadIndexBuffer(void* data, size_t data_size) {
@@ -140,6 +141,7 @@ void GLRenderer::UploadIndexBuffer(void* data, size_t data_size) {
   }
 
   GL_CALL(BufferSubData, GL_ELEMENT_ARRAY_BUFFER, 0, data_size, data);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void GLRenderer::SetGlobalAlpha(float alpha) { shader_->SetGlobalAlpha(alpha); }
@@ -195,11 +197,20 @@ void GLRenderer::InitBufferObject() {
   GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
 
   GL_CALL(BindVertexArray, 0);
+
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER , 0);
+  GL_CALL(BindBuffer, GL_ARRAY_BUFFER , 0);
 }
 
-void GLRenderer::BindBuffers() { GL_CALL(BindVertexArray, vao_); }
+void GLRenderer::BindBuffers() {
+  GL_CALL(BindVertexArray, vao_);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
+}
 
-void GLRenderer::UnBindBuffers() { GL_CALL(BindVertexArray, 0); }
+void GLRenderer::UnBindBuffers() {
+  GL_CALL(BindVertexArray, 0);
+  GL_CALL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
 void GLRenderer::BindTexture(HWTexture* /* unused */, uint32_t slot) {
   GL_CALL(ActiveTexture, slot_to_gl_texture_unit(slot));

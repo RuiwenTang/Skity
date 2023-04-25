@@ -495,10 +495,9 @@ void HWCanvas::onConcat(const Matrix& matrix) { state_.Concat(matrix); }
 
 void HWCanvas::onFlush() {
   render_target_cache_.BeginFrame();
-  GetPipeline()->Bind();
 
   mesh_->UploadMesh(GetPipeline());
-
+  GetPipeline()->Bind();
   // global props set to pipeline
   GetPipeline()->SetViewProjectionMatrix(mvp_);
 
