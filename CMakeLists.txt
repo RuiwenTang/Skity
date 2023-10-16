@@ -27,6 +27,7 @@ else()
   add_library(skity SHARED)
 endif()
 
+
 # public header include
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(skity PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

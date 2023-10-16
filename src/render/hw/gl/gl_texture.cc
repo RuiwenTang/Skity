@@ -58,6 +58,7 @@ void GLTexture::Bind() {
 
 void GLTexture::UnBind() {
   if (msaa_count_) {
+
     GL_CALL(BindTexture, GL_TEXTURE_2D_MULTISAMPLE, 0);
   } else {
     GL_CALL(BindTexture, GL_TEXTURE_2D, 0);

@@ -93,7 +93,7 @@ uint32_t HWCanvas::onGetWidth() const { return width_; }
 uint32_t HWCanvas::onGetHeight() const { return height_; }
 
 void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
-  mvp_ = glm::ortho(0.f, 0.f, (float)height, (float)width);
+  mvp_ = glm::ortho(0.f, (float)width, (float)height, 0.f);
   width_ = width;
   height_ = height;
 }
@@ -495,10 +495,9 @@ void HWCanvas::onConcat(const Matrix& matrix) { state_.Concat(matrix); }
 
 void HWCanvas::onFlush() {
   render_target_cache_.BeginFrame();
-  GetPipeline()->Bind();
 
   mesh_->UploadMesh(GetPipeline());
-
+  GetPipeline()->Bind();
   // global props set to pipeline
   GetPipeline()->SetViewProjectionMatrix(mvp_);
 

@@ -10,7 +10,7 @@
 
 namespace skity {
 
-#if defined(SKITY_ANDROID) || defined(SKITY_WASM)
+#if defined(__ANDROID__) || defined(ANDROID) || defined(SKITY_WASM)
 #define SHADER_HEADER "#version 300 es \n precision mediump float;\n"
 #define SHADER_HEADER_320 "#version 320 es \n precision mediump float;\n"
 #else
@@ -21,7 +21,7 @@ GLuint create_shader(const char* source, GLenum type, bool use_gs = false) {
   GLuint shader = GL_CALL(CreateShader, type);
 
   std::array<const char*, 2> shaders{SHADER_HEADER, source};
-#ifdef SKITY_ANDROID
+#if defined(__ANDROID__) || defined(ANDROID)
   // Fixme to solve android geometry shader compile error
   if (use_gs) {
     shaders[0] = SHADER_HEADER_320;

@@ -12,3 +12,5 @@ compile_commands.json
 out/*
 CMakeSettings.json
 build-*
+example/IOS/
+platform/ios
