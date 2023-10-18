@@ -35,10 +35,15 @@ class HWCanvas : public Canvas {
   HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density);
   ~HWCanvas() override;
 
-  void Init(GPUContext* ctx);
+  void Init(std::shared_ptr<GPUContext> &ctx);
+
+
+    glm::mat4 GetCurrentMVP() override { return mvp_; }
+
+    void SetCurrentMVP(glm::mat4 const& mvp) override { mvp_ = mvp; }
 
  protected:
-  virtual void OnInit(GPUContext* ctx) = 0;
+  virtual void OnInit(std::shared_ptr<GPUContext> &ctx) = 0;
 
   virtual bool SupportGeometryShader() = 0;
   virtual std::unique_ptr<HWRenderer> CreateRenderer() = 0;
@@ -86,9 +91,7 @@ class HWCanvas : public Canvas {
 
   HWMesh* GetMesh();
 
-  glm::mat4 GetCurrentMVP() const { return mvp_; }
 
-  void SetCurrentMVP(glm::mat4 const& mvp) { mvp_ = mvp; }
 
  private:
   std::unique_ptr<HWDraw> GenerateOp();

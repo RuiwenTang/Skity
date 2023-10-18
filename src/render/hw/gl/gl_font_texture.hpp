@@ -18,7 +18,7 @@ class GLFontTexture : public HWFontTexture, public GLTexture {
   HWTexture* GetHWTexture() override;
 
  protected:
-  void OnUploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+  void OnUploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height,size_t row_bytes,
                       uint8_t* data) override;
 
   void OnResize(uint32_t new_width, uint32_t new_height) override;

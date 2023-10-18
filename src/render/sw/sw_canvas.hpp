@@ -21,6 +21,14 @@ class SWCanvas : public Canvas {
   SWCanvas(Bitmap* bitmap);
   ~SWCanvas() override = default;
 
+  glm::mat4 GetCurrentMVP() {
+    return glm::mat4(1.0);
+  }
+
+  void SetCurrentMVP(glm::mat4 const& mvp) {
+
+  }
+
  protected:
   void onDrawLine(float x0, float y0, float x1, float y1,
                   Paint const& paint) override;

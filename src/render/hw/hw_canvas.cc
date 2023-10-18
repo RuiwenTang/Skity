@@ -21,15 +21,19 @@
 #include "src/render/hw/vk/vk_canvas.hpp"
 #endif
 
+#ifdef SKITY_METAL
+#include "src/render/hw/mtl/mtl_canvas.hpp"
+#endif
+
 namespace skity {
 
 std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
                                                              uint32_t height,
                                                              float density,
-                                                             GPUContext* ctx) {
+                                                             std::shared_ptr<GPUContext> &ctx) {
   glm::mat4 mvp;
   if (ctx->type == GPUBackendType::kOpenGL ||
-      ctx->type == GPUBackendType::kWebGL2) {
+      ctx->type == GPUBackendType::kWebGL2 || ctx->type == GPUBackendType::kMetal) {
     mvp = glm::ortho<float>(0, width, height, 0);
   } else if (ctx->type == GPUBackendType::kVulkan) {
     mvp = glm::ortho<float>(0, width, 0, height);
@@ -45,7 +49,14 @@ std::unique_ptr<Canvas> Canvas::MakeHardwareAccelationCanvas(uint32_t width,
   } else if (ctx->type == GPUBackendType::kVulkan) {
     canvas = std::make_unique<VKCanvas>(mvp, width, height, density);
 #endif
-  } else {
+  }
+    else if (ctx->type == GPUBackendType::kMetal)
+    {
+#ifdef SKITY_METAL
+        canvas = std::make_unique<MTLCanvas>(mvp, width, height, density);
+#endif
+    }
+  else {
     // nullptr may cause crash
     return canvas;
   }
@@ -63,7 +74,9 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
       width_(width),
       height_(height),
       density_(density <= 1.f ? 2.f : density),
-      mesh_(std::make_unique<HWMesh>()) {}
+      mesh_(std::make_unique<HWMesh>()) {
+          
+      }
 
 HWCanvas::~HWCanvas() {
   for (auto const& it : image_texture_store_) {
@@ -79,7 +92,7 @@ HWCanvas::~HWCanvas() {
   GetPipeline()->Destroy();
 }
 
-void HWCanvas::Init(GPUContext* ctx) {
+void HWCanvas::Init(std::shared_ptr<GPUContext> &ctx) {
   this->OnInit(ctx);
 
   renderer_ = CreateRenderer();
@@ -93,7 +106,7 @@ uint32_t HWCanvas::onGetWidth() const { return width_; }
 uint32_t HWCanvas::onGetHeight() const { return height_; }
 
 void HWCanvas::onUpdateViewport(uint32_t width, uint32_t height) {
-  mvp_ = glm::ortho(0.f, (float)width, (float)height, 0.f);
+    mvp_ = glm::ortho<float>(0, width, 0, height);
   width_ = width;
   height_ = height;
 }
@@ -528,7 +541,7 @@ HWTexture* HWCanvas::QueryTexture(Pixmap* pixmap) {
   texture->Bind();
 
   texture->Resize(pixmap->Width(), pixmap->Height());
-  texture->UploadData(0, 0, pixmap->Width(), pixmap->Height(),
+    texture->UploadData(0, 0, pixmap->Width(), pixmap->Height(),pixmap->RowBytes(),
                       (void*)pixmap->Addr());
   // can we move this function call ?
   texture->UnBind();

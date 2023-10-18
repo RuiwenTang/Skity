@@ -14,7 +14,7 @@ namespace skity {
 GLCanvas::GLCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
     : HWCanvas(mvp, width, height, density) {}
 
-void GLCanvas::OnInit(GPUContext* ctx) {
+void GLCanvas::OnInit(std::shared_ptr<GPUContext> &ctx) {
   ctx_ = ctx;
 #if defined(__ANDROID__) || defined(ANDROID)
   const char* version;
@@ -50,7 +50,7 @@ bool GLCanvas::SupportGeometryShader() {
 }
 
 std::unique_ptr<HWRenderer> GLCanvas::CreateRenderer() {
-  auto renderer = std::make_unique<GLRenderer>(ctx_, SupportGeometryShader());
+  auto renderer = std::make_unique<GLRenderer>(ctx_.get(), SupportGeometryShader());
   renderer->Init();
 
   gl_renderer_ = renderer.get();

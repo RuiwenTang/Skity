@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_HW_HW_SHADER_HPP
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <skity/graphic/color.hpp>
 #include <vector>
 

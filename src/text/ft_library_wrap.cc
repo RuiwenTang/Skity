@@ -1,5 +1,6 @@
 #include "src/text/ft_library_wrap.hpp"
 
+#ifdef ENABLE_TEXT_RENDER
 #include <codecvt>
 #include <locale>
 #include <skity/io/data.hpp>
@@ -245,3 +246,4 @@ bool FTTypeFace::containGlyph(GlyphID glyph_id) {
 }
 
 }  // namespace skity
+#endif

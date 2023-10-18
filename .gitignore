@@ -12,5 +12,6 @@ compile_commands.json
 out/*
 CMakeSettings.json
 build-*
-example/IOS/
-platform/ios
+cmake_build_android
+platform/ios/Skity.xcodeproj/project.xcworkspace/xcuserdata
+platform/ios/Skity.xcodeproj/xcuserdata/

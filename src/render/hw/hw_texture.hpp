@@ -2,6 +2,7 @@
 #define SKITY_SRC_RENDER_HW_HW_TEXTURE_HPP
 
 #include <cstdint>
+#include <memory>
 
 namespace skity {
 
@@ -39,7 +40,7 @@ class HWTexture {
   virtual void Resize(uint32_t width, uint32_t height) = 0;
 
   virtual void UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
-                          uint32_t height, void* data) = 0;
+                          uint32_t height, size_t row_bytes,void* data) = 0;
 };
 
 }  // namespace skity

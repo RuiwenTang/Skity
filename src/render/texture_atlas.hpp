@@ -37,7 +37,7 @@ class TextureAtlas {
    * @param height  height of the region
    * @param data    data to be uploaded into the specified region
    */
-  void UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+  void UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height,size_t row_bytes,
                     uint8_t* data);
 
   /**
@@ -68,7 +68,7 @@ class TextureAtlas {
 
  protected:
   virtual void OnUploadRegion(uint32_t x, uint32_t y, uint32_t width,
-                              uint32_t height, uint8_t* data) {}
+                              uint32_t height, size_t row_bytes,uint8_t* data) {}
 
   virtual void OnResize(uint32_t new_width, uint32_t new_height) {}
 

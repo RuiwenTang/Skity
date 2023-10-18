@@ -25,6 +25,10 @@ class SK_API Canvas {
   Canvas();
   virtual ~Canvas();
 
+  virtual glm::mat4 GetCurrentMVP() = 0;
+
+  virtual void SetCurrentMVP(glm::mat4 const& mvp) = 0;
+
   /**
    * Save Matrix and clip.
    *
@@ -241,7 +245,7 @@ class SK_API Canvas {
   static std::unique_ptr<Canvas> MakeHardwareAccelationCanvas(uint32_t width,
                                                               uint32_t height,
                                                               float density,
-                                                              GPUContext* ctx);
+                                                              std::shared_ptr<GPUContext> &ctx);
 
 #ifdef SKITY_WASM
   static std::unique_ptr<Canvas> MakeWebGLCanvas(std::string const& name,

@@ -60,11 +60,10 @@ void GLApp::Init() {
   float density = (float)(pp_width * pp_width + pp_height * pp_height) /
                   (float)(width_ * width_ + height_ * height_);
 
-  skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
-                        (void*)glfwGetProcAddress};
-
+  auto ctx = std::make_shared<skity::GPUContext>(skity::GPUBackendType::kOpenGL,
+                                                 (void*)glfwGetProcAddress);
   canvas_ = skity::Canvas::MakeHardwareAccelationCanvas(width_, height_,
-                                                        density, &ctx);
+                                                        density, ctx);
 
   canvas_->setDefaultTypeface(
       skity::Typeface::MakeFromFile(EXAMPLE_DEFAULT_FONT));

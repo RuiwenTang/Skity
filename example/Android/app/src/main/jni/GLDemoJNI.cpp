@@ -14,9 +14,9 @@ class GLExample{
 public:
     explicit GLExample(int wid, int hei){
         assert(wid > 0 && hei > 0);
-        skity::GPUContext ctx{skity::GPUBackendType::kOpenGL,
-                              (void*)eglGetProcAddress};
-        mCanvas = skity::Canvas::MakeHardwareAccelationCanvas(wid,hei,1, &ctx);
+        auto ctx = std::make_shared<skity::GPUContext>(skity::GPUBackendType::kOpenGL,
+                                                       (void*)eglGetProcAddress);
+        mCanvas = skity::Canvas::MakeHardwareAccelationCanvas(wid,hei,1, ctx);
         mCanvas->setDefaultTypeface(
                 skity::Typeface::MakeFromFile("/sdcard/SkityDemo/Roboto Mono Nerd Font Complete.ttf"));
     }

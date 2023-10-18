@@ -19,9 +19,9 @@ void GLFontTexture::Destroy() { GLTexture::Destroy(); }
 HWTexture* GLFontTexture::GetHWTexture() { return this; }
 
 void GLFontTexture::OnUploadRegion(uint32_t x, uint32_t y, uint32_t width,
-                                   uint32_t height, uint8_t* data) {
+                                   uint32_t height,size_t row_bytes, uint8_t* data) {
   this->Bind();
-  this->UploadData(x, y, width, height, data);
+  this->UploadData(x, y, width, height,row_bytes, data);
 }
 
 void GLFontTexture::OnResize(uint32_t new_width, uint32_t new_height) {

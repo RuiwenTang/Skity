@@ -1,6 +1,7 @@
 #ifndef SKITY_SRC_RENDER_TEXT_FT_LIBRARY_WRAP_HPP
 #define SKITY_SRC_RENDER_TEXT_FT_LIBRARY_WRAP_HPP
 
+#ifdef ENABLE_TEXT_RENDER
 #include <ft2build.h>
 
 #include <memory>
@@ -71,5 +72,5 @@ class FTTypeFace final {
 };
 
 }  // namespace skity
-
+#endif
 #endif  // SKITY_SRC_RENDER_TEXT_FT_LIBRARY_WRAP_HPP

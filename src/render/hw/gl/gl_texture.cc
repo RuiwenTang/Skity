@@ -82,7 +82,7 @@ void GLTexture::Resize(uint32_t width, uint32_t height) {
 }
 
 void GLTexture::UploadData(uint32_t offset_x, uint32_t offset_y, uint32_t width,
-                           uint32_t height, void *data) {
+                           uint32_t height, size_t row_bytes,void *data) {
   if (msaa_count_ > 0) {
     return;
   }

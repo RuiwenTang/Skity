@@ -85,12 +85,12 @@ glm::ivec4 TextureAtlas::AllocateRegion(uint32_t width, uint32_t height) {
 }
 
 void TextureAtlas::UploadRegion(uint32_t x, uint32_t y, uint32_t width,
-                                uint32_t height, uint8_t *data) {
+                                uint32_t height, size_t row_bytes,uint8_t *data) {
   std::memcpy(data_ + (y * this->width_ + x) * depth_, data,
               width * height * depth_);
 
   this->modified_ = true;
-  this->OnUploadRegion(x, y, width, height, data);
+  this->OnUploadRegion(x, y, width, height, row_bytes,data);
 }
 
 int32_t TextureAtlas::QueryFitY(int32_t index, uint32_t width,
@@ -154,7 +154,7 @@ void TextureAtlas::Resize(uint32_t new_width, uint32_t new_height) {
 
   this->OnResize(new_width, new_height);
 
-  UploadRegion(1, 1, old_width - 2, old_height - 2,
+  UploadRegion(1, 1, old_width - 2, old_height - 2,old_row_size,
                old_data + old_row_size + pixel_size);
 
   std::free(old_data);
