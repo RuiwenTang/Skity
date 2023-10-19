@@ -26,7 +26,6 @@ class SWCanvas : public Canvas {
   }
 
   void SetCurrentMVP(glm::mat4 const& mvp) {
-
   }
 
  protected:

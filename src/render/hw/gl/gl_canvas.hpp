@@ -14,7 +14,6 @@ class GLCanvas : public HWCanvas {
   ~GLCanvas() override = default;
 
  protected:
-    
   void OnInit(std::shared_ptr<GPUContext> &ctx) override;
   bool SupportGeometryShader() override;
   std::unique_ptr<HWRenderer> CreateRenderer() override;

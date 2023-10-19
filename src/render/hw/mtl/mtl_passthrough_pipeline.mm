@@ -51,7 +51,6 @@ MTLPassthroughRenderPipeline::MTLPassthroughRenderPipeline(std::shared_ptr<GPUCo
         if (needStencil) {
             des.stencilAttachmentPixelFormat = MTLPixelFormatStencil8;
         }
-        
         des.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
         des.colorAttachments[0].blendingEnabled = YES;
         des.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;

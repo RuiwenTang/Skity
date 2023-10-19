@@ -50,7 +50,6 @@ private:
     void Clear();
     
 private:
-
     MTLTexture color_texture_;
     MTLTexture horizontal_texture_;
     MTLTexture vertical_texture_;

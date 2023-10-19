@@ -75,7 +75,6 @@ HWCanvas::HWCanvas(Matrix mvp, uint32_t width, uint32_t height, float density)
       height_(height),
       density_(density <= 1.f ? 2.f : density),
       mesh_(std::make_unique<HWMesh>()) {
-          
       }
 
 HWCanvas::~HWCanvas() {

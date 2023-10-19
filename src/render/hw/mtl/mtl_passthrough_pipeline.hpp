@@ -10,7 +10,6 @@ namespace skity {
 
 class GPUContext;
 class MTLPassthroughRenderPipeline{
-  
 public:
     virtual ~MTLPassthroughRenderPipeline();
     MTLPassthroughRenderPipeline(std::shared_ptr<GPUContext> &ctx);
@@ -25,7 +24,6 @@ public:
                            uint32_t compare_mask);
         
 public:
-    
     id<MTLRenderPipelineState> renderPipelineWithStencil_;
     std::shared_ptr<GPUContext> ctx_;
     
@@ -51,7 +49,6 @@ public:
     std::vector<float> gradientPos_;
     
 private:
-    
     id<MTLDepthStencilState> CreateStencilState();
     id<MTLBuffer> placeHolderBuffer_;
     id<MTLDepthStencilState> depthstencilState_;
