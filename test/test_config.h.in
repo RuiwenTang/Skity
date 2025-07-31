@@ -1,5 +1,0 @@
-#pragma once
-
-#cmakedefine TEST_BUILD_IN_FONT "@TEST_BUILD_IN_FONT@"
-#cmakedefine TEST_BUILD_IN_IMAGE "@TEST_BUILD_IN_IMAGE@"
-#cmakedefine TEST_BUILD_IN_EMOJI_FONT "@TEST_BUILD_IN_EMOJI_FONT@"
